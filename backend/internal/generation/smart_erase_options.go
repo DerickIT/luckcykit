@@ -7,7 +7,7 @@ import (
 	"slices"
 	"strings"
 
-	"infinite-canvas/backend/internal/beeftv"
+	"luckytv/backend/internal/luckytv"
 )
 
 const (
@@ -423,10 +423,10 @@ func ValidateSubtitleEraseInput(input Input) error {
 	return err
 }
 
-func toBeefTVSubtitleRegion(region *SubtitleEraseRegion) *beeftv.SubtitleEraseRegion {
+func toLuckyTVSubtitleRegion(region *SubtitleEraseRegion) *luckytv.SubtitleEraseRegion {
 	clamped := clampNormalizedSmartEraseRegion(region)
 	if clamped == nil {
 		return nil
 	}
-	return &beeftv.SubtitleEraseRegion{X: clamped.X, Y: clamped.Y, Width: clamped.Width, Height: clamped.Height}
+	return &luckytv.SubtitleEraseRegion{X: clamped.X, Y: clamped.Y, Width: clamped.Width, Height: clamped.Height}
 }

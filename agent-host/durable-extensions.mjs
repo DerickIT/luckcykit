@@ -18,7 +18,7 @@ const CTX = BACKGROUND_CONTEXT;
 const fail = (reason) => Object.assign(new Error(reason), { reason });
 const requestSignature = (messages) => crypto.createHash('sha256').update(JSON.stringify(messages)).digest('hex');
 
-export const supplementMarker = (id) => `[BEEFTV_INPUT:${id}]`;
+export const supplementMarker = (id) => `[LUCKYTV_INPUT:${id}]`;
 
 export function supplementContent(id, content) {
   return [{ type: 'text', text: supplementMarker(id) }, ...(typeof content === 'string' ? [{ type: 'text', text: content }] : content)];
@@ -311,7 +311,7 @@ export async function installDurableExtensions({
         // Bridge tools return {content}; Durable's ToolExecutionResult names it output.
         const { content, ...result } = await runWithBudget(entry, () => tool.execute(String(api.taskId), resolvedArgs, context.abortSignal,
           { executeTool: (name, params, options) => api.executeTool(name, params, context, options),
-            reportProgress: (progress) => api.details({ beeftvProgress: progress }, context) }));
+            reportProgress: (progress) => api.details({ luckytvProgress: progress }, context) }));
         entry.generation.toolCalledSinceYield = true;
         if (!tool.readOnly && typeof readCanvas === 'function') {
           await refreshStudioDigest(entry, entry.turn.turnId, { selectedNodeIds: entry.input?.selectedNodeIds || [], computeDiff: false, signal: context.abortSignal });
@@ -418,7 +418,7 @@ export async function installDurableExtensions({
   }
 
   const operationExtension = defineExtension({
-    name: 'beeftv.operations.v1',
+    name: 'luckytv.operations.v1',
     tools,
     hooks: [hook(GenerationTask, {
       afterResponse: async (message, ...rest) => {
@@ -623,7 +623,7 @@ export async function installDurableExtensions({
 
   if (skills) {
     registry.install(defineExtension({
-      name: 'beeftv.skills.v1',
+      name: 'luckytv.skills.v1',
       sections: [
         createSkillCatalogSection({ readCatalog: (signal) => skills.readCatalog(entry, signal, entry.turn.turnId), cache: entry.skillCatalog }),
       ],

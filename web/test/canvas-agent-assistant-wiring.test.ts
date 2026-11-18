@@ -39,7 +39,7 @@ describe("助手前端接线", () => {
         expect(source).toContain('"/assistant/sessions/activate"');
         expect(source).toContain("/assistant/history?");
         expect(source).toContain("/undo");
-        expect(source).toContain('"X-Beeftv-Ui-Session": token');
+        expect(source).toContain('"X-Luckytv-Ui-Session": token');
     });
 
     test("界面文案使用用户语，不出现实现者术语", () => {
@@ -48,9 +48,9 @@ describe("助手前端接线", () => {
         const userFacing = files.flatMap(source_string_literals).filter((text) => /[一-鿿]/.test(text));
         expect(userFacing.length).toBeGreaterThan(10);
         for (const text of userFacing) {
-            // BeefTV 是用户自己的账户名称，属于产品名，不是实现细节；
+            // LuckyTV 是用户自己的账户名称，属于产品名，不是实现细节；
             // 先摘掉它再检查术语，避免把品牌名误判成实现术语。
-            const scrubbed = text.replaceAll("BeefTV", "");
+            const scrubbed = text.replaceAll("LuckyTV", "");
             for (const term of ["agent-host", "宿主", "Node", "幂等", "MCP", "revision", "API", "token", "session"]) {
                 expect(scrubbed).not.toContain(term);
             }

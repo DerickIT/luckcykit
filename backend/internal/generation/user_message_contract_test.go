@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/generation"
+	"luckytv/backend/internal/generation"
 )
 
 // 前端 web/src/lib/generation-error.ts 的 backendTaskFailure 直接取 task.errorCode 作类别，

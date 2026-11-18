@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func TestEnrichAPICallLogRecordsStablePaymentRequiredCode(t *testing.T) {

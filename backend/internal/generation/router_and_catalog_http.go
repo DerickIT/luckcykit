@@ -9,15 +9,15 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/channelurl"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/outbound"
-	"infinite-canvas/backend/internal/platform"
-	"infinite-canvas/backend/internal/protocol"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/channelurl"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/outbound"
+	"luckytv/backend/internal/platform"
+	"luckytv/backend/internal/protocol"
+	"luckytv/backend/internal/repository"
 )
 
 type ChannelModelsRequest struct {
@@ -147,12 +147,12 @@ func imageRejectionHasJob(body map[string]any, depth int) bool {
 }
 
 func managedFailureInfo(err error) (statusCode int, explicitRejection, terminalFailure bool) {
-	var managedHTTP *beeftv.MediaHTTPError
+	var managedHTTP *luckytv.MediaHTTPError
 	if errors.As(err, &managedHTTP) {
 		statusCode = managedHTTP.StatusCode
-		explicitRejection = beeftv.IsDefiniteMediaRejection(err)
+		explicitRejection = luckytv.IsDefiniteMediaRejection(err)
 	}
-	var managedTask *beeftv.MediaTaskError
+	var managedTask *luckytv.MediaTaskError
 	if errors.As(err, &managedTask) && !managedTask.Pending() {
 		if managedTask.Code == "media_submission_rejected" && strings.TrimSpace(managedTask.TaskID) == "" {
 			explicitRejection = true
@@ -232,7 +232,7 @@ func CreateDirectTaskAttempt(repo *repository.Repository, task *model.Task) (*mo
 }
 
 func managedTaskConnection(task model.Task) bool {
-	return beeftv.IsManagedTaskInput(task.InputJSON)
+	return luckytv.IsManagedTaskInput(task.InputJSON)
 }
 
 func BeginTaskRouteAttempt(
@@ -254,7 +254,7 @@ func BeginTaskRouteAttempt(
 	image := modelcatalog.ImageSubmissionView{}
 	if len(attempts) > 0 {
 		existing := &attempts[len(attempts)-1]
-		if managedTaskConnection(*task) || existing.ChannelID == beeftv.ChannelID {
+		if managedTaskConnection(*task) || existing.ChannelID == luckytv.ChannelID {
 			managedReceipt := false
 			if task.Type != "canvas_image" && existing.DispatchState != "not_sent" {
 				if row, err := repo.ImageSubmission(existing.ID, task.ID, task.UserID); err == nil && hasManagedReceipt != nil {
@@ -340,7 +340,7 @@ func NextRouteAttemptAfterFailure(
 	taskErr error,
 ) (*model.RouteAttempt, error) {
 	if task != nil && resolveImageRecoveryConfig != nil {
-		if config, ok := resolveImageRecoveryConfig(*task); ok && config.CredentialRef == beeftv.CredentialRef {
+		if config, ok := resolveImageRecoveryConfig(*task); ok && config.CredentialRef == luckytv.CredentialRef {
 			return nil, nil
 		}
 	}
@@ -651,12 +651,12 @@ func ValidateTaskCapability(
 	if taskInput.Mode != "image" && taskInput.Mode != "video" && taskInput.Mode != "audio" {
 		return nil
 	}
-	if taskInput.Config.CredentialRef == beeftv.CredentialRef {
+	if taskInput.Config.CredentialRef == luckytv.CredentialRef {
 		if config, ok := input["config"].(map[string]any); ok {
-			config["mediaProtocolVersion"] = beeftv.MediaProtocolVersion
+			config["mediaProtocolVersion"] = luckytv.MediaProtocolVersion
 		}
 	}
-	if taskInput.Mode == "video" && taskInput.Config.CredentialRef == beeftv.CredentialRef {
+	if taskInput.Mode == "video" && taskInput.Config.CredentialRef == luckytv.CredentialRef {
 		if resolveVideoCapability != nil {
 			if err := resolveVideoCapability(context.Background(), &taskInput); err != nil {
 				return err

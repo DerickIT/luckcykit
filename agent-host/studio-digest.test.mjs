@@ -117,16 +117,16 @@ describe('describeChangesSince', () => {
 });
 
 describe('normalizeSystemHeaderMessages & withCurrentStudio', () => {
-  test('头部只保留 instructions 与 beeftv_skill_catalog，保留后续工具增量，且不丢弃以标签开头的真实用户消息', () => {
+  test('头部只保留 instructions 与 luckytv_skill_catalog，保留后续工具增量，且不丢弃以标签开头的真实用户消息', () => {
     const toolDef = { name: 'extra_tool', description: 'extra', parameters: { type: 'object', properties: {} } };
     const messages = [
       {
         role: 'system',
         content: 'legacy prefix',
         sections: {
-          beeftv_skill_catalog: 'CAT',
+          luckytv_skill_catalog: 'CAT',
           instructions: 'INSTR',
-          beeftv_studio: 'OLD_STUDIO',
+          luckytv_studio: 'OLD_STUDIO',
           unknown_sec: 'NOPE',
         },
       },
@@ -134,11 +134,11 @@ describe('normalizeSystemHeaderMessages & withCurrentStudio', () => {
         role: 'system',
         content: 'mid convo text',
         toolsAdded: [toolDef],
-        sections: { beeftv_plan: 'OLD_PLAN' },
+        sections: { luckytv_plan: 'OLD_PLAN' },
       },
       {
         role: 'user',
-        content: [{ type: 'text', text: '<beeftv_plan>\n用户自己贴的计划文本\n</beeftv_plan>' }],
+        content: [{ type: 'text', text: '<luckytv_plan>\n用户自己贴的计划文本\n</luckytv_plan>' }],
       },
     ];
 
@@ -146,12 +146,12 @@ describe('normalizeSystemHeaderMessages & withCurrentStudio', () => {
       planText: '当前制作计划：所有步骤已完成。',
     });
     expect(once[0].content).toBe('');
-    expect(Object.keys(once[0].sections)).toEqual(['instructions', 'beeftv_skill_catalog']);
+    expect(Object.keys(once[0].sections)).toEqual(['instructions', 'luckytv_skill_catalog']);
     expect(once[1].role).toBe('system');
     expect(once[1].content).toBe('');
     expect(once[1].sections).toBeUndefined();
     expect(once[1].toolsAdded).toEqual([toolDef]);
-    // 真实用户消息即使以 <beeftv_plan> 开头也必须完整保留
+    // 真实用户消息即使以 <luckytv_plan> 开头也必须完整保留
     expect(once[2].role).toBe('user');
     expect(once[2].content[0].text).toContain('用户自己贴的计划文本');
     expect(isTransientStudioTailMessage(once[3])).toBe(true);
@@ -203,10 +203,10 @@ describe('normalizeSystemHeaderMessages & withCurrentStudio', () => {
     expect(projectedInspect[2].content[1]).toEqual(imgPart('BASE64_1'));
     expect(projectedInspect[3].content[1]).toEqual(imgPart('BASE64_2'));
 
-    // 当同轮仅有 [BEEFTV_INPUT:...] 补充消息紧跟在 toolResult 后时，不裁剪当轮刚读出的图片
+    // 当同轮仅有 [LUCKYTV_INPUT:...] 补充消息紧跟在 toolResult 后时，不裁剪当轮刚读出的图片
     const withSupplementOnly = [
       ...freshBatch,
-      { role: 'user', content: [{ type: 'text', text: '[BEEFTV_INPUT:s1]\n请重点看第二张图' }] },
+      { role: 'user', content: [{ type: 'text', text: '[LUCKYTV_INPUT:s1]\n请重点看第二张图' }] },
     ];
     expect(pruneHistoricalToolImages(withSupplementOnly)[2].content[1]).toEqual(imgPart('BASE64_1'));
 

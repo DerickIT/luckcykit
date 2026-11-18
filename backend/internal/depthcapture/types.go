@@ -5,9 +5,9 @@ import (
 	"io"
 	"os/exec"
 
-	"infinite-canvas/backend/internal/depthruntime"
-	"infinite-canvas/backend/internal/mediatools"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/depthruntime"
+	"luckytv/backend/internal/mediatools"
+	"luckytv/backend/internal/model"
 )
 
 const (
@@ -19,14 +19,14 @@ const (
 	MaxDurationMs   = int64(15_100)
 	OutputName      = "depth-action-reference.mp4"
 
-	pythonEnv   = "BEEFTV_DEPTH_PYTHON"
-	toolDirEnv  = "BEEFTV_DEPTH_TOOL_DIR"
-	runtimeEnv  = "BEEFTV_DEPTH_RUNTIME"
-	manifestEnv = "BEEFTV_DEPTH_MANIFEST_URL"
+	pythonEnv   = "LUCKYTV_DEPTH_PYTHON"
+	toolDirEnv  = "LUCKYTV_DEPTH_TOOL_DIR"
+	runtimeEnv  = "LUCKYTV_DEPTH_RUNTIME"
+	manifestEnv = "LUCKYTV_DEPTH_MANIFEST_URL"
 
-	componentCOSBase          = "https://beeftv-components-1481187348.cos.ap-guangzhou.myqcloud.com/depth-runtime-v2/"
-	componentR2Base           = "https://updates.beefapi.com/beeftv/components/depth-runtime-v2/"
-	componentGHBase           = "https://github.com/glanderness/BeefTV/releases/download/depth-runtime-mirrors-v1/"
+	componentCOSBase          = "https://luckytv-components-1481187348.cos.ap-guangzhou.myqcloud.com/depth-runtime-v2/"
+	componentR2Base           = "https://updates.luckyapi.com/luckytv/components/depth-runtime-v2/"
+	componentGHBase           = "https://github.com/glanderness/LuckyTV/releases/download/depth-runtime-mirrors-v1/"
 	defaultManifestURL        = componentCOSBase + "depth-runtime-manifest.json"
 	defaultWindowsManifestURL = componentCOSBase + "depth-runtime-manifest.v2.json"
 )

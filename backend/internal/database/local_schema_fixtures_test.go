@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"gorm.io/gorm"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 type historicalLayout struct {

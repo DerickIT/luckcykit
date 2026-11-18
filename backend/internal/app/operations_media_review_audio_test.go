@@ -16,9 +16,9 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/operations"
-	"infinite-canvas/backend/internal/workspace"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/operations"
+	"luckytv/backend/internal/workspace"
 )
 
 // Exercise the same operation boundary as the native assistant, with real

@@ -21,9 +21,9 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/skillhub"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/skillhub"
 
 	"gorm.io/gorm"
 )

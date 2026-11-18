@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func TestMiniMaxSpeechCatalogProvidesRealVoicesAndInstructionLimits(t *testing.T) {
-	for _, name := range []string{"minimax-speech-2.8-turbo", "beeftv::minimax-speech-2.8-hd"} {
+	for _, name := range []string{"minimax-speech-2.8-turbo", "luckytv::minimax-speech-2.8-hd"} {
 		t.Run(name, func(t *testing.T) {
 			public, err := SanitizeChannelModel(&model.ChannelModel{ModelKey: name, Capability: "audio", Protocol: model.ChannelInterfaceOpenAIAudio, Enabled: true})
 			if err != nil {

@@ -6,25 +6,25 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
 )
 
-func TestTaskInputUsesCustomChannelManagedBeefTV(t *testing.T) {
+func TestTaskInputUsesCustomChannelManagedLuckyTV(t *testing.T) {
 	withCreds := map[string]any{"config": map[string]any{
 		"credentialRef": managedCredentialRef,
-		"baseUrl":       "https://beeftv.app/v1",
+		"baseUrl":       "https://luckytv.app/v1",
 		"apiKey":        "managed-key",
 	}}
 	if !TaskInputUsesCustomChannel(withCreds) {
-		t.Fatal("managed BeefTV with live credentials must be classified as a custom channel")
+		t.Fatal("managed LuckyTV with live credentials must be classified as a custom channel")
 	}
 	channelIDOnly := map[string]any{"config": map[string]any{"channelId": managedChannelID, "model": "x"}}
 	if TaskInputUsesCustomChannel(channelIDOnly) {
-		t.Fatal("beeftv channel id without credentials is not a custom channel")
+		t.Fatal("luckytv channel id without credentials is not a custom channel")
 	}
 	if !TaskInputUsesSystemChannel(channelIDOnly) {
-		t.Fatal("beeftv channel id without credentials still names a system channel")
+		t.Fatal("luckytv channel id without credentials still names a system channel")
 	}
 }
 

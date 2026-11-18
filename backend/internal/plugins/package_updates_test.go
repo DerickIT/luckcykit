@@ -44,7 +44,7 @@ func npmFixture(t *testing.T, latest map[string]string) {
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"name": name, "version": version, "description": name + " 的说明",
 			"author": map[string]string{"name": "社区作者"}, "repository": map[string]string{"url": "git+https://github.com/example/" + name + ".git"},
-			"beeftv": map[string]string{"name": "显示名 " + name},
+			"luckytv": map[string]string{"name": "显示名 " + name},
 		})
 	}))
 	prevLoopback, prevRegistries := allowLoopbackMarketURLsForTest, npmRegistriesForTest
@@ -74,7 +74,7 @@ func installNamedForTest(t *testing.T, svc *Service, dirs map[string]string, nam
 	t.Helper()
 	dir := t.TempDir()
 	writePluginFolder(t, dir, map[string]string{
-		"package.json":    `{"name":"` + name + `","version":"` + version + `","beeftv":{"client":"./client/index.js"}}`,
+		"package.json":    `{"name":"` + name + `","version":"` + version + `","luckytv":{"client":"./client/index.js"}}`,
 		"client/index.js": "export function activate() {}\n",
 	})
 	dirs[name] = dir
@@ -84,7 +84,7 @@ func installNamedForTest(t *testing.T, svc *Service, dirs map[string]string, nam
 }
 
 func TestCheckUpdatesListsOnlyPluginsWithANewerVersion(t *testing.T) {
-	npmFixture(t, map[string]string{"beeftv-plugin-behind": "0.2.0", "beeftv-plugin-current": "1.0.0"})
+	npmFixture(t, map[string]string{"luckytv-plugin-behind": "0.2.0", "luckytv-plugin-current": "1.0.0"})
 	rt, err := NewRuntime(t.TempDir())
 	if err != nil {
 		t.Fatal(err)
@@ -97,46 +97,46 @@ func TestCheckUpdatesListsOnlyPluginsWithANewerVersion(t *testing.T) {
 		}
 		return copyPackageFetcher(ctx, spec, registry, prefixDir)
 	})
-	installNamedForTest(t, svc, dirs, "beeftv-plugin-behind", "0.1.0")
-	installNamedForTest(t, svc, dirs, "beeftv-plugin-current", "1.0.0")
-	installNamedForTest(t, svc, dirs, "beeftv-plugin-pinned", "1.0.0")
-	installNamedForTest(t, svc, dirs, "beeftv-plugin-unpublished", "0.1.0")
+	installNamedForTest(t, svc, dirs, "luckytv-plugin-behind", "0.1.0")
+	installNamedForTest(t, svc, dirs, "luckytv-plugin-current", "1.0.0")
+	installNamedForTest(t, svc, dirs, "luckytv-plugin-pinned", "1.0.0")
+	installNamedForTest(t, svc, dirs, "luckytv-plugin-unpublished", "0.1.0")
 	folder := t.TempDir()
 	writePluginFolder(t, folder, map[string]string{
-		"package.json":    `{"name":"beeftv-plugin-folder","version":"0.0.1","beeftv":{"client":"./client/index.js"}}`,
+		"package.json":    `{"name":"luckytv-plugin-folder","version":"0.0.1","luckytv":{"client":"./client/index.js"}}`,
 		"client/index.js": "export function activate() {}\n",
 	})
 	if _, err := svc.InstallPackage(folder, ""); err != nil {
 		t.Fatal(err)
 	}
-	setCuratedRegistryForTest(`{"plugins":[{"id":"beeftv-plugin-pinned","packageName":"beeftv-plugin-pinned","version":"1.1.0",
+	setCuratedRegistryForTest(`{"plugins":[{"id":"luckytv-plugin-pinned","packageName":"luckytv-plugin-pinned","version":"1.1.0",
 		"tarball":"https://github.com/example/releases/pinned-1.1.0.tgz","sha256":"` + strings.Repeat("a", 64) + `"}]}`)
 
 	got := svc.CheckUpdates(context.Background(), "")
 	want := []UpdateNotice{
-		{ID: "beeftv-plugin-behind", Version: "0.1.0", Latest: "0.2.0"},
-		{ID: "beeftv-plugin-pinned", Version: "1.0.0", Latest: "1.1.0", Official: true},
+		{ID: "luckytv-plugin-behind", Version: "0.1.0", Latest: "0.2.0"},
+		{ID: "luckytv-plugin-pinned", Version: "1.0.0", Latest: "1.1.0", Official: true},
 	}
 	if len(got.Updates) != len(want) || got.Updates[0] != want[0] || got.Updates[1] != want[1] {
 		t.Fatalf("updates = %+v", got.Updates)
 	}
 	// 文件夹装的和 npm 上查不到的插件没法比较，两份名单都不进，界面照旧给「更新」按钮。
-	if strings.Join(got.UpToDate, ",") != "beeftv-plugin-current" {
+	if strings.Join(got.UpToDate, ",") != "luckytv-plugin-current" {
 		t.Fatalf("up to date = %v", got.UpToDate)
 	}
 }
 
 func TestOneLineRegistryEntriesAreFilledFromNpm(t *testing.T) {
-	npmFixture(t, map[string]string{"beeftv-plugin-community": "0.3.0"})
-	setCuratedRegistryForTest(`{"plugins":[],"packages":["beeftv-plugin-community","beeftv-plugin-missing",""]}`)
+	npmFixture(t, map[string]string{"luckytv-plugin-community": "0.3.0"})
+	setCuratedRegistryForTest(`{"plugins":[],"packages":["luckytv-plugin-community","luckytv-plugin-missing",""]}`)
 	cachePath := filepath.Join(t.TempDir(), "cache.json")
 	items := loadCuratedRegistryItemsWithCache(context.Background(), "", NpmMirrorRegistry, cachePath, map[string]View{})
 	if len(items) != 1 {
 		t.Fatalf("items = %+v", items)
 	}
 	item := items[0]
-	if item.ID != "beeftv-plugin-community" || item.Name != "显示名 beeftv-plugin-community" || item.Version != "0.3.0" ||
-		item.Author != "社区作者" || item.Repository != "https://github.com/example/beeftv-plugin-community" || !item.Recommended || item.SHA256 != "" {
+	if item.ID != "luckytv-plugin-community" || item.Name != "显示名 luckytv-plugin-community" || item.Version != "0.3.0" ||
+		item.Author != "社区作者" || item.Repository != "https://github.com/example/luckytv-plugin-community" || !item.Recommended || item.SHA256 != "" {
 		t.Fatalf("item = %+v", item)
 	}
 	if hits := loadCuratedRegistryItemsWithCache(context.Background(), "nothing-matches", NpmMirrorRegistry, cachePath, map[string]View{}); len(hits) != 0 {
@@ -145,21 +145,21 @@ func TestOneLineRegistryEntriesAreFilledFromNpm(t *testing.T) {
 }
 
 func TestCuratedMarketReturnsLocalEntriesBeforePackageMetadataRefresh(t *testing.T) {
-	npmFixture(t, map[string]string{"beeftv-plugin-community": "0.3.0"})
-	setCuratedRegistryForTest(`{"plugins":[{"id":"cached-plugin","name":"Cached plugin","version":"1.0.0","recommended":true}],"packages":["beeftv-plugin-community"]}`)
+	npmFixture(t, map[string]string{"luckytv-plugin-community": "0.3.0"})
+	setCuratedRegistryForTest(`{"plugins":[{"id":"cached-plugin","name":"Cached plugin","version":"1.0.0","recommended":true}],"packages":["luckytv-plugin-community"]}`)
 	var svc *Service
 	cached := svc.CuratedMarket(context.Background(), NpmMirrorRegistry, true)
 	if len(cached) != 1 || cached[0].ID != "cached-plugin" {
 		t.Fatalf("local recommendations = %+v", cached)
 	}
 	refreshed := svc.CuratedMarket(context.Background(), NpmMirrorRegistry, false)
-	if len(refreshed) != 2 || refreshed[1].ID != "beeftv-plugin-community" {
+	if len(refreshed) != 2 || refreshed[1].ID != "luckytv-plugin-community" {
 		t.Fatalf("refreshed recommendations = %+v", refreshed)
 	}
 }
 
 func TestVersionedInstallUpdatesToLatestByHandOnly(t *testing.T) {
-	npmFixture(t, map[string]string{"beeftv-plugin-held": "0.2.0"})
+	npmFixture(t, map[string]string{"luckytv-plugin-held": "0.2.0"})
 	rt, err := NewRuntime(t.TempDir())
 	if err != nil {
 		t.Fatal(err)
@@ -168,21 +168,21 @@ func TestVersionedInstallUpdatesToLatestByHandOnly(t *testing.T) {
 	folder := func(version string) string {
 		dir := t.TempDir()
 		writePluginFolder(t, dir, map[string]string{
-			"package.json":    `{"name":"beeftv-plugin-held","version":"` + version + `","beeftv":{"client":"./client/index.js"}}`,
+			"package.json":    `{"name":"luckytv-plugin-held","version":"` + version + `","luckytv":{"client":"./client/index.js"}}`,
 			"client/index.js": "export function activate() {}\n",
 		})
 		return dir
 	}
-	dirs := map[string]string{"beeftv-plugin-held@0.1.0": folder("0.1.0"), "beeftv-plugin-held": folder("0.2.0")}
+	dirs := map[string]string{"luckytv-plugin-held@0.1.0": folder("0.1.0"), "luckytv-plugin-held": folder("0.2.0")}
 	svc.SetPackageFetcher(func(ctx context.Context, spec, registry, prefixDir string) (string, error) {
 		return copyPackageFetcher(ctx, dirs[spec], registry, prefixDir)
 	})
-	if _, err := svc.InstallPackage("beeftv-plugin-held@0.1.0", ""); err != nil {
+	if _, err := svc.InstallPackage("luckytv-plugin-held@0.1.0", ""); err != nil {
 		t.Fatal(err)
 	}
 
 	// 精选列表有新版本时只提示，不算自动更新。
-	setCuratedRegistryForTest(`{"plugins":[{"id":"beeftv-plugin-held","packageName":"beeftv-plugin-held","version":"0.2.0",
+	setCuratedRegistryForTest(`{"plugins":[{"id":"luckytv-plugin-held","packageName":"luckytv-plugin-held","version":"0.2.0",
 		"tarball":"https://github.com/example/releases/held-0.2.0.tgz","sha256":"` + strings.Repeat("a", 64) + `"}]}`)
 	got := svc.CheckUpdates(context.Background(), "")
 	if len(got.Updates) != 1 || got.Updates[0].Latest != "0.2.0" || got.Updates[0].Official {
@@ -190,11 +190,11 @@ func TestVersionedInstallUpdatesToLatestByHandOnly(t *testing.T) {
 	}
 
 	setCuratedRegistryForTest(`{"plugins":[]}`)
-	updated, err := svc.UpdatePackage("beeftv-plugin-held", "")
+	updated, err := svc.UpdatePackage("luckytv-plugin-held", "")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if updated.Manifest.Version != "0.2.0" || updated.PackageSpec != "beeftv-plugin-held" {
+	if updated.Manifest.Version != "0.2.0" || updated.PackageSpec != "luckytv-plugin-held" {
 		t.Fatalf("updated = %s from %q", updated.Manifest.Version, updated.PackageSpec)
 	}
 }

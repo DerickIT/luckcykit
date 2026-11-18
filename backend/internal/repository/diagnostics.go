@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 const (

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 // ClientAssetPayload 把数据库里的素材记录补齐为前端素材合同可消费的 JSON。

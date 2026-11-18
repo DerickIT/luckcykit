@@ -2,7 +2,7 @@ import React, { useLayoutEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { App, Button, ConfigProvider, Select } from "antd";
 import { MemoryRouter } from "react-router";
-import { BeefTVConnectionProvider } from "@/components/layout/beeftv-connection-provider";
+import { LuckyTVConnectionProvider } from "@/components/layout/luckytv-connection-provider";
 import { WorkspaceSidebarAccount } from "@/components/layout/workspace-sidebar-account";
 import { WorkspaceSidebarSocialLinks } from "@/components/layout/workspace-sidebar-social-links";
 import { AppModal } from "@/components/ui/product/app-modal";
@@ -15,7 +15,7 @@ import rawGlobalsCss from "@/styles/globals.css?raw";
 import rawTokensCss from "@/styles/theme-tokens.css?raw";
 import rawTailwindThemeCss from "@/styles/tailwind-theme.css?raw";
 import { inlineLocalCssImports } from "../helpers/app-style-source";
-import { activate } from "../../../plugin-packages/beeftv-plugin-market/client/index.js";
+import { activate } from "../../../plugin-packages/luckytv-plugin-market/client/index.js";
 import type { PluginCenterSectionContribution } from "@/lib/plugins/plugin-types";
 import "@/styles/workspace-product.css";
 import "@/pages/plugins/plugins.css";
@@ -79,11 +79,11 @@ function Harness() {
             <ConfigProvider theme={workspaceTheme}>
                 <App>
                     <MemoryRouter>
-                        <BeefTVConnectionProvider>
+                        <LuckyTVConnectionProvider>
                             <main className="app-user-workspace app-product-workspace" style={{ padding: 20, width: "100%", maxWidth: 960, boxSizing: "border-box" }}>
                                 {showMarket && MarketSection ? (
                                     <MarketSection
-                                        pluginId="beeftv-plugin-market"
+                                        pluginId="luckytv-plugin-market"
                                         Card={PluginCard}
                                         Button={Button}
                                         DetailsModal={AppModal}
@@ -101,7 +101,7 @@ function Harness() {
                                     </>
                                 )}
                             </main>
-                        </BeefTVConnectionProvider>
+                        </LuckyTVConnectionProvider>
                     </MemoryRouter>
                 </App>
             </ConfigProvider>

@@ -238,7 +238,7 @@ func loadDeclarativeManifestProvider(manifest Manifest, index int) (Adapter, err
 }
 
 func ValidateManifest(manifest Manifest) error {
-	if version := strings.TrimSpace(manifest.APIVersion); version != "beeftv.plugin/v1" && version != "beeftv.plugin/v2" && version != "beeftv.plugin/v3" {
+	if version := strings.TrimSpace(manifest.APIVersion); version != "luckytv.plugin/v1" && version != "luckytv.plugin/v2" && version != "luckytv.plugin/v3" {
 		return fmt.Errorf("unsupported protocol manifest apiVersion %q", manifest.APIVersion)
 	}
 	if strings.TrimSpace(manifest.Metadata.ID) == "" || strings.TrimSpace(manifest.Metadata.Version) == "" {
@@ -290,8 +290,8 @@ func ValidateManifest(manifest Manifest) error {
 		for _, operation := range []*ManifestOperation{&provider.Create, provider.Poll, provider.Cancel, provider.Result, provider.Agent} {
 			requiresV3 = requiresV3 || (operation != nil && operation.DefaultPathPrefix != "")
 		}
-		if strings.TrimSpace(manifest.APIVersion) != "beeftv.plugin/v3" && requiresV3 {
-			return fmt.Errorf("provider %q requires beeftv.plugin/v3 for variables, defaultPathPrefix or image response extensions", provider.ID)
+		if strings.TrimSpace(manifest.APIVersion) != "luckytv.plugin/v3" && requiresV3 {
+			return fmt.Errorf("provider %q requires luckytv.plugin/v3 for variables, defaultPathPrefix or image response extensions", provider.ID)
 		}
 		if provider.MediaUpload != nil {
 			if err := validateManifestMediaUpload(*provider.MediaUpload, provider.BaseURL); err != nil {

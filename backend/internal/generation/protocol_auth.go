@@ -17,7 +17,7 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/protocol"
 
 	"github.com/volcengine/volc-sdk-golang/base"
 )

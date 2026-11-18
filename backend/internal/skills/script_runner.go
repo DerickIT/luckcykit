@@ -20,9 +20,9 @@ import (
 	"sync"
 	"time"
 
-	"infinite-canvas/backend/internal/assistantruntime"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/assistantruntime"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
 )
 
 const (
@@ -301,7 +301,7 @@ func (s *Service) ExecuteSkillScript(ctx context.Context, userID string, req Scr
 	if err != nil {
 		return nil, err
 	}
-	tempDir, err := os.MkdirTemp("", "beeftv-skill-run-*")
+	tempDir, err := os.MkdirTemp("", "luckytv-skill-run-*")
 	if err != nil {
 		return nil, kernel.WrapAppError(500, "无法创建脚本隔离运行目录", err)
 	}
@@ -515,7 +515,7 @@ func BuildCleanScriptEnv(homeDir, tmpDir, outputDir, bundledNodePath, goos strin
 		env = append(env, "USERPROFILE="+homeDir, "APPDATA="+appData, "LOCALAPPDATA="+localAppData)
 	}
 	if strings.TrimSpace(outputDir) != "" {
-		env = append(env, "BEEFTV_OUTPUT_DIR="+outputDir)
+		env = append(env, "LUCKYTV_OUTPUT_DIR="+outputDir)
 	}
 	return env
 }

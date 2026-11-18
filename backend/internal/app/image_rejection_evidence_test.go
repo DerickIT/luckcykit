@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"infinite-canvas/backend/internal/generation"
+	"luckytv/backend/internal/generation"
 )
 
 func TestCompleteHTTPRejectionEvidence(t *testing.T) {

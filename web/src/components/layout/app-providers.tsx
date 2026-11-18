@@ -15,7 +15,7 @@ import { useActiveTheme } from "@/stores/canvas/use-canvas-theme-store";
 import { applyAppearanceMetadata, useAppearanceStore } from "@/stores/use-appearance-store";
 import { useUserStore } from "@/stores/use-user-store";
 import { watchSystemTheme } from "@/stores/use-theme-store";
-import { BeefTVConnectionProvider } from "@/components/layout/beeftv-connection-provider";
+import { LuckyTVConnectionProvider } from "@/components/layout/luckytv-connection-provider";
 
 const ClientRootInit = lazy(() => import("@/components/layout/client-root-init").then((module) => ({ default: module.ClientRootInit })));
 
@@ -51,7 +51,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
                         children
                     ) : (
                         <WorkspaceBootstrapHydrator>
-                            <ClientRootBoundary><BeefTVConnectionProvider>{children}</BeefTVConnectionProvider></ClientRootBoundary>
+                            <ClientRootBoundary><LuckyTVConnectionProvider>{children}</LuckyTVConnectionProvider></ClientRootBoundary>
                         </WorkspaceBootstrapHydrator>
                     )}
                 </QueryClientProvider>

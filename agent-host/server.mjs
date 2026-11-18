@@ -1,4 +1,4 @@
-// BeefTV 内置 pi 会话宿主（正式）：HTTP 适配器。
+// LuckyTV 内置 pi 会话宿主（正式）：HTTP 适配器。
 // 执行运行时只有 durable-session-owner.mjs 一套；旧 JSONL 会话只读历史在 session-owner.mjs。
 // 画布操作桥在 operation-bridge.mjs。
 import http from 'node:http';
@@ -28,36 +28,36 @@ import { createPluginPackageController } from './plugin-packages.mjs';
 // proxy support after imports, before any SDK/ops request or fetch wrapper runs.
 if (process.env.NODE_USE_ENV_PROXY === '1') http.setGlobalProxyFromEnv();
 
-const OPS_URL = (process.env.BEEFTV_OPS_URL || 'http://127.0.0.1:18090/api').replace(/\/+$/, '');
-const HOST_TOKEN = process.env.BEEFTV_AGENT_HOST_TOKEN || '';
-const DESKTOP_TOKEN = process.env.BEEFTV_AGENT_DESKTOP_TOKEN || '';
-const ALLOWED_ORIGIN = process.env.BEEFTV_AGENT_ALLOWED_ORIGIN || '';
-const DATA_DIR = process.env.BEEFTV_AGENT_DATA_DIR || '';
-const LISTEN_FD = Number(process.env.BEEFTV_AGENT_LISTEN_FD || 0);
-const PORT_RAW = String(process.env.BEEFTV_AGENT_PORT || '').trim();
-const INSTANCE_NONCE = process.env.BEEFTV_AGENT_INSTANCE_NONCE || '';
-const LIFETIME_STDIN = process.env.BEEFTV_AGENT_LIFETIME_STDIN === '1';
+const OPS_URL = (process.env.LUCKYTV_OPS_URL || 'http://127.0.0.1:18090/api').replace(/\/+$/, '');
+const HOST_TOKEN = process.env.LUCKYTV_AGENT_HOST_TOKEN || '';
+const DESKTOP_TOKEN = process.env.LUCKYTV_AGENT_DESKTOP_TOKEN || '';
+const ALLOWED_ORIGIN = process.env.LUCKYTV_AGENT_ALLOWED_ORIGIN || '';
+const DATA_DIR = process.env.LUCKYTV_AGENT_DATA_DIR || '';
+const LISTEN_FD = Number(process.env.LUCKYTV_AGENT_LISTEN_FD || 0);
+const PORT_RAW = String(process.env.LUCKYTV_AGENT_PORT || '').trim();
+const INSTANCE_NONCE = process.env.LUCKYTV_AGENT_INSTANCE_NONCE || '';
+const LIFETIME_STDIN = process.env.LUCKYTV_AGENT_LIFETIME_STDIN === '1';
 if (!LISTEN_FD && !PORT_RAW) {
-  console.error('agent-host: 缺少 BEEFTV_AGENT_PORT 或 BEEFTV_AGENT_LISTEN_FD（由产品启动链注入）');
+  console.error('agent-host: 缺少 LUCKYTV_AGENT_PORT 或 LUCKYTV_AGENT_LISTEN_FD（由产品启动链注入）');
   process.exit(2);
 }
 const PORT = Number(PORT_RAW || 0);
-const MODEL_ID = (process.env.BEEFTV_AGENT_MODEL || '').trim();
-const MODEL_API = (process.env.BEEFTV_AGENT_API || 'openai-completions').trim();
-const { baseUrl: BASE_URL, isRaw: IS_RAW_BASE_URL } = parseHostBaseUrlEnv(process.env.BEEFTV_AGENT_BASE_URL || '');
-const API_KEY = process.env.BEEFTV_AGENT_API_KEY || '';
+const MODEL_ID = (process.env.LUCKYTV_AGENT_MODEL || '').trim();
+const MODEL_API = (process.env.LUCKYTV_AGENT_API || 'openai-completions').trim();
+const { baseUrl: BASE_URL, isRaw: IS_RAW_BASE_URL } = parseHostBaseUrlEnv(process.env.LUCKYTV_AGENT_BASE_URL || '');
+const API_KEY = process.env.LUCKYTV_AGENT_API_KEY || '';
 // Thinking shares this ceiling with the answer (pi-ai adds its budget within it).
-const MAX_OUTPUT_TOKENS = Number(process.env.BEEFTV_AGENT_MAX_TOKENS || 16384);
-const CONTEXT_WINDOW = Number(process.env.BEEFTV_AGENT_CONTEXT_WINDOW || 200000);
-const MAX_REQUESTS_PER_TURN = Number(process.env.BEEFTV_AGENT_MAX_REQUESTS_PER_TURN || 40);
-const MAX_TOOL_STEPS_PER_TURN = Number(process.env.BEEFTV_AGENT_MAX_TOOL_STEPS_PER_TURN || 40);
-const LIFETIME_REQUEST_BUDGET = Number(process.env.BEEFTV_AGENT_TOTAL_REQUEST_BUDGET || 0);
+const MAX_OUTPUT_TOKENS = Number(process.env.LUCKYTV_AGENT_MAX_TOKENS || 16384);
+const CONTEXT_WINDOW = Number(process.env.LUCKYTV_AGENT_CONTEXT_WINDOW || 200000);
+const MAX_REQUESTS_PER_TURN = Number(process.env.LUCKYTV_AGENT_MAX_REQUESTS_PER_TURN || 40);
+const MAX_TOOL_STEPS_PER_TURN = Number(process.env.LUCKYTV_AGENT_MAX_TOOL_STEPS_PER_TURN || 40);
+const LIFETIME_REQUEST_BUDGET = Number(process.env.LUCKYTV_AGENT_TOTAL_REQUEST_BUDGET || 0);
 const MAX_BODY_BYTES = 64 * 1024;
-const READ_ONLY_MODE = process.env.BEEFTV_AGENT_READ_ONLY === '1';
-const PROVIDER_ID = 'beeftv';
+const READ_ONLY_MODE = process.env.LUCKYTV_AGENT_READ_ONLY === '1';
+const PROVIDER_ID = 'luckytv';
 
-for (const [name, value] of Object.entries({ BEEFTV_AGENT_HOST_TOKEN: HOST_TOKEN,
-  BEEFTV_AGENT_DATA_DIR: DATA_DIR })) {
+for (const [name, value] of Object.entries({ LUCKYTV_AGENT_HOST_TOKEN: HOST_TOKEN,
+  LUCKYTV_AGENT_DATA_DIR: DATA_DIR })) {
   if (!value) { console.error(`agent-host: 缺少 ${name}（由产品启动链注入）`); process.exit(2); }
 }
 const SESSION_ROOT = path.join(DATA_DIR, 'sessions');
@@ -322,12 +322,12 @@ function timingSafeMatch(got, expected) {
 
 function instanceOK(req) {
   if (!INSTANCE_NONCE) return true;
-  return timingSafeMatch(req.headers['x-beeftv-instance-nonce'] || '', INSTANCE_NONCE);
+  return timingSafeMatch(req.headers['x-luckytv-instance-nonce'] || '', INSTANCE_NONCE);
 }
 
 function authorized(req) {
   if (!instanceOK(req)) return { ok: false, reason: 'instance_mismatch' };
-  if (!timingSafeMatch(req.headers['x-beeftv-agent-token'] || '', HOST_TOKEN)) return { ok: false, reason: 'unauthorized' };
+  if (!timingSafeMatch(req.headers['x-luckytv-agent-token'] || '', HOST_TOKEN)) return { ok: false, reason: 'unauthorized' };
   const origin = String(req.headers.origin || '');
   if (ALLOWED_ORIGIN && origin && origin !== ALLOWED_ORIGIN) return { ok: false, reason: 'origin_rejected' };
   const host = String(req.headers.host || '');

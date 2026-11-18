@@ -36,7 +36,7 @@ export function distributionNotices({ root = repo, version, platform = "web", he
     const components = required.map((component) => {
         // Only advertise packets produced by the source packaging steps.
         if (!component.id.startsWith("ffprobe-darwin-") && component.id !== "ffmpeg-wasm") return { ...component, source: null };
-        const name = `BeefTV-${version}-${component.id}-sources.tar.gz`;
+        const name = `LuckyTV-${version}-${component.id}-sources.tar.gz`;
         const source = resolve(sourcesDir, name);
         const bytes = existsSync(source) ? readFileSync(source) : null;
         if (bytes && component.id === "ffmpeg-wasm") {
@@ -46,7 +46,7 @@ export function distributionNotices({ root = repo, version, platform = "web", he
             }
         }
         return { ...component, source: bytes ? { name, size: bytes.length, sha256: sha256(bytes),
-            url: `https://github.com/glanderness/BeefTV/releases/download/${version}/${name}` } : null };
+            url: `https://github.com/glanderness/LuckyTV/releases/download/${version}/${name}` } : null };
     });
     const index = { schema: 1, version, platform, components };
     files.set("sources.json", Buffer.from(JSON.stringify(index, null, 2) + "\n"));
@@ -56,12 +56,12 @@ export function distributionNotices({ root = repo, version, platform = "web", he
         return `<li>${escapeHTML(component.id)} ${escapeHTML(component.version)} — ${escapeHTML(component.license)}<br><a href="${component.upstream}" target="_blank" rel="noopener noreferrer">上游项目与构建信息</a>${packet}</li>`;
     }).join("\n");
     files.set("index.html", Buffer.from(`<!doctype html>
-<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>BeefTV 第三方许可与源码</title>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>LuckyTV 第三方许可与源码</title>
 <style>:root{color-scheme:light dark}body{font:15px/1.7 system-ui,sans-serif;max-width:760px;margin:24px auto;padding:0 20px;color:CanvasText;background:Canvas;overflow-wrap:anywhere}h1{font-size:22px}ul{padding-left:24px}li{margin:16px 0}a{color:LinkText}a:focus-visible{outline:2px solid Highlight;outline-offset:3px}pre{white-space:pre-wrap}</style>
-<h1>第三方许可与源码</h1><p>BeefTV ${escapeHTML(version)} 使用以下媒体组件。各组件继续适用自己的许可证；BeefTV 的商业使用限制不替代这些许可证。</p>
+<h1>第三方许可与源码</h1><p>LuckyTV ${escapeHTML(version)} 使用以下媒体组件。各组件继续适用自己的许可证；LuckyTV 的商业使用限制不替代这些许可证。</p>
 <ul>${links}</ul><p>各组件的使用、修改与再分发权利以其许可证为准。上游项目链接与本版本的对应源码包分别列出。</p>
 <p><a href="GPL-2.0.txt">GPL 2.0</a> · <a href="GPL-3.0.txt">GPL 3.0</a> · <a href="LGPL-2.1.txt">LGPL 2.1</a></p>
-<p><a href="LICENSE">BeefTV 许可</a> · <a href="NOTICE">版权声明</a> · <a href="THIRD_PARTY_NOTICES.md">第三方清单</a> · <a href="sources.json">版本与校验信息</a></p>
+<p><a href="LICENSE">LuckyTV 许可</a> · <a href="NOTICE">版权声明</a> · <a href="THIRD_PARTY_NOTICES.md">第三方清单</a> · <a href="sources.json">版本与校验信息</a></p>
 <script>
 document.addEventListener("click", (event) => {
     const link = event.target.closest?.('a[href^="https://"]');
@@ -85,5 +85,5 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     const [platform, destination, version, sourcesDir] = process.argv.slice(2);
     if (!destination || !version) throw new Error(`Usage: ${basename(process.argv[1])} platform destination version [sources-dir]`);
     mkdirSync(destination, { recursive: true });
-    for (const [name, bytes] of distributionNotices({ platform, version, sourcesDir, heavyMedia: process.env.BEEFTV_FULL_MEDIA_RESOURCES !== "0" })) writeFileSync(resolve(destination, name), bytes);
+    for (const [name, bytes] of distributionNotices({ platform, version, sourcesDir, heavyMedia: process.env.LUCKYTV_FULL_MEDIA_RESOURCES !== "0" })) writeFileSync(resolve(destination, name), bytes);
 }

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	"infinite-canvas/backend/internal/skillhub"
+	"luckytv/backend/internal/skillhub"
 )
 
 type SkillMarketDiscovery interface {

@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/asset"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/asset"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
 )
 
 func TestCommitUserCanvasDocumentPreservesUntouchedFieldsAndCAS(t *testing.T) {

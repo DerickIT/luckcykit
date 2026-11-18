@@ -3,8 +3,8 @@ package app
 import (
 	"encoding/json"
 
-	cw "infinite-canvas/backend/internal/canvasworkflow"
-	"infinite-canvas/backend/internal/model"
+	cw "luckytv/backend/internal/canvasworkflow"
+	"luckytv/backend/internal/model"
 )
 
 func workflowRevision(n int) int { return cw.NormalizeRevision(n) }

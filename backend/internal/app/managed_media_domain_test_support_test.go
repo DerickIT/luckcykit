@@ -2,7 +2,7 @@ package app
 
 import (
 	"context"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func (s *Service) managedImageQueryCipher(task model.Task, wire imageWireRequest) (string, error) {

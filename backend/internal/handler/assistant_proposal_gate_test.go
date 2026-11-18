@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/skills"
 )
 
 func TestAssistantProposalRunRejectedAfterUndo(t *testing.T) {

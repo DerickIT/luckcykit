@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/bootstrap"
-	"infinite-canvas/backend/internal/diagnostics"
-	"infinite-canvas/backend/internal/workspace"
+	"luckytv/backend/internal/bootstrap"
+	"luckytv/backend/internal/diagnostics"
+	"luckytv/backend/internal/workspace"
 )
 
 const maxAutoStartupBundles = 5
@@ -148,7 +148,7 @@ func writeStartupDiagnosticSnapshot(dataDir, fallbackTemp string, preferTemp boo
 	if strings.TrimSpace(fallbackTemp) == "" {
 		fallbackTemp = systemTempDir()
 	}
-	tempDiagDir := filepath.Join(fallbackTemp, "beeftv-diagnostics")
+	tempDiagDir := filepath.Join(fallbackTemp, "luckytv-diagnostics")
 	candidates := []string{}
 	if !preferTemp && strings.TrimSpace(dataDir) != "" {
 		candidates = append(candidates, filepath.Join(dataDir, "diagnostics"))
@@ -157,7 +157,7 @@ func writeStartupDiagnosticSnapshot(dataDir, fallbackTemp string, preferTemp boo
 
 	fileName := bootstrap.SanitizeSaveFileName(bundle.FileName)
 	if fileName == "" {
-		fileName = "beeftv-startup-diagnostics.zip"
+		fileName = "luckytv-startup-diagnostics.zip"
 	}
 	for _, dir := range candidates {
 		if err := os.MkdirAll(dir, 0o700); err != nil {

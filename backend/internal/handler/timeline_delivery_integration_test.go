@@ -16,7 +16,7 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/editing"
+	"luckytv/backend/internal/editing"
 )
 
 func TestDurableTimelineDeliveryUsesRealGoWorkerAndCanonicalSubtitleLines(t *testing.T) {

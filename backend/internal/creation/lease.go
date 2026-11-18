@@ -3,7 +3,7 @@ package creation
 import (
 	"time"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 const leaseTTL = 45 * time.Second

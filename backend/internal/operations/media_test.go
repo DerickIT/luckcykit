@@ -17,8 +17,8 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/editing"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/editing"
+	"luckytv/backend/internal/model"
 )
 
 type mediaDomain struct {

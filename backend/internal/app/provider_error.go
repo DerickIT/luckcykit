@@ -1,6 +1,6 @@
 package app
 
-import "infinite-canvas/backend/internal/generation"
+import "luckytv/backend/internal/generation"
 
 const contentModerationErrorCode = generation.ContentModerationErrorCode
 const submissionUncertainRetryMessage = generation.SubmissionUncertainRetryMessage

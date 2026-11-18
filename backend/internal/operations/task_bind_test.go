@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/operations"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/operations"
+	localtask "luckytv/backend/internal/task"
 
 	"gorm.io/gorm"
 )

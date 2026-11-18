@@ -12,7 +12,7 @@ import (
 	"io"
 	"strings"
 
-	"infinite-canvas/backend/internal/modelcatalog"
+	"luckytv/backend/internal/modelcatalog"
 )
 
 const videoReferenceHeaderDecodeLimit = 2 << 20
@@ -76,7 +76,7 @@ func HydrateVideoReferenceMetadata(ctx context.Context, userID string, input *In
 			}
 		}
 	}
-	if modelcatalog.IsSeedance2Family(input.Config.InterfaceType, input.Config.Model) && !managedConnection(input.Config) && !IsBeefTVSeedancePreuploadConfig(ctx, input.Config) {
+	if modelcatalog.IsSeedance2Family(input.Config.InterfaceType, input.Config.Model) && !managedConnection(input.Config) && !IsLuckyTVSeedancePreuploadConfig(ctx, input.Config) {
 		for i := range input.ReferenceVideos {
 			media := &input.ReferenceVideos[i]
 			var data []byte

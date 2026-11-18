@@ -55,7 +55,7 @@ func TestInterfaceSchemaDescribesEveryProviderField(t *testing.T) {
 	described := schemaProperties(t, provider)
 	for _, name := range jsonFieldNames(ManifestProvider{}) {
 		if _, ok := described[name]; !ok {
-			t.Errorf("provider field %q is decoded by BeefTV but missing from interface-manifest.schema.json", name)
+			t.Errorf("provider field %q is decoded by LuckyTV but missing from interface-manifest.schema.json", name)
 		}
 	}
 	operation := schema["$defs"].(map[string]any)["operation"].(map[string]any)

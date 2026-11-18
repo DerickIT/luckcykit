@@ -23,7 +23,7 @@ afterEach(() => {
 
 describe("桌面端实时画布 SSE 与外部改动记录", () => {
     test("浏览器画布事件使用嵌入运行时的 API 前缀", () => {
-        configureApiRuntime("/beeftv/app/session-1/api");
+        configureApiRuntime("/luckytv/app/session-1/api");
         globalThis.window = { location: { protocol: "http:" } } as Window & typeof globalThis;
         let capturedUrl = "";
         let closed = false;
@@ -34,7 +34,7 @@ describe("桌面端实时画布 SSE 与外部改动记录", () => {
             close() { closed = true; }
         } as unknown as typeof EventSource;
         const unsubscribe = subscribeCanvasEventsStream("canvas-1", () => {});
-        expect(capturedUrl).toBe("/beeftv/app/session-1/api/canvas-projects/canvas-1/events");
+        expect(capturedUrl).toBe("/luckytv/app/session-1/api/canvas-projects/canvas-1/events");
         unsubscribe();
         expect(closed).toBe(true);
     });

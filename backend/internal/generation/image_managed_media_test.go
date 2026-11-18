@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/protocol"
 	"io"
 	"mime"
 	"mime/multipart"

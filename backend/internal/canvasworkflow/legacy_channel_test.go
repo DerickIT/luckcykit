@@ -5,15 +5,15 @@ import (
 	"testing"
 )
 
-// Workflows saved before v2.2.0 recorded the official channel as "@beefapi".
+// Workflows saved before v2.2.0 recorded the official channel as "@luckyapi".
 // They must keep running on the official channel and show its models.
 func TestWorkflowsSavedUnderTheFormerOfficialIDStayOfficial(t *testing.T) {
-	for _, id := range []string{"@beeftv", "@beefapi"} {
+	for _, id := range []string{"@luckytv", "@luckyapi"} {
 		if !IsOfficialWorkflowChannel(id) {
 			t.Fatalf("%s is not treated as the official channel", id)
 		}
 	}
-	for _, id := range []string{"", "beeftv", "beefapi", "channel-2", "@channel-2"} {
+	for _, id := range []string{"", "luckytv", "luckyapi", "channel-2", "@channel-2"} {
 		if IsOfficialWorkflowChannel(id) {
 			t.Fatalf("%q is treated as the official channel", id)
 		}
@@ -26,23 +26,23 @@ func TestWorkflowsSavedUnderTheFormerOfficialIDStayOfficial(t *testing.T) {
 func TestSavedWorkflowNodesUnderTheFormerOfficialIDReadAsOfficial(t *testing.T) {
 	var d Definition
 	raw := `{"nodes":[
-		{"id":"describe","config":{"modelOption":"beefapi::vision-x"}},
-		{"id":"upscale","config":{"channelId":"beefapi","preset":"image|m"}},
+		{"id":"describe","config":{"modelOption":"luckyapi::vision-x"}},
+		{"id":"upscale","config":{"channelId":"luckyapi","preset":"image|m"}},
 		{"id":"own","config":{"modelOption":"channel-2::vision-x","channelId":"channel-2"}}
 	]}`
 	if err := json.Unmarshal([]byte(raw), &d); err != nil {
 		t.Fatal(err)
 	}
-	if got := d.Nodes[0].Config["modelOption"]; got != "beeftv::vision-x" {
+	if got := d.Nodes[0].Config["modelOption"]; got != "luckytv::vision-x" {
 		t.Fatalf("describe modelOption = %v", got)
 	}
-	if got := d.Nodes[1].Config["channelId"]; got != "beeftv" {
+	if got := d.Nodes[1].Config["channelId"]; got != "luckytv" {
 		t.Fatalf("upscale channelId = %v", got)
 	}
 	if d.Nodes[2].Config["modelOption"] != "channel-2::vision-x" || d.Nodes[2].Config["channelId"] != "channel-2" {
 		t.Fatalf("user channel node changed: %#v", d.Nodes[2].Config)
 	}
-	if request, _ := UpscaleRequest(d.Nodes[1]); request.ChannelID != "beeftv" {
+	if request, _ := UpscaleRequest(d.Nodes[1]); request.ChannelID != "luckytv" {
 		t.Fatalf("upscale request channel = %q", request.ChannelID)
 	}
 }

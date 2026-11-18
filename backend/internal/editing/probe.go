@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"infinite-canvas/backend/internal/mediatools"
+	"luckytv/backend/internal/mediatools"
 )
 
 // Probe reads codec_type streams and container duration from a local media file.

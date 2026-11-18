@@ -13,11 +13,11 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/outbound"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/outbound"
+	"luckytv/backend/internal/protocol"
 )
 
-func TestBeefTVVideoDeliveryKeepsTaskAcrossExpiredURLsByQueryingAPI(t *testing.T) {
+func TestLuckyTVVideoDeliveryKeepsTaskAcrossExpiredURLsByQueryingAPI(t *testing.T) {
 	t.Setenv("CANVAS_ALLOWED_PRIVATE_UPSTREAM_HOSTS", "127.0.0.1")
 	for _, model := range []string{"seedance-2.0-mini", "sora-2", "opaque-future-video"} {
 		for _, resumed := range []bool{false, true} {
@@ -50,7 +50,7 @@ func TestBeefTVVideoDeliveryKeepsTaskAcrossExpiredURLsByQueryingAPI(t *testing.T
 						if polls >= 3 {
 							signature = "fresh"
 						}
-						if r.Header.Get(beefTVVideoDeliveryHeader) != "direct" {
+						if r.Header.Get(luckyTVVideoDeliveryHeader) != "direct" {
 							t.Error("missing direct status request")
 						}
 						_ = json.NewEncoder(w).Encode(map[string]any{"id": "original", "status": "completed", "video_url": media.URL + "/result.mp4?signature=" + signature})
@@ -61,7 +61,7 @@ func TestBeefTVVideoDeliveryKeepsTaskAcrossExpiredURLsByQueryingAPI(t *testing.T
 					}
 				}))
 				defer server.Close()
-				ctx := WithSubmissionKey(WithEndpoints(context.Background(), Endpoints{BeefTVVideoBaseURL: server.URL}), "stable-attempt")
+				ctx := WithSubmissionKey(WithEndpoints(context.Background(), Endpoints{LuckyTVVideoBaseURL: server.URL}), "stable-attempt")
 				if resumed {
 					ctx = WithCallMeta(ctx, CallMeta{ProviderRequestID: "original"})
 				}
@@ -80,7 +80,7 @@ func TestBeefTVVideoDeliveryKeepsTaskAcrossExpiredURLsByQueryingAPI(t *testing.T
 	}
 }
 
-func TestBeefTVVideoBackupRejectsGatewayCredentialsWithoutRetry(t *testing.T) {
+func TestLuckyTVVideoBackupRejectsGatewayCredentialsWithoutRetry(t *testing.T) {
 	t.Setenv("CANVAS_ALLOWED_PRIVATE_UPSTREAM_HOSTS", "127.0.0.1")
 	for _, status := range []int{http.StatusUnauthorized, http.StatusForbidden} {
 		t.Run(http.StatusText(status), func(t *testing.T) {
@@ -94,7 +94,7 @@ func TestBeefTVVideoBackupRejectsGatewayCredentialsWithoutRetry(t *testing.T) {
 				w.WriteHeader(http.StatusServiceUnavailable)
 			}))
 			defer server.Close()
-			ctx := WithEndpoints(context.Background(), Endpoints{BeefTVVideoBaseURL: server.URL})
+			ctx := WithEndpoints(context.Background(), Endpoints{LuckyTVVideoBaseURL: server.URL})
 			_, _, err := RunVideoDownload(ctx, "original", fastPolicy(3, func(context.Context, time.Duration) error {
 				t.Error("gateway authentication rejection was retried")
 				return nil
@@ -155,7 +155,7 @@ func TestVideoDeliveryIdleTimeoutAndCancellation(t *testing.T) {
 			<-r.Context().Done()
 		}))
 		defer server.Close()
-		ctx := WithEndpoints(context.Background(), Endpoints{BeefTVVideoBaseURL: server.URL})
+		ctx := WithEndpoints(context.Background(), Endpoints{LuckyTVVideoBaseURL: server.URL})
 		ctx, cancel := context.WithCancel(ctx)
 		go func() { <-started; cancel() }()
 		_, _, err := RunVideoDownload(ctx, "original", DefaultVideoPollPolicy(), videoResultDownloader(Config{BaseURL: server.URL}, server.URL+"/original", "original"))
@@ -165,7 +165,7 @@ func TestVideoDeliveryIdleTimeoutAndCancellation(t *testing.T) {
 	})
 }
 
-func TestNonBeefTVVideoRetainsPollingAndNoBackup(t *testing.T) {
+func TestNonLuckyTVVideoRetainsPollingAndNoBackup(t *testing.T) {
 	t.Setenv("CANVAS_ALLOWED_PRIVATE_UPSTREAM_HOSTS", "127.0.0.1")
 	requests := 0
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
@@ -185,24 +185,24 @@ func TestNonBeefTVVideoRetainsPollingAndNoBackup(t *testing.T) {
 	custom := VideoPollPolicy{InitialDelay: time.Second, Interval: 2 * time.Second}
 	customConfig := config
 	customConfig.Model = "seedance-2.0-mini"
-	if got := videoPollPolicyForConfig(WithEndpoints(context.Background(), Endpoints{BeefTVVideoBaseURL: server.URL}), customConfig, custom); got.InitialDelay != custom.InitialDelay || got.Interval != custom.Interval {
+	if got := videoPollPolicyForConfig(WithEndpoints(context.Background(), Endpoints{LuckyTVVideoBaseURL: server.URL}), customConfig, custom); got.InitialDelay != custom.InitialDelay || got.Interval != custom.Interval {
 		t.Fatalf("overrode explicit policy: %+v", got)
 	}
 }
 
-func TestBeefTVVideoPollPolicyDoesNotDependOnModelName(t *testing.T) {
+func TestLuckyTVVideoPollPolicyDoesNotDependOnModelName(t *testing.T) {
 	for _, tc := range []struct {
 		name     string
 		config   Config
 		interval time.Duration
 	}{
-		{"cached Seedance", Config{BaseURL: "https://beeftv.app/v1", Model: "seedance-2.0-mini"}, 5 * time.Second},
-		{"case-normalized Seedance", Config{BaseURL: "https://beeftv.app/v1", Model: "DOUBAO-SEEDANCE-2.5"}, 5 * time.Second},
-		{"managed Gemini", Config{BaseURL: "https://beeftv.app/v1", Model: "veo-3.1", APIFormat: "gemini", InterfaceType: "gemini-veo", ChannelModelKey: "seedance-2.0-mini"}, 5 * time.Second},
-		{"managed Vertex", Config{BaseURL: "https://beeftv.app/v1", Model: "veo-3.1-fast", APIFormat: "gemini", InterfaceType: "gemini-veo", ProviderModelKey: "seedance-2.0-mini"}, 5 * time.Second},
-		{"other BeefTV video", Config{BaseURL: "https://beeftv.app/v1", Model: "sora-2"}, 5 * time.Second},
-		{"unknown model", Config{BaseURL: "https://beeftv.app/v1", Model: "arbitrary-future-video"}, 5 * time.Second},
-		{"empty model", Config{BaseURL: "https://beeftv.app/v1"}, 5 * time.Second},
+		{"cached Seedance", Config{BaseURL: "https://luckytv.app/v1", Model: "seedance-2.0-mini"}, 5 * time.Second},
+		{"case-normalized Seedance", Config{BaseURL: "https://luckytv.app/v1", Model: "DOUBAO-SEEDANCE-2.5"}, 5 * time.Second},
+		{"managed Gemini", Config{BaseURL: "https://luckytv.app/v1", Model: "veo-3.1", APIFormat: "gemini", InterfaceType: "gemini-veo", ChannelModelKey: "seedance-2.0-mini"}, 5 * time.Second},
+		{"managed Vertex", Config{BaseURL: "https://luckytv.app/v1", Model: "veo-3.1-fast", APIFormat: "gemini", InterfaceType: "gemini-veo", ProviderModelKey: "seedance-2.0-mini"}, 5 * time.Second},
+		{"other LuckyTV video", Config{BaseURL: "https://luckytv.app/v1", Model: "sora-2"}, 5 * time.Second},
+		{"unknown model", Config{BaseURL: "https://luckytv.app/v1", Model: "arbitrary-future-video"}, 5 * time.Second},
+		{"empty model", Config{BaseURL: "https://luckytv.app/v1"}, 5 * time.Second},
 		{"custom Seedance provider", Config{BaseURL: "https://provider.example/v1", Model: "seedance-2.0-mini"}, 30 * time.Second},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -224,7 +224,7 @@ func TestVideoBackupRedirectRetainsSSRFGuard(t *testing.T) {
 		w.WriteHeader(http.StatusServiceUnavailable)
 	}))
 	defer server.Close()
-	ctx := WithEndpoints(context.Background(), Endpoints{BeefTVVideoBaseURL: server.URL})
+	ctx := WithEndpoints(context.Background(), Endpoints{LuckyTVVideoBaseURL: server.URL})
 	_, _, err := videoResultDownloader(Config{BaseURL: server.URL}, server.URL+"/original", "original")(ctx)
 	if err == nil {
 		t.Fatal("backup redirect bypassed SSRF guard")
@@ -234,7 +234,7 @@ func TestVideoBackupRedirectRetainsSSRFGuard(t *testing.T) {
 	}
 }
 
-func TestBeefTVVideoStallSwitchesToBackup(t *testing.T) {
+func TestLuckyTVVideoStallSwitchesToBackup(t *testing.T) {
 	t.Setenv("CANVAS_ALLOWED_PRIVATE_UPSTREAM_HOSTS", "127.0.0.1")
 	primary, backup := 0, 0
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -251,7 +251,7 @@ func TestBeefTVVideoStallSwitchesToBackup(t *testing.T) {
 		<-r.Context().Done()
 	}))
 	defer server.Close()
-	ctx := WithEndpoints(context.Background(), Endpoints{BeefTVVideoBaseURL: server.URL})
+	ctx := WithEndpoints(context.Background(), Endpoints{LuckyTVVideoBaseURL: server.URL})
 	started := time.Now()
 	data, _, err := RunVideoDownload(ctx, "original", DefaultVideoPollPolicy(), videoResultDownloader(Config{BaseURL: server.URL}, server.URL+"/original", "original"))
 	if err != nil || string(data) != "complete original video" || primary != 1 || backup != 1 || time.Since(started) > videoDeliveryIdleTimeout+3*time.Second {
@@ -259,20 +259,20 @@ func TestBeefTVVideoStallSwitchesToBackup(t *testing.T) {
 	}
 }
 
-func TestBeefTVVideoOptInOnlyAtVideoStatusEndpoint(t *testing.T) {
+func TestLuckyTVVideoOptInOnlyAtVideoStatusEndpoint(t *testing.T) {
 	t.Setenv("CANVAS_ALLOWED_PRIVATE_UPSTREAM_HOSTS", "127.0.0.1")
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		want := ""
 		if r.Method == http.MethodGet && r.URL.Path == "/v1/videos/original" {
 			want = "direct"
 		}
-		if got := r.Header.Get(beefTVVideoDeliveryHeader); got != want {
+		if got := r.Header.Get(luckyTVVideoDeliveryHeader); got != want {
 			t.Errorf("%s %s opt-in = %q want %q", r.Method, r.URL.Path, got, want)
 		}
 		_, _ = w.Write([]byte(`{"status":"completed"}`))
 	}))
 	defer server.Close()
-	ctx := WithEndpoints(context.Background(), Endpoints{BeefTVVideoBaseURL: server.URL})
+	ctx := WithEndpoints(context.Background(), Endpoints{LuckyTVVideoBaseURL: server.URL})
 	config := Config{BaseURL: server.URL}
 	var state map[string]any
 	if err := GetJSON(ctx, config, "/videos/original", &state); err != nil {
@@ -294,8 +294,8 @@ func TestBeefTVVideoOptInOnlyAtVideoStatusEndpoint(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		applyBeefTVVideoDeliveryHeader(context.Background(), config, req)
-		if req.Header.Get(beefTVVideoDeliveryHeader) != "" {
+		applyLuckyTVVideoDeliveryHeader(context.Background(), config, req)
+		if req.Header.Get(luckyTVVideoDeliveryHeader) != "" {
 			t.Fatal("opted in a custom provider")
 		}
 	}
@@ -360,7 +360,7 @@ func TestSeedanceOctetStreamMP4IsVideoForDirectAndBackup(t *testing.T) {
 					_, _ = w.Write(payload)
 				}))
 				defer server.Close()
-				ctx := WithEndpoints(context.Background(), Endpoints{BeefTVVideoBaseURL: server.URL})
+				ctx := WithEndpoints(context.Background(), Endpoints{LuckyTVVideoBaseURL: server.URL})
 				ctx = WithCallMeta(ctx, CallMeta{ProviderRequestID: "original"})
 				policy := DefaultVideoPollPolicy()
 				policy.Sleep = func(context.Context, time.Duration) error { return nil }

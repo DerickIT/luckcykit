@@ -1,4 +1,4 @@
-name: beeftv-dev
+name: luckytv-dev
 
 services:
   backend:

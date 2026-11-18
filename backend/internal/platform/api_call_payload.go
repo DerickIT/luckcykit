@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"infinite-canvas/backend/internal/kernel"
+	"luckytv/backend/internal/kernel"
 	"io"
 	"mime"
 	"mime/multipart"

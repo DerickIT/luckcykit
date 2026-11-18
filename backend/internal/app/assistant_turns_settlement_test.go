@@ -10,9 +10,9 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"infinite-canvas/backend/internal/database"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/database"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 )
 
 // 结算与归属的边界回归：

@@ -3,8 +3,8 @@ package task
 import (
 	"time"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
 )
 
 // Service is the local task admission and lifecycle boundary.

@@ -19,9 +19,9 @@ const fixtureConfig: AiConfig = {
     ...defaultConfig,
     channels: [
         {
-            id: "beeftv",
-            name: "BeefTV 官方算力",
-            baseUrl: "https://beeftv.example",
+            id: "luckytv",
+            name: "LuckyTV 官方算力",
+            baseUrl: "https://luckytv.example",
             apiKey: "fixture",
             apiFormat: "openai",
             models: ["fixture-image", "fixture-video", "fixture-audio"],
@@ -32,9 +32,9 @@ const fixtureConfig: AiConfig = {
             ],
         },
     ],
-    imageModel: "beeftv::fixture-image",
-    videoModel: "beeftv::fixture-video",
-    audioModel: "beeftv::fixture-audio",
+    imageModel: "luckytv::fixture-image",
+    videoModel: "luckytv::fixture-video",
+    audioModel: "luckytv::fixture-audio",
 };
 
 describe("formatInlineCostEstimate", () => {
@@ -136,7 +136,7 @@ describe("generation cost targets", () => {
                 prompt: "",
             }),
         ).toEqual({
-            modelKey: "beeftv::fixture-video",
+            modelKey: "luckytv::fixture-video",
             kind: "video",
             parameters: { vquality: "720", seconds: "4", count: "1" },
             referenceImages: 1,
@@ -146,7 +146,7 @@ describe("generation cost targets", () => {
         const audioConfig = buildGenerationConfig(fixtureConfig, createCanvasNode(CanvasNodeType.Audio, { x: 0, y: 0 }), "audio");
         expect(canvasNodeCostTarget({ mode: "audio", config: audioConfig, referenceImages: 0, referenceVideos: 0, prompt: "   " })).toBeNull();
         expect(canvasNodeCostTarget({ mode: "audio", config: audioConfig, referenceImages: 0, referenceVideos: 0, prompt: " 欢迎收看牛肉粉 " })).toEqual({
-            modelKey: "beeftv::fixture-audio",
+            modelKey: "luckytv::fixture-audio",
             kind: "audio",
             parameters: { count: "1" },
             text: "欢迎收看牛肉粉",
@@ -159,7 +159,7 @@ describe("generation cost targets", () => {
         expect(
             creationComposerCostTarget({
                 mode: "video",
-                model: "beeftv::fixture-video",
+                model: "luckytv::fixture-video",
                 imageProfile,
                 videoProfile,
                 ratio: "16:9",
@@ -171,7 +171,7 @@ describe("generation cost targets", () => {
                 referenceVideos: 0,
             }),
         ).toEqual({
-            modelKey: "beeftv::fixture-video",
+            modelKey: "luckytv::fixture-video",
             kind: "video",
             parameters: { vquality: "720", seconds: "10", count: "1" },
             referenceImages: 2,
@@ -180,7 +180,7 @@ describe("generation cost targets", () => {
         expect(
             creationComposerCostTarget({
                 mode: "text",
-                model: "beeftv::fixture-video",
+                model: "luckytv::fixture-video",
                 imageProfile,
                 videoProfile,
                 ratio: "16:9",
@@ -200,13 +200,13 @@ describe("generation cost targets", () => {
         ];
         expect(batchTableCostTargets(fixtureConfig, rows, [existingOutput])).toEqual([
             {
-                modelKey: "beeftv::fixture-image",
+                modelKey: "luckytv::fixture-image",
                 kind: "image",
                 parameters: { size: "1536x1024", quality: "high", count: "2" },
                 referenceImages: 2,
             },
             {
-                modelKey: "beeftv::fixture-image",
+                modelKey: "luckytv::fixture-image",
                 kind: "image",
                 parameters: { size: "1:1", quality: "auto", count: "1" },
                 referenceImages: 1,
@@ -231,7 +231,7 @@ describe("generation cost targets", () => {
 
     test("超过 200 行的批量估算直接透传服务端单次汇总，失败时回退安全说明", async () => {
         const targets = Array.from({ length: 250 }, (_, index) => ({
-            modelKey: "beeftv::fixture-image",
+            modelKey: "luckytv::fixture-image",
             kind: "image" as const,
             parameters: { size: "1:1", count: String((index % 2) + 1) },
         }));

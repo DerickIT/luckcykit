@@ -1,20 +1,18 @@
 import { expect, test } from "bun:test";
+import { isBrowserLocalRuntimeFor } from "@/lib/runtime-mode";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const repository = readFileSync(resolve(import.meta.dir, "../src/services/local-workspace-repository.ts"), "utf8");
 const lifecycle = readFileSync(resolve(import.meta.dir, "../src/pages/canvas/use-canvas-project-lifecycle.ts"), "utf8");
 
-test("desktop local canvas creation starts durable sync without waiting for cache flush", () => {
-    const begin = repository.indexOf("export function beginLocalCanvasProject(");
-    const sync = repository.indexOf("const saved = syncLocalCanvasProject(id);", begin);
-    const returned = repository.indexOf("return { id, saved };", sync);
-    expect(begin).toBeGreaterThan(-1);
-    expect(sync).toBeGreaterThan(begin);
-    expect(returned).toBeGreaterThan(sync);
-    expect(repository.slice(begin, sync)).not.toContain("await flushCanvasStorePersistence();");
-    expect(repository).toContain("const { id, saved } = beginLocalCanvasProject(title, projectId, initialContent, workspaceProjectId);");
-    expect(repository).toContain("await saved;");
+test("runtime selects browser persistence only without a desktop or backend runtime", () => {
+    expect(isBrowserLocalRuntimeFor({ desktopShell: false, embedded: false, backendConfigured: false, productionBuild: true, apiBaseURL: "/api" })).toBe(true);
+    expect(isBrowserLocalRuntimeFor({ desktopShell: false, embedded: false, backendConfigured: false, productionBuild: false, apiBaseURL: "/api" })).toBe(false);
+    expect(isBrowserLocalRuntimeFor({ desktopShell: false, embedded: false, backendConfigured: true, productionBuild: true, apiBaseURL: "/api" })).toBe(false);
+    expect(isBrowserLocalRuntimeFor({ desktopShell: false, embedded: false, backendConfigured: false, productionBuild: true, apiBaseURL: "http://127.0.0.1:8080/api" })).toBe(false);
+    expect(isBrowserLocalRuntimeFor({ desktopShell: true, embedded: false, backendConfigured: false, productionBuild: true, apiBaseURL: "/api" })).toBe(false);
+    expect(isBrowserLocalRuntimeFor({ desktopShell: false, embedded: true, backendConfigured: false, productionBuild: true, apiBaseURL: "/api" })).toBe(false);
 });
 
 test("local canvas edits schedule and explicit saves await backend persistence", () => {

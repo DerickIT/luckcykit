@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"infinite-canvas/backend/internal/assistantturns"
+	"luckytv/backend/internal/assistantturns"
 )
 
 func TestProposalRunRejectedAfterUndo(t *testing.T) {

@@ -15,7 +15,7 @@ import { canonicalModelProtocol, modelProtocolDefinitionFor, defaultProtocolForC
 import { signatureCredentialHint } from "@/lib/service-credentials";
 import { fetchPluginProviderCatalog } from "@/services/api/plugin-catalog";
 import { normalizeModelCapabilityDraft } from "@/services/api/workspace";
-import { isBuiltinBeefTVChannel, modelOptionName, type ModelChannel } from "@/stores/use-config-store";
+import { isBuiltinLuckyTVChannel, modelOptionName, type ModelChannel } from "@/stores/use-config-store";
 import { channelTextProtocols, effectiveTextProtocol, useChannelRequestUrls } from "./use-channel-request-urls";
 import { UrlText } from "./channel-request-addresses";
 import { TextProtocolDetection } from "./text-protocol-detection";
@@ -65,7 +65,7 @@ export function ChannelModelSettings({
     }, [focusModel?.model, focusModel?.token]);
 
     // 官方托管渠道的地址由后端改写，这里不展示请求地址。钩子要在下面的提前返回之前调用。
-    const showRequestUrls = channel.scope !== "system" && !isBuiltinBeefTVChannel(channel);
+    const showRequestUrls = channel.scope !== "system" && !isBuiltinLuckyTVChannel(channel);
     const requestUrls = useChannelRequestUrls(showRequestUrls ? channel.baseUrl : "", channel.apiFormat, channelTextProtocols(channel));
 
     if (!channel.models.length) return (

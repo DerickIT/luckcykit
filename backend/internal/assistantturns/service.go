@@ -3,13 +3,13 @@ package assistantturns
 import (
 	"encoding/json"
 	"errors"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/skills"
 	"strings"
 	"time"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 // Service owns assistant business-round algorithms. pi owns model session

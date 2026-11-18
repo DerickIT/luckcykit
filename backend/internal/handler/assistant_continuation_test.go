@@ -3,9 +3,9 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/assistantturns"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/assistantturns"
+	"luckytv/backend/internal/model"
 	"net/http"
 	"testing"
 )
@@ -87,7 +87,7 @@ func TestAssistantContinuationHTTPHasNoBrowserClaimAndKeepsTrustedTurn(t *testin
 	if stopped.Code != 200 {
 		t.Fatal(stopped.Code)
 	}
-	headers := map[string]string{"X-Beeftv-Agent-Token": assistantTestHostToken}
+	headers := map[string]string{"X-Luckytv-Agent-Token": assistantTestHostToken}
 	completed := env.callWithHeaders(t, http.MethodPost, "/assistant/runtime/turns/"+row.TurnID+"/complete", "{}", headers)
 	state := decodeEnvelope(t, completed)
 	if completed.Code != 200 || state["open"] != false || state["continuationRevoked"] != true {
@@ -199,7 +199,7 @@ func TestAssistantContinuationSkillLoadKeepsItsBoundTurnAuthorized(t *testing.T)
 	}
 	pin := installTestSkill(t, env, owner.ID, map[string]string{"SKILL.md": "---\nname: Continue\ndescription: edit\n---\nInspect then edit."})
 	path := "/assistant/runtime/canvases/" + env.canvasID + "/skill-context"
-	headers := map[string]string{"X-Beeftv-Agent-Token": assistantTestHostToken}
+	headers := map[string]string{"X-Luckytv-Agent-Token": assistantTestHostToken}
 	for _, body := range []string{
 		`{"sessionId":"` + skillSessionOne + `","origin":"skill_load","action":"activate","requestId":"spoof","expectedRevision":0}`,
 		`{"sessionId":"` + skillSessionOne + `","origin":"skill_load","turnId":"` + row.TurnID + `","action":"new_scope","requestId":"spoof","expectedRevision":0}`,

@@ -9,10 +9,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"infinite-canvas/backend/internal/editing"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/operations"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/editing"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/operations"
+	"luckytv/backend/internal/repository"
 )
 
 func TestTimelineSubtitleOnlyUpdateAndRenderKeepSavedPortraitOutput(t *testing.T) {

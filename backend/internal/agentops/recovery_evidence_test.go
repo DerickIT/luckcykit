@@ -3,9 +3,9 @@ package agentops_test
 import (
 	"encoding/json"
 	"errors"
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 	"testing"
 )
 

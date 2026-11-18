@@ -24,16 +24,16 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/asset"
-	"infinite-canvas/backend/internal/database"
-	"infinite-canvas/backend/internal/mediatools"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/asset"
+	"luckytv/backend/internal/database"
+	"luckytv/backend/internal/mediatools"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 )
 
 func TestHandlerFakeMediaToolHelperProcess(t *testing.T) {
-	mode := os.Getenv("BEEFTV_HANDLER_FAKE_TOOL")
+	mode := os.Getenv("LUCKYTV_HANDLER_FAKE_TOOL")
 	if mode == "" {
 		return
 	}
@@ -57,11 +57,11 @@ func TestHandlerFakeMediaToolHelperProcess(t *testing.T) {
 		_, _ = fmt.Fprint(os.Stdout, `{"streams":[{"codec_type":"video","codec_name":"h264","width":96,"height":54,"avg_frame_rate":"10/1","duration":"1.000"},{"codec_type":"audio","codec_name":"aac","duration":"1.000"}],"format":{"format_name":"mov,mp4,m4a","duration":"1.000"}}`)
 		os.Exit(0)
 	case "ffmpeg":
-		if os.Getenv("BEEFTV_HANDLER_FAKE_CORRUPT") == "1" {
+		if os.Getenv("LUCKYTV_HANDLER_FAKE_CORRUPT") == "1" {
 			_, _ = fmt.Fprintf(os.Stderr, "%s: Invalid data found when processing input\n", strings.Join(toolArgs, " "))
 			os.Exit(1)
 		}
-		if os.Getenv("BEEFTV_HANDLER_FAKE_SLOW") == "1" {
+		if os.Getenv("LUCKYTV_HANDLER_FAKE_SLOW") == "1" {
 			time.Sleep(400 * time.Millisecond)
 		}
 		for _, arg := range toolArgs {
@@ -94,7 +94,7 @@ func installHandlerFakeMediaTools(t *testing.T) {
 	dir := t.TempDir()
 	write := func(name, mode string) string {
 		p := filepath.Join(dir, name)
-		body := fmt.Sprintf("#!/bin/sh\nexport BEEFTV_HANDLER_FAKE_TOOL=%s\nexec %q -test.run=^TestHandlerFakeMediaToolHelperProcess$ -- \"$@\"\n", mode, testBin)
+		body := fmt.Sprintf("#!/bin/sh\nexport LUCKYTV_HANDLER_FAKE_TOOL=%s\nexec %q -test.run=^TestHandlerFakeMediaToolHelperProcess$ -- \"$@\"\n", mode, testBin)
 		if err := os.WriteFile(p, []byte(body), 0o755); err != nil {
 			t.Fatal(err)
 		}
@@ -213,13 +213,13 @@ func TestResourceDeriveRoutesHTTPContractsWithoutNativeFFmpeg(t *testing.T) {
 		t.Fatalf("expected 499 request_cancelled, got %d: %s", recCancelled.Code, recCancelled.Body.String())
 	}
 
-	t.Setenv("BEEFTV_HANDLER_FAKE_SLOW", "1")
+	t.Setenv("LUCKYTV_HANDLER_FAKE_SLOW", "1")
 	timeoutCtx, cancelTimeout := context.WithTimeout(context.Background(), 80*time.Millisecond)
 	defer cancelTimeout()
 	reqTimeout := httptest.NewRequest(http.MethodPost, "/api/resources/video-contract-1/separate-audio", nil).WithContext(timeoutCtx)
 	recTimeout := httptest.NewRecorder()
 	router.ServeHTTP(recTimeout, reqTimeout)
-	t.Setenv("BEEFTV_HANDLER_FAKE_SLOW", "")
+	t.Setenv("LUCKYTV_HANDLER_FAKE_SLOW", "")
 	if recTimeout.Code != http.StatusRequestTimeout || !strings.Contains(recTimeout.Body.String(), `"reason":"timeout"`) {
 		t.Fatalf("expected 408 timeout, got %d: %s", recTimeout.Code, recTimeout.Body.String())
 	}
@@ -230,13 +230,13 @@ func TestResourceDeriveRoutesHTTPContractsWithoutNativeFFmpeg(t *testing.T) {
 	log.SetOutput(&logBuf)
 	defer log.SetOutput(prevWriter)
 
-	t.Setenv("BEEFTV_HANDLER_FAKE_CORRUPT", "1")
+	t.Setenv("LUCKYTV_HANDLER_FAKE_CORRUPT", "1")
 	bodyFirst, _ := json.Marshal(asset.ExtractVideoFramesRequest{Preset: "first"})
 	reqCorrupt := httptest.NewRequest(http.MethodPost, "/api/resources/video-contract-1/frames", bytes.NewReader(bodyFirst))
 	reqCorrupt.Header.Set("Content-Type", "application/json")
 	recCorrupt := httptest.NewRecorder()
 	router.ServeHTTP(recCorrupt, reqCorrupt)
-	t.Setenv("BEEFTV_HANDLER_FAKE_CORRUPT", "")
+	t.Setenv("LUCKYTV_HANDLER_FAKE_CORRUPT", "")
 	if recCorrupt.Code != http.StatusBadRequest || strings.Contains(recCorrupt.Body.String(), "Invalid data") || strings.Contains(recCorrupt.Body.String(), "Workspace With Spaces") {
 		t.Fatalf("expected sanitized 400 response, got %d: %s", recCorrupt.Code, recCorrupt.Body.String())
 	}

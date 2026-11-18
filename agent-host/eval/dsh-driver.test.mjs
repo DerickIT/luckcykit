@@ -24,7 +24,7 @@ describe('dsh headless 事件流解析', () => {
     const parsed = parseDshEvents(ndjson(
       { type: 'session', sessionId: 'session-1', cwd: '/w' },
       { type: 'status', phase: 'step_start', turn: 1, step: 1 },
-      { type: 'tool_call', callId: 'c1', tool: 'skill', input: { name: 'beeftv-canvas' } },
+      { type: 'tool_call', callId: 'c1', tool: 'skill', input: { name: 'luckytv-canvas' } },
       { type: 'status', phase: 'step_end', turn: 1, step: 1, usage: { inputTokens: 100, cacheReadTokens: 900, outputTokens: 10 } },
       { type: 'status', phase: 'step_end', turn: 1, step: 2, usage: { inputTokens: 20, cacheReadTokens: 80, outputTokens: 5 } },
       { type: 'status', phase: 'turn_end', turn: 1, reason: { kind: 'completed' } },
@@ -147,8 +147,8 @@ describe('dsh headless 事件流解析', () => {
     expect(costOfTokens(parsed.usage, { input: 0.2, cache: 0.004, output: 0.8 })).toBeCloseTo(0.003948, 6);
   });
 
-  test('从 beeftv mcp serve 的 stderr 读回真实工具数', () => {
-    expect(dshToolCount('beeftv mcp serve: 40 个工具，base=http://127.0.0.1:1（BEEFTV_BASE_URL）\n')).toBe(40);
+  test('从 luckytv mcp serve 的 stderr 读回真实工具数', () => {
+    expect(dshToolCount('luckytv mcp serve: 40 个工具，base=http://127.0.0.1:1（LUCKYTV_BASE_URL）\n')).toBe(40);
     expect(dshToolCount('')).toBe(0);
   });
 });
@@ -195,28 +195,28 @@ describe('dsh 会话日志用量', () => {
 });
 
 describe('dsh 隔离配置', () => {
-  test('overlay 挂 BeefTV MCP、关掉多余工具、工具超时 120 秒', () => {
+  test('overlay 挂 LuckyTV MCP、关掉多余工具、工具超时 120 秒', () => {
     const yaml = buildOverlayPatch({
-      cli: '/tmp/beeftv', baseUrl: 'http://127.0.0.1:1234/api', ownerToken: 'tok',
+      cli: '/tmp/luckytv', baseUrl: 'http://127.0.0.1:1234/api', ownerToken: 'tok',
       sourceModel: { provider: 'provider-a', model: 'm1', reasoningEffort: 'high' },
     });
     expect(yaml).toContain("name: '@deepseek-ai/dsh-mcp-client'");
     expect(yaml).toContain('toolCallTimeoutMs: 120000');
-    expect(yaml).toContain('BEEFTV_BASE_URL: "http://127.0.0.1:1234/api"');
-    expect(yaml).toContain('BEEFTV_OWNER_TOKEN: "tok"');
+    expect(yaml).toContain('LUCKYTV_BASE_URL: "http://127.0.0.1:1234/api"');
+    expect(yaml).toContain('LUCKYTV_OWNER_TOKEN: "tok"');
     expect(yaml).toContain('- id: tool-bash\n  disabled: true');
     expect(yaml).not.toContain('- id: tool-skill\n  disabled: true');
   });
 
   test('指定模型时覆盖默认模型；缺 provider 时明确报错', () => {
     const yaml = buildOverlayPatch({
-      cli: 'beeftv', baseUrl: 'http://x', ownerToken: 't',
+      cli: 'luckytv', baseUrl: 'http://x', ownerToken: 't',
       modelOverride: { provider: 'provider-b', model: 'model-b' },
     });
     expect(yaml).toContain('provider: "provider-b"');
     expect(yaml).toContain('model: "model-b"');
     expect(yaml).toContain('reasoningEffort');
-    expect(() => buildOverlayPatch({ cli: 'beeftv', baseUrl: 'u', ownerToken: 't', modelOverride: { provider: '', model: 'm' } })).toThrow('provider/model');
+    expect(() => buildOverlayPatch({ cli: 'luckytv', baseUrl: 'u', ownerToken: 't', modelOverride: { provider: '', model: 'm' } })).toThrow('provider/model');
   });
 
   test('从源 profile 读默认模型、密钥环境变量名和模型覆盖格式', () => {
@@ -271,17 +271,17 @@ describe('dsh 隔离配置', () => {
   });
 
   test('DSH 准备阶段失败时删掉临时 home，不留 token 和凭据副本', () => {
-    const before = new Set(fs.readdirSync(os.tmpdir()).filter((name) => name.startsWith('beeftv-eval-dsh-')));
+    const before = new Set(fs.readdirSync(os.tmpdir()).filter((name) => name.startsWith('luckytv-eval-dsh-')));
     expect(() => prepareDshAgent({
       workDir: os.tmpdir(),
       baseUrl: 'http://127.0.0.1:1/api',
       ownerToken: 'tmp-token',
-      cli: 'beeftv',
+      cli: 'luckytv',
       bin: path.join(os.tmpdir(), 'missing-dsh-binary-for-test'),
       sourceHome: path.join(os.tmpdir(), 'missing-dsh-source-for-test'),
     })).toThrow('dsh_profile_init_failed');
     const leaked = fs.readdirSync(os.tmpdir())
-      .filter((name) => name.startsWith('beeftv-eval-dsh-') && !before.has(name));
+      .filter((name) => name.startsWith('luckytv-eval-dsh-') && !before.has(name));
     expect(leaked).toEqual([]);
   });
 });

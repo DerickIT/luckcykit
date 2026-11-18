@@ -7,8 +7,8 @@ import (
 
 	"gorm.io/gorm"
 
-	"infinite-canvas/backend/internal/assistantturns"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/assistantturns"
+	"luckytv/backend/internal/skills"
 )
 
 const contextSession = "durable:11111111-2222-3333-4444-555555555555"

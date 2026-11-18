@@ -3,7 +3,7 @@ package playback
 import (
 	"context"
 	"crypto/sha256"
-	"infinite-canvas/backend/internal/mediatools"
+	"luckytv/backend/internal/mediatools"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -14,7 +14,7 @@ import (
 // Runs under a relocated test executable beside the actual packaged runtime.
 // The caller supplies only that test process a PATH with no ffmpeg executable.
 func TestBundledWindowsHEVCWithoutSystemFFmpeg(t *testing.T) {
-	if runtime.GOOS != "windows" || os.Getenv("BEEFTV_TEST_BUNDLED_MEDIA") != "1" {
+	if runtime.GOOS != "windows" || os.Getenv("LUCKYTV_TEST_BUNDLED_MEDIA") != "1" {
 		t.Skip("native packaged Windows acceptance")
 	}
 	if path, err := exec.LookPath("ffmpeg"); err == nil {

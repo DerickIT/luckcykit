@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	assetlib "infinite-canvas/backend/internal/asset"
-	"infinite-canvas/backend/internal/model"
+	assetlib "luckytv/backend/internal/asset"
+	"luckytv/backend/internal/model"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

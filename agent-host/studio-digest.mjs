@@ -9,7 +9,7 @@ const TYPE_LABEL = {
 };
 const MEDIA = new Set(['image', 'video', 'audio']);
 
-const HEADER_SECTION_ORDER = ['instructions', 'beeftv_skill_catalog'];
+const HEADER_SECTION_ORDER = ['instructions', 'luckytv_skill_catalog'];
 
 function extractMessageText(message) {
   if (!message) return '';
@@ -21,7 +21,7 @@ function extractMessageText(message) {
 }
 
 const SERIALIZED_STUDIO_TAIL_RE =
-  /^(?:\[系统恢复：以下技能之前已加载，因对话被压缩，原文补回。[\s\S]*<\/skill>(?:\n\n|$))?(?:<beeftv_plan>\n[\s\S]*\n<\/beeftv_plan>(?:\n\n|$))?(?:<beeftv_studio>\n[\s\S]*\n<\/beeftv_studio>)?$/;
+  /^(?:\[系统恢复：以下技能之前已加载，因对话被压缩，原文补回。[\s\S]*<\/skill>(?:\n\n|$))?(?:<luckytv_plan>\n[\s\S]*\n<\/luckytv_plan>(?:\n\n|$))?(?:<luckytv_studio>\n[\s\S]*\n<\/luckytv_studio>)?$/;
 
 export function isTransientStudioTailMessage(message) {
   if (!message || message.role !== 'user') return false;
@@ -29,8 +29,8 @@ export function isTransientStudioTailMessage(message) {
   const text = extractMessageText(message).trim();
   if (!text) return false;
   return (
-    (text.startsWith('<beeftv_studio>\n') ||
-      text.startsWith('<beeftv_plan>\n') ||
+    (text.startsWith('<luckytv_studio>\n') ||
+      text.startsWith('<luckytv_plan>\n') ||
       text.startsWith('[系统恢复：以下技能之前已加载，因对话被压缩，原文补回。')) &&
     SERIALIZED_STUDIO_TAIL_RE.test(text)
   );
@@ -55,7 +55,7 @@ function hasPrunableImagePart(message, minChars = DEFAULT_MIN_PRUNE_IMAGE_CHARS)
 
 function isSupplementUserMessage(message) {
   if (!message || message.role !== 'user') return false;
-  return extractMessageText(message).includes('[BEEFTV_INPUT:');
+  return extractMessageText(message).includes('[LUCKYTV_INPUT:');
 }
 
 function assistantToolNames(message) {
@@ -147,7 +147,7 @@ export function pruneHistoricalToolImages(messages = [], { minImageChars = DEFAU
 }
 
 // Pin stable system sections from the initial system message in deterministic
-// key order (instructions first, beeftv_skill_catalog second), falling back to
+// key order (instructions first, luckytv_skill_catalog second), falling back to
 // getCurrentSystemMessage only if a section was absent on messages[0]. Even if
 // a session is reopened after a restart and a later turn emits a modified catalog
 // delta, pinning from messages[0] keeps the leading header byte-identical.
@@ -200,16 +200,16 @@ export function withCurrentStudio(messages, digest, options = {}) {
   if (typeof planText === 'string' && planText.trim()) {
     const trimmedPlan = planText.trim();
     tailBlocks.push(
-      trimmedPlan.startsWith('<beeftv_plan>')
+      trimmedPlan.startsWith('<luckytv_plan>')
         ? trimmedPlan
-        : `<beeftv_plan>\n${trimmedPlan}\n</beeftv_plan>`,
+        : `<luckytv_plan>\n${trimmedPlan}\n</luckytv_plan>`,
     );
   }
   if (includeStudio) {
     const studioText =
       digest ||
       '当前画布无法读取，现场状态未知。不要使用历史快照推断当前内容；本次相关写入已暂停，请说明读取失败后再继续。';
-    tailBlocks.push(`<beeftv_studio>\n${studioText}\n</beeftv_studio>`);
+    tailBlocks.push(`<luckytv_studio>\n${studioText}\n</luckytv_studio>`);
   }
   if (tailBlocks.length === 0) {
     return normalized;

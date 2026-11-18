@@ -3,13 +3,13 @@ package asset
 import (
 	"errors"
 	"fmt"
-	"infinite-canvas/backend/internal/kernel"
+	"luckytv/backend/internal/kernel"
 	"log"
 	"strings"
 	"sync"
 	"time"
 
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/repository"
 )
 
 // FileQuota owns file reservations and pending bytes. The lock also guards

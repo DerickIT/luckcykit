@@ -3,8 +3,8 @@ package app
 import (
 	"context"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/taskdelivery"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/taskdelivery"
 )
 
 func (s *Service) persistTaskGeneratedMediaResult(task model.Task, result map[string]interface{}) (map[string]interface{}, error) {

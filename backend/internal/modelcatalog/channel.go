@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
 )
 
 const maxAdminChannelModelBatchDeleteCount = 100

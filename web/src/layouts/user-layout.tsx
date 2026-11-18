@@ -21,6 +21,7 @@ import { notifyExternalCanvasEvent } from "@/services/canvas-external-writes";
 import { hydrateLocalCanvasProjectsFromBackend, openLocalCanvasProjectFromBackend, refreshLocalCanvasProjectIfChanged } from "@/services/local-workspace-repository";
 import { syncPluginsFromBackend } from "@/services/plugin-sync";
 import { isLocalWorkspaceMode } from "@/services/workspace-mode";
+import { isBrowserLocalRuntime } from "@/lib/runtime-mode";
 import "@/styles/workspace-product.css";
 
 const workspaceTheme = getWorkspaceAntThemeConfig();
@@ -50,11 +51,11 @@ export default function UserLayout({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         // A failed read keeps the plugins remembered in this browser.
-        void syncPluginsFromBackend().catch(() => undefined);
+        if (!isBrowserLocalRuntime()) void syncPluginsFromBackend().catch(() => undefined);
     }, []);
 
     useEffect(() => {
-        if (!isLocalWorkspaceMode()) return;
+        if (!isLocalWorkspaceMode() || isBrowserLocalRuntime()) return;
         const refreshProjects = () => {
             if (document.hidden) return;
             void hydrateLocalCanvasProjectsFromBackend();

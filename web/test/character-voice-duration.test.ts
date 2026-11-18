@@ -33,7 +33,7 @@ test("stored character voice keeps duration through canvas hydration and preflig
         expect(hydrated.referenceAudios[0]?.durationMs).toBe(2500);
         expect(hydrated.referenceAudios[0]?.bytes).toBe(1234);
         const model = "seedance-2.5";
-        const profile = modelCapabilityConfigFor({ channels: [{ id: "beef", models: [model], modelProfiles: [{ model, protocol: "newapi-channel-2" }] }] }, `beef::${model}`).video!;
+        const profile = modelCapabilityConfigFor({ channels: [{ id: "lucky", models: [model], modelProfiles: [{ model, protocol: "newapi-channel-2" }] }] }, `lucky::${model}`).video!;
     } finally {
         character.mockRestore();
         resource.mockRestore();

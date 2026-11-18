@@ -1,5 +1,5 @@
-// Package pricing turns BeefTV official compute's published price rows into estimates before a
-// generation is submitted. It is the only place BeefTV computes a price; the
+// Package pricing turns LuckyTV official compute's published price rows into estimates before a
+// generation is submitted. It is the only place LuckyTV computes a price; the
 // bill stays authoritative.
 package pricing
 
@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// Table keeps the field names of one row in BeefTV official compute's public price catalog
+// Table keeps the field names of one row in LuckyTV official compute's public price catalog
 // (/api/enterprise/catalog), so a stored model profile reads like its source.
 type Table struct {
 	Mode                string             `json:"mode"`
@@ -38,7 +38,7 @@ type ImageTable struct {
 	AutoQuality         string                        `json:"auto_quality,omitempty"`
 }
 
-// VideoSecondRate is BeefTV official compute's per-second conversion of a video token price.
+// VideoSecondRate is LuckyTV official compute's per-second conversion of a video token price.
 type VideoSecondRate struct {
 	Resolution string  `json:"resolution"`
 	Output     float64 `json:"output_per_second_cny"`

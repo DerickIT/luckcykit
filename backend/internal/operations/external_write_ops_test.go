@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/operations"
 )
 
 func externalCaller(clientID, label string) operations.Caller {

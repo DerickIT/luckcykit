@@ -1,6 +1,6 @@
 package diagnostics
 
-import "infinite-canvas/backend/internal/supporttrace"
+import "luckytv/backend/internal/supporttrace"
 
 func (s *Service) collectTraceEvidence(userID string, c *collection) {
 	if s.traceSource == nil {

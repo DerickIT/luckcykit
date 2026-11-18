@@ -131,10 +131,10 @@ for (const file of files) {
 
   if (!/\.(?:md|mdx)$/i.test(file)) continue;
   const prose = source.replace(/```[\s\S]*?```/g, "").replace(/`[^`\r\n]*`/g, "");
-  const legacyUpstreamBrandRegex = new RegExp(`\\b${"Beef" + "API"}\\b`, "i");
+  const legacyUpstreamBrandRegex = new RegExp(`\\b${"Lucky" + "API"}\\b`, "i");
   prose.split(/\r?\n/).forEach((line, idx) => {
     if (legacyUpstreamBrandRegex.test(line)) {
-      patternFailures.push(`${file}:${idx + 1}: [upstream brand name (use BeefTV 官方算力)] ${line.trim()}`);
+      patternFailures.push(`${file}:${idx + 1}: [upstream brand name (use LuckyTV 官方算力)] ${line.trim()}`);
     }
   });
   const targets = [

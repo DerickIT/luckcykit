@@ -1,9 +1,9 @@
 package app
 
 import (
-	"infinite-canvas/backend/internal/creation"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/creation"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 )
 
 func mergeCreationMaps(left, right map[string]any) map[string]any {

@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"strings"
 
-	"infinite-canvas/backend/internal/assets"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/assets"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 )
 
 func (l *Library) UpsertUserAsset(userID string, raw json.RawMessage) (Summary, error) {

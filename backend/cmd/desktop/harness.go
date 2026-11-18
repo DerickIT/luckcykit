@@ -20,16 +20,16 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"infinite-canvas/backend/internal/bootstrap"
-	"infinite-canvas/backend/internal/buildinfo"
-	httptransport "infinite-canvas/backend/internal/transport/http"
+	"luckytv/backend/internal/bootstrap"
+	"luckytv/backend/internal/buildinfo"
+	httptransport "luckytv/backend/internal/transport/http"
 )
 
-const harnessTokenHeader = "X-Beeftv-Harness-Token"
+const harnessTokenHeader = "X-Luckytv-Harness-Token"
 
 // The DSH Host marks every request it proxies for the embedded workspace page.
 // Its own calls carry no marker, because it registers its MCP client here.
-const harnessPageHeader = "X-Beeftv-Harness-Page"
+const harnessPageHeader = "X-Luckytv-Harness-Page"
 
 type harnessRuntimeConfig struct {
 	DesktopRuntimeConfig
@@ -52,7 +52,7 @@ func handleHarnessCommand(args []string) (bool, error) {
 	if !hasHarnessFlag(args) {
 		return false, nil
 	}
-	flags := flag.NewFlagSet("BeefTV harness runtime", flag.ContinueOnError)
+	flags := flag.NewFlagSet("LuckyTV harness runtime", flag.ContinueOnError)
 	flags.SetOutput(os.Stderr)
 	flags.Bool("harness-runtime", false, "run or attach the local workspace backend")
 	attachOnly := flags.Bool("harness-attach-only", false, "attach without opening a workspace backend")
@@ -77,7 +77,7 @@ func handleHarnessCommand(args []string) (bool, error) {
 		return true, json.NewEncoder(os.Stdout).Encode(config)
 	}
 	if *attachOnly {
-		return true, errors.New("本机 BeefTV 尚未就绪，请先启动桌面应用")
+		return true, errors.New("本机 LuckyTV 尚未就绪，请先启动桌面应用")
 	}
 	// Readiness is the only stdout record. Backend diagnostics belong on stderr.
 	gin.DefaultWriter = os.Stderr
@@ -191,8 +191,8 @@ func harnessHTTPHandler(config harnessRuntimeConfig, api http.Handler, frontend 
 		}
 		request := r.Clone(r.Context())
 		cleaned := path.Clean("/" + strings.TrimPrefix(request.URL.Path, "/"))
-		if cleaned == "/beeftv/app" || strings.HasPrefix(cleaned, "/beeftv/app/") {
-			cleaned = strings.TrimPrefix(cleaned, "/beeftv/app")
+		if cleaned == "/luckytv/app" || strings.HasPrefix(cleaned, "/luckytv/app/") {
+			cleaned = strings.TrimPrefix(cleaned, "/luckytv/app")
 		}
 		if cleaned == "" {
 			cleaned = "/"
@@ -212,11 +212,11 @@ func harnessHTTPHandler(config harnessRuntimeConfig, api http.Handler, frontend 
 			backendURL, _ := url.Parse(config.BaseURL)
 			request.Host = backendURL.Host
 			request.Header.Set("Origin", "wails://wails")
-			for _, header := range []string{harnessTokenHeader, harnessPageHeader, "X-Beeftv-Client", "X-Beeftv-Owner", "X-Beeftv-Agent-Turn", "X-Beeftv-Agent-Token"} {
+			for _, header := range []string{harnessTokenHeader, harnessPageHeader, "X-Luckytv-Client", "X-Luckytv-Owner", "X-Luckytv-Agent-Turn", "X-Luckytv-Agent-Token"} {
 				request.Header.Del(header)
 			}
 			request.Header.Set("X-Desktop-Token", config.LaunchToken)
-			request.Header.Set("X-Beeftv-UI-Bootstrap", config.UIBootstrapToken)
+			request.Header.Set("X-Luckytv-UI-Bootstrap", config.UIBootstrapToken)
 			api.ServeHTTP(w, request)
 			return
 		}

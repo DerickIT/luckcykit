@@ -11,15 +11,15 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	localasset "infinite-canvas/backend/internal/asset"
-	"infinite-canvas/backend/internal/eagle"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/plugins"
+	localasset "luckytv/backend/internal/asset"
+	"luckytv/backend/internal/eagle"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/plugins"
 )
 
 const maxSaveFileNameBytes = 180
 
-// Wails v2 JSON-unmarshals []byte from a base64 string. JS strings are UTF-16,
+// The Wails binding layer JSON-unmarshals []byte from a base64 string. JS strings are UTF-16,
 // so 32MiB raw is about 43MiB base64 and ~86MiB of string memory plus the
 // original ArrayBuffer and the IPC copy. Larger caps still risk the WebView.
 const maxOwnedArtifactBytes = 32 << 20
@@ -109,7 +109,7 @@ func writeOwnedFileWith(dest string, src *os.File, write func(io.Writer) error) 
 		return err
 	}
 	directory := filepath.Dir(dest)
-	temporary, err := os.CreateTemp(directory, ".beeftv-save-*")
+	temporary, err := os.CreateTemp(directory, ".luckytv-save-*")
 	if err != nil {
 		return errors.New("无法写入所选位置")
 	}

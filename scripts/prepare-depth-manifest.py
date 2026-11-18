@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import sys
 
-BASE = "https://github.com/glanderness/BeefTV/releases/download/depth-runtime-v2/"
+BASE = "https://github.com/glanderness/LuckyTV/releases/download/depth-runtime-v2/"
 
 
 def verify_file(root, entry):
@@ -24,7 +24,7 @@ def verify_file(root, entry):
 def prepare(root):
     runtimes = {}
     for variant in ("cpu", "cuda"):
-        name = f"beeftv-depth-runtime-v1-windows-amd64-{variant}.zip"
+        name = f"luckytv-depth-runtime-v1-windows-amd64-{variant}.zip"
         meta = json.loads((root / (name + ".json")).read_text(encoding="utf-8-sig"))
         if meta["name"] != name or not 0 < meta["files"] <= 50000 or not 0 < meta["expandedSize"] <= 12 << 30:
             raise ValueError("invalid runtime metadata")
@@ -46,7 +46,7 @@ def prepare(root):
         artifact.update(files=meta["files"], expandedSize=meta["expandedSize"])
         runtimes[f"windows-amd64/{variant}"] = artifact
     return {"version": 2, "runtimes": runtimes, "model": {
-        "urls": ["https://github.com/glanderness/BeefTV/releases/download/v1.5.5/video_depth_anything_vits.pth"],
+        "urls": ["https://github.com/glanderness/LuckyTV/releases/download/v1.5.5/video_depth_anything_vits.pth"],
         "size": 116440756,
         "sha256": "13379300b739e659f076a59d52e9801bd8d38c541a7e71f73bbca4dcfb013609",
     }}

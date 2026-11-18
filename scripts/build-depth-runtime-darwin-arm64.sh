@@ -4,13 +4,13 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TOOL_DIR="$ROOT_DIR/tools/depth-capture"
 OUTPUT_DIR="${1:-$ROOT_DIR/build/depth-runtime}"
-STAGE_DIR="$(mktemp -d /tmp/beeftv-depth-runtime.XXXXXX)"
+STAGE_DIR="$(mktemp -d /tmp/luckytv-depth-runtime.XXXXXX)"
 RUNTIME_STAGE="$STAGE_DIR/runtime"
 VDA_COMMIT="4f5ae23172ba60fd7bc11ef671cca678842c7072"
 MODEL_SHA256="13379300b739e659f076a59d52e9801bd8d38c541a7e71f73bbca4dcfb013609"
 MODEL_SIZE="116440756"
 MODEL_NAME="video_depth_anything_vits.pth"
-ARCHIVE_NAME="beeftv-depth-runtime-v1-darwin-arm64.zip"
+ARCHIVE_NAME="luckytv-depth-runtime-v1-darwin-arm64.zip"
 
 trap 'rm -rf "$STAGE_DIR"' EXIT
 
@@ -44,12 +44,12 @@ printf '%s\n' \
   > "$RUNTIME_STAGE/.venv/bin/python"
 chmod 0750 "$RUNTIME_STAGE/.venv/bin/python"
 
-if [[ -n "${BEEFTV_VDA_SOURCE_DIR:-}" ]]; then
-  if [[ "$(git -C "$BEEFTV_VDA_SOURCE_DIR" rev-parse HEAD)" != "$VDA_COMMIT" ]]; then
-    echo "BEEFTV_VDA_SOURCE_DIR is not at the required commit $VDA_COMMIT" >&2
+if [[ -n "${LUCKYTV_VDA_SOURCE_DIR:-}" ]]; then
+  if [[ "$(git -C "$LUCKYTV_VDA_SOURCE_DIR" rev-parse HEAD)" != "$VDA_COMMIT" ]]; then
+    echo "LUCKYTV_VDA_SOURCE_DIR is not at the required commit $VDA_COMMIT" >&2
     exit 1
   fi
-  rsync -a "$BEEFTV_VDA_SOURCE_DIR/" "$STAGE_DIR/vda-repo/"
+  rsync -a "$LUCKYTV_VDA_SOURCE_DIR/" "$STAGE_DIR/vda-repo/"
 else
   git -c http.version=HTTP/1.1 clone --filter=blob:none --no-checkout https://github.com/DepthAnything/Video-Depth-Anything.git "$STAGE_DIR/vda-repo"
   git -C "$STAGE_DIR/vda-repo" checkout "$VDA_COMMIT"
@@ -69,7 +69,7 @@ RUNTIME_SIZE="$(stat -f '%z' "$OUTPUT_DIR/$ARCHIVE_NAME")"
 RUNTIME_SHA256="$(shasum -a 256 "$OUTPUT_DIR/$ARCHIVE_NAME" | awk '{print $1}')"
 RUNTIME_FILES="$(python3 -c 'import sys,zipfile; print(len(zipfile.ZipFile(sys.argv[1]).infolist()))' "$OUTPUT_DIR/$ARCHIVE_NAME")"
 RUNTIME_EXPANDED_SIZE="$(python3 -c 'import sys,zipfile; print(sum(item.file_size for item in zipfile.ZipFile(sys.argv[1]).infolist()))' "$OUTPUT_DIR/$ARCHIVE_NAME")"
-printf '{\n  "version": 1,\n  "runtime": {\n    "urls": ["https://github.com/glanderness/BeefTV/releases/download/v1.5.5/%s"],\n    "size": %s,\n    "sha256": "%s",\n    "files": %s,\n    "expandedSize": %s\n  },\n  "model": {\n    "urls": [\n      "https://github.com/glanderness/BeefTV/releases/download/v1.5.5/%s",\n      "https://huggingface.co/depth-anything/Video-Depth-Anything-Small/resolve/main/%s"\n    ],\n    "size": %s,\n    "sha256": "%s"\n  }\n}\n' \
+printf '{\n  "version": 1,\n  "runtime": {\n    "urls": ["https://github.com/glanderness/LuckyTV/releases/download/v1.5.5/%s"],\n    "size": %s,\n    "sha256": "%s",\n    "files": %s,\n    "expandedSize": %s\n  },\n  "model": {\n    "urls": [\n      "https://github.com/glanderness/LuckyTV/releases/download/v1.5.5/%s",\n      "https://huggingface.co/depth-anything/Video-Depth-Anything-Small/resolve/main/%s"\n    ],\n    "size": %s,\n    "sha256": "%s"\n  }\n}\n' \
   "$ARCHIVE_NAME" "$RUNTIME_SIZE" "$RUNTIME_SHA256" "$RUNTIME_FILES" "$RUNTIME_EXPANDED_SIZE" "$MODEL_NAME" "$MODEL_NAME" "$MODEL_SIZE" "$MODEL_SHA256" \
   > "$OUTPUT_DIR/depth-runtime-manifest.json"
 

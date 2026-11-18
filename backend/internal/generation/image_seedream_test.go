@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"testing"
 
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/protocol"
 )
 
 func TestSeedreamPluginPreservesReferencesAndSystemPrompt(t *testing.T) {
@@ -60,7 +60,7 @@ func TestSeedreamDomesticProUsesInstalledArkPlugin(t *testing.T) {
 	}
 	port := &captureImagePort{}
 	input := Input{Mode: "image", Prompt: "split the layers", Config: Config{
-		Model: "doubao-seedream-5-0-pro-260628", BaseURL: "https://beeftv.app", APIKey: "synthetic",
+		Model: "doubao-seedream-5-0-pro-260628", BaseURL: "https://luckytv.app", APIKey: "synthetic",
 		InterfaceType: "volcengine-ark-image", Size: "16:9", SeedreamMode: "layers",
 		SeedreamOutputFormat: "jpeg", SeedreamOptimize: "fast", SeedreamWatermark: "true",
 	}, ReferenceImages: []Media{{URL: "https://example.test/source.png"}}}
@@ -82,7 +82,7 @@ func TestSeedreamDomesticProUsesInstalledArkPlugin(t *testing.T) {
 
 func TestSeedreamManagedReferencesUseOneJSONGeneration(t *testing.T) {
 	port := &captureImagePort{}
-	input := Input{Mode: "image", Prompt: "replace object <bbox>10 10 100 100</bbox>", Config: Config{Model: "dola-seedream-5-0-pro-260628", BaseURL: "https://beeftv.app", APIKey: "synthetic", InterfaceType: "openai-image", Size: "1.5K", SeedreamOutputFormat: "png", SeedreamOptimize: "fast"}, ReferenceImages: []Media{{DataURL: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jR1sAAAAASUVORK5CYII="}}}
+	input := Input{Mode: "image", Prompt: "replace object <bbox>10 10 100 100</bbox>", Config: Config{Model: "dola-seedream-5-0-pro-260628", BaseURL: "https://luckytv.app", APIKey: "synthetic", InterfaceType: "openai-image", Size: "1.5K", SeedreamOutputFormat: "png", SeedreamOptimize: "fast"}, ReferenceImages: []Media{{DataURL: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jR1sAAAAASUVORK5CYII="}}}
 	result, err := RunImageTask(offlineImageRuntime(port), input)
 	if err != nil {
 		t.Fatal(err)
@@ -162,7 +162,7 @@ func TestSeedreamStreamKeepsDeliveredImagesAfterPartialFailure(t *testing.T) {
 func TestSeedreamDomesticProKeepsConfiguredOptionsOnArkChannel(t *testing.T) {
 	port := &captureImagePort{}
 	input := Input{Mode: "image", Prompt: "split the layers", Config: Config{
-		Model: "doubao-seedream-5-0-pro-260628", BaseURL: "https://beeftv.app", APIKey: "synthetic",
+		Model: "doubao-seedream-5-0-pro-260628", BaseURL: "https://luckytv.app", APIKey: "synthetic",
 		InterfaceType: "volcengine-ark-image", Size: "16:9", SeedreamMode: "layers",
 		SeedreamOutputFormat: "jpeg", SeedreamOptimize: "fast", SeedreamWatermark: "true",
 	}, ReferenceImages: []Media{{URL: "https://example.test/source.png"}}}
@@ -245,7 +245,7 @@ func TestSeedreamRequestBodyFollowsPerModelSizeRules(t *testing.T) {
 // 尺寸不合规要在发出付费请求之前就失败，不能等上游 400。
 func TestSeedreamRejectsUnsupportedSizeBeforeSending(t *testing.T) {
 	port := &captureImagePort{}
-	input := Input{Mode: "image", Prompt: "x", Config: Config{Model: "seedream-4-5-251128", BaseURL: "https://beeftv.app", APIKey: "synthetic", InterfaceType: "openai-image", Size: "1K"}}
+	input := Input{Mode: "image", Prompt: "x", Config: Config{Model: "seedream-4-5-251128", BaseURL: "https://luckytv.app", APIKey: "synthetic", InterfaceType: "openai-image", Size: "1K"}}
 	if _, err := RunImageTask(WithRuntime(context.Background(), Runtime{Images: port}), input); err == nil {
 		t.Fatal("unsupported size must be rejected")
 	}
@@ -277,7 +277,7 @@ func TestSeedreamSizeFollowsGenerationSceneBeforeSending(t *testing.T) {
 		{name: "图层拆分像素过小", model: "doubao-seedream-5-0-pro-260628", size: "1280x720", mode: "layers", refs: 1, reject: true},
 	} {
 		port := &captureImagePort{}
-		input := Input{Mode: "image", Prompt: "x", Config: Config{Model: item.model, BaseURL: "https://beeftv.app", APIKey: "synthetic", InterfaceType: "openai-image", Size: item.size, SeedreamMode: item.mode}}
+		input := Input{Mode: "image", Prompt: "x", Config: Config{Model: item.model, BaseURL: "https://luckytv.app", APIKey: "synthetic", InterfaceType: "openai-image", Size: item.size, SeedreamMode: item.mode}}
 		for i := 0; i < item.refs; i++ {
 			input.ReferenceImages = append(input.ReferenceImages, Media{URL: "https://example.test/source.png"})
 		}

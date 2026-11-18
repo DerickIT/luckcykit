@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/outbound"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/outbound"
 )
 
 // LogicalModelGraph is the current revision, routes, and channel models for one

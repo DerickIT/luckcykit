@@ -3,7 +3,7 @@ package generation
 import (
 	"context"
 	"errors"
-	"infinite-canvas/backend/internal/outbound"
+	"luckytv/backend/internal/outbound"
 	"io"
 	"net"
 	"net/http"
@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// ErrImageOwnerMissing is returned when a recoverable BeefTV image POST has
+// ErrImageOwnerMissing is returned when a recoverable LuckyTV image POST has
 // no Images port or the port declined to take ownership. Callers must not
 // open a new upstream request.
 var ErrImageOwnerMissing = errors.New("图片请求缺少恢复所有者")

@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/outbound"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/outbound"
 )
 
 type ReferenceProgress = model.TaskReferenceProgress

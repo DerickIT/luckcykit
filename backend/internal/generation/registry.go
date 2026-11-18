@@ -8,8 +8,8 @@ import (
 	"strings"
 	"sync"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/protocol"
 )
 
 type protocolRegistryContextKey struct{}
@@ -155,7 +155,7 @@ func LoadOfficialFallbackRegistry() *protocol.Registry {
 			return
 		}
 		adapters := make([]protocol.Adapter, 0, len(entries)+2)
-		for _, builtinPluginName := range []string{"beeftv-plugin-ll2", "beeftv-plugin-ysdui"} {
+		for _, builtinPluginName := range []string{"luckytv-plugin-ll2", "luckytv-plugin-ysdui"} {
 			for _, builtinDir := range officialBundledPluginDirCandidates(directory, builtinPluginName) {
 				info, statErr := os.Stat(builtinDir)
 				if statErr != nil || !info.IsDir() {
@@ -224,7 +224,7 @@ func OfficialPluginPackageDir() (string, error) {
 }
 
 // OfficialPluginPackageCandidates lists locations that may contain shipped
-// *.beeftv-plugin archives. Production launches must not depend on the
+// *.luckytv-plugin archives. Production launches must not depend on the
 // caller's working directory: Windows/Linux Wails output keeps packages next
 // to the executable, and macOS .app bundles keep them in Contents/Resources.
 func OfficialPluginPackageCandidates(executablePath, workingDir string) []string {

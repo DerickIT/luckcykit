@@ -13,7 +13,7 @@ func TestTaskDomainDoesNotDependOnApplicationService(t *testing.T) {
 		t.Fatalf("list task dependencies: %v", err)
 	}
 	for _, dependency := range strings.Fields(string(output)) {
-		if dependency == "infinite-canvas/backend/internal/app" {
+		if dependency == "luckytv/backend/internal/app" {
 			t.Fatal("task domain still depends on the application service kernel")
 		}
 	}

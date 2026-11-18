@@ -4,9 +4,9 @@
 // 模型服务商配置从源 DSH_HOME 的 headless profile 只读复制，凭据通过环境变量或软链在运行时临时提供，
 // 不写进仓库、报告或日志。评测结束由调用方清理临时目录。
 //
-// 工具面尽量和 Claude/Codex 测评一致：只留 BeefTV 的 MCP 工具和技能读取，
+// 工具面尽量和 Claude/Codex 测评一致：只留 LuckyTV 的 MCP 工具和技能读取，
 // 关掉命令行、文件读写、网页、子 Agent 等。headless 没有“只给某几类工具”的开关，
-// 所以在 overlay 里逐个禁用内置工具插件，实际工具数从 `beeftv mcp serve` 的 stderr 读回。
+// 所以在 overlay 里逐个禁用内置工具插件，实际工具数从 `luckytv mcp serve` 的 stderr 读回。
 
 import fs from 'node:fs';
 import os from 'node:os';
@@ -17,9 +17,9 @@ import { fileURLToPath } from 'node:url';
 import { normalizeAgentUsage } from './usage.mjs';
 
 export const TOOL_CALL_TIMEOUT_MS = 120_000;
-export const SKILL_NAME = 'beeftv-canvas';
+export const SKILL_NAME = 'luckytv-canvas';
 
-// 这些内置工具插件在评测里关闭；只保留 tool-skill（读技能）和 mcp-beeftv。
+// 这些内置工具插件在评测里关闭；只保留 tool-skill（读技能）和 mcp-luckytv。
 export const DISABLED_TOOL_IDS = [
   'tool-bash',
   'tool-pwsh',
@@ -63,7 +63,7 @@ export function credentialEnvNames(patchText) {
   return [...names];
 }
 
-// `BEEFTV_EVAL_AGENT_MODEL` 支持 `provider/model`；模型 id 自己可以带斜杠（如 provider-a/model-a/v2）。
+// `LUCKYTV_EVAL_AGENT_MODEL` 支持 `provider/model`；模型 id 自己可以带斜杠（如 provider-a/model-a/v2）。
 export function parseModelOverride(value) {
   const text = String(value || '').trim();
   if (!text) return null;
@@ -72,37 +72,37 @@ export function parseModelOverride(value) {
   return { provider: text.slice(0, slash), model: text.slice(slash + 1) };
 }
 
-// 评测 overlay：挂 BeefTV MCP、关掉不需要的工具、按需覆盖默认模型。
+// 评测 overlay：挂 LuckyTV MCP、关掉不需要的工具、按需覆盖默认模型。
 export function buildOverlayPatch({ cli, baseUrl, ownerToken, modelOverride, sourceModel = {} }) {
   const lines = [
-    '# BeefTV 外部测评用的 DSH overlay（运行时生成，含临时 token，不写入仓库）。',
-    '# 只留技能读取与 BeefTV MCP；其余内置工具逐个关闭。',
+    '# LuckyTV 外部测评用的 DSH overlay（运行时生成，含临时 token，不写入仓库）。',
+    '# 只留技能读取与 LuckyTV MCP；其余内置工具逐个关闭。',
   ];
   for (const id of DISABLED_TOOL_IDS) lines.push(`- id: ${id}`, '  disabled: true');
   const selection = modelOverride
     ? {
       provider: modelOverride.provider || sourceModel.provider,
       model: modelOverride.model,
-      reasoningEffort: process.env.BEEFTV_EVAL_DSH_REASONING || sourceModel.reasoningEffort || 'high',
+      reasoningEffort: process.env.LUCKYTV_EVAL_DSH_REASONING || sourceModel.reasoningEffort || 'high',
     }
     : null;
   if (selection) {
-    if (!selection.provider) throw new Error('BEEFTV_EVAL_AGENT_MODEL 需要 provider/model 形式，或在源 headless profile 里配置 agent-default-model.provider');
+    if (!selection.provider) throw new Error('LUCKYTV_EVAL_AGENT_MODEL 需要 provider/model 形式，或在源 headless profile 里配置 agent-default-model.provider');
     lines.push('- id: agent-default-model', '  config:', `    provider: ${quote(selection.provider)}`,
       `    model: ${quote(selection.model)}`, `    reasoningEffort: ${quote(selection.reasoningEffort)}`);
   }
   lines.push(
     '- insert:',
-    '    - id: mcp-beeftv',
+    '    - id: mcp-luckytv',
     "      name: '@deepseek-ai/dsh-mcp-client'",
     '      config:',
-    '        serverName: beeftv',
+    '        serverName: luckytv',
     '        transport: stdio',
     `        command: ${quote(cli)}`,
     "        args: ['mcp', 'serve']",
     '        env:',
-    `          BEEFTV_BASE_URL: ${quote(baseUrl)}`,
-    `          BEEFTV_OWNER_TOKEN: ${quote(ownerToken)}`,
+    `          LUCKYTV_BASE_URL: ${quote(baseUrl)}`,
+    `          LUCKYTV_OWNER_TOKEN: ${quote(ownerToken)}`,
     `        toolCallTimeoutMs: ${TOOL_CALL_TIMEOUT_MS}`,
   );
   return `${lines.join('\n')}\n`;
@@ -339,11 +339,11 @@ export function prepareDshAgent({
   baseUrl,
   ownerToken,
   cli,
-  bin = process.env.BEEFTV_EVAL_DSH_BIN || 'dsh',
-  sourceHome = process.env.BEEFTV_EVAL_DSH_SOURCE_HOME || process.env.DSH_HOME || path.join(os.homedir(), '.dsh'),
-  model = process.env.BEEFTV_EVAL_AGENT_MODEL,
+  bin = process.env.LUCKYTV_EVAL_DSH_BIN || 'dsh',
+  sourceHome = process.env.LUCKYTV_EVAL_DSH_SOURCE_HOME || process.env.DSH_HOME || path.join(os.homedir(), '.dsh'),
+  model = process.env.LUCKYTV_EVAL_AGENT_MODEL,
 } = {}) {
-  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-eval-dsh-'));
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-eval-dsh-'));
   try {
     const userHome = path.join(home, 'user-home');
     fs.mkdirSync(userHome, { recursive: true });
@@ -381,7 +381,7 @@ export function prepareDshAgent({
 
     // 5) 技能装进 DSH 的用户技能根（$DSH_HOME/skills）。
     const driverDir = path.dirname(fileURLToPath(import.meta.url));
-    const skillSource = path.resolve(driverDir, '..', '..', 'plugins', 'beeftv-skills', 'skills', SKILL_NAME, 'SKILL.md');
+    const skillSource = path.resolve(driverDir, '..', '..', 'plugins', 'luckytv-skills', 'skills', SKILL_NAME, 'SKILL.md');
     const skillTarget = path.join(home, 'skills', SKILL_NAME);
     fs.mkdirSync(skillTarget, { recursive: true });
     if (!copyFileIfExists(skillSource, path.join(skillTarget, 'SKILL.md'))) {
@@ -389,9 +389,9 @@ export function prepareDshAgent({
     }
 
     const actualModel = modelOverride
-      ? { provider: modelOverride.provider || sourceModel.provider || '', model: modelOverride.model, reasoningEffort: process.env.BEEFTV_EVAL_DSH_REASONING || sourceModel.reasoningEffort || 'high' }
+      ? { provider: modelOverride.provider || sourceModel.provider || '', model: modelOverride.model, reasoningEffort: process.env.LUCKYTV_EVAL_DSH_REASONING || sourceModel.reasoningEffort || 'high' }
       : { ...sourceModel };
-    const toolPlugins = ['tool-skill', 'mcp-beeftv'];
+    const toolPlugins = ['tool-skill', 'mcp-luckytv'];
     return {
       bin,
       home,
@@ -405,7 +405,7 @@ export function prepareDshAgent({
         toolCallTimeoutMs: TOOL_CALL_TIMEOUT_MS,
         enabledToolPlugins: toolPlugins,
         disabledToolIds: [...DISABLED_TOOL_IDS],
-        skillDir: '$DSH_HOME/skills/beeftv-canvas',
+        skillDir: '$DSH_HOME/skills/luckytv-canvas',
         isolatedHome: true,
         credentialSource: credential.mode,
         credentialEnvNames: credential.envNames,

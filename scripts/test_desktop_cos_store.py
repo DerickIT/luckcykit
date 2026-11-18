@@ -63,16 +63,16 @@ class COSPublicationTests(unittest.TestCase):
         self.a, self.b = self.root / "a", self.root / "b"
         self.a.write_bytes(b"signed envelope A")
         self.b.write_bytes(b"signed envelope B")
-        self.target = "beeftv/desktop-update.json"
+        self.target = "luckytv/desktop-update.json"
 
     def client(self):
-        return COSStore("beeftv-components-1481187348", "ap-guangzhou", self.wire)
+        return COSStore("luckytv-components-1481187348", "ap-guangzhou", self.wire)
 
     def etag(self):
         return self.first.get(self.target, self.root / "read")
 
     def test_native_forbid_create_keeps_immutable_bytes_and_capability_probe_cleans_up(self):
-        key = "beeftv/v1.0.0/asset.zip"
+        key = "luckytv/v1.0.0/asset.zip"
         self.assertTrue(self.first.put(key, self.a, "immutable"))
         self.assertFalse(self.second.put(key, self.b, "immutable"))
         self.assertEqual(self.wire.objects[key], self.a.read_bytes())
@@ -153,7 +153,7 @@ class COSPublicationTests(unittest.TestCase):
     def test_absent_feed_claim_identity_is_stable_and_separate_from_etag_strings(self):
         self.assertEqual(self.first.claim_key(self.target, None), self.second.claim_key(self.target, None))
         self.assertNotEqual(self.first.claim_key(self.target, None), self.first.claim_key(self.target, "null"))
-        other = "beeftv/another-feed.json"
+        other = "luckytv/another-feed.json"
         self.assertNotEqual(self.first.claim_key(self.target, None), self.first.claim_key(other, None))
         self.first.put(self.target, self.a, "no-store")
         # Simulate a stale 404 after a successfully created first feed.
@@ -396,7 +396,7 @@ class COSPublicationTests(unittest.TestCase):
                     document["nonce"] = "f" * 32
                     lock = json.dumps(document).encode()
                 if scenario == "target":
-                    target = "beeftv/other-feed.json"
+                    target = "luckytv/other-feed.json"
                 if scenario == "live-lock":
                     self.wire.objects[self.first.lock_key(self.target)] = b"different owner"
                 if scenario == "live-claim":
@@ -478,7 +478,7 @@ class COSHTTPTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory, patch.dict("os.environ", {"AWS_ACCESS_KEY_ID": "fixture-access", "AWS_SECRET_ACCESS_KEY": "fixture-secret"}):
             source = Path(directory) / "archive"
             source.write_bytes(b"release bytes")
-            result = COSHTTP("beeftv-components-1481187348", "ap-guangzhou", opener).request("PUT", "beeftv/test file.zip", source, {"x-cos-forbid-overwrite": "true"})
+            result = COSHTTP("luckytv-components-1481187348", "ap-guangzhou", opener).request("PUT", "luckytv/test file.zip", source, {"x-cos-forbid-overwrite": "true"})
         self.assertEqual(result.status, 200)
         request, body = captured[0]
         query = urllib.parse.parse_qs(urllib.parse.urlsplit(request.full_url).query)
@@ -493,7 +493,7 @@ class COSHTTPTests(unittest.TestCase):
         opener.open.side_effect = OSError("credential-bearing https://example.invalid/?secret=value")
         with patch.dict("os.environ", {"AWS_ACCESS_KEY_ID": "fixture-access", "AWS_SECRET_ACCESS_KEY": "fixture-secret"}):
             with self.assertRaisesRegex(PublishError, "^COS DELETE outcome is unknown$"):
-                COSHTTP("beeftv-components-1481187348", "ap-guangzhou", opener).request("DELETE", "beeftv/lock")
+                COSHTTP("luckytv-components-1481187348", "ap-guangzhou", opener).request("DELETE", "luckytv/lock")
         self.assertEqual(opener.open.call_count, 1)
 
 
@@ -503,18 +503,18 @@ class ExplicitCloudProbeTests(unittest.TestCase):
         probe = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(probe)
         wire = MemoryCOS()
-        wire.objects["beeftv/v1.0.0/keep.zip"] = b"existing public release"
+        wire.objects["luckytv/v1.0.0/keep.zip"] = b"existing public release"
 
         def client(bucket, region, transport=None):
             return COSStore(bucket, region, transport or wire)
 
         with patch.object(probe, "COSStore", side_effect=client):
-            result = probe.probe("beeftv-components-1481187348", "ap-guangzhou")
+            result = probe.probe("luckytv-components-1481187348", "ap-guangzhou")
         self.assertTrue(result["competing_clients_exactly_one_winner"])
         self.assertTrue(result["held_lock_blocks_second_client"])
         self.assertTrue(result["stale_etag_rejected"])
         self.assertTrue(result["lost_create_receipt_reconciled_without_retry"])
-        self.assertEqual(wire.objects, {"beeftv/v1.0.0/keep.zip": b"existing public release"})
+        self.assertEqual(wire.objects, {"luckytv/v1.0.0/keep.zip": b"existing public release"})
 
 
 if __name__ == "__main__":

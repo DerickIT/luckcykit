@@ -1,8 +1,8 @@
 package app
 
 import (
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/modelcatalog"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/modelcatalog"
 )
 
 func taskMediaFromProvider(media providerMedia) modelcatalog.MediaRef {

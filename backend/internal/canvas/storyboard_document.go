@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"strings"
 
-	"infinite-canvas/backend/internal/kernel"
+	"luckytv/backend/internal/kernel"
 )
 
 // Whole-document UI commits obey the same row rules as external row commands.

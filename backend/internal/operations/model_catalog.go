@@ -2,7 +2,7 @@ package operations
 
 import (
 	"encoding/json"
-	"infinite-canvas/backend/internal/modelcatalog"
+	"luckytv/backend/internal/modelcatalog"
 )
 
 type ModelCatalogReader interface {

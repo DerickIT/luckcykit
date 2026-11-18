@@ -5,8 +5,8 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import { nanoid } from "nanoid";
 
 import { scopedLocalStorage } from "@/lib/user-scope";
-import { beefTVVideoContract, isBeefTVEndpoint } from "@/lib/beeftv-video-contracts";
-import { beefTVImageContract } from "@/lib/beeftv-image-contracts";
+import { luckyTVVideoContract, isLuckyTVEndpoint } from "@/lib/luckytv-video-contracts";
+import { luckyTVImageContract } from "@/lib/luckytv-image-contracts";
 import { defaultProtocolForCapability, defaultProtocolForModel, inferProtocolCapabilityFromModel, modelProtocolCapability, normalizeModelProtocol, usesOpenAICompatibleProtocolDefault, type ModelProtocol } from "@/lib/model-protocols";
 import { normalizeVideoBoolean, normalizeVideoDuration, normalizeVideoResolution } from "@/lib/video-generation-options";
 import { defaultModelCapabilityConfig, upgradeGPTImageCapability, type ModelCapabilityConfig } from "@/lib/model-capabilities";
@@ -329,20 +329,20 @@ export function configuredModelMatchesCapability(config: AiConfig, model: string
     return selectableModelsByCapability(config, capability).includes(normalized);
 }
 
-export const MANAGED_BEEFTV_CREDENTIAL_REF = "beeftv";
+export const MANAGED_LUCKYTV_CREDENTIAL_REF = "luckytv";
 
-export function isBuiltinBeefTVChannel(channel: Pick<ModelChannel, "id" | "pinned">) {
-    return channel.id === "beeftv" && channel.pinned === true;
+export function isBuiltinLuckyTVChannel(channel: Pick<ModelChannel, "id" | "pinned">) {
+    return channel.id === "luckytv" && channel.pinned === true;
 }
 
-export function channelHasManagedBeefTVCredential(channel: Pick<ModelChannel, "id" | "pinned" | "credentialRef" | "hasApiKey">) {
-    if (!isBuiltinBeefTVChannel(channel)) return false;
-    return channel.credentialRef === MANAGED_BEEFTV_CREDENTIAL_REF || channel.hasApiKey === true;
+export function channelHasManagedLuckyTVCredential(channel: Pick<ModelChannel, "id" | "pinned" | "credentialRef" | "hasApiKey">) {
+    if (!isBuiltinLuckyTVChannel(channel)) return false;
+    return channel.credentialRef === MANAGED_LUCKYTV_CREDENTIAL_REF || channel.hasApiKey === true;
 }
 
 export function channelHasGenerationCredential(channel: Pick<ModelChannel, "id" | "pinned" | "credentialRef" | "hasApiKey" | "apiKey" | "modelProfiles">, model = "") {
     if (model && channel.modelProfiles?.some((item) => item.model === modelOptionName(model) && item.authType === "none")) return true;
-    return channelHasManagedBeefTVCredential(channel) || Boolean(channel.apiKey?.trim());
+    return channelHasManagedLuckyTVCredential(channel) || Boolean(channel.apiKey?.trim());
 }
 
 function isAiConfigReady(config: AiConfig, model: string) {
@@ -423,7 +423,7 @@ export function normalizeConfigSnapshot(snapshot: ConfigStoreSnapshot | undefine
     };
     const hasPersistedChannels = Array.isArray(persistedConfig.channels);
     if (!hasPersistedChannels) config.channels = [];
-    const channels = normalizeChannels(config, !hasPersistedChannels).map(enrichBeefTVMediaChannel).map(reconcileChannelModelProfiles);
+    const channels = normalizeChannels(config, !hasPersistedChannels).map(enrichLuckyTVMediaChannel).map(reconcileChannelModelProfiles);
     const models = modelOptionsFromChannels(channels);
     const imageModels = filterModelsByCapability(models, "image", channels);
     const videoModels = filterModelsByCapability(models, "video", channels);
@@ -469,8 +469,8 @@ export function normalizeConfigSnapshot(snapshot: ConfigStoreSnapshot | undefine
     };
 }
 
-function beefTVVideoProtocol(model: string, current?: ModelProtocol): ModelProtocol {
-    const contract = beefTVVideoContract(model)?.protocol as ModelProtocol | undefined;
+function luckyTVVideoProtocol(model: string, current?: ModelProtocol): ModelProtocol {
+    const contract = luckyTVVideoContract(model)?.protocol as ModelProtocol | undefined;
     if (contract) return contract;
     // A video profile must not keep a protocol that runs a different
     // capability. Official gateways may tag video models with a chat/text endpoint;
@@ -485,7 +485,7 @@ function protocolAllowsCapability(protocol: ModelProtocol | undefined, capabilit
     return !resolved || resolved === capability;
 }
 
-// Enforce capability ↔ protocol consistency for every channel. BeefTV media
+// Enforce capability ↔ protocol consistency for every channel. LuckyTV media
 // profiles are already repaired from the shared contracts above; for other
 // channels the request protocol is what the user configured, so the
 // capability follows it instead of inventing a different wire protocol.
@@ -500,10 +500,10 @@ function reconcileChannelModelProfiles(channel: ModelChannel): ModelChannel {
     return changed ? { ...channel, modelProfiles } : channel;
 }
 
-function beefTVVideoCapabilityConfig(model: string, protocol: ModelProtocol, current?: ModelCapabilityConfig, sourced = false): ModelCapabilityConfig | undefined {
-    const profile = beefTVSeedanceCapabilityConfig(model, current, sourced);
+function luckyTVVideoCapabilityConfig(model: string, protocol: ModelProtocol, current?: ModelCapabilityConfig, sourced = false): ModelCapabilityConfig | undefined {
+    const profile = luckyTVSeedanceCapabilityConfig(model, current, sourced);
     if (sourced) return profile;
-    const contract = beefTVVideoContract(model);
+    const contract = luckyTVVideoContract(model);
     const limits = contract?.maxReferences;
     if (!limits) return profile;
     const resolved = profile || defaultModelCapabilityConfig(protocol, model);
@@ -525,7 +525,7 @@ function beefTVVideoCapabilityConfig(model: string, protocol: ModelProtocol, cur
     } };
 }
 
-function beefTVSeedanceCapabilityConfig(model: string, current?: ModelCapabilityConfig, sourced = false): ModelCapabilityConfig | undefined {
+function luckyTVSeedanceCapabilityConfig(model: string, current?: ModelCapabilityConfig, sourced = false): ModelCapabilityConfig | undefined {
     if (sourced) return current;
     if (!/^seedance-2\.(?:0|5)(?:-|$)/i.test(model)) return current;
     const video = current?.video;
@@ -538,7 +538,7 @@ function beefTVSeedanceCapabilityConfig(model: string, current?: ModelCapability
         refs.maxVideoDurationSeconds === 0 && refs.maxAudioDurationSeconds === 0;
     const defaults = defaultModelCapabilityConfig("newapi", model);
     if (!current || !video) return defaults;
-    // The built-in BeefTV Seedance contract supports the audio switch even
+    // The built-in LuckyTV Seedance contract supports the audio switch even
     // when an older saved profile advertised no control. Keep its default.
     const generateAudio = { ...video!.generateAudio, supported: true }, draftSupported = Boolean(video!.draft?.supported ?? defaults.video?.draft?.supported);
     const baseRes = Array.isArray(video!.resolutions) ? video!.resolutions : defaults.video?.resolutions ?? [], baseOps = Array.isArray(video!.operations) ? video!.operations : defaults.video?.operations ?? [];
@@ -550,16 +550,16 @@ function beefTVSeedanceCapabilityConfig(model: string, current?: ModelCapability
     return { ...current, video: { ...video!, generateAudio, ...flags, operations: next.operations, references: { ...refs!, maxImages: next.references.maxImages, maxVideos: next.references.maxVideos, maxAudios: next.references.maxAudios, maxVideoDurationSeconds: next.references.maxVideoDurationSeconds, maxAudioDurationSeconds: next.references.maxAudioDurationSeconds } } };
 }
 
-function enrichBeefTVMediaChannel(channel: ModelChannel): ModelChannel {
-    if (!isBeefTVEndpoint(channel.baseUrl)) return channel;
+function enrichLuckyTVMediaChannel(channel: ModelChannel): ModelChannel {
+    if (!isLuckyTVEndpoint(channel.baseUrl)) return channel;
     const models = channel.models;
     const existing = new Map((channel.modelProfiles || []).map((item) => [item.model, item]));
     for (const model of models.filter(isImageModelName)) {
         const current = existing.get(model);
         if (current?.imageCapabilitiesVersion && current.capabilityConfig?.image) continue;
-        // These BeefTV models use Images, even when an older generic catalog
+        // These LuckyTV models use Images, even when an older generic catalog
         // saved a text protocol. Do not rewrite arbitrary custom model routes.
-        const contract = beefTVImageContract(model);
+        const contract = luckyTVImageContract(model);
         const staleTextProtocol = (/^(gpt-image(?:-|$)|dall-e(?:-|$))/i.test(model) || Boolean(contract)) && modelProtocolCapability(current?.protocol) === "text";
         const protocol = contract?.protocol || (staleTextProtocol ? "openai-image" : current?.protocol || "openai-image");
         const capabilityConfig = contract ? defaultModelCapabilityConfig(contract.protocol, model) : current?.capabilityConfig || defaultModelCapabilityConfig(protocol, model);
@@ -598,19 +598,19 @@ function enrichBeefTVMediaChannel(channel: ModelChannel): ModelChannel {
         if (current.capability === "image" || current.capability === "video") continue;
         existing.delete(model);
     }
-    for (const model of models.filter((model) => isVideoModelName(model) || Boolean(beefTVVideoContract(model)))) {
-        if (channel.id === "beeftv" || channel.credentialRef === MANAGED_BEEFTV_CREDENTIAL_REF) continue;
+    for (const model of models.filter((model) => isVideoModelName(model) || Boolean(luckyTVVideoContract(model)))) {
+        if (channel.id === "luckytv" || channel.credentialRef === MANAGED_LUCKYTV_CREDENTIAL_REF) continue;
         const current = existing.get(model);
         if (current?.videoCapabilitiesVersion?.trim() && current.capabilityConfig?.video) continue;
         // Repair known routes using the shared contract; preserve catalog and
         // custom protocols for models whose wire contract is not declared here.
-        const protocol = beefTVVideoProtocol(model, current?.protocol);
+        const protocol = luckyTVVideoProtocol(model, current?.protocol);
         existing.set(model, {
             ...(current || {}),
             model,
             capability: "video",
             protocol,
-            capabilityConfig: beefTVVideoCapabilityConfig(model, protocol, current?.capabilityConfig, current?.videoCapabilitiesVersion !== undefined),
+            capabilityConfig: luckyTVVideoCapabilityConfig(model, protocol, current?.capabilityConfig, current?.videoCapabilitiesVersion !== undefined),
         });
     }
     return { ...channel, models, modelProfiles: Array.from(existing.values()) };
@@ -790,7 +790,7 @@ export function resolveModelRequestConfig(config: AiConfig, value: string) {
         apiFormat: interfaceType ? (interfaceType === "gemini-veo" || interfaceType === "gemini-image" || interfaceType === "gemini-generate-content" ? ("gemini" as const) : interfaceType === "claude-api" ? ("claude" as const) : ("openai" as const)) : channel.apiFormat,
         interfaceType,
         channelId: channel.scope === "system" ? channel.id : "",
-        credentialRef: channel.credentialRef || (isBuiltinBeefTVChannel(channel) ? MANAGED_BEEFTV_CREDENTIAL_REF : undefined),
+        credentialRef: channel.credentialRef || (isBuiltinLuckyTVChannel(channel) ? MANAGED_LUCKYTV_CREDENTIAL_REF : undefined),
     };
 }
 

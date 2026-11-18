@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"strings"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/repository"
 )
 
 var allowedConfigKeys = []string{

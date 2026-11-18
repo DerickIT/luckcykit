@@ -2,7 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"infinite-canvas/backend/internal/app"
+	"luckytv/backend/internal/app"
 	"net/http"
 	"net/http/httptest"
 	"strings"

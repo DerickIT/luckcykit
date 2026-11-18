@@ -53,7 +53,7 @@ export async function probeBrowserStorage(signal?: AbortSignal): Promise<Storage
     try { if (typeof indexedDB === "undefined") return publish({ storageWritable: false }); }
     catch { return publish({ storageWritable: false }); }
     return new Promise<StorageProbeResult>((resolve) => {
-        const name = `beeftv-environment-probe-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        const name = `luckytv-environment-probe-${Date.now()}-${Math.random().toString(36).slice(2)}`;
         let settled = false;
         let database: IDBDatabase | undefined;
         const removeProbe = () => { try { return indexedDB.deleteDatabase(name); } catch { return undefined; } };

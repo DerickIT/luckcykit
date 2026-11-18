@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/skillhub"
+	"luckytv/backend/internal/skillhub"
 )
 
 func TestPublicationCloudEditRequiresFreshPreviewWithoutReupload(t *testing.T) {
@@ -66,7 +66,7 @@ func TestPublicationCloudEditRequiresFreshPreviewWithoutReupload(t *testing.T) {
 		json.NewEncoder(w).Encode(map[string]any{"success": true, "data": value})
 	}))
 	defer server.Close()
-	t.Setenv("BEEFTV_SKILLHUB_URL", server.URL)
+	t.Setenv("LUCKYTV_SKILLHUB_URL", server.URL)
 	if e = writeMarketJSON(filepath.Join(s.marketUserDir("owner"), "authorization.json"), marketAuth{Endpoint: server.URL, AccessToken: "test-token", ExpiresAt: time.Now().Add(time.Minute)}); e != nil {
 		t.Fatal(e)
 	}

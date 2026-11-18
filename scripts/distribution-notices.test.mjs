@@ -8,7 +8,7 @@ import { runInNewContext } from "node:vm";
 import { distributionNotices } from "./distribution-notices.mjs";
 
 function fixture(t) {
-    const root = mkdtempSync(resolve(tmpdir(), "beeftv-notices-"));
+    const root = mkdtempSync(resolve(tmpdir(), "luckytv-notices-"));
     t.after(() => rmSync(root, { recursive: true, force: true }));
     for (const name of ["LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md", "licenses/GPL-2.0.txt", "licenses/GPL-3.0.txt", "licenses/LGPL-2.1.txt",
         "web/node_modules/@ffmpeg/core/dist/esm/ffmpeg-core.wasm", "web/node_modules/@ffmpeg/core/dist/esm/ffmpeg-core.js"]) {
@@ -51,7 +51,7 @@ test("Windows notices use the packager's pinned build and source artifact receip
 test("macOS source download names and hashes match the generated packet", (t) => {
     const root = fixture(t);
     mkdirSync(resolve(root, "dist"));
-    const name = "BeefTV-v1.7.28-ffprobe-darwin-arm64-sources.tar.gz";
+    const name = "LuckyTV-v1.7.28-ffprobe-darwin-arm64-sources.tar.gz";
     writeFileSync(resolve(root, "dist", name), "source-packet");
     const files = distributionNotices({ root, version: "v1.7.28", platform: "darwin-arm64" });
     const source = JSON.parse(files.get("sources.json")).components[1].source;
@@ -67,7 +67,7 @@ test("WASM source links require the matching published core", (t) => {
     const binaryHashes = JSON.parse(distributionNotices({ root, version: "v1.7.27" }).get("sources.json")).components[0].binaryHashes;
     writeFileSync(resolve(root, "licenses/ffmpeg-wasm-sources.json"), JSON.stringify({ version: "0.12.10", binaryHashes }));
     mkdirSync(resolve(root, "dist"));
-    const name = "BeefTV-v1.7.27-ffmpeg-wasm-sources.tar.gz";
+    const name = "LuckyTV-v1.7.27-ffmpeg-wasm-sources.tar.gz";
     writeFileSync(resolve(root, "dist", name), "source-packet");
     const files = distributionNotices({ root, version: "v1.7.27" });
     assert.equal(JSON.parse(files.get("sources.json")).components[0].source.name, name);
@@ -106,7 +106,7 @@ test("external links use the desktop browser bridge but retain normal browser na
         let click;
         runInNewContext(script, { window, document: { addEventListener(name, handler) { assert.equal(name, "click"); click = handler; } } });
         let prevented = false;
-        const href = "https://github.com/glanderness/BeefTV/releases/download/v1.7.28/source.tar.gz";
+        const href = "https://github.com/glanderness/LuckyTV/releases/download/v1.7.28/source.tar.gz";
         click({ target: { closest() { return { href }; } }, preventDefault() { prevented = true; } });
         const desktop = mode.endsWith("runtime");
         assert.equal(prevented, desktop);

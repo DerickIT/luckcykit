@@ -11,7 +11,7 @@ import { serveEmptyHostState } from './skill-context-fixture.mjs';
 
 const root = path.resolve(process.argv[2] || '.');
 const destination = process.argv[3];
-const scratch = mkdtempSync(path.join(tmpdir(), 'beeftv-studio-http-'));
+const scratch = mkdtempSync(path.join(tmpdir(), 'luckytv-studio-http-'));
 const credential = 'synthetic-studio-test-only';
 const payloads = [], calls = [], results = [], turns = new Map();
 let child, base, hostLog = '', readOnly = true, readFailure = '', providerMode = '', providerStep = 0, serial = 0;
@@ -21,7 +21,7 @@ const listen = server => new Promise(resolve => server.listen(0, '127.0.0.1', ()
 const text = message => typeof message.content === 'string' ? message.content : (message.content || []).map(part => part.text || '').join('');
 const systemHeader = body => body.messages.filter(m => ['system', 'developer'].includes(m.role)).map(text).join('\n');
 const system = body => {
-  assert.doesNotMatch(systemHeader(body), /<beeftv_studio>/);
+  assert.doesNotMatch(systemHeader(body), /<luckytv_studio>/);
   return text(body.messages.filter(m => m.role === 'user').at(-1) || {});
 };
 const users = body => body.messages.filter(m => m.role === 'user').map(text).join('\n');
@@ -61,14 +61,14 @@ const provider = createServer(async (req, res) => {
 });
 const ops = createServer(async (req, res) => {
   res.setHeader('content-type', 'application/json');
-  if (req.headers['x-beeftv-agent-token'] !== credential) return res.writeHead(403).end(JSON.stringify({ code: 403 }));
+  if (req.headers['x-luckytv-agent-token'] !== credential) return res.writeHead(403).end(JSON.stringify({ code: 403 }));
   if (serveEmptyHostState(req, res)) return;
   if (req.url === '/api/ops') return res.end(JSON.stringify({ code: 0, data: { ops: descriptors } }));
   if (req.url.startsWith('/api/assistant/runtime/turns/')) {
     const turnId = decodeURIComponent(req.url.split('/')[5]);
     return res.end(JSON.stringify({ code: 0, data: { turnId, canvasId: turns.get(turnId), permissionMode: readOnly ? 'read-only' : 'canvas', open: true } }));
   }
-  const body = await readJSON(req), turnId = req.headers['x-beeftv-agent-turn'];
+  const body = await readJSON(req), turnId = req.headers['x-luckytv-agent-turn'];
   calls.push({ path: req.url, body, turnId });
   if (req.url === '/api/ops/skill.catalog' && turns.has(turnId)) return res.end(JSON.stringify({ code: 0, data: { op: 'skill.catalog', replayed: false, result: { skills: [] } } }));
   if (!turnId || body.params.canvasId !== turns.get(turnId)) return res.writeHead(403).end(JSON.stringify({ code: 403, reason: 'scope_denied' }));
@@ -102,10 +102,10 @@ async function startHost(opsPort, modelPort, readonly) {
   await stopHost(); readOnly = readonly;
   const reservation = createServer(), port = await listen(reservation); await new Promise(resolve => reservation.close(resolve));
   base = `http://127.0.0.1:${port}`;
-  const env = { ...process.env, BEEFTV_AGENT_DATA_DIR: path.join(scratch, readonly ? 'read' : 'write'), BEEFTV_AGENT_PORT: String(port), BEEFTV_AGENT_READ_ONLY: readonly ? '1' : '0',
-    BEEFTV_OPS_URL: `http://127.0.0.1:${opsPort}/api`, BEEFTV_AGENT_HOST_TOKEN: credential, BEEFTV_AGENT_API_KEY: 'synthetic-model-key', BEEFTV_AGENT_API: 'openai-completions',
-    BEEFTV_AGENT_BASE_URL: `http://127.0.0.1:${modelPort}/v1`, BEEFTV_AGENT_MODEL: 'synthetic-studio', BEEFTV_AGENT_MAX_REQUESTS_PER_TURN: '4', BEEFTV_AGENT_MAX_TOOL_STEPS_PER_TURN: '4' };
-  delete env.BEEFTV_AGENT_LISTEN_FD;
+  const env = { ...process.env, LUCKYTV_AGENT_DATA_DIR: path.join(scratch, readonly ? 'read' : 'write'), LUCKYTV_AGENT_PORT: String(port), LUCKYTV_AGENT_READ_ONLY: readonly ? '1' : '0',
+    LUCKYTV_OPS_URL: `http://127.0.0.1:${opsPort}/api`, LUCKYTV_AGENT_HOST_TOKEN: credential, LUCKYTV_AGENT_API_KEY: 'synthetic-model-key', LUCKYTV_AGENT_API: 'openai-completions',
+    LUCKYTV_AGENT_BASE_URL: `http://127.0.0.1:${modelPort}/v1`, LUCKYTV_AGENT_MODEL: 'synthetic-studio', LUCKYTV_AGENT_MAX_REQUESTS_PER_TURN: '4', LUCKYTV_AGENT_MAX_TOOL_STEPS_PER_TURN: '4' };
+  delete env.LUCKYTV_AGENT_LISTEN_FD;
   child = spawn(process.execPath, [path.join(root, 'agent-host/server.mjs')], { cwd: root, env, stdio: ['ignore', 'pipe', 'pipe'] });
   child.stdout.on('data', b => { hostLog += b; }); child.stderr.on('data', b => { hostLog += b; });
   for (let i = 0; i < 150; i++) {
@@ -117,7 +117,7 @@ async function startHost(opsPort, modelPort, readonly) {
 }
 async function chat(canvasId = 'studio-canvas') {
   const turnId = `studio-${++serial}`, before = payloads.length; turns.set(turnId, canvasId);
-  const response = await fetch(base + '/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Beeftv-Agent-Token': credential },
+  const response = await fetch(base + '/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Luckytv-Agent-Token': credential },
     body: JSON.stringify({ canvasId, turnId, requestId: turnId, revisionBefore: canvas.revision, message: 'Check the current canvas.' }), signal: AbortSignal.timeout(25000) });
   const raw = await response.text(), events = raw.trim().split('\n').filter(Boolean).map(line => JSON.parse(line));
   assert.equal(response.status, 200, raw);
@@ -147,7 +147,7 @@ try {
       canvas.nodes[0].metadata.content += '-changed';
       const [recovered] = await chat();
       assert.match(system(recovered), /文本 6/);
-      const lastUser = recovered.messages.filter(m => m.role === 'user' && !text(m).trim().startsWith('<beeftv_studio>')).at(-1);
+      const lastUser = recovered.messages.filter(m => m.role === 'user' && !text(m).trim().startsWith('<luckytv_studio>')).at(-1);
       assert.match(text(lastUser), /用户修改了「原节点0」/); assert.doesNotMatch(text(lastUser), /新增 6 个|删除了/);
     });
     readFailure = '';

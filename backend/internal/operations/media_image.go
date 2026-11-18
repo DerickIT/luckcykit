@@ -13,7 +13,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"infinite-canvas/backend/internal/editing"
+	"luckytv/backend/internal/editing"
 
 	"golang.org/x/image/bmp"
 	"golang.org/x/image/draw"

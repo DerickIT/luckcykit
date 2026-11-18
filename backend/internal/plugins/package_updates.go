@@ -14,10 +14,10 @@ import (
 	"sync"
 	"time"
 
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/protocol"
 )
 
-// 插件中心查新版本，并自动更新精选列表里由 BeefTV 维护的插件。只查从 npm 或精选列表
+// 插件中心查新版本，并自动更新精选列表里由 LuckyTV 维护的插件。只查从 npm 或精选列表
 // 装的插件；从文件夹、压缩包、GitHub 或网址装的插件没有可比的版本来源。
 
 // UpdateNotice 是一个已安装插件能更新到的版本。
@@ -25,7 +25,7 @@ type UpdateNotice struct {
 	ID      string `json:"id"`
 	Version string `json:"version"`
 	Latest  string `json:"latest"`
-	// Official 表示 BeefTV 会自动把它更新到精选列表登记的版本。用户安装时写明版本的不算。
+	// Official 表示 LuckyTV 会自动把它更新到精选列表登记的版本。用户安装时写明版本的不算。
 	Official bool `json:"official,omitempty"`
 }
 
@@ -267,9 +267,9 @@ func fetchNpmPackageSummary(ctx context.Context, name, registry string) (MarketP
 			Author      any             `json:"author"`
 			Homepage    string          `json:"homepage"`
 			Repository  json.RawMessage `json:"repository"`
-			BeefTV      struct {
+			LuckyTV      struct {
 				Name string `json:"name"`
-			} `json:"beeftv"`
+			} `json:"luckytv"`
 		}
 		decodeErr := json.NewDecoder(io.LimitReader(resp.Body, 1<<20)).Decode(&doc)
 		resp.Body.Close()
@@ -278,7 +278,7 @@ func fetchNpmPackageSummary(ctx context.Context, name, registry string) (MarketP
 		}
 		item := MarketPluginItem{
 			ID:          protocol.PackageIDFromName(doc.Name),
-			Name:        firstNonBlank(doc.BeefTV.Name, doc.Name),
+			Name:        firstNonBlank(doc.LuckyTV.Name, doc.Name),
 			PackageName: doc.Name,
 			Version:     strings.TrimSpace(doc.Version),
 			Description: strings.TrimSpace(doc.Description),

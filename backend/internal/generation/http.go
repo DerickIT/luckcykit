@@ -12,9 +12,9 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/outbound"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/outbound"
+	"luckytv/backend/internal/protocol"
 )
 
 const (
@@ -83,7 +83,7 @@ func GetJSON(ctx context.Context, config Config, path string, target interface{}
 	}
 	req.Header.Set("Authorization", "Bearer "+config.APIKey)
 	outbound.ApplyOutboundHeaders(req, config.Headers)
-	applyBeefTVVideoDeliveryHeader(ctx, config, req)
+	applyLuckyTVVideoDeliveryHeader(ctx, config, req)
 	return DoJSON(req, target)
 }
 

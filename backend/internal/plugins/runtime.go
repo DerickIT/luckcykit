@@ -9,8 +9,8 @@ import (
 	"strings"
 	"sync"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/protocol"
 )
 
 const protocolPluginMaxBytes = protocol.PluginManifestMaxBytes

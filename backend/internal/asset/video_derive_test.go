@@ -18,21 +18,21 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/mediatools"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/mediatools"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
 func TestAssetFakeMediaToolHelperProcess(t *testing.T) {
-	mode := os.Getenv("BEEFTV_ASSET_FAKE_TOOL")
+	mode := os.Getenv("LUCKYTV_ASSET_FAKE_TOOL")
 	if mode == "" {
 		return
 	}
-	scenario := os.Getenv("BEEFTV_ASSET_FAKE_SCENARIO")
+	scenario := os.Getenv("LUCKYTV_ASSET_FAKE_SCENARIO")
 	args := os.Args
 	sep := slices.Index(args, "--")
 	toolArgs := args[1:]
@@ -96,7 +96,7 @@ func installAssetFakeMediaTools(t *testing.T, scenario string) {
 	dir := t.TempDir()
 	write := func(name, mode string) string {
 		p := filepath.Join(dir, name)
-		body := fmt.Sprintf("#!/bin/sh\nexport BEEFTV_ASSET_FAKE_TOOL=%s\nexport BEEFTV_ASSET_FAKE_SCENARIO=%s\nexec %q -test.run=^TestAssetFakeMediaToolHelperProcess$ -- \"$@\"\n",
+		body := fmt.Sprintf("#!/bin/sh\nexport LUCKYTV_ASSET_FAKE_TOOL=%s\nexport LUCKYTV_ASSET_FAKE_SCENARIO=%s\nexec %q -test.run=^TestAssetFakeMediaToolHelperProcess$ -- \"$@\"\n",
 			mode, scenario, testBin)
 		if err := os.WriteFile(p, []byte(body), 0o755); err != nil {
 			t.Fatal(err)

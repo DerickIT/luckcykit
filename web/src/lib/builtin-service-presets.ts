@@ -6,7 +6,7 @@ import {
     LL2_PRESET_MODELS,
     buildLL2ModelChannel,
     upgradeLL2ModelProfile,
-} from "../../../plugin-packages/beeftv-plugin-ll2/client/index.js";
+} from "../../../plugin-packages/luckytv-plugin-ll2/client/index.js";
 import {
     DEFAULT_BASE_URL as YSDUI_DEFAULT_BASE_URL,
     YSDUI_CHANNEL_ID,
@@ -14,7 +14,7 @@ import {
     YSDUI_PROVIDER_INTRO,
     buildYsduiModelChannel,
     upgradeYsduiModelProfile,
-} from "../../../plugin-packages/beeftv-plugin-ysdui/client/index.js";
+} from "../../../plugin-packages/luckytv-plugin-ysdui/client/index.js";
 
 type BuiltinPresetModel = (typeof LL2_PRESET_MODELS)[number] | (typeof YSDUI_PRESET_MODELS)[number];
 

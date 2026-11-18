@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"infinite-canvas/backend/internal/desktopstorage"
+	"luckytv/backend/internal/desktopstorage"
 )
 
 var ErrNotInstalled = errors.New("深度捕捉组件尚未安装，请在设置的存储页面下载后再使用")

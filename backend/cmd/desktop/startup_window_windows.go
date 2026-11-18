@@ -1,15 +1,15 @@
+//go:build windows
+
 package main
 
 import (
-	"context"
 	"fmt"
-	"os"
 	"runtime"
 	"sync"
 	"unsafe"
 
-	"github.com/wailsapp/wails/v2/pkg/options"
-	wailsruntime "github.com/wailsapp/wails/v2/pkg/runtime"
+	"github.com/wailsapp/wails/v3/pkg/application"
+	"github.com/wailsapp/wails/v3/pkg/events"
 	"golang.org/x/sys/windows"
 )
 
@@ -40,23 +40,26 @@ type startupMonitorInfo struct {
 	flags         uint32
 }
 
-func configureStartupWindow(opts *options.App) {
-	// Locate this process's window after Wails has selected its initial monitor.
-	className := fmt.Sprintf("BeefTVMainWindow-%d", os.Getpid())
-	opts.Windows.WindowClassName = className
-	opts.StartHidden = true
-	var firstNavigation sync.Once
-	opts.OnDomReady = func(ctx context.Context) {
-		firstNavigation.Do(func() {
-			if err := fitStartupWindow(className); err != nil {
-				wailsruntime.LogWarningf(ctx, "无法调整启动窗口: %v", err)
+// configureStartupWindow is a no-op on Windows; the unique window class is set
+// in desktopAppOptions (Windows.WndClass) so the window can be located by name.
+func configureStartupWindow(_ *application.App) {}
+
+var startupWindowOnce sync.Once
+
+func configureWindowStartup(_ *application.App, window application.Window) {
+	window.RegisterHook(events.Common.WindowRuntimeReady, func(_ *application.WindowEvent) {
+		startupWindowOnce.Do(func() {
+			if err := fitStartupWindow(); err != nil {
+				_ = err
 			}
-			wailsruntime.WindowShow(ctx)
+			window.UnMinimise()
+			window.Show()
 		})
-	}
+	})
 }
 
-func fitStartupWindow(className string) error {
+func fitStartupWindow() error {
+	className := startupWindowClass()
 	class, err := windows.UTF16PtrFromString(className)
 	if err != nil {
 		return err
@@ -68,7 +71,6 @@ func fitStartupWindow(className string) error {
 	if err := setStartupThreadDPI.Find(); err != nil {
 		return err
 	}
-	// Read the work area and place the window in the same physical pixel space.
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()
 	previousDPI, _, err := setStartupThreadDPI.Call(perMonitorAwareDPI)

@@ -16,10 +16,10 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/prompts"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/prompts"
+	"luckytv/backend/internal/protocol"
 )
 
 const testReferenceImageDataURL = "data:image/png;base64,aGVsbG8="
@@ -101,17 +101,17 @@ func TestProviderMediaHydrationPolicyPrefersObjectURLs(t *testing.T) {
 	}
 }
 
-func TestProviderDownloadURLNormalizesBeefTVResultToConfiguredOrigin(t *testing.T) {
+func TestProviderDownloadURLNormalizesLuckyTVResultToConfiguredOrigin(t *testing.T) {
 	tests := []struct {
 		name, baseURL, resultURL string
 		want                     string
 	}{
 		{name: "same origin", baseURL: "https://provider.example", resultURL: "https://provider.example/files/video.mp4", want: "https://provider.example/files/video.mp4"},
-		{name: "official origin normalizes relative path", baseURL: "https://beeftv.app/v1", resultURL: "/v1/videos/task-1/content", want: "https://beeftv.app/v1/videos/task-1/content"},
-		{name: "official origin normalizes same host", baseURL: "https://beeftv.app/v1", resultURL: "https://beeftv.app:443/v1/videos/task-1/content?token=result", want: "https://beeftv.app/v1/videos/task-1/content?token=result"},
-		{name: "lookalike host stays external", baseURL: "https://beeftv.app", resultURL: "https://beeftv.app.attacker.example/video.mp4", want: "https://beeftv.app.attacker.example/video.mp4"},
-		{name: "custom provider does not rewrite official host", baseURL: "https://provider.example", resultURL: "https://beeftv.app/video.mp4", want: "https://beeftv.app/video.mp4"},
-		{name: "insecure cross origin stays external", baseURL: "https://beeftv.app", resultURL: "http://beeftv.app/video.mp4", want: "http://beeftv.app/video.mp4"},
+		{name: "official origin normalizes relative path", baseURL: "https://luckytv.app/v1", resultURL: "/v1/videos/task-1/content", want: "https://luckytv.app/v1/videos/task-1/content"},
+		{name: "official origin normalizes same host", baseURL: "https://luckytv.app/v1", resultURL: "https://luckytv.app:443/v1/videos/task-1/content?token=result", want: "https://luckytv.app/v1/videos/task-1/content?token=result"},
+		{name: "lookalike host stays external", baseURL: "https://luckytv.app", resultURL: "https://luckytv.app.attacker.example/video.mp4", want: "https://luckytv.app.attacker.example/video.mp4"},
+		{name: "custom provider does not rewrite official host", baseURL: "https://provider.example", resultURL: "https://luckytv.app/video.mp4", want: "https://luckytv.app/video.mp4"},
+		{name: "insecure cross origin stays external", baseURL: "https://luckytv.app", resultURL: "http://luckytv.app/video.mp4", want: "http://luckytv.app/video.mp4"},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -688,7 +688,7 @@ func TestRunDeclarativeAgentTaskOmitsToolChoiceBeforeThinkingRequest(t *testing.
 	defer server.Close()
 
 	adapter, err := protocol.LoadManifest([]byte(`{
-		"apiVersion":"beeftv.plugin/v1",
+		"apiVersion":"luckytv.plugin/v1",
 		"id":"chat-completion","version":"1.0.0","name":"Chat Completion Test","author":"Test","documentation":"# Test",
 		"contributes":{"providers":[{"id":"chat-completion","label":"Chat Completion Test","capabilities":["text"],"scopes":["agent"],
 		"create":{"method":"POST","path":"/create"},
@@ -1596,16 +1596,16 @@ func TestSeedance25AudioOnlyRequestBodyOmitsRequiredImage(t *testing.T) {
 	}
 }
 
-func TestBeefTVAudioURLAcceptsDataAssetAndHTTPS(t *testing.T) {
-	data, err := beefTVAudioURL(providerMedia{DataURL: "data:audio/mpeg;base64,AAAA"})
+func TestLuckyTVAudioURLAcceptsDataAssetAndHTTPS(t *testing.T) {
+	data, err := luckyTVAudioURL(providerMedia{DataURL: "data:audio/mpeg;base64,AAAA"})
 	if err != nil || data != "data:audio/mpeg;base64,AAAA" {
 		t.Fatalf("data audio = %q, %v", data, err)
 	}
-	asset, err := beefTVAudioURL(providerMedia{URL: "asset://voice"})
+	asset, err := luckyTVAudioURL(providerMedia{URL: "asset://voice"})
 	if err != nil || asset != "asset://voice" {
 		t.Fatalf("asset audio = %q, %v", asset, err)
 	}
-	url, err := beefTVAudioURL(providerMedia{URL: "https://cdn.example.com/a.mp3"})
+	url, err := luckyTVAudioURL(providerMedia{URL: "https://cdn.example.com/a.mp3"})
 	if err != nil || url != "https://cdn.example.com/a.mp3" {
 		t.Fatalf("https audio = %q, %v", url, err)
 	}
@@ -1682,16 +1682,16 @@ func TestSeedanceVideosBodyUsesVideosEndpointFields(t *testing.T) {
 	}
 }
 
-func TestSeedancePollStatusUsesBeefTVNestedGenerationState(t *testing.T) {
+func TestSeedancePollStatusUsesLuckyTVNestedGenerationState(t *testing.T) {
 	status, videoURL := seedancePollStatusAndURL(map[string]interface{}{
 		"status": "in_progress",
 		"metadata": map[string]interface{}{
 			"generation_status": "completed",
 			"stage":             "saving",
-			"url":               "https://beeftv.app/v1/videos/task/content",
+			"url":               "https://luckytv.app/v1/videos/task/content",
 		},
 	})
-	if status != "completed" || videoURL != "https://beeftv.app/v1/videos/task/content" {
+	if status != "completed" || videoURL != "https://luckytv.app/v1/videos/task/content" {
 		t.Fatalf("status/url = %q/%q", status, videoURL)
 	}
 }
@@ -2525,7 +2525,7 @@ func TestOfficialAudioPluginMapsMiniMaxSpeechControls(t *testing.T) {
 	kept := officialPluginCreateBody(t, canvasGenerationInput{
 		Mode: "audio",
 		Config: providerConfig{InterfaceType: "openai-audio",
-			Model:       "beeftv::minimax-speech-2.8-hd",
+			Model:       "luckytv::minimax-speech-2.8-hd",
 			AudioVoice:  "male-qn-jingying",
 			AudioFormat: "wav",
 			AudioSpeed:  "0.8",

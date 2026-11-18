@@ -39,9 +39,9 @@ describe('external agent eval driver', () => {
 
   // 外部 CLI 看不到真实 HOME 和无关的凭据，只拿到自己那家的模型配置。
   test('gives each agent only its own credentials and a private home', () => {
-    const source = { PATH: '/bin', HOME: '/home/real', ANTHROPIC_API_KEY: 'a', BEEFTV_EVAL_CODEX_API_KEY: 'c', GITHUB_TOKEN: 'g', BEEFTV_AGENT_API_KEY: 'b' };
+    const source = { PATH: '/bin', HOME: '/home/real', ANTHROPIC_API_KEY: 'a', LUCKYTV_EVAL_CODEX_API_KEY: 'c', GITHUB_TOKEN: 'g', LUCKYTV_AGENT_API_KEY: 'b' };
     expect(agentEnv('claude', '/tmp/h', source)).toEqual({ HOME: '/tmp/h', PATH: '/bin', ANTHROPIC_API_KEY: 'a', CLAUDE_CONFIG_DIR: '/tmp/h' });
-    expect(agentEnv('codex', '/tmp/h', source)).toEqual({ HOME: '/tmp/h', PATH: '/bin', BEEFTV_EVAL_CODEX_API_KEY: 'c', CODEX_HOME: '/tmp/h' });
+    expect(agentEnv('codex', '/tmp/h', source)).toEqual({ HOME: '/tmp/h', PATH: '/bin', LUCKYTV_EVAL_CODEX_API_KEY: 'c', CODEX_HOME: '/tmp/h' });
   });
 });
 
@@ -55,10 +55,10 @@ describe('外部测评预算与新报告字段', () => {
   });
 
   test('单价从环境读取；缓存价缺失时保留 undefined 以便回退', () => {
-    expect(readEvalPrices({ BEEFTV_EVAL_PRICE_IN: '0.2', BEEFTV_EVAL_PRICE_OUT: '0.8' }))
+    expect(readEvalPrices({ LUCKYTV_EVAL_PRICE_IN: '0.2', LUCKYTV_EVAL_PRICE_OUT: '0.8' }))
       .toEqual({ input: 0.2, cache: undefined, output: 0.8 });
-    expect(readEvalPrices({ BEEFTV_EVAL_PRICE_IN: '0.2', BEEFTV_EVAL_PRICE_CACHE: '0.004', BEEFTV_EVAL_PRICE_OUT: '0.8' }).cache).toBe(0.004);
-    expect(() => readEvalPrices({ BEEFTV_EVAL_PRICE_IN: 'abc' })).toThrow('BEEFTV_EVAL_PRICE_IN');
+    expect(readEvalPrices({ LUCKYTV_EVAL_PRICE_IN: '0.2', LUCKYTV_EVAL_PRICE_CACHE: '0.004', LUCKYTV_EVAL_PRICE_OUT: '0.8' }).cache).toBe(0.004);
+    expect(() => readEvalPrices({ LUCKYTV_EVAL_PRICE_IN: 'abc' })).toThrow('LUCKYTV_EVAL_PRICE_IN');
   });
 
   test('预算停止在达到上限后锁住，后续场景不会再跑', () => {
@@ -125,7 +125,7 @@ describe('外部测评预算与新报告字段', () => {
   });
 
   test('外部 CLI 的临时 home 清理后不留目录，也不留 owner token', () => {
-    const agent = prepareAgentHome('claude', '/tmp', { BEEFTV_OWNER_TOKEN: 'owner-token' });
+    const agent = prepareAgentHome('claude', '/tmp', { LUCKYTV_OWNER_TOKEN: 'owner-token' });
     expect(fs.existsSync(agent.home)).toBe(true);
     expect(fs.readFileSync(agent.mcpPath, 'utf8')).toContain('owner-token');
     agent.cleanup();
@@ -133,11 +133,11 @@ describe('外部测评预算与新报告字段', () => {
   });
 
   test('准备外部 CLI 临时 home 时出错会立刻删掉，含 owner token 的目录不残留', () => {
-    const before = new Set(fs.readdirSync(os.tmpdir()).filter((name) => name.startsWith('beeftv-ext-')));
+    const before = new Set(fs.readdirSync(os.tmpdir()).filter((name) => name.startsWith('luckytv-ext-')));
     // BigInt 无法写进 JSON：在 mkdtemp 和技能复制之后、写 mcp.json 时抛错。
-    expect(() => prepareAgentHome('claude', '/tmp', { BEEFTV_OWNER_TOKEN: 'owner-token', BAD: 1n })).toThrow();
+    expect(() => prepareAgentHome('claude', '/tmp', { LUCKYTV_OWNER_TOKEN: 'owner-token', BAD: 1n })).toThrow();
     const leaked = fs.readdirSync(os.tmpdir())
-      .filter((name) => name.startsWith('beeftv-ext-') && !before.has(name));
+      .filter((name) => name.startsWith('luckytv-ext-') && !before.has(name));
     expect(leaked).toEqual([]);
   });
 

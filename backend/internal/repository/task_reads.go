@@ -4,12 +4,12 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 
 	"gorm.io/gorm"
 )
 
-const taskSummarySelectColumns = "id, user_id, route_run, recovery_outcome, beef_usage_state, beef_billing_state, beef_reconcile_deadline, image_job_id, project_id, type, status, stage, progress, prompt, operation, provider, model, input_json, result_json, error, error_code, failure_diagnostics, provider_request_id, provider_cancel_status, provider_cancel_error, provider_cancel_attempts, provider_cancel_requested_at, provider_cancelled_at, provider_cancel_next_check_at, attempts, started_at, completed_at, created_at, updated_at"
+const taskSummarySelectColumns = "id, user_id, route_run, recovery_outcome, lucky_usage_state, lucky_billing_state, lucky_reconcile_deadline, image_job_id, project_id, type, status, stage, progress, prompt, operation, provider, model, input_json, result_json, error, error_code, failure_diagnostics, provider_request_id, provider_cancel_status, provider_cancel_error, provider_cancel_attempts, provider_cancel_requested_at, provider_cancelled_at, provider_cancel_next_check_at, attempts, started_at, completed_at, created_at, updated_at"
 
 func applyActiveCandidateTaskFilter(query *gorm.DB) *gorm.DB {
 	return query.

@@ -9,11 +9,11 @@ import (
 )
 
 func TestClientRejectsUntrustedArchiveAndEncodedTraversal(t *testing.T) {
-	c, e := New("https://beeftv.app/api/beeftv/skillhub/v1")
+	c, e := New("https://luckytv.app/api/luckytv/skillhub/v1")
 	if e != nil {
 		t.Fatal(e)
 	}
-	for _, route := range []string{"https://evil.invalid/archive", "//evil.invalid/archive", "/api/beeftv/skillhub/v1/%2e%2e/secret", "https://beeftv.app/other-api", "../private"} {
+	for _, route := range []string{"https://evil.invalid/archive", "//evil.invalid/archive", "/api/luckytv/skillhub/v1/%2e%2e/secret", "https://luckytv.app/other-api", "../private"} {
 		if _, e = c.URL(route); e == nil {
 			t.Fatal("untrusted archive", route)
 		}
@@ -24,11 +24,11 @@ func TestDedicatedReleaseSignatureCannotBeChangedOrSelfTrusted(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	r := Release{Metadata: Metadata{SkillID: "one", Name: "Original", RequirementNotes: "Text only, no paid tool required"}, ReleaseID: "r1", ArchiveSHA256: "fixed", Review: &ReviewSummary{Revision: 2, Trials: []ReviewTrial{{Scenario: "normal", Target: "beeftv", Conclusion: "Observed output"}}}}
+	r := Release{Metadata: Metadata{SkillID: "one", Name: "Original", RequirementNotes: "Text only, no paid tool required"}, ReleaseID: "r1", ArchiveSHA256: "fixed", Review: &ReviewSummary{Revision: 2, Trials: []ReviewTrial{{Scenario: "normal", Target: "luckytv", Conclusion: "Observed output"}}}}
 	payload, _ := json.Marshal(r)
 	r.Attestation = &Attestation{Algorithm: "Ed25519", KeyID: "market-key", Payload: base64.StdEncoding.EncodeToString(payload), Signature: base64.StdEncoding.EncodeToString(ed25519.Sign(private, payload))}
 	keys, _ := json.Marshal(map[string]string{"market-key": base64.StdEncoding.EncodeToString(public)})
-	t.Setenv("BEEFTV_SKILLHUB_TRUSTED_KEYS", string(keys))
+	t.Setenv("LUCKYTV_SKILLHUB_TRUSTED_KEYS", string(keys))
 	if e = VerifyRelease(&r); e != nil {
 		t.Fatal(e)
 	}
@@ -46,7 +46,7 @@ func TestDedicatedReleaseSignatureCannotBeChangedOrSelfTrusted(t *testing.T) {
 	if e = VerifyRelease(&r); e == nil {
 		t.Fatal("signed metadata changed without rejection")
 	}
-	t.Setenv("BEEFTV_SKILLHUB_TRUSTED_KEYS", `{"different-key":"ignored"}`)
+	t.Setenv("LUCKYTV_SKILLHUB_TRUSTED_KEYS", `{"different-key":"ignored"}`)
 	r.Name = "Original"
 	if e = VerifyRelease(&r); e == nil {
 		t.Fatal("catalog-supplied key became trusted")

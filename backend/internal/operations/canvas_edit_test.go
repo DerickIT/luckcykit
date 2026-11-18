@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/operations"
 )
 
 func editDocument(t *testing.T, h *harness) map[string]any {

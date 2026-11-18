@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
 )
 
 func withHTTPRequestRuntime(req *http.Request) *http.Request {

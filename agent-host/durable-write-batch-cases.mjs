@@ -18,7 +18,7 @@ const deferred = () => { let resolve; const promise = new Promise(done => { reso
 const text = message => typeof message.content === 'string' ? message.content : message.content.map(part => part.text || '').join('');
 
 async function batchFixture(foreignWrite, run) {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-write-batch-'));
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-write-batch-'));
   const entered = deferred(), release = deferred(), overlapped = deferred();
   const state = { revision: 9, posts: [], receipts: new Map(), edges: [], size: '16:9', active: 0, maxActive: 0, failures: [] };
   const properties = { canvasId: { type: 'string' }, expectedRevision: { type: 'integer' },

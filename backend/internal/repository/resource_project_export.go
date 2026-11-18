@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 // Project export receipts own the standalone ZIP: it is not inserted into the
@@ -34,7 +34,7 @@ func (r *Repository) ProjectExportResourceReferences(userID string, resourceIDs 
 		if !wanted[id] || receipt.StorageKey != "resource:"+id {
 			continue
 		}
-		references = append(references, ResourceDirectReference{Kind: "工程导出", ID: record.OpID, Title: "BeefTV 工程", ResourceID: id})
+		references = append(references, ResourceDirectReference{Kind: "工程导出", ID: record.OpID, Title: "LuckyTV 工程", ResourceID: id})
 	}
 	return references, nil
 }

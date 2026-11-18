@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"infinite-canvas/backend/internal/database"
+	"luckytv/backend/internal/database"
 )
 
 func TestNilStoreFailsClosedWithoutPanic(t *testing.T) {

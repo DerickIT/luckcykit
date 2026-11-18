@@ -1,6 +1,6 @@
 package app
 
-import "infinite-canvas/backend/internal/canvas/capability"
+import "luckytv/backend/internal/canvas/capability"
 
 // 画布节点能力来自 canvas 域注册表。创作提交与本地渠道目录共用这一份，
 // 不再经过旧 Agent 运行时。

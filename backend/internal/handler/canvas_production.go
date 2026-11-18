@@ -8,8 +8,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"infinite-canvas/backend/internal/app"
-	localproject "infinite-canvas/backend/internal/project"
+	"luckytv/backend/internal/app"
+	localproject "luckytv/backend/internal/project"
 )
 
 type canvasProductionService interface {

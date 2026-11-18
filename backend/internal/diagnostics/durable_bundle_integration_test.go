@@ -14,11 +14,11 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/assistantdiagnostics"
-	"infinite-canvas/backend/internal/diagnostics"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
-	"infinite-canvas/backend/internal/supporttrace"
+	"luckytv/backend/internal/assistantdiagnostics"
+	"luckytv/backend/internal/diagnostics"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
+	"luckytv/backend/internal/supporttrace"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"

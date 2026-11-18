@@ -2,7 +2,7 @@ package canvasworkflow
 
 import (
 	"fmt"
-	"infinite-canvas/backend/internal/topaz"
+	"luckytv/backend/internal/topaz"
 	"strings"
 )
 

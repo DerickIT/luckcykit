@@ -1,9 +1,9 @@
 package app
 
 import (
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
-	"infinite-canvas/backend/internal/resource"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
+	"luckytv/backend/internal/resource"
 )
 
 type AccountFileStorageUsage = resource.AccountFileStorageUsage

@@ -150,7 +150,7 @@ func TestMissingProbeRejectsReferencedVideo(t *testing.T) {
 	}))
 	t.Cleanup(server.Close)
 	ctx = WithRuntime(context.Background(), taskRuntime(func(runtime *Runtime) {
-		runtime.Endpoints.BeefTVVideoBaseURL = server.URL
+		runtime.Endpoints.LuckyTVVideoBaseURL = server.URL
 	}))
 	payload := []byte("video-bytes")
 	input := Input{
@@ -166,9 +166,9 @@ func TestMissingProbeRejectsReferencedVideo(t *testing.T) {
 	}
 	input.VideoCapability = &VideoCapabilityConfig{}
 	input.VideoCapability.References.MinVideoPixels = 409600
-	err = PrepareBeefTVVideoReferences(ctx, input.Config, &input, nil)
+	err = PrepareLuckyTVVideoReferences(ctx, input.Config, &input, nil)
 	if err == nil {
-		t.Fatalf("PrepareBeefTVVideoReferences() error = %v, want unverified geometry rejection", err)
+		t.Fatalf("PrepareLuckyTVVideoReferences() error = %v, want unverified geometry rejection", err)
 	}
 	if hits.Load() != 0 {
 		t.Fatalf("preupload HTTP dispatched without probe: %d", hits.Load())
@@ -283,8 +283,8 @@ func TestWireRequestsRecordCurrentRequestKindAndConcurrency(t *testing.T) {
 }
 
 func TestParallelEndpointOverridesStayIsolated(t *testing.T) {
-	ctxA := WithEndpoints(context.Background(), Endpoints{BeefTVVideoBaseURL: "http://127.0.0.1:1"})
-	ctxB := WithEndpoints(context.Background(), Endpoints{BeefTVVideoBaseURL: "http://127.0.0.1:2"})
+	ctxA := WithEndpoints(context.Background(), Endpoints{LuckyTVVideoBaseURL: "http://127.0.0.1:1"})
+	ctxB := WithEndpoints(context.Background(), Endpoints{LuckyTVVideoBaseURL: "http://127.0.0.1:2"})
 	configA := Config{BaseURL: "http://127.0.0.1:1", Model: "seedance-2.5"}
 	configB := Config{BaseURL: "http://127.0.0.1:2", Model: "seedance-2.5"}
 	var wg sync.WaitGroup
@@ -293,13 +293,13 @@ func TestParallelEndpointOverridesStayIsolated(t *testing.T) {
 		wg.Add(2)
 		go func() {
 			defer wg.Done()
-			if !IsBeefTVVideoConfig(ctxA, configA) || IsBeefTVVideoConfig(ctxA, configB) {
+			if !IsLuckyTVVideoConfig(ctxA, configA) || IsLuckyTVVideoConfig(ctxA, configB) {
 				leaked.Add(1)
 			}
 		}()
 		go func() {
 			defer wg.Done()
-			if !IsBeefTVVideoConfig(ctxB, configB) || IsBeefTVVideoConfig(ctxB, configA) {
+			if !IsLuckyTVVideoConfig(ctxB, configB) || IsLuckyTVVideoConfig(ctxB, configA) {
 				leaked.Add(1)
 			}
 		}()

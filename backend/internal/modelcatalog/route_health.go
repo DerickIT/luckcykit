@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func routeHealthKeys(route CachedLogicalRoute) []string {

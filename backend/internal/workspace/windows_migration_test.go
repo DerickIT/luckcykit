@@ -4,7 +4,7 @@ package workspace
 
 import (
 	"context"
-	"infinite-canvas/backend/internal/desktopstorage"
+	"luckytv/backend/internal/desktopstorage"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -12,7 +12,7 @@ import (
 )
 
 func TestWindowsCrossVolumeSQLiteAndEncryptedConfigSurviveRestart(t *testing.T) {
-	volume := os.Getenv("BEEFTV_TEST_SECOND_VOLUME")
+	volume := os.Getenv("LUCKYTV_TEST_SECOND_VOLUME")
 	if volume == "" {
 		t.Skip("native second volume not requested")
 	}
@@ -21,7 +21,7 @@ func TestWindowsCrossVolumeSQLiteAndEncryptedConfigSurviveRestart(t *testing.T) 
 		t.Skip("Python SQLite fixture unavailable")
 	}
 	source := t.TempDir()
-	target, err := os.MkdirTemp(volume, "BeefTV-workspace-test-")
+	target, err := os.MkdirTemp(volume, "LuckyTV-workspace-test-")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/mediatools"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/mediatools"
+	"luckytv/backend/internal/model"
 )
 
 func audioFixture() []byte {
@@ -82,7 +82,7 @@ func TestMissingMediaFactsFailWithoutLosingBytes(t *testing.T) {
 }
 
 func TestBundledMediaMetadataWithoutSystemFFprobe(t *testing.T) {
-	if os.Getenv("BEEFTV_TEST_BUNDLED_MEDIA") != "1" {
+	if os.Getenv("LUCKYTV_TEST_BUNDLED_MEDIA") != "1" {
 		t.Skip("packaged native acceptance")
 	}
 	if path, err := exec.LookPath("ffprobe"); err == nil {

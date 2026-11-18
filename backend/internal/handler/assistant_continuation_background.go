@@ -9,8 +9,8 @@ import (
 	"io"
 	"net/http"
 
-	"infinite-canvas/backend/internal/assistantruntime"
-	"infinite-canvas/backend/internal/assistantturns"
+	"luckytv/backend/internal/assistantruntime"
+	"luckytv/backend/internal/assistantturns"
 )
 
 type assistantTurnFinalizer interface {

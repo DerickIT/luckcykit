@@ -4,10 +4,10 @@ import (
 	"context"
 	"mime/multipart"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	localproject "infinite-canvas/backend/internal/project"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	localproject "luckytv/backend/internal/project"
+	localtask "luckytv/backend/internal/task"
 )
 
 // These ports intentionally expose one cohesive local capability each.

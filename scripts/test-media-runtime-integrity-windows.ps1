@@ -4,7 +4,7 @@ param([Parameter(Mandatory = $true)][string]$Runtime)
 $ErrorActionPreference = "Stop"
 $check = Join-Path $PSScriptRoot "assert-media-runtime-windows.ps1"
 $null = & $check -Runtime $Runtime
-$scratch = Join-Path ([IO.Path]::GetTempPath()) ("beeftv-media-integrity-" + [guid]::NewGuid().ToString("N"))
+$scratch = Join-Path ([IO.Path]::GetTempPath()) ("luckytv-media-integrity-" + [guid]::NewGuid().ToString("N"))
 New-Item -ItemType Directory -Path $scratch | Out-Null
 function Assert-Rejected([scriptblock]$Action, [string]$Expected) {
     try { & $Action } catch {

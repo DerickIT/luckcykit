@@ -11,15 +11,15 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/protocol"
 )
 
 func grokPluginRegistry(t *testing.T, packaged bool) *protocol.Registry {
 	t.Helper()
 	path := filepath.Join("..", "..", "..", "plugin-packages", "xai-grok-images", "manifest.json")
 	if packaged {
-		path = filepath.Join("..", "..", "..", "plugin-packages", "xai-grok-images.beeftv-plugin")
+		path = filepath.Join("..", "..", "..", "plugin-packages", "xai-grok-images.luckytv-plugin")
 	}
 	raw, err := os.ReadFile(path)
 	if err != nil {
@@ -192,7 +192,7 @@ func TestGrokImagePluginFailuresRemainFailures(t *testing.T) {
 func TestGrokImageManagedConnectionRetainsPriority(t *testing.T) {
 	registry, _ := protocol.NewRegistry()
 	ctx := WithProtocolRegistry(context.Background(), registry)
-	_, err := RunImageTask(ctx, Input{Mode: "image", Config: Config{CredentialRef: beeftv.CredentialRef, InterfaceType: "grok-image", Model: "grok-imagine-image"}})
+	_, err := RunImageTask(ctx, Input{Mode: "image", Config: Config{CredentialRef: luckytv.CredentialRef, InterfaceType: "grok-image", Model: "grok-imagine-image"}})
 	if err == nil || !strings.Contains(err.Error(), "持久化提交标识") {
 		t.Fatalf("managed image must reach its own persistence guard before Grok routing: %v", err)
 	}

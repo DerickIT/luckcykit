@@ -14,10 +14,10 @@ func TestOperationsDoesNotDependOnApp(t *testing.T) {
 		t.Fatalf("list operations dependencies: %v", err)
 	}
 	for _, dependency := range strings.Fields(string(output)) {
-		if dependency == "infinite-canvas/backend/internal/app" {
+		if dependency == "luckytv/backend/internal/app" {
 			t.Fatal("operations still depends on the application service kernel")
 		}
-		if dependency == "infinite-canvas/backend/internal/agentops" {
+		if dependency == "luckytv/backend/internal/agentops" {
 			t.Fatal("operations still depends on the agent auth adapter")
 		}
 	}

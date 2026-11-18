@@ -3,8 +3,8 @@ package app
 import (
 	"context"
 
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
 )
 
 // taskLifecycleCoordinator 负责任务重试与取消这类会改变任务状态的写命令。

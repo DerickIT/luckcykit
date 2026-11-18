@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
 )
 
 type fakePorts struct {

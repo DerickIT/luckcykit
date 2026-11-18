@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 	"regexp"
 )
 

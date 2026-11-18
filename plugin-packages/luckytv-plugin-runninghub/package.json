@@ -1,0 +1,57 @@
+{
+  "name": "luckytv-plugin-runninghub",
+  "version": "0.1.0",
+  "description": "把 RunningHub 接进 LuckyTV：你的工作流和 AI 应用就是模型，画布上直接用它们生成图片、视频和音频。",
+  "type": "module",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Sunnyender-org/luckytv-plugins.git",
+    "directory": "plugins/luckytv-plugin-runninghub"
+  },
+  "homepage": "https://github.com/Sunnyender-org/luckytv-plugins/tree/main/plugins/luckytv-plugin-runninghub",
+  "keywords": [
+    "luckytv-plugin",
+    "runninghub",
+    "comfyui",
+    "workflow",
+    "image",
+    "video",
+    "audio"
+  ],
+  "luckytv": {
+    "name": "RunningHub",
+    "contributes": {
+      "providers": [
+        {
+          "id": "runninghub",
+          "label": "RunningHub",
+          "module": "./provider.mjs",
+          "capabilities": [
+            "image",
+            "video",
+            "audio"
+          ],
+          "scopes": [
+            "user.custom-channel",
+            "canvas",
+            "creation",
+            "agent"
+          ],
+          "baseUrl": "https://www.runninghub.cn",
+          "auth": {
+            "type": "bearer",
+            "field": "apiKey"
+          }
+        }
+      ]
+    }
+  },
+  "files": [
+    "provider.mjs",
+    "lib",
+    "README.md",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "author": "LuckyTV"
+}

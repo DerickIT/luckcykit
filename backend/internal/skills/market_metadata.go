@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"infinite-canvas/backend/internal/skillhub"
+	"luckytv/backend/internal/skillhub"
 )
 
 // The reviewed release belongs to the installed version, outside canonical package bytes.

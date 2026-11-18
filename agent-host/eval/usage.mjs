@@ -183,10 +183,10 @@ export function createCnyBudget({ budgetCny, priceIn, priceCache, priceOut } = {
   }
   if (!Number.isFinite(Number(budgetCny)) || Number(budgetCny) <= 0) throw new Error(`--budget-cny 必须是大于 0 的数字，收到: ${budgetCny}`);
   if (!Number.isFinite(input) || input <= 0 || !Number.isFinite(output) || output <= 0) {
-    throw new Error('budget_price_missing: 设置了 --budget-cny 时必须配置大于 0 的 BEEFTV_EVAL_PRICE_IN 与 BEEFTV_EVAL_PRICE_OUT（元/百万 token），拒绝按 0 单价计算');
+    throw new Error('budget_price_missing: 设置了 --budget-cny 时必须配置大于 0 的 LUCKYTV_EVAL_PRICE_IN 与 LUCKYTV_EVAL_PRICE_OUT（元/百万 token），拒绝按 0 单价计算');
   }
   if (!Number.isFinite(cache) || cache <= 0) {
-    throw new Error('budget_price_missing: BEEFTV_EVAL_PRICE_CACHE 必须大于 0（元/百万 token），缺省时沿用 BEEFTV_EVAL_PRICE_IN');
+    throw new Error('budget_price_missing: LUCKYTV_EVAL_PRICE_CACHE 必须大于 0（元/百万 token），缺省时沿用 LUCKYTV_EVAL_PRICE_IN');
   }
   const limit = Number(budgetCny);
   let spent = 0;

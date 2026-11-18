@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/beeftv"
+	"luckytv/backend/internal/luckytv"
 )
 
 func RecoverSubtitleEraseResult(ctx context.Context, input Input, id string) (map[string]any, string, error) {
@@ -80,7 +80,7 @@ func QuerySubtitleEraseResult(ctx context.Context, input Input, id string) (map[
 // both managed (/v1/media/tasks) and legacy (/video-subtitle-erase/tasks) paths.
 // When managed metadata already carries subtitles, it normalizes the payload;
 // when absent and a provider task ID is known, it falls back to /subtitles.
-func attachSmartEraseSubtitles(ctx context.Context, client *beeftv.MediaClient, input Input, providerTaskID string, result map[string]any) {
+func attachSmartEraseSubtitles(ctx context.Context, client *luckytv.MediaClient, input Input, providerTaskID string, result map[string]any) {
 	if result == nil || input.SubtitleErase == nil || (!input.SubtitleErase.OCRExtract && !input.SubtitleErase.Translate) {
 		return
 	}

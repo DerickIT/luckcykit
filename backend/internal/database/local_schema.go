@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
 
 	"gorm.io/gorm"
 )
@@ -126,11 +126,11 @@ func canonicalLocalMigrations() []localMigration {
 			return ensureSQLiteColumn(tx, "tasks", "recovery_outcome", "TEXT")
 		}},
 		// v26 已随 v2.0.5 发布，已升级的库不会再执行它；结算原值列必须放在新版本里。
-		{version: 27, name: "task-beeftv-settlement", apply: func(tx *gorm.DB) error {
+		{version: 27, name: "task-luckytv-settlement", apply: func(tx *gorm.DB) error {
 			for _, col := range []struct{ name, def string }{
-				{"beef_usage_state", "TEXT"},
-				{"beef_billing_state", "TEXT"},
-				{"beef_reconcile_deadline", "TEXT"},
+				{"lucky_usage_state", "TEXT"},
+				{"lucky_billing_state", "TEXT"},
+				{"lucky_reconcile_deadline", "TEXT"},
 				{"image_job_id", "TEXT NOT NULL DEFAULT ''"},
 			} {
 				if err := ensureSQLiteColumn(tx, "tasks", col.name, col.def); err != nil {
@@ -463,7 +463,7 @@ func RequireLocalSchema(db *gorm.DB) error {
 	if version != CurrentSchemaVersion {
 		return fmt.Errorf("本地工作区数据库版本为 %d，期望 %d，请启用自动迁移", version, CurrentSchemaVersion)
 	}
-	for _, col := range []string{"recovery_outcome", "beef_usage_state", "beef_billing_state", "beef_reconcile_deadline", "image_job_id"} {
+	for _, col := range []string{"recovery_outcome", "lucky_usage_state", "lucky_billing_state", "lucky_reconcile_deadline", "image_job_id"} {
 		if has, err := sqliteHasColumn(db, "tasks", col); err != nil {
 			return err
 		} else if !has {

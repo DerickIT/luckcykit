@@ -1,6 +1,6 @@
-# BeefTV 文档
+# LuckyTV 文档
 
-BeefTV 是一个本地优先、轻量、AI Native 的视频工作台。本页只收录公开使用、开发和维护所需的文档。
+LuckyTV 是一个本地优先、轻量、AI Native 的视频工作台。本页只收录公开使用、开发和维护所需的文档。
 
 ## 开始使用
 
@@ -27,7 +27,7 @@ BeefTV 是一个本地优先、轻量、AI Native 的视频工作台。本页只
 
 - [后端本地开发](content/docs/backend/local-development.mdx)
 - [外部 Agent 接入](content/docs/backend/external-agents.mdx)
-- [beeftv 命令行基础使用](content/docs/backend/beeftv-cli.mdx)
+- [luckytv 命令行基础使用](content/docs/backend/luckytv-cli.mdx)
 - [HTTP API](content/docs/backend/http-api.mdx)
 - [代码地图](content/docs/backend/code-map.mdx)
 - [后端数据库](content/docs/backend/backend-database.mdx)

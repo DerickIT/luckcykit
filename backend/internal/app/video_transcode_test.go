@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/playback"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/playback"
 )
 
 func mp4Box(typ string, payload []byte) []byte {

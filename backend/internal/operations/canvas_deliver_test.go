@@ -6,9 +6,9 @@ import (
 	"testing"
 	"unicode/utf8"
 
-	"infinite-canvas/backend/internal/canvas"
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/canvas"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
 )
 
 const deliverDocument = `{"id":"canvas","revision":4,"nodes":[{"id":"source","type":"video","title":"成片","metadata":{"resourceId":"media","assetId":"asset"}}],"connections":[],"timeline":{"version":2,"durationMs":2000,"tracks":[{"id":"v","kind":"video"}],"clips":[{"id":"clip","kind":"video","nodeId":"source","trackId":"v","startMs":0,"durationMs":2000}]}}`

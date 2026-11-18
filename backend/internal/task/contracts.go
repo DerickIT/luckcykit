@@ -3,8 +3,8 @@ package task
 import (
 	"time"
 
-	"infinite-canvas/backend/internal/editing"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/editing"
+	"luckytv/backend/internal/model"
 )
 
 // CreateRequest is the transport-neutral command accepted by the local task

@@ -12,16 +12,16 @@ spec.loader.exec_module(cnb)
 
 
 def release(version="v2.0.4", include_zips=False):
-    assets = [{"name": f"BeefTV-{version}-{platform}{suffix}", "size": 100,
+    assets = [{"name": f"LuckyTV-{version}-{platform}{suffix}", "size": 100,
                "state": "uploaded", "digest": "sha256:" + "a" * 64,
-               "browser_download_url": f"https://github.com/glanderness/BeefTV/releases/download/{version}/BeefTV-{version}-{platform}{suffix}"}
+               "browser_download_url": f"https://github.com/glanderness/LuckyTV/releases/download/{version}/LuckyTV-{version}-{platform}{suffix}"}
               for platform, suffix in cnb.PLATFORMS.items()]
     if include_zips or cnb.version_tuple(version) >= (2, 1, 0):
-        assets += [{"name": f"BeefTV-{version}-{platform}.zip", "size": 200,
+        assets += [{"name": f"LuckyTV-{version}-{platform}.zip", "size": 200,
                     "state": "uploaded", "digest": "sha256:" + "b" * 64,
-                    "browser_download_url": f"https://github.com/glanderness/BeefTV/releases/download/{version}/BeefTV-{version}-{platform}.zip"}
+                    "browser_download_url": f"https://github.com/glanderness/LuckyTV/releases/download/{version}/LuckyTV-{version}-{platform}.zip"}
                    for platform in cnb.PLATFORMS]
-    return {"tag_name": version, "html_url": f"https://github.com/glanderness/BeefTV/releases/tag/{version}",
+    return {"tag_name": version, "html_url": f"https://github.com/glanderness/LuckyTV/releases/tag/{version}",
             "assets": assets}
 
 
@@ -41,7 +41,7 @@ class MirrorTest(unittest.TestCase):
             calls.append((url, payload, token))
             if url == cnb.START:
                 self.assertEqual(token, "trigger-only-test")
-                self.assertEqual(payload, {"branch": "main", "event": "api_trigger_release", "env": {"BEEFTV_MIRROR_VERSION": "v2.0.4"}})
+                self.assertEqual(payload, {"branch": "main", "event": "api_trigger_release", "env": {"LUCKYTV_MIRROR_VERSION": "v2.0.4"}})
                 return {"success": True}
             self.assertIsNone(token)
             return source if url.startswith(cnb.GITHUB) else next(records)
@@ -68,7 +68,7 @@ class MirrorTest(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "Invalid official installer"):
             cnb.expected_installers(source, "v2.0.4")
         with self.assertRaisesRegex(RuntimeError, "another endpoint"):
-            cnb.request_json(cnb.PUBLIC + "v2.0.4/beeftv-mirror.json", token="isolated-test")
+            cnb.request_json(cnb.PUBLIC + "v2.0.4/luckytv-mirror.json", token="isolated-test")
 
     def test_mismatched_record_and_rejected_trigger_fail(self):
         source = release()
@@ -101,7 +101,7 @@ class MirrorTest(unittest.TestCase):
         self.assertEqual(len(starts), 1)
 
     def test_v210_requires_and_verifies_updater_zips_with_anonymous_range_resume(self):
-        payload_bytes = b"BeefTV-v2.1.0-zip-content-" * 16
+        payload_bytes = b"LuckyTV-v2.1.0-zip-content-" * 16
         sha = hashlib.sha256(payload_bytes).hexdigest()
         source = release("v2.1.0")
         for asset in source["assets"]:
@@ -177,11 +177,11 @@ class MirrorTest(unittest.TestCase):
         # Also verify delta zips when present on the GitHub Release
         delta_assets = []
         for platform in cnb.PLATFORMS:
-            name = f"BeefTV-v2.1.0-{platform}-from-v2.0.6.delta.zip"
+            name = f"LuckyTV-v2.1.0-{platform}-from-v2.0.6.delta.zip"
             delta_assets.append({
                 "name": name, "state": "uploaded", "size": len(payload_bytes),
                 "digest": "sha256:" + sha,
-                "browser_download_url": f"https://github.com/glanderness/BeefTV/releases/download/v2.1.0/{name}",
+                "browser_download_url": f"https://github.com/glanderness/LuckyTV/releases/download/v2.1.0/{name}",
             })
         source_with_deltas = {**source, "assets": source["assets"] + delta_assets}
         ready_with_deltas = {**ready, "assets": cnb.expected_assets(source_with_deltas, "v2.1.0")}

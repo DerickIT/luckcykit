@@ -11,7 +11,7 @@ import (
 	"testing"
 	"testing/iotest"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 type holdFirstRead struct {

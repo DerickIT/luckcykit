@@ -6,9 +6,9 @@ import (
 	"reflect"
 	"testing"
 
-	"infinite-canvas/backend/internal/assistantturns"
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/assistantturns"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
 )
 
 const continuationSource = "aabbccdd00112233"

@@ -1,0 +1,10 @@
+{
+  "id": "luckytv",
+  "displayName": "LuckyTV",
+  "baseUrl": "https://luckytv.app",
+  "catalogProtocol": "openai",
+  "presetVersion": 1,
+  "pinned": true,
+  "legacyIds": ["luckyapi"],
+  "models": []
+}

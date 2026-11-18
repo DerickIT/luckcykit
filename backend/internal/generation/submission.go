@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"infinite-canvas/backend/internal/platform"
+	"luckytv/backend/internal/platform"
 )
 
 type SubmissionUnknownError struct{ Cause error }

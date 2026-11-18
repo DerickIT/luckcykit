@@ -3,7 +3,7 @@ package handler
 import (
 	"testing"
 
-	"infinite-canvas/backend/internal/app"
+	"luckytv/backend/internal/app"
 
 	"github.com/gin-gonic/gin"
 )

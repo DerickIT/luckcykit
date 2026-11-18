@@ -3,9 +3,9 @@ package app
 import (
 	"context"
 
-	cw "infinite-canvas/backend/internal/canvasworkflow"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
+	cw "luckytv/backend/internal/canvasworkflow"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
 )
 
 func workflowDescribeModels(snapshot map[string]any) []modelcatalog.LocalChannelModel {

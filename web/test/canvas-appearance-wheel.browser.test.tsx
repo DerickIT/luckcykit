@@ -25,13 +25,13 @@ beforeAll(async () => {
     browser = await chromium.launch({ headless: true, executablePath });
     page = await browser.newPage({ viewport: { width: 800, height: 900 } });
     page.on("pageerror", (error) => console.error(error.message));
-    await page.route("https://beeftv-appearance.test/**", (route) => {
+    await page.route("https://luckytv-appearance.test/**", (route) => {
         const path = new URL(route.request().url()).pathname;
         if (path === "/app.js") return route.fulfill({ contentType: "text/javascript", body: script });
         if (path === "/app.css") return route.fulfill({ contentType: "text/css", body: css });
         return route.fulfill({ contentType: "text/html", body: '<link rel="stylesheet" href="/app.css"><div id="root"></div><script type="module">import { mountCanvasAppearanceHarness } from "/app.js"; mountCanvasAppearanceHarness(document.getElementById("root"));</script>' });
     });
-    await page.goto("https://beeftv-appearance.test/", { waitUntil: "domcontentloaded" });
+    await page.goto("https://luckytv-appearance.test/", { waitUntil: "domcontentloaded" });
     await page.getByText("滚轮操作", { exact: true }).waitFor({ timeout: 5000 });
 }, 120_000);
 

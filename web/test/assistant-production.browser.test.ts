@@ -130,9 +130,9 @@ test("媒体检查事实经真实历史 hook 显示并在刷新后保留，不�
             expect(chats).toHaveLength(0);
             if (!attempt) await page.reload();
         }
-        if (process.env.BEEFTV_MEDIA_FACTS_SCREENSHOT) {
+        if (process.env.LUCKYTV_MEDIA_FACTS_SCREENSHOT) {
             await page.getByLabel("媒体检查记录").scrollIntoViewIfNeeded();
-            await page.screenshot({ path: process.env.BEEFTV_MEDIA_FACTS_SCREENSHOT, fullPage: true });
+            await page.screenshot({ path: process.env.LUCKYTV_MEDIA_FACTS_SCREENSHOT, fullPage: true });
         }
         expect(errors).toEqual([]);
     } finally { await page.close(); }

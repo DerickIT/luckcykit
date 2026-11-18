@@ -9,8 +9,8 @@ import { createHash } from "node:crypto";
 let browser: Browser, server: ReturnType<typeof Bun.serve>, scratch: string;
 let delayVoice = false;
 let releaseVoice: (() => void) | undefined;
-const sourceRoot = process.env.BEEFTV_PREVIEW_SOURCE_ROOT || resolve(import.meta.dir, "..");
-const hookRef = process.env.BEEFTV_PREVIEW_HOOK_REF;
+const sourceRoot = process.env.LUCKYTV_PREVIEW_SOURCE_ROOT || resolve(import.meta.dir, "..");
+const hookRef = process.env.LUCKYTV_PREVIEW_HOOK_REF;
 let hookSha256 = "";
 const snapshot = (page: Page) => page.evaluate(() => (window as any).timelinePlaybackFixture.snapshot());
 
@@ -22,7 +22,7 @@ function wave(frequency: number) {
 }
 
 beforeAll(async () => {
-    scratch = mkdtempSync(tmpdir() + "/beeftv-timeline-preview-");
+    scratch = mkdtempSync(tmpdir() + "/luckytv-timeline-preview-");
     execFileSync("ffmpeg", ["-v", "error", "-f", "lavfi", "-i", "color=orange:s=320x180:r=24:d=4", "-f", "lavfi", "-i", "sine=frequency=220:sample_rate=44100:duration=4", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac", "-shortest", scratch + "/video.mp4"]);
     const voices = { "/voice.wav": wave(440), "/music.wav": wave(660) };
     const hookPath = "web/src/hooks/use-timeline-preview-playback.ts";
@@ -109,7 +109,7 @@ test("240ms frames cross the 600ms voice cue and naturally stop without rewindin
         }));
         const last = samples.at(-1)!;
         const receipt: Record<string, unknown> = { hookRef: hookRef || "working-tree", hookSha256, frameMs: 240, voiceCueMs: 600, expectedDurationMs: 2400, sourceOffsetsMs: { video: 1600, voice: 2400 }, naturalStop: last.playhead === 2400 && !last.playing, rewinds, samples };
-        if (process.env.BEEFTV_PREVIEW_RECEIPT) writeFileSync(process.env.BEEFTV_PREVIEW_RECEIPT, JSON.stringify(receipt, null, 2));
+        if (process.env.LUCKYTV_PREVIEW_RECEIPT) writeFileSync(process.env.LUCKYTV_PREVIEW_RECEIPT, JSON.stringify(receipt, null, 2));
         console.log(JSON.stringify({ hookRef: receipt.hookRef, hookSha256, naturalStop: receipt.naturalStop, finalPlayhead: last.playhead, rewindCount: rewinds.length }));
         expect(samples.some(sample => sample.playhead > 600)).toBe(true);
         expect(receipt.naturalStop).toBe(true);
@@ -120,7 +120,7 @@ test("240ms frames cross the 600ms voice cue and naturally stop without rewindin
         await page.waitForFunction(() => { const state = (window as any).timelinePlaybackFixture.snapshot(); return state.playhead > 600 && state.playhead < 1400 && !state.audio[0].paused && state.audio[0].currentTime > 2.4 && state.audio[0].currentTime < 3.3; });
         const restarted = await snapshot(page);
         receipt.restarted = restarted;
-        if (process.env.BEEFTV_PREVIEW_RECEIPT) writeFileSync(process.env.BEEFTV_PREVIEW_RECEIPT, JSON.stringify(receipt, null, 2));
+        if (process.env.LUCKYTV_PREVIEW_RECEIPT) writeFileSync(process.env.LUCKYTV_PREVIEW_RECEIPT, JSON.stringify(receipt, null, 2));
         expect(restarted.playing).toBe(true);
         expect(restarted.audio[0].currentTime).toBeLessThan(3.3);
         const video = await page.locator("[data-playback-video]").evaluate((element: HTMLVideoElement) => ({ paused: element.paused, ended: element.ended, currentTime: element.currentTime }));

@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
 )
 
 func ModelRequestIntentFromTaskInput(input map[string]any, taskType string, operation string) ModelRequestIntent {

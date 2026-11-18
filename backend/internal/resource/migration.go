@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/repository"
 )
 
 const storageMigrationMarker = ".storage-v2-migrated"

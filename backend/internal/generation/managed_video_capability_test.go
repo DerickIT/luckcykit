@@ -3,7 +3,7 @@ package generation
 import (
 	"testing"
 
-	"infinite-canvas/backend/internal/modelcatalog"
+	"luckytv/backend/internal/modelcatalog"
 )
 
 func TestManagedVideoOnlySendsControlsDeclaredByServer(t *testing.T) {

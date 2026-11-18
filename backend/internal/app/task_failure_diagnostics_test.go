@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func TestTaskFailureDiagnosticsPreserveLocalConstraint(t *testing.T) {

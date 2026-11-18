@@ -3,10 +3,10 @@ package app
 import (
 	"context"
 
-	cw "infinite-canvas/backend/internal/canvasworkflow"
-	"infinite-canvas/backend/internal/editing"
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
+	cw "luckytv/backend/internal/canvasworkflow"
+	"luckytv/backend/internal/editing"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
 )
 
 func (s *Service) CanvasWorkflowRunService() *cw.Runs               { return s.workflowRuns() }

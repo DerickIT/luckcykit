@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/protocol"
 )
 
 // ProtocolMeta is the slice of protocol.Metadata that catalog/channel rules

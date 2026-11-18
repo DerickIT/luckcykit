@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 )
 
 func TestProjectExportReceiptsProtectOnlyOwnedSuccessfulExactResources(t *testing.T) {

@@ -17,28 +17,28 @@ import (
 	"sync/atomic"
 	"time"
 
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/assistantruntime"
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/buildinfo"
-	"infinite-canvas/backend/internal/conversation"
-	"infinite-canvas/backend/internal/database"
-	"infinite-canvas/backend/internal/depthcapture"
-	"infinite-canvas/backend/internal/eagle"
-	canvasHandler "infinite-canvas/backend/internal/handler"
-	"infinite-canvas/backend/internal/localapp"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/pluginhost"
-	"infinite-canvas/backend/internal/plugins"
-	"infinite-canvas/backend/internal/repository"
-	"infinite-canvas/backend/internal/runtimeinfo"
-	httptransport "infinite-canvas/backend/internal/transport/http"
-	"infinite-canvas/backend/internal/workspace"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/assistantruntime"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/buildinfo"
+	"luckytv/backend/internal/conversation"
+	"luckytv/backend/internal/database"
+	"luckytv/backend/internal/depthcapture"
+	"luckytv/backend/internal/eagle"
+	canvasHandler "luckytv/backend/internal/handler"
+	"luckytv/backend/internal/localapp"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/pluginhost"
+	"luckytv/backend/internal/plugins"
+	"luckytv/backend/internal/repository"
+	"luckytv/backend/internal/runtimeinfo"
+	httptransport "luckytv/backend/internal/transport/http"
+	"luckytv/backend/internal/workspace"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-	"infinite-canvas/backend/internal/agentconnect"
-	"infinite-canvas/backend/internal/agentops"
+	"luckytv/backend/internal/agentconnect"
+	"luckytv/backend/internal/agentops"
 )
 
 type Runtime struct {
@@ -51,7 +51,7 @@ type Runtime struct {
 	status           *systemStatus
 	launchToken      string
 	uiBootstrapToken string
-	beefTV           *beeftv.Service
+	luckyTV           *luckytv.Service
 	assistantHost    *assistantruntime.Host
 	listener         net.Listener
 	httpServer       *http.Server
@@ -62,7 +62,6 @@ type Runtime struct {
 	backgroundDone   chan struct{}
 	closeErr         error
 }
-
 func Open(_ context.Context, raw Config) (result *Runtime, openErr error) {
 	cfg := raw.withDefaults()
 	if cfg.Profile != ProfileServer && cfg.Profile != ProfileDesktop {
@@ -144,20 +143,20 @@ func Open(_ context.Context, raw Config) (result *Runtime, openErr error) {
 		cleanupService()
 		return nil, configErr
 	}
-	beefTVConnection, beefTVErr := beeftv.New(beeftv.Options{
+	luckyTVConnection, luckyTVErr := luckytv.New(luckytv.Options{
 		DataDir: cfg.DataDir, Provider: providerConfig, ClientVersion: buildinfo.Current().Version,
-		FetchCatalog: func(apiKey, baseURL string) ([]beeftv.CatalogModel, error) {
+		FetchCatalog: func(apiKey, baseURL string) ([]luckytv.CatalogModel, error) {
 			owner, ownerErr := svc.LocalWorkspaceOwner()
 			if ownerErr != nil {
 				return nil, ownerErr
 			}
 			items, catalogErr := svc.FetchChannelModelCatalog(context.Background(), owner, app.ChannelModelsRequest{
-				BaseURL: baseURL, APIKey: apiKey, APIFormat: "openai", ChannelID: beeftv.ChannelID, CredentialRef: beeftv.CredentialRef,
+				BaseURL: baseURL, APIKey: apiKey, APIFormat: "openai", ChannelID: luckytv.ChannelID, CredentialRef: luckytv.CredentialRef,
 			})
 			if catalogErr != nil {
 				return nil, catalogErr
 			}
-			models := make([]beeftv.CatalogModel, 0, len(items))
+			models := make([]luckytv.CatalogModel, 0, len(items))
 			for _, item := range items {
 				imageVersion := ""
 				if item.ImageCapabilitiesVersion != nil {
@@ -171,11 +170,11 @@ func Open(_ context.Context, raw Config) (result *Runtime, openErr error) {
 				if item.MediaCapabilitiesVersion != nil {
 					mediaVersion = *item.MediaCapabilitiesVersion
 				}
-				var mediaCaps map[string]beeftv.MediaCapability
+				var mediaCaps map[string]luckytv.MediaCapability
 				if len(item.MediaCapabilities) > 0 {
 					_ = json.Unmarshal(item.MediaCapabilities, &mediaCaps)
 				}
-				models = append(models, beeftv.CatalogModel{
+				models = append(models, luckytv.CatalogModel{
 					ID: item.ID, DisplayName: item.DisplayName, ModelType: item.ModelType, SupportedEndpointTypes: item.SupportedEndpointTypes,
 					ImageCapabilities: item.ImageCapabilities, ImageCapabilitiesVersion: imageVersion,
 					VideoCapabilities: item.VideoCapabilities, VideoCapabilitiesVersion: version,
@@ -186,11 +185,14 @@ func Open(_ context.Context, raw Config) (result *Runtime, openErr error) {
 			return models, nil
 		},
 	})
-	if beefTVErr != nil {
-		cleanupService()
-		return nil, beefTVErr
+	if luckyTVErr != nil {
+		// The external managed channel (LuckyTV) is retired; a failure to
+		// construct its client (for example a missing origin) must not abort
+		// workspace bootstrap. Keep the connection nil so callers handle the
+		// disabled state.
+		luckyTVConnection = nil
 	}
-	svc.SetBeefTV(beefTVConnection)
+	svc.SetLuckyTV(luckyTVConnection)
 	localKernel := app.NewLocalKernel(svc)
 	assetService := svc.ResourceService()
 	projectService := svc.ProjectService()
@@ -263,7 +265,7 @@ func Open(_ context.Context, raw Config) (result *Runtime, openErr error) {
 		Projects:           localRoot.Projects,
 		Tasks:              localRoot.Tasks,
 		Generation:         localRoot.Generation,
-		BeefTV:             beefTVConnection,
+		LuckyTV:             luckyTVConnection,
 		AssistantHost:      assistantHost,
 		Conversations:      conversation.New(conversation.NewStore(repo)),
 		TextReplay:         svc.TextReplay(),
@@ -286,14 +288,14 @@ func Open(_ context.Context, raw Config) (result *Runtime, openErr error) {
 	clients := agentops.NewClientRegistry(svc.DataDir())
 	rootHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if tool, allowed := businessCatalog.Match(r.Method, r.URL.Path); allowed && isLoopbackRemote(r.RemoteAddr) {
-			if reg, valid := clients.Lookup(r.Header.Get("X-Beeftv-Client"), strings.TrimSpace(strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer "))); valid {
+			if reg, valid := clients.Lookup(r.Header.Get("X-Luckytv-Client"), strings.TrimSpace(strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer "))); valid {
 				if reg.Mode == agentops.ClientReadOnly && !tool.ReadOnly {
 					w.Header().Set("Content-Type", "application/json")
 					w.WriteHeader(http.StatusForbidden)
 					_, _ = w.Write([]byte(`{"code":403,"reason":"read_only_client","msg":"此连接仅支持读取"}`))
 					return
 				}
-				if r.Header.Get("X-Beeftv-Agent-Turn") != "" || r.Header.Get("X-Beeftv-Agent-Token") != "" || !canvasHandler.IsLocalBusinessRequest(r) {
+				if r.Header.Get("X-Luckytv-Agent-Turn") != "" || r.Header.Get("X-Luckytv-Agent-Token") != "" || !canvasHandler.IsLocalBusinessRequest(r) {
 					w.Header().Set("Content-Type", "application/json")
 					w.WriteHeader(http.StatusForbidden)
 					_, _ = w.Write([]byte(`{"code":403,"reason":"invalid_external_identity","msg":"外部调用不能使用助手身份"}`))
@@ -302,7 +304,7 @@ func Open(_ context.Context, raw Config) (result *Runtime, openErr error) {
 				router.ServeHTTP(w, canvasHandler.WithExternalBusinessPrincipal(r, reg.Mode == agentops.ClientReadOnly))
 				return
 			}
-			if r.Header.Get("X-Beeftv-Client") == "" && agentops.OwnerTokenMatches(svc.DataDir(), strings.TrimSpace(r.Header.Get("X-Beeftv-Owner"))) && canvasHandler.IsLocalBusinessRequest(r) {
+			if r.Header.Get("X-Luckytv-Client") == "" && agentops.OwnerTokenMatches(svc.DataDir(), strings.TrimSpace(r.Header.Get("X-Luckytv-Owner"))) && canvasHandler.IsLocalBusinessRequest(r) {
 				if launchToken != "" && r.Header.Get("X-Desktop-Token") != launchToken {
 					protected.ServeHTTP(w, r)
 					return
@@ -316,16 +318,16 @@ func Open(_ context.Context, raw Config) (result *Runtime, openErr error) {
 		// above use the same mounted catalog for discovery and authorization.
 		// Credential issuance and runtime administration retain desktop trust.
 		if isOpsEntryPath(r) && isLoopbackRemote(r.RemoteAddr) {
-			if _, ok := clients.Lookup(r.Header.Get("X-Beeftv-Client"), strings.TrimSpace(strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer "))); ok {
+			if _, ok := clients.Lookup(r.Header.Get("X-Luckytv-Client"), strings.TrimSpace(strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer "))); ok {
 				router.ServeHTTP(w, r)
 				return
 			}
-			if r.Header.Get("X-Beeftv-Client") == "" && agentops.OwnerTokenMatches(svc.DataDir(), strings.TrimSpace(r.Header.Get("X-Beeftv-Owner"))) && canvasHandler.IsLocalBusinessRequest(r) {
+			if r.Header.Get("X-Luckytv-Client") == "" && agentops.OwnerTokenMatches(svc.DataDir(), strings.TrimSpace(r.Header.Get("X-Luckytv-Owner"))) && canvasHandler.IsLocalBusinessRequest(r) {
 				router.ServeHTTP(w, r)
 				return
 			}
 		}
-		if r.Header.Get("X-Beeftv-Client") != "" {
+		if r.Header.Get("X-Luckytv-Client") != "" {
 			if launchToken != "" && r.Header.Get("X-Desktop-Token") != launchToken {
 				protected.ServeHTTP(w, r)
 				return
@@ -347,7 +349,7 @@ func Open(_ context.Context, raw Config) (result *Runtime, openErr error) {
 		status:           status,
 		launchToken:      launchToken,
 		uiBootstrapToken: uiBootstrapToken,
-		beefTV:           beefTVConnection,
+		luckyTV:           luckyTVConnection,
 		assistantHost:    assistantHost,
 		serveErr:         make(chan error, 1),
 	}, nil
@@ -433,7 +435,7 @@ func (r *Runtime) Start() error {
 		// 运行时发现：端口是动态的，外部客户端靠工作区对应的运行时描述文件找到当前地址，
 		// 而不是靠猜端口或拿到桌面启动令牌。写失败不影响应用启动。
 		if err := runtimeinfo.Write(r.cfg.DataDir, opsURL, buildinfo.Current().Version); err != nil {
-			log.Printf("未能写入运行时地址（外部 Agent 需手动指定 BEEFTV_BASE_URL）：%v", err)
+			log.Printf("未能写入运行时地址（外部 Agent 需手动指定 LUCKYTV_BASE_URL）：%v", err)
 		}
 		if r.assistantHost != nil {
 			if err := r.assistantHost.Start(opsURL, r.launchToken); err != nil {
@@ -441,8 +443,8 @@ func (r *Runtime) Start() error {
 			}
 		}
 	}
-	if r.beefTV != nil {
-		_ = r.beefTV.Recover(context.Background())
+	if r.luckyTV != nil {
+		_ = r.luckyTV.Recover(context.Background())
 	}
 	r.status.markStarted()
 	return nil
@@ -498,8 +500,8 @@ func (r *Runtime) Close(ctx context.Context) error {
 				failures = append(failures, err)
 			}
 		}
-		if r.beefTV != nil {
-			r.beefTV.Close()
+		if r.luckyTV != nil {
+			r.luckyTV.Close()
 		}
 		if err := r.DepthComponents().CloseComponents(ctx); err != nil {
 			failures = append(failures, fmt.Errorf("暂停组件下载：%w", err))
@@ -583,7 +585,7 @@ func desktopCORSMiddleware() gin.HandlerFunc {
 		if strings.EqualFold(strings.TrimSpace(c.GetHeader("Access-Control-Request-Private-Network")), "true") {
 			c.Header("Access-Control-Allow-Private-Network", "true")
 		}
-		c.Header("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type, Traceparent, X-Desktop-Token, X-Beeftv-UI-Bootstrap, X-Beeftv-Ui-Session, X-Beeftv-Observer-Mode, X-Canvas-Trace-ID, X-Idempotency-Key, X-Canvas-Scene, X-Canvas-Upstream-URL, X-Canvas-Upstream-Format, X-Canvas-Upstream-Base-URL, X-Canvas-Upstream-Headers")
+		c.Header("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type, Traceparent, X-Desktop-Token, X-Luckytv-UI-Bootstrap, X-Luckytv-Ui-Session, X-Luckytv-Observer-Mode, X-Canvas-Trace-ID, X-Idempotency-Key, X-Canvas-Scene, X-Canvas-Upstream-URL, X-Canvas-Upstream-Format, X-Canvas-Upstream-Base-URL, X-Canvas-Upstream-Headers")
 		c.Header("Access-Control-Expose-Headers", "X-Request-ID, X-Canvas-Trace-ID, X-Diagnostic-Bundle-ID, X-Diagnostic-Schema-Version, X-Canvas-Failure-Category")
 		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
 		if c.Request.Method == http.MethodOptions {
@@ -602,7 +604,7 @@ func IsAllowedDesktopOrigin(origin string) bool {
 	if origin == "wails://wails" {
 		return true
 	}
-	for _, extra := range strings.Split(os.Getenv("BEEFTV_ALLOWED_ORIGINS"), ",") {
+	for _, extra := range strings.Split(os.Getenv("LUCKYTV_ALLOWED_ORIGINS"), ",") {
 		if trimmed := strings.TrimSpace(extra); trimmed != "" && strings.EqualFold(trimmed, origin) {
 			return true
 		}
@@ -665,7 +667,7 @@ func desktopTrust(launchToken, uiToken string) func(*http.Request) bool {
 	}
 	return func(r *http.Request) bool {
 		got := []byte(r.Header.Get(httptransport.LaunchTokenHeader))
-		ui := []byte(r.Header.Get("X-Beeftv-UI-Bootstrap"))
+		ui := []byte(r.Header.Get("X-Luckytv-UI-Bootstrap"))
 		return len(got) == len(want) && subtle.ConstantTimeCompare(got, want) == 1 && len(uiToken) > 0 && subtle.ConstantTimeCompare(ui, []byte(uiToken)) == 1
 	}
 }

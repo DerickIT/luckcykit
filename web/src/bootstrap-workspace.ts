@@ -2,6 +2,7 @@ import { bootstrapDesktopRuntime } from "@/services/desktop-runtime";
 import { appPathname } from "@/lib/app-routing";
 import { isEmbeddedRuntime } from "@/lib/embedded-runtime";
 import { setWorkspaceStorageScope } from "@/lib/user-scope";
+import { isBrowserLocalRuntime } from "@/lib/runtime-mode";
 import { getWorkspaceBootstrap, type WorkspaceBootstrapPayload } from "@/services/api/workspace";
 import {
     beginStartupDiagnosticsScope,
@@ -30,7 +31,7 @@ export async function ensureWorkspaceStorageHydrated(options?: { retry?: boolean
     ]);
     // 浏览器缓存晚于后端读入完成时，会用旧连接数组盖掉刚合并的画布。
     await useCanvasStore.persist.rehydrate();
-    if (!isEmbeddedRuntime()) await hydrateLocalCanvasProjectsFromBackend();
+    if (!isEmbeddedRuntime() && !isBrowserLocalRuntime()) await hydrateLocalCanvasProjectsFromBackend();
     clearWorkspaceStartupFailure();
     return payload;
 }

@@ -10,11 +10,11 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/protocol"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/protocol"
+	"luckytv/backend/internal/repository"
 )
 
-const pollPolicyFixtureProvider = `{"apiVersion":"beeftv.plugin/v2","id":"poll-fixture","name":"Fixture","version":"1.0.0","contributes":{"providers":[{"id":"poll-fixture","label":"Fixture","capabilities":["image","video","audio"],"scopes":["canvas"],"auth":{"type":"bearer","field":"apiKey"},"create":{"method":"POST","path":"/tasks"},"poll":{"method":"GET","path":"/tasks/{{taskId}}"},"response":{"taskId":{"$ref":"response.id"},"status":{"$ref":"response.status"},"images":{"$ref":"response.images"}}}]}}`
+const pollPolicyFixtureProvider = `{"apiVersion":"luckytv.plugin/v2","id":"poll-fixture","name":"Fixture","version":"1.0.0","contributes":{"providers":[{"id":"poll-fixture","label":"Fixture","capabilities":["image","video","audio"],"scopes":["canvas"],"auth":{"type":"bearer","field":"apiKey"},"create":{"method":"POST","path":"/tasks"},"poll":{"method":"GET","path":"/tasks/{{taskId}}"},"response":{"taskId":{"$ref":"response.id"},"status":{"$ref":"response.status"},"images":{"$ref":"response.images"}}}]}}`
 
 func pollPolicyFixtureAdapter(t *testing.T) protocol.Adapter {
 	t.Helper()

@@ -1,6 +1,6 @@
-import { createBeefTVPluginHost } from "@/lib/plugins/plugin-host-runtime";
+import { createLuckyTVPluginHost } from "@/lib/plugins/plugin-host-runtime";
 import { getRegisteredPlugin, listRegisteredPlugins } from "@/lib/plugins/plugin-registry";
-import type { BeefTVPluginHost, PluginManifest, PluginManifestV2 } from "@/lib/plugins/plugin-types";
+import type { LuckyTVPluginHost, PluginManifest, PluginManifestV2 } from "@/lib/plugins/plugin-types";
 import { disposePluginContributions } from "@/lib/plugins/slot-registry";
 import { reportPluginLoadError } from "@/services/api/plugins";
 import {
@@ -10,12 +10,12 @@ import {
 } from "@/stores/use-plugin-store";
 
 export type ClientPluginModule = {
-    activate?: (host: BeefTVPluginHost) => Promise<(() => void) | void> | (() => void) | void;
+    activate?: (host: LuckyTVPluginHost) => Promise<(() => void) | void> | (() => void) | void;
     deactivate?: () => Promise<void> | void;
     default?:
-        | ((host: BeefTVPluginHost) => Promise<(() => void) | void> | (() => void) | void)
+        | ((host: LuckyTVPluginHost) => Promise<(() => void) | void> | (() => void) | void)
         | {
-              activate?: (host: BeefTVPluginHost) => Promise<(() => void) | void> | (() => void) | void;
+              activate?: (host: LuckyTVPluginHost) => Promise<(() => void) | void> | (() => void) | void;
               deactivate?: () => Promise<void> | void;
           };
 };
@@ -35,7 +35,7 @@ function clientEntryFor(pluginId: string, manifest?: PluginManifest | PluginMani
 
 function resolveModuleActivator(
     mod: ClientPluginModule,
-): ((host: BeefTVPluginHost) => Promise<(() => void) | void> | (() => void) | void) | null {
+): ((host: LuckyTVPluginHost) => Promise<(() => void) | void> | (() => void) | void) | null {
     if (typeof mod.activate === "function") return mod.activate;
     if (typeof mod.default === "function") return mod.default;
     if (mod.default && typeof mod.default === "object" && typeof mod.default.activate === "function") {
@@ -88,7 +88,7 @@ export async function activateClientPluginModule(
     }
 
     const timeoutMs = options?.timeoutMs ?? CLIENT_ENTRY_TIMEOUT_MS;
-    const host = createBeefTVPluginHost(pluginId, options?.manifest);
+    const host = createLuckyTVPluginHost(pluginId, options?.manifest);
     const activator = resolveModuleActivator(mod);
     const deactivator = resolveModuleDeactivator(mod);
 
@@ -226,7 +226,7 @@ export function activateRegisteredSetupSync(pluginId: string): boolean {
     if (activeCleanups.has(pluginId)) return true;
     const registered = getRegisteredPlugin(pluginId);
     if (!registered?.setup) return false;
-    const host = createBeefTVPluginHost(pluginId, registered.manifest);
+    const host = createLuckyTVPluginHost(pluginId, registered.manifest);
     try {
         const result = registered.setup(host);
         if (result && typeof (result as Promise<unknown>).then === "function") {

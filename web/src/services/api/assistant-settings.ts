@@ -23,7 +23,7 @@ export function isAssistantSettingsUnavailableError(error: unknown): boolean {
 
 // 助手设置与助手入口共用同一套界面会话身份，避免只凭工作区所有者就能写入。
 async function headers() {
-    return { headers: { "X-Beeftv-Ui-Session": await ensureAgentUiSession() } };
+    return { headers: { "X-Luckytv-Ui-Session": await ensureAgentUiSession() } };
 }
 
 export async function getAssistantSettings() {

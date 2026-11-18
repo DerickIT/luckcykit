@@ -103,7 +103,7 @@ beforeAll(async () => {
     const ok = (data: unknown) => Response.json({ code: 0, data });
     const savedConfig = {
         ...defaultConfig,
-        channels: [createModelChannel({ id: "beeftv", pinned: true, enabled: true, models: ["gpt-6-astra"], modelProfiles: [{ model: "gpt-6-astra", capability: "text", protocol: "chat-completion" }] })],
+        channels: [createModelChannel({ id: "luckytv", pinned: true, enabled: true, models: ["gpt-6-astra"], modelProfiles: [{ model: "gpt-6-astra", capability: "text", protocol: "chat-completion" }] })],
     };
 
     server = Bun.serve({
@@ -113,7 +113,7 @@ beforeAll(async () => {
             const path = url.pathname;
             if (path === "/harness.js") return new Response(js, { headers: { "Content-Type": "application/javascript" } });
             if (path === "/harness.css") return new Response(css, { headers: { "Content-Type": "text/css" } });
-            if (path.endsWith("/beeftv/connection/start")) {
+            if (path.endsWith("/luckytv/connection/start")) {
                 startCalls += 1;
                 connectionState = "connected";
                 return ok({
@@ -122,7 +122,7 @@ beforeAll(async () => {
                     account: { id: "u-1", display_name: "测试账号", email: "tester@example.com" },
                 });
             }
-            if (path.endsWith("/beeftv/connection/topup/info")) {
+            if (path.endsWith("/luckytv/connection/topup/info")) {
                 const snapshotBalance = balanceCny;
                 if (blockTopUpInfo) {
                     blockTopUpInfo = false;
@@ -147,7 +147,7 @@ beforeAll(async () => {
                     balanceCny: snapshotBalance,
                 });
             }
-            if (path.endsWith("/beeftv/connection/topup/checkout")) {
+            if (path.endsWith("/luckytv/connection/topup/checkout")) {
                 const body = (await req.json()) as Record<string, unknown>;
                 checkoutCalls.push(body);
                 const isCard = body.paymentMethod === "card";
@@ -160,7 +160,7 @@ beforeAll(async () => {
                     openError: checkoutOpenError || undefined,
                 });
             }
-            if (path.endsWith("/beeftv/connection/topup/reconcile")) {
+            if (path.endsWith("/luckytv/connection/topup/reconcile")) {
                 if (reconcileStatus === "success" && (reconcileSettled || reconcileCredited)) balanceCny = "128.50";
                 return ok({
                     status: reconcileStatus,
@@ -176,11 +176,11 @@ beforeAll(async () => {
                     },
                 });
             }
-            if (path.endsWith("/beeftv/connection/cancel")) {
+            if (path.endsWith("/luckytv/connection/cancel")) {
                 connectionState = "cancelled";
                 return ok({ state: connectionState, hasCredential: false });
             }
-            if (path.endsWith("/beeftv/connection")) {
+            if (path.endsWith("/luckytv/connection")) {
                 connectionReads += 1;
                 const snapshotState = connectionState;
                 if (blockNextConnectionPoll) {
@@ -253,7 +253,7 @@ test("opening sidebar account modal never auto-starts OAuth; explicit login, cha
     try {
         await page.emulateMedia({ reducedMotion: "reduce" });
         await page.goto(server.url.toString());
-        const trigger = page.getByRole("button", { name: "登录 BeefTV", exact: true });
+        const trigger = page.getByRole("button", { name: "登录 LuckyTV", exact: true });
         await trigger.waitFor();
         expect(connectionReads).toBe(1);
 
@@ -294,7 +294,7 @@ test("catalog_failed keeps authenticated account identity/wallet and retries bac
     try {
         await page.emulateMedia({ reducedMotion: "reduce" });
         await page.goto(server.url.toString());
-        const trigger = page.getByRole("button", { name: "BeefTV 账户：测试账号", exact: true });
+        const trigger = page.getByRole("button", { name: "LuckyTV 账户：测试账号", exact: true });
         await trigger.waitFor();
         await trigger.click();
 
@@ -320,7 +320,7 @@ test("connection_error with catalogFailed=true retries backend finalize from mod
     try {
         await page.emulateMedia({ reducedMotion: "reduce" });
         await page.goto(server.url.toString());
-        await page.getByRole("button", { name: "登录 BeefTV", exact: true }).click();
+        await page.getByRole("button", { name: "登录 LuckyTV", exact: true }).click();
         const modal = page.locator(".account-settings-modal");
         await modal.waitFor();
         await modal.getByRole("button", { name: "模型", exact: true }).click();
@@ -422,7 +422,7 @@ test("account balance pane shows live balance, switches CNY/USD methods cleanly,
     try {
         await page.emulateMedia({ reducedMotion: "reduce" });
         await page.goto(server.url.toString());
-        await page.getByRole("button", { name: "BeefTV 账户：测试账号", exact: true }).click();
+        await page.getByRole("button", { name: "LuckyTV 账户：测试账号", exact: true }).click();
         const modal = page.locator(".account-settings-modal");
         await modal.waitFor();
         await modal.getByText("¥ 28.50").waitFor();
@@ -612,7 +612,7 @@ test("topup info failure blocks unverified payment submission until retried; car
     try {
         await page.emulateMedia({ reducedMotion: "reduce" });
         await page.goto(server.url.toString());
-        await page.getByRole("button", { name: "BeefTV 账户：测试账号", exact: true }).click();
+        await page.getByRole("button", { name: "LuckyTV 账户：测试账号", exact: true }).click();
         const modal = page.locator(".account-settings-modal");
         await modal.waitFor();
 
@@ -696,7 +696,7 @@ test("slow topup/info response cannot overwrite a newer reconciled balance from 
     const page = await browser.newPage({ viewport: { width: 960, height: 760 } });
     try {
         await page.addInitScript(() => {
-            window.sessionStorage.setItem("beeftv:pending-topup:u-1", JSON.stringify({
+            window.sessionStorage.setItem("luckytv:pending-topup:u-1", JSON.stringify({
                 tradeNo: "ORD-RESTORED-1",
                 paymentMethod: "wxpay",
                 amount: { currency: "CNY", value: "100.00" },
@@ -705,7 +705,7 @@ test("slow topup/info response cannot overwrite a newer reconciled balance from 
             }));
         });
         await page.goto(server.url.toString());
-        await page.getByRole("button", { name: "BeefTV 账户：测试账号", exact: true }).click();
+        await page.getByRole("button", { name: "LuckyTV 账户：测试账号", exact: true }).click();
         const modal = page.locator(".account-settings-modal");
         await modal.waitFor();
 

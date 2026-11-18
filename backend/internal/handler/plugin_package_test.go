@@ -11,11 +11,11 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/plugins"
-	"infinite-canvas/backend/internal/repository"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/plugins"
+	"luckytv/backend/internal/repository"
+	"luckytv/backend/internal/skills"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/sqlite"
@@ -107,12 +107,12 @@ func createSampleHandlerPluginPackage(t *testing.T, root string, id string, vers
   "name": "` + id + `",
   "version": "` + version + `",
   "description": "Handler test plugin",
-  "keywords": ["beeftv-plugin", "pi-package"],
+  "keywords": ["luckytv-plugin", "pi-package"],
   "pi": {
     "extensions": ["./extensions/index.js"],
     "skills": ["./skills"]
   },
-  "beeftv": {
+  "luckytv": {
     "name": "Story Card Plugin",
     "client": "./client/index.js",
     "contributes": {

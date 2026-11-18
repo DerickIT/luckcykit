@@ -9,9 +9,9 @@ import (
 	"fmt"
 	"strings"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/protocol"
-	"infinite-canvas/backend/internal/providerpreset"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/protocol"
+	"luckytv/backend/internal/providerpreset"
 )
 
 func RunAgentToolTask(ctx context.Context, input Input) (map[string]interface{}, error) {

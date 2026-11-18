@@ -60,7 +60,7 @@ function StandaloneStartupProgressHost() {
             className="app-user-workspace flex min-h-dvh w-full flex-col items-center justify-center gap-5 px-6"
             style={{ background: "var(--user-page-bg)", color: "var(--user-ink)" }}
         >
-            <span className="beeftv-loading-logo" aria-hidden="true" />
+            <span className="luckytv-loading-logo" aria-hidden="true" />
             <div className="max-w-md text-center">
                 <p
                     className="text-[length:var(--fs-body)] leading-[22px] font-medium"

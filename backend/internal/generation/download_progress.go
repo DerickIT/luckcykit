@@ -5,7 +5,7 @@ import (
 	"io"
 	"time"
 
-	"infinite-canvas/backend/internal/outbound"
+	"luckytv/backend/internal/outbound"
 )
 
 // downloadProgressInterval throttles byte observations; the final read (io.EOF

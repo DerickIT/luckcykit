@@ -9,8 +9,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	localasset "infinite-canvas/backend/internal/asset"
-	"infinite-canvas/backend/internal/model"
+	localasset "luckytv/backend/internal/asset"
+	"luckytv/backend/internal/model"
 )
 
 const chunkUploadBodyCapJSON = 16 << 10

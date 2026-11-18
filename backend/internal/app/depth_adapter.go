@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/depthcapture"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/depthcapture"
+	"luckytv/backend/internal/model"
 )
 
 // Set only when building a signed Windows depth release. An empty value keeps

@@ -14,8 +14,8 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/editing"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/editing"
 )
 
 // Real uploaded media, Go SQLite ownership, default shipped Durable host and

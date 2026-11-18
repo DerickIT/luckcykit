@@ -63,7 +63,7 @@ describe("desktop release build contract", () => {
     test("keeps published deployment aligned with binaries present in public source", () => {
         const workflow = readFileSync(resolve(root, ".github/workflows/publish-images.yml"), "utf8");
         expect(workflow).not.toContain("cmd/host-updater");
-        expect(workflow).not.toContain("beeftv-host-updater");
+        expect(workflow).not.toContain("luckytv-host-updater");
         expect(workflow).not.toContain("docker-compose.deploy.yml");
 
         for (const name of ["docker-compose.server.yml", "docker-compose.deploy.yml"]) {
@@ -78,7 +78,7 @@ describe("desktop release build contract", () => {
     });
 
     test("locks the release version and injects Go build metadata", () => {
-        const script = readFileSync(resolve(root, "scripts/build-beeftv-release.sh"), "utf8");
+        const script = readFileSync(resolve(root, "scripts/build-luckytv-release.sh"), "utf8");
         const version = readFileSync(resolve(root, "VERSION"), "utf8").trim();
 
         expect(version).toMatch(/^v\d+\.\d+\.\d+/);
@@ -89,19 +89,35 @@ describe("desktop release build contract", () => {
         expect(script).toContain("buildinfo.BuildTime=$BUILD_TIME_VALUE");
         expect(script).toContain("plutil -replace CFBundleShortVersionString");
         expect(script).toContain("plutil -replace CFBundleVersion");
-        expect(script).toContain("-clean");
-        expect(script).toContain("-trimpath");
-        expect(script).toContain("wails@v2.16.0 build");
+        expect(script).toContain("wails3@v3.1.0 build");
         expect(script).toContain("Contents/Resources/plugin-packages");
-        expect(script).toContain('"$ROOT_DIR/plugin-packages/"*.beeftv-plugin');
+        expect(script).toContain('"$ROOT_DIR/plugin-packages/"*.luckytv-plugin');
+
+        // Wails v3 (Wake) rejects the v2 CLI flags this script used to pass, and
+        // takes linker flags only from wails.yaml, so the release path must patch
+        // the manifest instead of passing -ldflags on the command line.
+        const wakeInvocation = script.slice(script.indexOf("wails3@v3.1.0 build"));
+        const wakeCommand = wakeInvocation.slice(0, wakeInvocation.indexOf("\n)\n"));
+        for (const v2Flag of ["-clean", "-trimpath", "-platform", "-ldflags", "-webview2", "-nosyncgomod"]) {
+            expect(wakeCommand).not.toContain(v2Flag);
+        }
+        expect(wakeCommand).toContain("--targets");
+        expect(script).toContain("wails-manifest-patch.mjs");
+        expect(script).toContain("WAILS_EXP_USE_WAKE=1");
+        expect(script).toContain("frontend/dist");
+
+        const wailsManifest = readFileSync(resolve(root, "backend/wails.yaml"), "utf8");
+        expect(wailsManifest).toMatch(/^version: 3$/m);
+        expect(wailsManifest).toMatch(/^ {2}disabled: true$/m);
+        expect(wailsManifest).toMatch(/^ {2}package: \.\/cmd\/desktop$/m);
     });
 
     test("keeps every source file required by the local release gate", () => {
-        const gate = readFileSync(resolve(root, "scripts/verify-beeftv-local-release.sh"), "utf8");
+        const gate = readFileSync(resolve(root, "scripts/verify-luckytv-local-release.sh"), "utf8");
         const exporter = readFileSync(resolve(root, "scripts/public-release-export.sh"), "utf8");
 
-        expect(gate).toContain("web/scripts/beeftv-local-network-audit.mjs");
-        expect(existsSync(resolve(root, "web/scripts/beeftv-local-network-audit.mjs"))).toBe(true);
-        expect(exporter).toContain("--include='web/scripts/beeftv-local-network-audit.mjs'");
+        expect(gate).toContain("web/scripts/luckytv-local-network-audit.mjs");
+        expect(existsSync(resolve(root, "web/scripts/luckytv-local-network-audit.mjs"))).toBe(true);
+        expect(exporter).toContain("--include='web/scripts/luckytv-local-network-audit.mjs'");
     });
 });

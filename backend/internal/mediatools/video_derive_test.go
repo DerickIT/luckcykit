@@ -17,11 +17,11 @@ import (
 )
 
 func TestFakeMediaToolHelperProcess(t *testing.T) {
-	mode := os.Getenv("BEEFTV_TEST_FAKE_TOOL")
+	mode := os.Getenv("LUCKYTV_TEST_FAKE_TOOL")
 	if mode == "" {
 		return
 	}
-	scenario := os.Getenv("BEEFTV_TEST_FAKE_SCENARIO")
+	scenario := os.Getenv("LUCKYTV_TEST_FAKE_SCENARIO")
 	args := os.Args
 	sep := slices.Index(args, "--")
 	toolArgs := args[1:]
@@ -48,7 +48,7 @@ func TestFakeMediaToolHelperProcess(t *testing.T) {
 		os.Exit(0)
 
 	case "ffmpeg":
-		if logFile := os.Getenv("BEEFTV_TEST_FAKE_LOG"); logFile != "" {
+		if logFile := os.Getenv("LUCKYTV_TEST_FAKE_LOG"); logFile != "" {
 			f, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o600)
 			if err == nil {
 				_, _ = fmt.Fprintln(f, strings.Join(toolArgs, " "))
@@ -93,7 +93,7 @@ func installFakeMediaTools(t *testing.T, scenario string) string {
 	logPath := filepath.Join(dir, "ffmpeg-invocations.log")
 	writeWrapper := func(name, toolMode string) string {
 		scriptPath := filepath.Join(dir, name)
-		content := fmt.Sprintf("#!/bin/sh\nexport BEEFTV_TEST_FAKE_TOOL=%s\nexport BEEFTV_TEST_FAKE_SCENARIO=%s\nexport BEEFTV_TEST_FAKE_LOG=%q\nexec %q -test.run=^TestFakeMediaToolHelperProcess$ -- \"$@\"\n",
+		content := fmt.Sprintf("#!/bin/sh\nexport LUCKYTV_TEST_FAKE_TOOL=%s\nexport LUCKYTV_TEST_FAKE_SCENARIO=%s\nexport LUCKYTV_TEST_FAKE_LOG=%q\nexec %q -test.run=^TestFakeMediaToolHelperProcess$ -- \"$@\"\n",
 			toolMode, scenario, logPath, testBin)
 		if err := os.WriteFile(scriptPath, []byte(content), 0o755); err != nil {
 			t.Fatalf("write wrapper %s: %v", name, err)

@@ -10,7 +10,7 @@ import (
 	"testing"
 	"unicode/utf8"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func writeLocalSkill(t *testing.T, dir string, files map[string]string) {
@@ -55,7 +55,7 @@ func TestPluginSkillsKeepTheirFilesAcrossRestart(t *testing.T) {
 	dir := filepath.Join(t.TempDir(), "skills", "cutter")
 	writeLocalSkill(t, dir, map[string]string{"SKILL.md": "---\nname: cutter\ndescription: Clip workflow\n---\nBody", "scripts/trim.sh": "ffmpeg"})
 	s := localSkillFixture(t)
-	if err := s.SyncPluginSkills("beeftv-plugin-cutter", "剪辑插件", "1.2.0", []string{dir}); err != nil {
+	if err := s.SyncPluginSkills("luckytv-plugin-cutter", "剪辑插件", "1.2.0", []string{dir}); err != nil {
 		t.Fatal(err)
 	}
 	if err := s.RetireExternalSkills(); err != nil {
@@ -64,7 +64,7 @@ func TestPluginSkillsKeepTheirFilesAcrossRestart(t *testing.T) {
 	if err := s.EnsureSkillPackages(); err != nil {
 		t.Fatal(err)
 	}
-	id := "plugin-beeftv-plugin-cutter-cutter"
+	id := "plugin-luckytv-plugin-cutter-cutter"
 	skill, err := s.repo.Skill(id)
 	if err != nil || skill.SourceType != "plugin" || skill.FileCount != 2 {
 		t.Fatalf("plugin package changed: %+v, %v", skill, err)

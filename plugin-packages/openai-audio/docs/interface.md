@@ -69,18 +69,18 @@
 
 MiniMax Music 通过企业接口生成时，输出固定为 MP3，默认 44.1 kHz、256 kbps。较慢的生成请求使用 SSE 心跳等待结果；只有收到完成事件并取得有效音频后，任务才成功。中断、错误事件或非音频响应均按失败处理，不自动重发生成。
 
-<!-- BEEFTV_PLUGIN_MANIFEST_START -->
+<!-- LUCKYTV_PLUGIN_MANIFEST_START -->
 ## Manifest 完整接口定义
 
 以下 JSON 与插件包内实际 `manifest.json` 逐字段一致，覆盖插件身份、权限、配置、鉴权、参数、校验、创建、Agent、查询、取消、结果下载、响应和 Agent 响应映射。`documentation` 字段的值就是当前完整文档；为避免文档在自身内部无限递归，JSON 中仅用等义占位文本表示正文。
 
 ```json
 {
-  "apiVersion": "beeftv.plugin/v3",
+  "apiVersion": "luckytv.plugin/v3",
   "id": "openai-audio",
   "name": "OpenAI Audio Speech",
   "version": "2.1.0",
-  "author": "BeefTV Contributors",
+  "author": "LuckyTV Contributors",
   "description": "OpenAI Audio Speech 独立请求协议插件。",
   "documentation": "<当前插件的完整 documentation，由 README.md 与 docs/interface.md 拼接而成；为避免 JSON 递归，此处不重复展开正文。>",
   "permissions": [
@@ -378,4 +378,4 @@ MiniMax Music 通过企业接口生成时，输出固定为 MP3，默认 44.1 kH
   }
 }
 ```
-<!-- BEEFTV_PLUGIN_MANIFEST_END -->
+<!-- LUCKYTV_PLUGIN_MANIFEST_END -->

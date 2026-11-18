@@ -13,24 +13,24 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
 )
 
 func TestManagedImageOldLocalConclusionMustBeCheckedWithAPI(t *testing.T) {
 	for _, state := range []string{"failed", "404", "identity-missing"} {
 		t.Run(state, func(t *testing.T) {
 			svc, db, task, row, _ := imageSubmissionFixture(t, false)
-			task.Status, task.InputJSON = model.TaskStatusFailed, `{"config":{"channelId":"beeftv","credentialRef":"beeftv"}}`
+			task.Status, task.InputJSON = model.TaskStatusFailed, `{"config":{"channelId":"luckytv","credentialRef":"luckytv"}}`
 			old := localtask.RecoveryUnrecoverable
 			task.RecoveryOutcome = &old
 			if err := db.Save(&task).Error; err != nil {
 				t.Fatal(err)
 			}
 			attempt, _ := svc.repo.LatestRouteAttempt(task.ID)
-			attempt.ChannelID = beeftv.ChannelID
+			attempt.ChannelID = luckytv.ChannelID
 			if err := svc.repo.SaveRouteAttempt(attempt); err != nil {
 				t.Fatal(err)
 			}
@@ -51,7 +51,7 @@ func TestManagedImageOldLocalConclusionMustBeCheckedWithAPI(t *testing.T) {
 			}))
 			defer server.Close()
 			wire, _ := svc.imageSubmissionWire(row)
-			wire.URL, wire.ChannelID = server.URL+"/v1/images/generations", beeftv.ChannelID
+			wire.URL, wire.ChannelID = server.URL+"/v1/images/generations", luckytv.ChannelID
 			row.QueryCipher, _ = svc.managedImageQueryCipher(task, wire)
 			row.RequestCipher, row.SendCount = "", 1
 			if state == "identity-missing" {
@@ -64,7 +64,7 @@ func TestManagedImageOldLocalConclusionMustBeCheckedWithAPI(t *testing.T) {
 			if err != nil || len(candidates) != 1 {
 				t.Fatalf("old managed task omitted: %v %d", err, len(candidates))
 			}
-			ctx, cancel := context.WithTimeout(generation.WithEndpoints(context.Background(), generation.Endpoints{BeefTVVideoBaseURL: server.URL}), 100*time.Millisecond)
+			ctx, cancel := context.WithTimeout(generation.WithEndpoints(context.Background(), generation.Endpoints{LuckyTVVideoBaseURL: server.URL}), 100*time.Millisecond)
 			defer cancel()
 			err = svc.recoverFailedImage(ctx, task)
 			latest, _ := svc.repo.Task(task.ID)
@@ -72,12 +72,12 @@ func TestManagedImageOldLocalConclusionMustBeCheckedWithAPI(t *testing.T) {
 				t.Fatal("recovery created a new task")
 			}
 			if state == "failed" {
-				if err != nil || gets != 1 || latest.RecoveryOutcome == nil || *latest.RecoveryOutcome != localtask.RecoveryNoResult || latest.BeefBillingState == nil || *latest.BeefBillingState != "settled" {
+				if err != nil || gets != 1 || latest.RecoveryOutcome == nil || *latest.RecoveryOutcome != localtask.RecoveryNoResult || latest.LuckyBillingState == nil || *latest.LuckyBillingState != "settled" {
 					t.Fatalf("API failure not retained: err=%v gets=%d task=%+v", err, gets, latest)
 				}
 			} else if state == "404" {
 				// 原请求已过保存期，用原 Key 仍查不到原编号：既不能补交也无法确认，
-				// 结论为「无法取回」（重新生成前确认），并留出间隔继续向 BeefTV 复查。
+				// 结论为「无法取回」（重新生成前确认），并留出间隔继续向 LuckyTV 复查。
 				if gets == 0 || latest.RecoveryOutcome == nil || *latest.RecoveryOutcome != localtask.RecoveryUnrecoverable || latest.NextPollAt == nil || time.Until(*latest.NextPollAt) < 30*time.Minute {
 					t.Fatalf("missing expired submission not concluded: err=%v gets=%d task=%+v", err, gets, latest)
 				}
@@ -92,9 +92,9 @@ func TestManagedImageManualAndCredentialOnlyOldConclusionQueriesOriginalTask(t *
 	for _, mode := range []string{"manual", "credential-only-scan", "third-party-same-host"} {
 		t.Run(mode, func(t *testing.T) {
 			svc, db, task, row, _ := imageSubmissionFixture(t, false)
-			task.Status, task.InputJSON = model.TaskStatusFailed, `{"config":{"credentialRef":"beeftv"}}`
+			task.Status, task.InputJSON = model.TaskStatusFailed, `{"config":{"credentialRef":"luckytv"}}`
 			if mode == "third-party-same-host" {
-				task.InputJSON = `{"config":{"baseUrl":"https://beeftv.app","apiKey":"third-party"}}`
+				task.InputJSON = `{"config":{"baseUrl":"https://luckytv.app","apiKey":"third-party"}}`
 			}
 			old := localtask.RecoveryUnrecoverable
 			task.RecoveryOutcome = &old
@@ -129,7 +129,7 @@ func TestManagedImageManualAndCredentialOnlyOldConclusionQueriesOriginalTask(t *
 			if err := db.Save(row).Error; err != nil {
 				t.Fatal(err)
 			}
-			ctx := generation.WithEndpoints(context.Background(), generation.Endpoints{BeefTVVideoBaseURL: server.URL})
+			ctx := generation.WithEndpoints(context.Background(), generation.Endpoints{LuckyTVVideoBaseURL: server.URL})
 			if mode == "credential-only-scan" {
 				if err := svc.recoverFailedImages(ctx, 8); err != nil {
 					t.Fatal(err)
@@ -145,7 +145,7 @@ func TestManagedImageManualAndCredentialOnlyOldConclusionQueriesOriginalTask(t *
 				if gets != 0 || latest.RecoveryOutcome == nil || *latest.RecoveryOutcome != old {
 					t.Fatalf("third-party task adopted as managed: gets=%d task=%+v", gets, latest)
 				}
-			} else if gets != 1 || latest.RecoveryOutcome == nil || *latest.RecoveryOutcome != localtask.RecoveryNoResult || latest.BeefBillingState == nil || *latest.BeefBillingState != "refunded" {
+			} else if gets != 1 || latest.RecoveryOutcome == nil || *latest.RecoveryOutcome != localtask.RecoveryNoResult || latest.LuckyBillingState == nil || *latest.LuckyBillingState != "refunded" {
 				t.Fatalf("original query lost: gets=%d task=%+v", gets, latest)
 			}
 		})
@@ -156,7 +156,7 @@ func TestManagedImageExpiredRequestKeepsOnlySmallQueryIdentity(t *testing.T) {
 	for _, mode := range []string{"new-protocol", "legacy-wire", "already-missing"} {
 		t.Run(mode, func(t *testing.T) {
 			svc, db, task, row, _ := imageSubmissionFixture(t, false)
-			task.InputJSON = `{"mode":"image","config":{"channelId":"beeftv"}}`
+			task.InputJSON = `{"mode":"image","config":{"channelId":"luckytv"}}`
 			if err := db.Save(&task).Error; err != nil {
 				t.Fatal(err)
 			}
@@ -170,13 +170,13 @@ func TestManagedImageExpiredRequestKeepsOnlySmallQueryIdentity(t *testing.T) {
 				}
 				gets++
 				ref := strings.TrimPrefix(r.URL.Path, "/v1/media/tasks/")
-				_ = json.NewEncoder(w).Encode(beeftv.MediaTask{TaskRef: ref, MediaType: "image", Status: "completed", Outputs: []beeftv.MediaOutput{{Kind: "image", URL: "https://127.0.0.1/image.png"}}})
+				_ = json.NewEncoder(w).Encode(luckytv.MediaTask{TaskRef: ref, MediaType: "image", Status: "completed", Outputs: []luckytv.MediaOutput{{Kind: "image", URL: "https://127.0.0.1/image.png"}}})
 			}))
 			defer server.Close()
-			wire.URL, wire.ChannelID = server.URL+"/v1/images/generations", beeftv.ChannelID
+			wire.URL, wire.ChannelID = server.URL+"/v1/images/generations", luckytv.ChannelID
 			wire.Body = []byte(strings.Repeat("large-original-media", 1<<18))
 			if mode == "new-protocol" {
-				wire.URL, wire.ReplayProtocol = server.URL+"/v1/media/tasks", beeftv.MediaProtocolVersion
+				wire.URL, wire.ReplayProtocol = server.URL+"/v1/media/tasks", luckytv.MediaProtocolVersion
 			}
 			raw, _ := json.Marshal(wire)
 			row.RequestCipher, _ = svc.encryptSettingSecret(string(raw))
@@ -203,7 +203,7 @@ func TestManagedImageExpiredRequestKeepsOnlySmallQueryIdentity(t *testing.T) {
 					t.Fatalf("query retained body: len=%d err=%v", len(plain), err)
 				}
 			}
-			ctx, cancel := context.WithTimeout(generation.WithEndpoints(context.Background(), generation.Endpoints{BeefTVVideoBaseURL: server.URL}), time.Second)
+			ctx, cancel := context.WithTimeout(generation.WithEndpoints(context.Background(), generation.Endpoints{LuckyTVVideoBaseURL: server.URL}), time.Second)
 			defer cancel()
 			result, handled, err := svc.collectManagedImage(ctx, task, row)
 			if !handled || posts != 0 {
@@ -223,7 +223,7 @@ func TestManagedImageExpiredRequestKeepsOnlySmallQueryIdentity(t *testing.T) {
 func TestManagedRouteRestartCannotCreateReplacementAttempt(t *testing.T) {
 	for _, media := range []string{"canvas_image", "canvas_video", "canvas_audio"} {
 		svc, db, task, _, _ := imageSubmissionFixture(t, false)
-		task.Type, task.LogicalModelID, task.InputJSON = media, "logical-fixture", `{"config":{"channelId":"beeftv"}}`
+		task.Type, task.LogicalModelID, task.InputJSON = media, "logical-fixture", `{"config":{"channelId":"luckytv"}}`
 		if err := db.Save(&task).Error; err != nil {
 			t.Fatal(err)
 		}
@@ -249,7 +249,7 @@ func TestManagedImageDeliveryKeepsPublicPolicyAfterInputRedaction(t *testing.T) 
 		id := "byok-delivery"
 		ref := ""
 		if managed {
-			id, ref = "managed-delivery", beeftv.CredentialRef
+			id, ref = "managed-delivery", luckytv.CredentialRef
 		}
 		input, _ := json.Marshal(map[string]any{"mode": "image", "config": map[string]any{"credentialRef": ref, "apiKey": "original-secret", "baseUrl": "https://127.0.0.1", "interfaceType": "openai-image", "headers": []any{map[string]any{"name": "X-Private", "value": "provider-secret"}}}})
 		task := model.Task{ID: id, UserID: "user", Type: "canvas_image", Status: model.TaskStatusSucceeded, InputJSON: string(input)}
@@ -290,8 +290,8 @@ func TestManagedMediaSQLiteRestartQueriesOriginalAttemptOnly(t *testing.T) {
 				switch {
 				case r.URL.Path == "/v1/models":
 					models.Add(1)
-					w.Header().Set(beeftv.MediaProtocolHeader, beeftv.MediaProtocolVersion)
-					_ = json.NewEncoder(w).Encode(map[string]any{"media_protocol": beeftv.MediaDiscovery{Version: beeftv.MediaProtocolVersion, SupportedMediaTypes: []string{"image"}, TaskSubmitURL: "/v1/media/tasks", TaskQueryURLTemplate: "/v1/media/tasks/{task_ref}", UploadsURL: "/v1/media/uploads"}})
+					w.Header().Set(luckytv.MediaProtocolHeader, luckytv.MediaProtocolVersion)
+					_ = json.NewEncoder(w).Encode(map[string]any{"media_protocol": luckytv.MediaDiscovery{Version: luckytv.MediaProtocolVersion, SupportedMediaTypes: []string{"image"}, TaskSubmitURL: "/v1/media/tasks", TaskQueryURLTemplate: "/v1/media/tasks/{task_ref}", UploadsURL: "/v1/media/uploads"}})
 				case r.Method == http.MethodPost && r.URL.Path == "/v1/media/tasks":
 					posts.Add(1)
 					if mode == "lost-response" {
@@ -316,19 +316,19 @@ func TestManagedMediaSQLiteRestartQueriesOriginalAttemptOnly(t *testing.T) {
 			defer server.Close()
 			path, dataDir := filepath.Join(t.TempDir(), "workspace.db"), t.TempDir()
 			svc, db := newManagedImageDirectService(t, path, dataDir)
-			input := generation.Input{Mode: "image", Prompt: "fixture", Config: generation.Config{CredentialRef: beeftv.CredentialRef, APIKey: "fixture", BaseURL: server.URL, Model: "unlisted-future-model", InterfaceType: "unlisted-future-protocol"}}
+			input := generation.Input{Mode: "image", Prompt: "fixture", Config: generation.Config{CredentialRef: luckytv.CredentialRef, APIKey: "fixture", BaseURL: server.URL, Model: "unlisted-future-model", InterfaceType: "unlisted-future-protocol"}}
 			body, _ := json.Marshal(input)
 			task := model.Task{ID: "restart-task", UserID: "user-1", Type: "canvas_image", Status: model.TaskStatusRunning, LeaseOwner: "owner", InputJSON: string(body)}
 			expires := time.Now().Add(time.Hour)
 			task.LeaseExpiresAt = &expires
-			attempt := &model.RouteAttempt{ID: "restart-attempt", TaskID: task.ID, ChannelID: beeftv.ChannelID, Status: "dispatching", DispatchState: "submission_unknown", StartedAt: time.Now()}
+			attempt := &model.RouteAttempt{ID: "restart-attempt", TaskID: task.ID, ChannelID: luckytv.ChannelID, Status: "dispatching", DispatchState: "submission_unknown", StartedAt: time.Now()}
 			for _, row := range []any{&task, attempt} {
 				if err := db.Create(row).Error; err != nil {
 					t.Fatal(err)
 				}
 			}
 			bind := func(ctx context.Context) context.Context {
-				ctx = generation.WithEndpoints(ctx, generation.Endpoints{BeefTVVideoBaseURL: server.URL})
+				ctx = generation.WithEndpoints(ctx, generation.Endpoints{LuckyTVVideoBaseURL: server.URL})
 				ctx = svc.bindGenerationRuntime(ctx, generation.CallMeta{UserID: task.UserID, TaskID: task.ID, TaskType: task.Type})
 				return context.WithValue(withProviderSubmissionKey(ctx, attempt), imageTaskContext{}, task)
 			}
@@ -351,7 +351,7 @@ func TestManagedMediaSQLiteRestartQueriesOriginalAttemptOnly(t *testing.T) {
 				t.Fatalf("restart err=%v handled=%v posts=%d models=%d", err, handled, posts.Load(), models.Load())
 			}
 			stored, _ := svc.repo.Task(task.ID)
-			if stored.BeefBillingState == nil || *stored.BeefBillingState != "settled" {
+			if stored.LuckyBillingState == nil || *stored.LuckyBillingState != "settled" {
 				t.Fatal("settlement lost after restart")
 			}
 			attempt.DispatchState = "rejected_no_job"
@@ -391,7 +391,7 @@ func TestManagedLegacyFrozenImageRecoveryOnlyGET(t *testing.T) {
 	defer server.Close()
 	wire.URL = server.URL + "/v1/images/generations"
 	wire.ChannelID = ""
-	protected := map[string]any{"mode": "image", "config": map[string]any{"credentialRef": beeftv.CredentialRef, "apiKey": "sensitive-fixture", "headers": []any{map[string]any{"name": "X-Private", "value": "sensitive-header"}}}}
+	protected := map[string]any{"mode": "image", "config": map[string]any{"credentialRef": luckytv.CredentialRef, "apiKey": "sensitive-fixture", "headers": []any{map[string]any{"name": "X-Private", "value": "sensitive-header"}}}}
 	if err := svc.protectTaskSecrets(protected); err != nil {
 		t.Fatal(err)
 	}
@@ -405,7 +405,7 @@ func TestManagedLegacyFrozenImageRecoveryOnlyGET(t *testing.T) {
 	if err := svc.repo.DB().Save(row).Error; err != nil {
 		t.Fatal(err)
 	}
-	ctx := generation.WithEndpoints(context.Background(), generation.Endpoints{BeefTVVideoBaseURL: server.URL})
+	ctx := generation.WithEndpoints(context.Background(), generation.Endpoints{LuckyTVVideoBaseURL: server.URL})
 	ctx = context.WithValue(withProviderAnalytics(ctx, svc, task), imageTaskContext{}, task)
 	result, handled, err := svc.collectManagedImage(ctx, task, row)
 	if err != nil || !handled || posts != 0 || gets != 1 || result["imageLayers"].([]map[string]any)[0]["name"] != "original" {
@@ -416,7 +416,7 @@ func TestManagedLegacyFrozenImageRecoveryOnlyGET(t *testing.T) {
 func TestManagedImageEndedTaskDoesNotEnterRecovery(t *testing.T) {
 	svc, _, task, _, _ := imageSubmissionFixture(t, false)
 	attempt, _ := svc.repo.LatestRouteAttempt(task.ID)
-	attempt.ChannelID = beeftv.ChannelID
+	attempt.ChannelID = luckytv.ChannelID
 	if err := svc.repo.SaveRouteAttempt(attempt); err != nil {
 		t.Fatal(err)
 	}
@@ -425,12 +425,12 @@ func TestManagedImageEndedTaskDoesNotEnterRecovery(t *testing.T) {
 		err      error
 		deferred bool
 	}{
-		{"api reported failure", &beeftv.MediaTaskError{Code: "media_generation_failed", Category: "upstream", Message: "failed"}, false},
-		{"result unknown keeps recovery active", &beeftv.MediaTaskError{Code: "media_result_unknown", Category: "unknown", Message: "unknown"}, true},
-		{"delivery pending keeps recovery active", &beeftv.MediaTaskError{Code: "media_delivery_pending", Category: "pending", Message: "pending"}, true},
+		{"api reported failure", &luckytv.MediaTaskError{Code: "media_generation_failed", Category: "upstream", Message: "failed"}, false},
+		{"result unknown keeps recovery active", &luckytv.MediaTaskError{Code: "media_result_unknown", Category: "unknown", Message: "unknown"}, true},
+		{"delivery pending keeps recovery active", &luckytv.MediaTaskError{Code: "media_delivery_pending", Category: "pending", Message: "pending"}, true},
 		{"failed before sending", generation.RequestPreparationError{Cause: context.DeadlineExceeded}, false},
-		{"submission rejected", &beeftv.MediaHTTPError{StatusCode: http.StatusBadRequest}, false},
-		{"throttled", &beeftv.MediaHTTPError{StatusCode: http.StatusTooManyRequests}, true},
+		{"submission rejected", &luckytv.MediaHTTPError{StatusCode: http.StatusBadRequest}, false},
+		{"throttled", &luckytv.MediaHTTPError{StatusCode: http.StatusTooManyRequests}, true},
 		{"timed out", context.DeadlineExceeded, true},
 	}
 	for _, tc := range cases {
@@ -476,8 +476,8 @@ func TestCustomBYOKOnEnterpriseOriginSendsImageGenerationAndReplaysSameKey(t *te
 	s.workerID = newID()
 	localCfg, _ := json.Marshal(map[string]any{
 		"channels": []any{
-			map[string]any{"id": beeftv.ChannelID, "enabled": true, "baseUrl": "https://beeftv.app/v1", "apiKey": "disk-managed-secret"},
-			map[string]any{"id": "custom-byok", "enabled": true, "baseUrl": "https://beeftv.app/v1", "apiKey": "sk-custom-byok"},
+			map[string]any{"id": luckytv.ChannelID, "enabled": true, "baseUrl": "https://luckytv.app/v1", "apiKey": "disk-managed-secret"},
+			map[string]any{"id": "custom-byok", "enabled": true, "baseUrl": "https://luckytv.app/v1", "apiKey": "sk-custom-byok"},
 		},
 	})
 	if err := s.SaveLocalModelConfig(localCfg); err != nil {
@@ -486,25 +486,25 @@ func TestCustomBYOKOnEnterpriseOriginSendsImageGenerationAndReplaysSameKey(t *te
 	rawInput := map[string]any{
 		"mode": "image",
 		"config": map[string]any{
-			"baseUrl":       "https://beeftv.app/v1",
+			"baseUrl":       "https://luckytv.app/v1",
 			"apiKey":        "sk-custom-byok",
 			"model":         "gpt-image-2",
 			"interfaceType": "openai-image",
 		},
 	}
-	resolved, err := s.resolveManagedBeefTVSecrets(rawInput)
+	resolved, err := s.resolveManagedLuckyTVSecrets(rawInput)
 	if err != nil {
 		t.Fatal(err)
 	}
 	resolvedCfg := resolved["config"].(map[string]any)
-	if resolvedCfg["apiKey"] != "sk-custom-byok" || resolvedCfg["baseUrl"] != "https://beeftv.app/v1" || resolvedCfg["credentialRef"] != nil {
+	if resolvedCfg["apiKey"] != "sk-custom-byok" || resolvedCfg["baseUrl"] != "https://luckytv.app/v1" || resolvedCfg["credentialRef"] != nil {
 		t.Fatalf("BYOK config was rewritten to managed credential: %#v", resolvedCfg)
 	}
-	catalogReq := ChannelModelsRequest{ChannelID: "custom-byok", BaseURL: "https://beeftv.app/v1", APIKey: "sk-custom-byok"}
+	catalogReq := ChannelModelsRequest{ChannelID: "custom-byok", BaseURL: "https://luckytv.app/v1", APIKey: "sk-custom-byok"}
 	if err := s.resolveChannelModelsRequest(&catalogReq); err != nil {
 		t.Fatal(err)
 	}
-	if catalogReq.APIKey != "sk-custom-byok" || catalogReq.BaseURL != "https://beeftv.app/v1" || catalogReq.CredentialRef != "" {
+	if catalogReq.APIKey != "sk-custom-byok" || catalogReq.BaseURL != "https://luckytv.app/v1" || catalogReq.CredentialRef != "" {
 		t.Fatalf("BYOK channel catalog request was rewritten: %+v", catalogReq)
 	}
 	inputBytes, _ := json.Marshal(resolved)
@@ -528,7 +528,7 @@ func TestCustomBYOKOnEnterpriseOriginSendsImageGenerationAndReplaysSameKey(t *te
 	ctx := withProviderSubmissionKey(withProviderAnalytics(context.Background(), s, task), attempt)
 	ctx = generation.WithImageReplayProtocol(ctx, generation.ImageReplayProtocol)
 	ctx = context.WithValue(ctx, imageTaskContext{}, task)
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, "https://beeftv.app/v1/images/generations", strings.NewReader(body))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, "https://luckytv.app/v1/images/generations", strings.NewReader(body))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -563,7 +563,7 @@ func TestCustomBYOKOnEnterpriseOriginSendsImageGenerationAndReplaysSameKey(t *te
 		if sends == 1 {
 			firstKey = key
 		}
-		if key == "" || key != firstKey || r.URL.String() != "https://beeftv.app/v1/images/generations" || r.Header.Get("Authorization") != "Bearer sk-custom-byok" || string(sentBody) != body {
+		if key == "" || key != firstKey || r.URL.String() != "https://luckytv.app/v1/images/generations" || r.Header.Get("Authorization") != "Bearer sk-custom-byok" || string(sentBody) != body {
 			t.Fatalf("send %d altered identity: url=%q auth=%q key=%q body=%q", sends, r.URL.String(), r.Header.Get("Authorization"), key, string(sentBody))
 		}
 		if sends == 1 {
@@ -576,7 +576,7 @@ func TestCustomBYOKOnEnterpriseOriginSendsImageGenerationAndReplaysSameKey(t *te
 	}
 	disabledCfg, _ := json.Marshal(map[string]any{
 		"channels": []any{
-			map[string]any{"id": "custom-byok", "enabled": false, "baseUrl": "https://beeftv.app/v1", "apiKey": "sk-custom-byok"},
+			map[string]any{"id": "custom-byok", "enabled": false, "baseUrl": "https://luckytv.app/v1", "apiKey": "sk-custom-byok"},
 		},
 	})
 	if err := s.SaveLocalModelConfig(disabledCfg); err != nil {

@@ -14,7 +14,7 @@ func TestAssetDoesNotDependOnApp(t *testing.T) {
 		t.Fatalf("list asset dependencies: %v\n%s", err, output)
 	}
 	for _, dependency := range strings.Fields(string(output)) {
-		if dependency == "infinite-canvas/backend/internal/app" {
+		if dependency == "luckytv/backend/internal/app" {
 			t.Fatal("asset still depends on the application service kernel")
 		}
 	}

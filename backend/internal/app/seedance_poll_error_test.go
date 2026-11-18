@@ -2,7 +2,7 @@ package app
 
 import (
 	"context"
-	"infinite-canvas/backend/internal/generation"
+	"luckytv/backend/internal/generation"
 	"net/http"
 	"net/http/httptest"
 	"strings"

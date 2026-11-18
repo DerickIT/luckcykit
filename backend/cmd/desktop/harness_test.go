@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"testing/fstest"
@@ -14,7 +16,7 @@ func TestHarnessBridgeRequiresPrivateCapability(t *testing.T) {
 	handler := harnessHTTPHandler(config, http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
 		apiCalled = true
 	}), fstest.MapFS{"index.html": &fstest.MapFile{Data: []byte("workspace")}})
-	for _, requestPath := range []string{"/", "/api/health", "/beeftv/app/api/health"} {
+	for _, requestPath := range []string{"/", "/api/health", "/luckytv/app/api/health"} {
 		response := httptest.NewRecorder()
 		handler.ServeHTTP(response, httptest.NewRequest(http.MethodGet, requestPath, nil))
 		if response.Code != http.StatusForbidden || apiCalled {
@@ -31,18 +33,18 @@ func TestHarnessBridgeForwardsTrustedAPIWithoutCallerIdentity(t *testing.T) {
 		if r.URL.Path != "/api/workspace/bootstrap" || r.URL.RawQuery != "view=canvas" || r.Host != "127.0.0.1:12345" {
 			t.Fatalf("wrong API target %s %s", r.Host, r.URL)
 		}
-		if r.Header.Get("X-Desktop-Token") != config.LaunchToken || r.Header.Get("X-Beeftv-UI-Bootstrap") != config.UIBootstrapToken || r.Header.Get("Origin") != "wails://wails" {
+		if r.Header.Get("X-Desktop-Token") != config.LaunchToken || r.Header.Get("X-Luckytv-UI-Bootstrap") != config.UIBootstrapToken || r.Header.Get("Origin") != "wails://wails" {
 			t.Fatal("bridge did not supply desktop trust")
 		}
-		for _, header := range []string{harnessTokenHeader, harnessPageHeader, "X-Beeftv-Client", "X-Beeftv-Owner", "X-Beeftv-Agent-Turn", "X-Beeftv-Agent-Token"} {
+		for _, header := range []string{harnessTokenHeader, harnessPageHeader, "X-Luckytv-Client", "X-Luckytv-Owner", "X-Luckytv-Agent-Turn", "X-Luckytv-Agent-Token"} {
 			if r.Header.Get(header) != "" {
 				t.Fatalf("caller identity %s reached the backend", header)
 			}
 		}
 		w.WriteHeader(http.StatusNoContent)
 	}), fstest.MapFS{})
-	request := httptest.NewRequest(http.MethodGet, "/beeftv/app/api/workspace/bootstrap?view=canvas", nil)
-	for _, header := range []string{harnessTokenHeader, harnessPageHeader, "X-Beeftv-Client", "X-Beeftv-Owner", "X-Beeftv-Agent-Turn", "X-Beeftv-Agent-Token"} {
+	request := httptest.NewRequest(http.MethodGet, "/luckytv/app/api/workspace/bootstrap?view=canvas", nil)
+	for _, header := range []string{harnessTokenHeader, harnessPageHeader, "X-Luckytv-Client", "X-Luckytv-Owner", "X-Luckytv-Agent-Turn", "X-Luckytv-Agent-Token"} {
 		request.Header.Set(header, config.BridgeToken)
 	}
 	response := httptest.NewRecorder()
@@ -73,7 +75,7 @@ func TestHarnessBridgeKeepsClientCredentialsFromTheEmbeddedPage(t *testing.T) {
 	}
 	for _, target := range []string{
 		"/api/agent-clients", "/%2fapi/agent-clients", "/%2Fapi%2Fagent-clients", "/api//agent-clients",
-		"/api/health/%2e%2e/agent-clients", "/beeftv/app/api/agent-clients", "/api/agent-clients/integrations",
+		"/api/health/%2e%2e/agent-clients", "/luckytv/app/api/agent-clients", "/api/agent-clients/integrations",
 		"/api/agent-clients/client-1", "/api/assistant/sessions", "/%2fapi/assistant", "/api/ops/clients",
 	} {
 		if code := send(http.MethodPost, target, true); code != http.StatusForbidden {
@@ -109,8 +111,8 @@ func TestHarnessBridgeServesSPAAndAssetsWithoutCredentials(t *testing.T) {
 		body   string
 	}{
 		{"/", http.StatusOK, "<html>workspace</html>"},
-		{"/beeftv/app/canvas/project", http.StatusOK, "<html>workspace</html>"},
-		{"/beeftv/app/assets/app.js", http.StatusOK, "workspaceJavaScript()"},
+		{"/luckytv/app/canvas/project", http.StatusOK, "<html>workspace</html>"},
+		{"/luckytv/app/assets/app.js", http.StatusOK, "workspaceJavaScript()"},
 		{"/assets/missing.js", http.StatusNotFound, "404 page not found"},
 		{"/__desktop/runtime-config", http.StatusNotFound, "404 page not found"},
 	} {
@@ -125,7 +127,8 @@ func TestHarnessBridgeServesSPAAndAssetsWithoutCredentials(t *testing.T) {
 }
 
 func TestDesktopAcceptsSeparatedDataDirectoryFlag(t *testing.T) {
-	if err := validateDesktopArgs([]string{"--data-dir", "/Users/example/BeefTV"}); err != nil {
+	validDir := filepath.Join(os.TempDir(), "example", "LuckyTV")
+	if err := validateDesktopArgs([]string{"--data-dir", validDir}); err != nil {
 		t.Fatal(err)
 	}
 	for _, args := range [][]string{{"--data-dir"}, {"--data-dir", "relative"}, {"--data-dir", "/"}} {

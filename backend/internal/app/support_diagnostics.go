@@ -6,11 +6,11 @@ import (
 	"path/filepath"
 	"time"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/supporttrace"
-	localtask "infinite-canvas/backend/internal/task"
-	"infinite-canvas/backend/internal/taskbinding"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/supporttrace"
+	localtask "luckytv/backend/internal/task"
+	"luckytv/backend/internal/taskbinding"
 )
 
 // SupportTrace is owned by this workspace runtime, including its close barrier.

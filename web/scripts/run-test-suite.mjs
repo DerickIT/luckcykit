@@ -72,7 +72,7 @@ if (import.meta.main) {
         return source.includes("globalThis") && browserGlobalName.test(source);
     });
     const shared = files.filter((file) => !isolated.includes(file));
-    const concurrency = Math.max(1, Math.min(Number(process.env.BEEFTV_TEST_CONCURRENCY) || Math.min(availableParallelism(), 4), 4));
+    const concurrency = Math.max(1, Math.min(Number(process.env.LUCKYTV_TEST_CONCURRENCY) || Math.min(availableParallelism(), 4), 4));
 
     run(shared);
     if (concurrency <= 1) {

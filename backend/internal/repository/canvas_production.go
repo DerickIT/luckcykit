@@ -1,6 +1,6 @@
 package repository
 
-import "infinite-canvas/backend/internal/model"
+import "luckytv/backend/internal/model"
 
 func (r *Repository) ProductionLinksForTask(taskID string) ([]model.ProductionTaskLink, error) {
 	var links []model.ProductionTaskLink

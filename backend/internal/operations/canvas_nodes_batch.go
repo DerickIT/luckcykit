@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"infinite-canvas/backend/internal/canvas"
+	"luckytv/backend/internal/canvas"
 )
 
 const (

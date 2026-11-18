@@ -1,5 +1,5 @@
 // 每轮步数上限：按会话记录这一轮的工具调用数，达到上限后拒绝后续步骤。
-// 只有连着 BeefTV 的会话才启用；用户自己发的新消息会重新计数，不会被上限一起吞掉。
+// 只有连着 LuckyTV 的会话才启用；用户自己发的新消息会重新计数，不会被上限一起吞掉。
 
 import { stepLimitNotice } from './runtime.js'
 
@@ -15,28 +15,28 @@ export function createStepLimit() {
     if (!sessionId) return null
     let state = sessions.get(sessionId)
     if (!state) {
-      state = { turn: null, count: 0, started: 0, beefTV: false, stop: false }
+      state = { turn: null, count: 0, started: 0, luckyTV: false, stop: false }
       sessions.set(sessionId, state)
     }
     return state
   }
 
   return {
-    noteToolCall({ sessionId, beefTV, limit }) {
+    noteToolCall({ sessionId, luckyTV, limit }) {
       const state = sessionOf(sessionId)
       if (!state) return
       state.started = Math.max(0, (state.started || 0) - 1)
       state.count += 1
-      if (beefTV) state.beefTV = true
-      if (!state.stop && state.beefTV && state.count >= limit) {
+      if (luckyTV) state.luckyTV = true
+      if (!state.stop && state.luckyTV && state.count >= limit) {
         state.stop = true
         state.limit = limit
       }
     },
 
-    startTurn({ sessionId, turn, beefTV }) {
+    startTurn({ sessionId, turn, luckyTV }) {
       if (!sessionId) return
-      sessions.set(sessionId, { turn: turn ?? null, count: 0, started: 0, beefTV: Boolean(beefTV), stop: false })
+      sessions.set(sessionId, { turn: turn ?? null, count: 0, started: 0, luckyTV: Boolean(luckyTV), stop: false })
       if (notice?.sessionId === sessionId) notice = null
     },
 
@@ -50,12 +50,12 @@ export function createStepLimit() {
     },
 
     // tools/pre-execute 用它为即将启动的工具预占名额；并行安全工具在结果回来前也算已用。
-    reserve({ sessionId, beefTV, limit }) {
+    reserve({ sessionId, luckyTV, limit }) {
       const state = sessionOf(sessionId)
       if (!state) return null
-      if (beefTV) state.beefTV = true
+      if (luckyTV) state.luckyTV = true
       const used = state.count + (state.started || 0)
-      if (state.stop || (state.beefTV && used >= limit)) {
+      if (state.stop || (state.luckyTV && used >= limit)) {
         state.stop = true
         state.limit = limit
         if (!notice || notice.sessionId !== sessionId) notice = { sessionId, text: stepLimitNotice(limit) }

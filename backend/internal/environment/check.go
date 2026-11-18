@@ -10,8 +10,8 @@ import (
 	"runtime"
 	"time"
 
-	"infinite-canvas/backend/internal/desktopnet"
-	"infinite-canvas/backend/internal/mediatools"
+	"luckytv/backend/internal/desktopnet"
+	"luckytv/backend/internal/mediatools"
 )
 
 type Check struct {
@@ -126,7 +126,7 @@ func probeWrite(ctx context.Context, root *os.Root) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	name := ".beeftv-environment-" + rand.Text()
+	name := ".luckytv-environment-" + rand.Text()
 	f, err := root.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
 	if err != nil {
 		return err

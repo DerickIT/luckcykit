@@ -1,6 +1,6 @@
 package plugins
 
-import "infinite-canvas/backend/internal/kernel"
+import "luckytv/backend/internal/kernel"
 
 // AccessError is a caller-facing authorization failure. Host adapters map it
 // onto the HTTP forbidden contract without the domain importing internal/app.

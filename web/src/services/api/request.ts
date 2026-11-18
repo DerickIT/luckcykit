@@ -57,8 +57,8 @@ export function configureApiRuntime(baseURL: string, launchToken?: string, uiBoo
     apiClient.defaults.baseURL = baseURL;
     if (launchToken) apiClient.defaults.headers.common["X-Desktop-Token"] = launchToken;
     else delete apiClient.defaults.headers.common["X-Desktop-Token"];
-    if (uiBootstrapToken) apiClient.defaults.headers.common["X-Beeftv-UI-Bootstrap"] = uiBootstrapToken;
-    else delete apiClient.defaults.headers.common["X-Beeftv-UI-Bootstrap"];
+    if (uiBootstrapToken) apiClient.defaults.headers.common["X-Luckytv-UI-Bootstrap"] = uiBootstrapToken;
+    else delete apiClient.defaults.headers.common["X-Luckytv-UI-Bootstrap"];
 }
 
 /**

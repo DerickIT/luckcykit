@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"infinite-canvas/backend/internal/app"
+	"luckytv/backend/internal/app"
 
 	"github.com/gin-gonic/gin"
 )

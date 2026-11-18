@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
 
 	"gorm.io/gorm"
 )
@@ -50,7 +50,7 @@ func (s *Service) SyncPluginSkills(pluginID string, pluginName string, version s
 
 const skillSourceTypePlugin = "plugin"
 
-// skillDirSource describes skills contributed by a BeefTV plugin package.
+// skillDirSource describes skills contributed by a LuckyTV plugin package.
 type skillDirSource struct {
 	sourceType          string
 	sourceURL           string

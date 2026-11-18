@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=https://v3.wails.io/schemas/wails.v3.json
+version: 3
+project:
+  name: LuckyTV
+  product_name: LuckyTV
+  identifier: com.luckytv.desktop
+  version: 2.2.5
+  package: ./cmd/desktop
+  binary_name: LuckyTV
+  icon: cmd/desktop/build/appicon.png
+  description: LuckyTV 本地创作工作台
+# The Vite bundle is produced by the release scripts and copied into
+# cmd/desktop/frontend/dist, which the desktop package embeds with go:embed.
+# Wails must not run the frontend pipeline: `web/` lives outside this Go module.
+frontend:
+  disabled: true
+build:
+  output: cmd/desktop/build/bin
+  trim_path: true
+protocols:
+  luckytv:
+    description: LuckyTV skill link

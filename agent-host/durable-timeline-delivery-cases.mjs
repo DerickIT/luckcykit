@@ -15,7 +15,7 @@ const timeline = { version: 2, durationMs: 12000, tracks: [{ id: 'video', kind: 
 
 for (const scenario of ['delivery', 'refresh', 'lines', 'large-bind', 'foreign-edit', 'export-failure', 'export-recovery']) {
   test(`one official tool performs delivery: ${scenario}`, { timeout: 30000 }, async () => {
-    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-delivery-'));
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-delivery-'));
     let revision = 5;
     const requestTimeline = scenario === 'lines' ? { ...timeline, clips: [...timeline.clips,
       { id: 'caption', kind: 'subtitle', trackId: 'captions', startMs: 0, durationMs: 12000, text: '旧字幕', lines: ['第一行', '第二行'] }] } : timeline;

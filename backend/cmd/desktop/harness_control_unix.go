@@ -28,7 +28,7 @@ func harnessSocketPath(dataDir string) (string, error) {
 	}
 	digest := sha256.Sum256([]byte(canonical))
 	// A relocated data directory may exceed Unix's socket pathname limit.
-	return filepath.Join("/tmp", fmt.Sprintf("beeftv-harness-%d-%s.sock", os.Getuid(), hex.EncodeToString(digest[:12]))), nil
+	return filepath.Join("/tmp", fmt.Sprintf("luckytv-harness-%d-%s.sock", os.Getuid(), hex.EncodeToString(digest[:12]))), nil
 }
 
 func validateHarnessSocket(socketPath string) error {

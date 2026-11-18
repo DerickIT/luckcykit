@@ -1,10 +1,10 @@
 window.__ModuleLoader__.load({
-  id: 'dsh-beeftv',
+  id: 'dsh-luckytv',
   factory(require) {
     const React = require('react')
     const h = React.createElement
-    const panelId = 'beeftv'
-    const conversationSlot = 'beeftv.conversation'
+    const panelId = 'luckytv'
+    const conversationSlot = 'luckytv.conversation'
     // 插件根上拿不到「当前会话」，由挂在会话里的 slot 记住，供「问助手」使用。
     let conversationSessionId
     const modes = [
@@ -13,81 +13,81 @@ window.__ModuleLoader__.load({
       { id: 'ecosystem', label: '生态', detail: '技能、插件与工作流' },
     ]
     const portalItems = '[data-menu-material],[data-menu-backing],[role="tooltip"],[role="presentation"],[role="dialog"],[role="alert"],[class*="_portal_"],:has([data-hovercard-bridge])'
-    const themedScope = sel => `html body .beeftv-harness[data-beeftv-themed] :where(${sel}), html body[data-beeftv-portal-theme][data-beeftv-portal-theme] > :where(${portalItems}) :where(${sel})`
+    const themedScope = sel => `html body .luckytv-harness[data-luckytv-themed] :where(${sel}), html body[data-luckytv-portal-theme][data-luckytv-portal-theme] > :where(${portalItems}) :where(${sel})`
 
     const css = `
-.beeftv-harness { box-sizing:border-box; display:flex; flex-direction:column; height:100%; min-height:0; min-width:0; color:var(--dsw-alias-label-primary); background:var(--dsw-alias-bg-base); font:14px/1.5 var(--dsw-font-family); container:beeftv-workbench / inline-size; }
-.beeftv-harness-clearance { position:absolute; width:var(--dsh-frame-leading-clearance,0px); height:0; visibility:hidden; pointer-events:none; }
-.beeftv-harness * { box-sizing:border-box; }
-.beeftv-harness-agent-header button,.beeftv-harness-onboarding button { font:inherit; color:inherit; cursor:pointer; }
-.beeftv-harness button:disabled { opacity:.5; cursor:wait; }
-.beeftv-harness button:focus-visible { outline:2px solid var(--dsw-alias-link); outline-offset:2px; }
-.beeftv-harness-body { display:grid; grid-template-columns:minmax(280px,1fr) 6px var(--beeftv-agent-width,432px); flex:1; min-height:0; min-width:0; overflow-x:auto; }
-.beeftv-harness-divider { position:relative; cursor:col-resize; touch-action:none; outline:none; }
-.beeftv-harness-divider::after { content:""; position:absolute; inset:0 2px; background:var(--dsw-alias-border-l2); }
-.beeftv-harness-divider:hover::after,.beeftv-harness-divider:focus-visible::after,.beeftv-harness[data-resizing=true] .beeftv-harness-divider::after { background:var(--dsw-alias-link); }
-.beeftv-harness[data-resizing=true] { cursor:col-resize; user-select:none; }
-.beeftv-harness[data-resizing=true] iframe { pointer-events:none; }
-.beeftv-harness-agent-title-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
-.beeftv-harness-actions { position:relative; }
-.beeftv-harness-actions > button { border:0; border-radius:6px; width:28px; height:28px; background:transparent; }
-.beeftv-harness-actions > button:hover { background:var(--dsw-alias-interactive-bg-hover); }
-.beeftv-harness-action-menu { position:absolute; right:0; top:32px; z-index:20; min-width:200px; padding:4px; border:1px solid var(--dsw-alias-border-l2); border-radius:8px; background:var(--dsw-alias-bg-layer-2,var(--dsw-alias-bg-base)); box-shadow:0 6px 20px #0003; }
-.beeftv-harness-action-menu button { display:block; width:100%; padding:8px 12px; text-align:left; border:0; border-radius:4px; background:transparent; white-space:nowrap; font-size:12px; }
-.beeftv-harness-action-menu button:hover { background:var(--dsw-alias-interactive-bg-hover); }
-.beeftv-harness-action-menu button[aria-pressed=true]::after { content:"✓"; float:right; margin-left:10px; }
-.beeftv-harness-setting { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:6px 12px; font-size:12px; color:var(--dsw-alias-label-secondary); }
-.beeftv-harness-setting input { width:56px; border:1px solid var(--dsw-alias-border-l2); border-radius:6px; padding:3px 6px; background:var(--dsw-alias-bg-base); color:inherit; font:inherit; }
-.beeftv-harness-workspace { position:relative; min-width:0; min-height:0; overflow:hidden; }
-.beeftv-harness-frame { display:block; width:100%; height:100%; border:0; background:var(--dsw-alias-bg-base); }
-.beeftv-harness-agent { min-height:0; min-width:0; display:flex; flex-direction:column; overflow:hidden; background:var(--dsw-alias-bg-base); color:var(--dsw-alias-label-primary); --dsh-content-font-size:14px; --dsh-content-font-delta:0px; --dsh-content-font-size-secondary:12px; --dsh-content-font-delta-secondary:-1px; --dsw-font-markdown-base:14px/1.65 var(--dsw-font-family); --dsw-font-markdown-base-font-size:14px; --dsw-font-markdown-base-line-height:1.65; --dsw-font-markdown-base-strong:600 14px/1.65 var(--dsw-font-family); --dsw-font-markdown-base-italic:italic 14px/1.65 var(--dsw-font-family); --dsw-font-markdown-base-strong-italic:italic 600 14px/1.65 var(--dsw-font-family); }
-.beeftv-harness-agent-header { flex:none; padding:14px 16px 10px; }
-.beeftv-harness-agent-heading { margin:0; font-size:14px; line-height:22px; font-weight:600; letter-spacing:-.01em; }
-.beeftv-harness-modes { display:flex; gap:3px; margin-top:10px; padding:3px; border-radius:9px; background:var(--dsw-alias-interactive-bg-hover); }
-.beeftv-harness-agent-header .beeftv-harness-modes button { flex:1; min-width:0; border:0; border-radius:6px; padding:5px 4px; background:transparent; font-size:12px; line-height:18px; color:var(--dsw-alias-label-secondary); }
-.beeftv-harness-modes button:hover { background:var(--dsw-alias-interactive-bg-hover); }
-.beeftv-harness-agent-header .beeftv-harness-modes button[aria-pressed=true] { color:var(--dsw-alias-label-primary); background:var(--dsw-alias-markdown-code-segment-selected,var(--dsw-alias-bg-base)); box-shadow:0 1px 3px #0000001f; font-weight:500; }
-.beeftv-harness-conversation { flex:1; min-height:0; min-width:0; display:flex; flex-direction:column; overflow:hidden; }
-.beeftv-harness-conversation > * { min-height:0; }
-.beeftv-harness-context { margin-top:9px; color:var(--dsw-alias-label-tertiary); font-size:12px; line-height:18px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.luckytv-harness { box-sizing:border-box; display:flex; flex-direction:column; height:100%; min-height:0; min-width:0; color:var(--dsw-alias-label-primary); background:var(--dsw-alias-bg-base); font:14px/1.5 var(--dsw-font-family); container:luckytv-workbench / inline-size; }
+.luckytv-harness-clearance { position:absolute; width:var(--dsh-frame-leading-clearance,0px); height:0; visibility:hidden; pointer-events:none; }
+.luckytv-harness * { box-sizing:border-box; }
+.luckytv-harness-agent-header button,.luckytv-harness-onboarding button { font:inherit; color:inherit; cursor:pointer; }
+.luckytv-harness button:disabled { opacity:.5; cursor:wait; }
+.luckytv-harness button:focus-visible { outline:2px solid var(--dsw-alias-link); outline-offset:2px; }
+.luckytv-harness-body { display:grid; grid-template-columns:minmax(280px,1fr) 6px var(--luckytv-agent-width,432px); flex:1; min-height:0; min-width:0; overflow-x:auto; }
+.luckytv-harness-divider { position:relative; cursor:col-resize; touch-action:none; outline:none; }
+.luckytv-harness-divider::after { content:""; position:absolute; inset:0 2px; background:var(--dsw-alias-border-l2); }
+.luckytv-harness-divider:hover::after,.luckytv-harness-divider:focus-visible::after,.luckytv-harness[data-resizing=true] .luckytv-harness-divider::after { background:var(--dsw-alias-link); }
+.luckytv-harness[data-resizing=true] { cursor:col-resize; user-select:none; }
+.luckytv-harness[data-resizing=true] iframe { pointer-events:none; }
+.luckytv-harness-agent-title-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.luckytv-harness-actions { position:relative; }
+.luckytv-harness-actions > button { border:0; border-radius:6px; width:28px; height:28px; background:transparent; }
+.luckytv-harness-actions > button:hover { background:var(--dsw-alias-interactive-bg-hover); }
+.luckytv-harness-action-menu { position:absolute; right:0; top:32px; z-index:20; min-width:200px; padding:4px; border:1px solid var(--dsw-alias-border-l2); border-radius:8px; background:var(--dsw-alias-bg-layer-2,var(--dsw-alias-bg-base)); box-shadow:0 6px 20px #0003; }
+.luckytv-harness-action-menu button { display:block; width:100%; padding:8px 12px; text-align:left; border:0; border-radius:4px; background:transparent; white-space:nowrap; font-size:12px; }
+.luckytv-harness-action-menu button:hover { background:var(--dsw-alias-interactive-bg-hover); }
+.luckytv-harness-action-menu button[aria-pressed=true]::after { content:"✓"; float:right; margin-left:10px; }
+.luckytv-harness-setting { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:6px 12px; font-size:12px; color:var(--dsw-alias-label-secondary); }
+.luckytv-harness-setting input { width:56px; border:1px solid var(--dsw-alias-border-l2); border-radius:6px; padding:3px 6px; background:var(--dsw-alias-bg-base); color:inherit; font:inherit; }
+.luckytv-harness-workspace { position:relative; min-width:0; min-height:0; overflow:hidden; }
+.luckytv-harness-frame { display:block; width:100%; height:100%; border:0; background:var(--dsw-alias-bg-base); }
+.luckytv-harness-agent { min-height:0; min-width:0; display:flex; flex-direction:column; overflow:hidden; background:var(--dsw-alias-bg-base); color:var(--dsw-alias-label-primary); --dsh-content-font-size:14px; --dsh-content-font-delta:0px; --dsh-content-font-size-secondary:12px; --dsh-content-font-delta-secondary:-1px; --dsw-font-markdown-base:14px/1.65 var(--dsw-font-family); --dsw-font-markdown-base-font-size:14px; --dsw-font-markdown-base-line-height:1.65; --dsw-font-markdown-base-strong:600 14px/1.65 var(--dsw-font-family); --dsw-font-markdown-base-italic:italic 14px/1.65 var(--dsw-font-family); --dsw-font-markdown-base-strong-italic:italic 600 14px/1.65 var(--dsw-font-family); }
+.luckytv-harness-agent-header { flex:none; padding:14px 16px 10px; }
+.luckytv-harness-agent-heading { margin:0; font-size:14px; line-height:22px; font-weight:600; letter-spacing:-.01em; }
+.luckytv-harness-modes { display:flex; gap:3px; margin-top:10px; padding:3px; border-radius:9px; background:var(--dsw-alias-interactive-bg-hover); }
+.luckytv-harness-agent-header .luckytv-harness-modes button { flex:1; min-width:0; border:0; border-radius:6px; padding:5px 4px; background:transparent; font-size:12px; line-height:18px; color:var(--dsw-alias-label-secondary); }
+.luckytv-harness-modes button:hover { background:var(--dsw-alias-interactive-bg-hover); }
+.luckytv-harness-agent-header .luckytv-harness-modes button[aria-pressed=true] { color:var(--dsw-alias-label-primary); background:var(--dsw-alias-markdown-code-segment-selected,var(--dsw-alias-bg-base)); box-shadow:0 1px 3px #0000001f; font-weight:500; }
+.luckytv-harness-conversation { flex:1; min-height:0; min-width:0; display:flex; flex-direction:column; overflow:hidden; }
+.luckytv-harness-conversation > * { min-height:0; }
+.luckytv-harness-context { margin-top:9px; color:var(--dsw-alias-label-tertiary); font-size:12px; line-height:18px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 /* Stable hooks from DSH ConversationRoot, ChatView, UserContent and InputBar. */
-.beeftv-harness-agent [data-conversation-content] { --dsh-chat-content-width:100%; --dsh-composer-card-max-width:100%; --dsh-composer-side-clearance:0px; --dsh-composer-dock-inset:6px; }
-.beeftv-harness-agent [data-conversation-scroll] { scrollbar-gutter:stable; }
-.beeftv-harness-agent :has(> [data-message-bubble]) { max-width:92%; }
-.beeftv-harness-agent [data-message-bubble] { padding:10px 12px; border-radius:12px; font-size:14px; line-height:1.65; }
-.beeftv-harness-agent [data-chat-flow] h1 { font-size:18px; line-height:1.5; }
-.beeftv-harness-agent [data-chat-flow] h2 { font-size:16px; line-height:1.5; }
-.beeftv-harness-agent [data-chat-flow] h3 { font-size:15px; line-height:1.5; }
-.beeftv-harness-agent [data-disclosure-header] { min-height:28px; font-size:12px; line-height:20px; }
-.beeftv-harness-agent [data-slot="conversation.chat.node"] pre { font-size:12px; line-height:1.55; }
-.beeftv-harness-agent [data-composer-seat] { --dsh-composer-text-max-height:224px; padding-top:8px; }
-.beeftv-harness-agent [data-composer-card] { width:calc(100% - 24px); margin:0 auto; border-radius:12px; gap:8px; box-shadow:none; outline:1px solid var(--dsw-alias-border-l2); }
-.beeftv-harness-agent [data-composer-input] { min-height:48px; padding:6px 12px 0; font-size:14px; line-height:22px; }
-.beeftv-harness-agent [data-composer-placeholder] { inset-inline:12px; top:6px; font-size:14px; line-height:22px; }
-.beeftv-harness-agent [data-composer-dock] { padding:3px 12px 6px; gap:8px; }
-.beeftv-harness-onboarding { height:100%; display:flex; align-items:center; justify-content:center; padding:32px; }
-.beeftv-harness-onboarding-content { width:100%; max-width:520px; }
-.beeftv-harness-onboarding h1 { font-size:26px; margin:0 0 12px; }
-.beeftv-harness-onboarding p { color:var(--dsw-alias-label-secondary); margin:0 0 24px; }
-.beeftv-harness-options { display:grid; gap:12px; }
-.beeftv-harness-option { display:block; width:100%; text-align:left; border:1px solid var(--dsw-alias-border-l2); background:var(--dsw-alias-bg-layer-2); border-radius:var(--dsw-radius-md,12px); padding:16px; }
-.beeftv-harness-option:hover { border-color:var(--dsw-alias-link); }
-.beeftv-harness-option strong,.beeftv-harness-option span { display:block; }
-.beeftv-harness-option span { margin-top:4px; font-size:12px; color:var(--dsw-alias-label-tertiary); }
-.beeftv-harness-error { margin:12px 16px; color:var(--dsw-alias-label-secondary); font-size:12px; overflow-wrap:anywhere; }
-.beeftv-harness-workspace-note { flex:none; padding:6px 16px; border-bottom:1px solid var(--dsw-alias-border-l2); color:var(--dsw-alias-label-tertiary); font-size:12px; line-height:18px; }
-.beeftv-harness-notice { flex:none; display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; padding:10px 16px; border-bottom:1px solid var(--dsw-alias-border-l2); color:var(--dsw-alias-label-secondary); font-size:12px; line-height:18px; }
-.beeftv-harness-notice span { flex:1 1 220px; min-width:0; }
-.beeftv-harness-notice button { border:1px solid var(--dsw-alias-border-l2); border-radius:6px; padding:4px 10px; background:transparent; font:inherit; color:inherit; cursor:pointer; }
-.beeftv-harness-notice button:hover { background:var(--dsw-alias-interactive-bg-hover); }
-${themedScope('*:not([class*="errorPayload"],[class*="errorPayload"] *)')} { --json-tree-property:var(--beeftv-json-property); --json-tree-string:var(--beeftv-json-string); --json-tree-number:var(--beeftv-json-number); --json-tree-keyword:var(--beeftv-json-keyword); --json-tree-punctuation:var(--beeftv-json-punctuation); --json-tree-icon:var(--beeftv-json-icon); --json-tree-hover:var(--beeftv-json-hover); --changes-fill:var(--beeftv-card-fill); --changes-hover:var(--beeftv-card-hover); --deliverable-fill:var(--beeftv-card-fill); --deliverable-hover:var(--beeftv-card-hover); --plan-card-fill:var(--beeftv-card-fill); --plan-card-hover:var(--beeftv-card-hover); --card-fill:var(--beeftv-card-fill); --card-hover:var(--beeftv-card-hover); --forge-fill:var(--beeftv-card-fill); }
-${themedScope('.vdszpW_tile,.IBlBFq_fileIcon,._0K0vAa_cardIcon,.Tbt3mW_leading')} { background:var(--beeftv-card-icon-bg); }
-${themedScope('[class*="_step_"][data-state="done"]')} { --dsw-alias-label-primary-foreground:var(--beeftv-step-done-fg); color:var(--beeftv-step-done-fg); }
-${themedScope('[class*="_step_"][data-state="error"]')} { --dsw-alias-label-primary-foreground:var(--beeftv-step-error-fg); color:var(--beeftv-step-error-fg); }
+.luckytv-harness-agent [data-conversation-content] { --dsh-chat-content-width:100%; --dsh-composer-card-max-width:100%; --dsh-composer-side-clearance:0px; --dsh-composer-dock-inset:6px; }
+.luckytv-harness-agent [data-conversation-scroll] { scrollbar-gutter:stable; }
+.luckytv-harness-agent :has(> [data-message-bubble]) { max-width:92%; }
+.luckytv-harness-agent [data-message-bubble] { padding:10px 12px; border-radius:12px; font-size:14px; line-height:1.65; }
+.luckytv-harness-agent [data-chat-flow] h1 { font-size:18px; line-height:1.5; }
+.luckytv-harness-agent [data-chat-flow] h2 { font-size:16px; line-height:1.5; }
+.luckytv-harness-agent [data-chat-flow] h3 { font-size:15px; line-height:1.5; }
+.luckytv-harness-agent [data-disclosure-header] { min-height:28px; font-size:12px; line-height:20px; }
+.luckytv-harness-agent [data-slot="conversation.chat.node"] pre { font-size:12px; line-height:1.55; }
+.luckytv-harness-agent [data-composer-seat] { --dsh-composer-text-max-height:224px; padding-top:8px; }
+.luckytv-harness-agent [data-composer-card] { width:calc(100% - 24px); margin:0 auto; border-radius:12px; gap:8px; box-shadow:none; outline:1px solid var(--dsw-alias-border-l2); }
+.luckytv-harness-agent [data-composer-input] { min-height:48px; padding:6px 12px 0; font-size:14px; line-height:22px; }
+.luckytv-harness-agent [data-composer-placeholder] { inset-inline:12px; top:6px; font-size:14px; line-height:22px; }
+.luckytv-harness-agent [data-composer-dock] { padding:3px 12px 6px; gap:8px; }
+.luckytv-harness-onboarding { height:100%; display:flex; align-items:center; justify-content:center; padding:32px; }
+.luckytv-harness-onboarding-content { width:100%; max-width:520px; }
+.luckytv-harness-onboarding h1 { font-size:26px; margin:0 0 12px; }
+.luckytv-harness-onboarding p { color:var(--dsw-alias-label-secondary); margin:0 0 24px; }
+.luckytv-harness-options { display:grid; gap:12px; }
+.luckytv-harness-option { display:block; width:100%; text-align:left; border:1px solid var(--dsw-alias-border-l2); background:var(--dsw-alias-bg-layer-2); border-radius:var(--dsw-radius-md,12px); padding:16px; }
+.luckytv-harness-option:hover { border-color:var(--dsw-alias-link); }
+.luckytv-harness-option strong,.luckytv-harness-option span { display:block; }
+.luckytv-harness-option span { margin-top:4px; font-size:12px; color:var(--dsw-alias-label-tertiary); }
+.luckytv-harness-error { margin:12px 16px; color:var(--dsw-alias-label-secondary); font-size:12px; overflow-wrap:anywhere; }
+.luckytv-harness-workspace-note { flex:none; padding:6px 16px; border-bottom:1px solid var(--dsw-alias-border-l2); color:var(--dsw-alias-label-tertiary); font-size:12px; line-height:18px; }
+.luckytv-harness-notice { flex:none; display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; padding:10px 16px; border-bottom:1px solid var(--dsw-alias-border-l2); color:var(--dsw-alias-label-secondary); font-size:12px; line-height:18px; }
+.luckytv-harness-notice span { flex:1 1 220px; min-width:0; }
+.luckytv-harness-notice button { border:1px solid var(--dsw-alias-border-l2); border-radius:6px; padding:4px 10px; background:transparent; font:inherit; color:inherit; cursor:pointer; }
+.luckytv-harness-notice button:hover { background:var(--dsw-alias-interactive-bg-hover); }
+${themedScope('*:not([class*="errorPayload"],[class*="errorPayload"] *)')} { --json-tree-property:var(--luckytv-json-property); --json-tree-string:var(--luckytv-json-string); --json-tree-number:var(--luckytv-json-number); --json-tree-keyword:var(--luckytv-json-keyword); --json-tree-punctuation:var(--luckytv-json-punctuation); --json-tree-icon:var(--luckytv-json-icon); --json-tree-hover:var(--luckytv-json-hover); --changes-fill:var(--luckytv-card-fill); --changes-hover:var(--luckytv-card-hover); --deliverable-fill:var(--luckytv-card-fill); --deliverable-hover:var(--luckytv-card-hover); --plan-card-fill:var(--luckytv-card-fill); --plan-card-hover:var(--luckytv-card-hover); --card-fill:var(--luckytv-card-fill); --card-hover:var(--luckytv-card-hover); --forge-fill:var(--luckytv-card-fill); }
+${themedScope('.vdszpW_tile,.IBlBFq_fileIcon,._0K0vAa_cardIcon,.Tbt3mW_leading')} { background:var(--luckytv-card-icon-bg); }
+${themedScope('[class*="_step_"][data-state="done"]')} { --dsw-alias-label-primary-foreground:var(--luckytv-step-done-fg); color:var(--luckytv-step-done-fg); }
+${themedScope('[class*="_step_"][data-state="error"]')} { --dsw-alias-label-primary-foreground:var(--luckytv-step-error-fg); color:var(--luckytv-step-error-fg); }
 `
 
     async function api(path, body, signal) {
-      const response = await fetch('/beeftv/' + path, {
+      const response = await fetch('/luckytv/' + path, {
         method: body === undefined ? 'GET' : 'POST',
         credentials: 'include',
         headers: body === undefined ? undefined : { 'content-type': 'application/json' },
@@ -95,14 +95,14 @@ ${themedScope('[class*="_step_"][data-state="error"]')} { --dsw-alias-label-prim
         signal,
       })
       const result = await response.json()
-      if (!response.ok) throw Object.assign(new Error(result.error || 'BeefTV 请求失败 (' + response.status + ')'), { status: response.status })
+      if (!response.ok) throw Object.assign(new Error(result.error || 'LuckyTV 请求失败 (' + response.status + ')'), { status: response.status })
       return result
     }
 
     function frameURL(appURL) {
       if (!appURL) return undefined
       const url = new URL(appURL, window.location.href)
-      if (!['http:', 'https:'].includes(url.protocol)) throw new Error('BeefTV 工作区地址无效')
+      if (!['http:', 'https:'].includes(url.protocol)) throw new Error('LuckyTV 工作区地址无效')
       return url.href
     }
 
@@ -292,18 +292,18 @@ ${themedScope('[class*="_step_"][data-state="error"]')} { --dsw-alias-label-prim
       const stepFgOn = hex => { const f = sampleColor(hex, 0.9) || bgSample; return contrastRatio(whiteSample, f) >= contrastRatio(inkSample, f) ? '#ffffff' : '#0a0a0a' }
       return {
         colorScheme: surfaceDark ? 'dark' : 'light',
-        '--beeftv-step-done-fg': stepFgOn(successPrimary),
-        '--beeftv-step-error-fg': stepFgOn(errorPrimary),
-        '--beeftv-card-fill': layer1,
-        '--beeftv-card-hover': layer2,
-        '--beeftv-card-icon-bg': surfaceDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.55)',
-        '--beeftv-json-property': pickReadableToken('#5db0d7', '#881391', surfaceDark, cardSurfaces),
-        '--beeftv-json-string': pickReadableToken('#f28b82', '#b31412', surfaceDark, cardSurfaces),
-        '--beeftv-json-number': pickReadableToken('#99c8ff', '#1c00cf', surfaceDark, cardSurfaces),
-        '--beeftv-json-keyword': pickReadableToken('#99c8ff', '#1c00cf', surfaceDark, cardSurfaces),
-        '--beeftv-json-punctuation': pickReadableToken('#e8eaed', '#202124', surfaceDark, cardSurfaces),
-        '--beeftv-json-icon': pickReadableToken('#9aa0a6', '#54585d', surfaceDark, cardSurfaces),
-        '--beeftv-json-hover': colorWithAlpha(foreground, surfaceDark ? 0.05 : 0.04),
+        '--luckytv-step-done-fg': stepFgOn(successPrimary),
+        '--luckytv-step-error-fg': stepFgOn(errorPrimary),
+        '--luckytv-card-fill': layer1,
+        '--luckytv-card-hover': layer2,
+        '--luckytv-card-icon-bg': surfaceDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.55)',
+        '--luckytv-json-property': pickReadableToken('#5db0d7', '#881391', surfaceDark, cardSurfaces),
+        '--luckytv-json-string': pickReadableToken('#f28b82', '#b31412', surfaceDark, cardSurfaces),
+        '--luckytv-json-number': pickReadableToken('#99c8ff', '#1c00cf', surfaceDark, cardSurfaces),
+        '--luckytv-json-keyword': pickReadableToken('#99c8ff', '#1c00cf', surfaceDark, cardSurfaces),
+        '--luckytv-json-punctuation': pickReadableToken('#e8eaed', '#202124', surfaceDark, cardSurfaces),
+        '--luckytv-json-icon': pickReadableToken('#9aa0a6', '#54585d', surfaceDark, cardSurfaces),
+        '--luckytv-json-hover': colorWithAlpha(foreground, surfaceDark ? 0.05 : 0.04),
         '--dsw-alias-bg-base': background,
         '--dsw-alias-bg-document-preview': surfaceDark ? background : layer2,
         '--dsw-alias-bg-layer-1': layer1,
@@ -485,8 +485,8 @@ ${themedScope('[class*="_step_"][data-state="error"]')} { --dsw-alias-label-prim
       }, [sessionId, connectionId, workspaceContext, agentMode, onError, onStaleConnection])
 
       if (sessionId === undefined) {
-        return h('div', { className: 'beeftv-harness-onboarding' },
-          h('p', null, '点击“新建会话”开始与 BeefTV Agent 协作。'))
+        return h('div', { className: 'luckytv-harness-onboarding' },
+          h('p', null, '点击“新建会话”开始与 LuckyTV Agent 协作。'))
       }
 
       return renderFactorySlot('conversation.content', {
@@ -497,17 +497,17 @@ ${themedScope('[class*="_step_"][data-state="error"]')} { --dsw-alias-label-prim
     }
 
     function Onboarding({ busy, connect, loading, localApp }) {
-      return h('div', { className: 'beeftv-harness-onboarding' },
-        h('div', { className: 'beeftv-harness-onboarding-content' },
-          h('h1', null, '在 DSH 中打开 BeefTV'),
-          h('p', null, loading ? '正在读取本机连接状态…' : '选择工作区，BeefTV Agent 会持续协助当前创作。'),
-          h('div', { className: 'beeftv-harness-options' },
-            h('button', { type: 'button', className: 'beeftv-harness-option', disabled: busy || loading, onClick: () => connect('local') },
-              h('strong', null, busy === 'local' ? '正在连接…' : '连接本机 BeefTV'),
-              h('span', null, localApp?.message || '与本机 /Applications/BeefTV.app 彻底互通，共享同一套画布、素材、配置与版本更新。')),
-            h('button', { type: 'button', className: 'beeftv-harness-option', disabled: busy || loading, onClick: () => connect('standalone') },
+      return h('div', { className: 'luckytv-harness-onboarding' },
+        h('div', { className: 'luckytv-harness-onboarding-content' },
+          h('h1', null, '在 DSH 中打开 LuckyTV'),
+          h('p', null, loading ? '正在读取本机连接状态…' : '选择工作区，LuckyTV Agent 会持续协助当前创作。'),
+          h('div', { className: 'luckytv-harness-options' },
+            h('button', { type: 'button', className: 'luckytv-harness-option', disabled: busy || loading, onClick: () => connect('local') },
+              h('strong', null, busy === 'local' ? '正在连接…' : '连接本机 LuckyTV'),
+              h('span', null, localApp?.message || '与本机 /Applications/LuckyTV.app 彻底互通，共享同一套画布、素材、配置与版本更新。')),
+            h('button', { type: 'button', className: 'luckytv-harness-option', disabled: busy || loading, onClick: () => connect('standalone') },
               h('strong', null, busy === 'standalone' ? '正在创建连接…' : '使用独立工作区'),
-              h('span', null, '为 DSH 使用独立的 BeefTV 本地工作区。')))))
+              h('span', null, '为 DSH 使用独立的 LuckyTV 本地工作区。')))))
     }
 
     function Workbench({ renderSlot, returnToConversation, createCreativeSession, askAssistant }) {
@@ -543,7 +543,7 @@ ${themedScope('[class*="_step_"][data-state="error"]')} { --dsw-alias-label-prim
       const source = React.useMemo(() => frameURL(appURL), [appURL])
       const publishFrameClearance = React.useCallback(() => {
         if (!source || !frame.current?.contentWindow || !clearanceProbe.current) return
-        frame.current.contentWindow.postMessage({ type: 'beeftv:host-chrome', leading: clearanceProbe.current.getBoundingClientRect().width }, new URL(source).origin)
+        frame.current.contentWindow.postMessage({ type: 'luckytv:host-chrome', leading: clearanceProbe.current.getBoundingClientRect().width }, new URL(source).origin)
       }, [source])
       const connectionId = status?.connectionId
       const workspaceContext = reportedContext?.connectionId === connectionId ? reportedContext?.context : undefined
@@ -641,7 +641,7 @@ ${themedScope('[class*="_step_"][data-state="error"]')} { --dsw-alias-label-prim
         if (!source) return
         const origin = new URL(source).origin
         const receiveContext = event => {
-          if (event.source !== frame.current?.contentWindow || event.origin !== origin || event.data?.type !== 'beeftv:context') return
+          if (event.source !== frame.current?.contentWindow || event.origin !== origin || event.data?.type !== 'luckytv:context') return
           const context = readWorkspaceContext(event.data.context)
           if (context && connectionId) setReportedContext({ connectionId, context })
         }
@@ -654,7 +654,7 @@ ${themedScope('[class*="_step_"][data-state="error"]')} { --dsw-alias-label-prim
         if (!source) return
         const origin = new URL(source).origin
         const receiveTheme = event => {
-          if (event.source !== frame.current?.contentWindow || event.origin !== origin || event.data?.type !== 'beeftv:theme') return
+          if (event.source !== frame.current?.contentWindow || event.origin !== origin || event.data?.type !== 'luckytv:theme') return
           const theme = readFrameTheme(event.data)
           if (!theme) return
           setFrameTheme(current => current && current.dark === theme.dark && current.background === theme.background && current.foreground === theme.foreground && current.accent === theme.accent && current.accentForeground === theme.accentForeground ? current : theme)
@@ -667,7 +667,7 @@ ${themedScope('[class*="_step_"][data-state="error"]')} { --dsw-alias-label-prim
         if (!source) return
         const origin = new URL(source).origin
         const receiveAsk = async event => {
-          if (event.source !== frame.current?.contentWindow || event.origin !== origin || event.data?.type !== 'beeftv:ask') return
+          if (event.source !== frame.current?.contentWindow || event.origin !== origin || event.data?.type !== 'luckytv:ask') return
           const ask = readAsk(event.data.ask)
           if (!ask || !connectionId) return
           // 模型后续看到的是这次选中的节点，不依赖提示词里的标题。
@@ -681,7 +681,7 @@ ${themedScope('[class*="_step_"][data-state="error"]')} { --dsw-alias-label-prim
             },
           })
           const status = await askAssistant(ask)
-          frame.current?.contentWindow?.postMessage({ type: 'beeftv:ask-result', status }, origin)
+          frame.current?.contentWindow?.postMessage({ type: 'luckytv:ask-result', status }, origin)
         }
         window.addEventListener('message', receiveAsk)
         return () => window.removeEventListener('message', receiveAsk)
@@ -700,7 +700,7 @@ ${themedScope('[class*="_step_"][data-state="error"]')} { --dsw-alias-label-prim
         if (nextSeq <= lastActivity.current.seq) return
         lastActivity.current = { connectionId, seq: nextSeq }
         if (!source || !frame.current?.contentWindow) return
-        frame.current.contentWindow.postMessage({ type: 'beeftv:workspace-sync', activity: status.activity }, new URL(source).origin)
+        frame.current.contentWindow.postMessage({ type: 'luckytv:workspace-sync', activity: status.activity }, new URL(source).origin)
       }, [connectionId, source, status?.activity])
 
       React.useEffect(() => {
@@ -800,8 +800,8 @@ ${themedScope('[class*="_step_"][data-state="error"]')} { --dsw-alias-label-prim
         const portalChildren = `:is(${portalItems})`
         const portalOverlay = `body > ${portalChildren}`
         const styleElement = document.createElement('style')
-        styleElement.dataset.beeftvPortalTheme = 'dsh-beeftv'
-        styleElement.textContent = `body[data-beeftv-portal-theme] > ${portalChildren} {}`
+        styleElement.dataset.luckytvPortalTheme = 'dsh-luckytv'
+        styleElement.textContent = `body[data-luckytv-portal-theme] > ${portalChildren} {}`
         document.head.appendChild(styleElement)
         portalStyleRef.current = styleElement
         const events = ['pointerdown', 'pointerover', 'focusin', 'keydown', 'click', 'contextmenu']
@@ -810,10 +810,10 @@ ${themedScope('[class*="_step_"][data-state="error"]')} { --dsw-alias-label-prim
           if (!target) return
           if (root.current?.contains(target)) {
             portalOriginRef.current = true
-            if (hasThemeRef.current) document.body.dataset.beeftvPortalTheme = '1'
+            if (hasThemeRef.current) document.body.dataset.luckytvPortalTheme = '1'
           } else if (!target.closest(portalOverlay)) {
             portalOriginRef.current = false
-            delete document.body.dataset.beeftvPortalTheme
+            delete document.body.dataset.luckytvPortalTheme
           }
         }
         for (const type of events) document.addEventListener(type, syncPortalOrigin, true)
@@ -823,7 +823,7 @@ ${themedScope('[class*="_step_"][data-state="error"]')} { --dsw-alias-label-prim
         return () => {
           for (const type of events) document.removeEventListener(type, syncPortalOrigin, true)
           portalOriginRef.current = false
-          delete document.body.dataset.beeftvPortalTheme
+          delete document.body.dataset.luckytvPortalTheme
           styleElement.remove()
           portalStyleRef.current = null
         }
@@ -841,46 +841,46 @@ ${themedScope('[class*="_step_"][data-state="error"]')} { --dsw-alias-label-prim
           }
         }
         if (!themeStyle) {
-          delete document.body.dataset.beeftvPortalTheme
+          delete document.body.dataset.luckytvPortalTheme
           return
         }
         if (portalOriginRef.current || (document.activeElement instanceof Element && root.current?.contains(document.activeElement))) {
           portalOriginRef.current = true
-          document.body.dataset.beeftvPortalTheme = '1'
+          document.body.dataset.luckytvPortalTheme = '1'
         }
       }, [themeStyle])
 
-      return h('section', { ref: root, className: 'beeftv-harness', 'aria-label': 'BeefTV 工作台', 'data-resizing': resizing, 'data-beeftv-themed': themeStyle ? '' : undefined, style: themeStyle },
-        h('span', { ref: clearanceProbe, className: 'beeftv-harness-clearance', 'aria-hidden': true }),
-        visibleError && h('div', { className: 'beeftv-harness-error', role: 'alert' }, visibleError),
-        standalone && h('div', { className: 'beeftv-harness-workspace-note' }, '独立工作区，和本机 BeefTV 不是同一份数据'),
-        status?.awayNotice && h('div', { className: 'beeftv-harness-notice', role: 'status' },
+      return h('section', { ref: root, className: 'luckytv-harness', 'aria-label': 'LuckyTV 工作台', 'data-resizing': resizing, 'data-luckytv-themed': themeStyle ? '' : undefined, style: themeStyle },
+        h('span', { ref: clearanceProbe, className: 'luckytv-harness-clearance', 'aria-hidden': true }),
+        visibleError && h('div', { className: 'luckytv-harness-error', role: 'alert' }, visibleError),
+        standalone && h('div', { className: 'luckytv-harness-workspace-note' }, '独立工作区，和本机 LuckyTV 不是同一份数据'),
+        status?.awayNotice && h('div', { className: 'luckytv-harness-notice', role: 'status' },
           h('span', null, status.awayNotice),
           h('button', { type: 'button', 'aria-label': '关闭离开提示', onClick: () => dismissNotice('away-notice') }, '知道了')),
-        status?.stepNotice && h('div', { className: 'beeftv-harness-notice', role: 'status' },
+        status?.stepNotice && h('div', { className: 'luckytv-harness-notice', role: 'status' },
           h('span', null, status.stepNotice),
           h('button', { type: 'button', 'aria-label': '关闭步数提示', onClick: () => dismissNotice('step-notice') }, '知道了')),
-        localReady && h('div', { className: 'beeftv-harness-notice', role: 'status' },
-          h('span', null, '本机 BeefTV 可以连接了，连接后用同一份画布和素材。'),
+        localReady && h('div', { className: 'luckytv-harness-notice', role: 'status' },
+          h('span', null, '本机 LuckyTV 可以连接了，连接后用同一份画布和素材。'),
           h('button', { type: 'button', disabled: !!busy, onClick: () => connect('local') }, '连接本机'),
           h('button', { type: 'button', disabled: !!busy, onClick: dismissLocalPrompt }, '暂不')),
-        h('div', { ref: body, className: 'beeftv-harness-body', style: { '--beeftv-agent-width': `${agentWidth}px` } },
-          h('div', { className: 'beeftv-harness-workspace' }, source
-            ? h('iframe', { key: source, ref: frame, src: source, onLoad: publishFrameClearance, title: 'BeefTV 创作工作区', className: 'beeftv-harness-frame', referrerPolicy: 'no-referrer', allow: 'clipboard-read; clipboard-write' })
+        h('div', { ref: body, className: 'luckytv-harness-body', style: { '--luckytv-agent-width': `${agentWidth}px` } },
+          h('div', { className: 'luckytv-harness-workspace' }, source
+            ? h('iframe', { key: source, ref: frame, src: source, onLoad: publishFrameClearance, title: 'LuckyTV 创作工作区', className: 'luckytv-harness-frame', referrerPolicy: 'no-referrer', allow: 'clipboard-read; clipboard-write' })
             : h(Onboarding, { busy, connect, loading: status === undefined, localApp: status?.localApp })),
-          h('div', { className: 'beeftv-harness-divider', role: 'separator', tabIndex: 0, 'aria-label': '调整 BeefTV Agent 宽度', 'aria-orientation': 'vertical', 'aria-valuemin': 320, 'aria-valuemax': Math.max(320, availableWidth - 286), 'aria-valuenow': agentWidth, 'aria-controls': 'beeftv-agent-panel', onPointerDown: startResize, onPointerMove: moveResize, onPointerUp: endResize, onPointerCancel: endResize, onLostPointerCapture: endResize, onKeyDown: resizeWithKeyboard }),
-          h('aside', { id: 'beeftv-agent-panel', className: 'beeftv-harness-agent', 'aria-label': 'BeefTV Agent', style: themeStyle },
-            h('div', { className: 'beeftv-harness-agent-header' },
-              h('div', { className: 'beeftv-harness-agent-title-row' },
-                h('h2', { className: 'beeftv-harness-agent-heading' }, 'BeefTV Agent'),
-                h('div', { className: 'beeftv-harness-actions', onBlur: event => { if (!event.currentTarget.contains(event.relatedTarget)) setActionsOpen(false) }, onKeyDown: event => { if (event.key === 'Escape') { setActionsOpen(false); actionsButton.current?.focus() } } },
+          h('div', { className: 'luckytv-harness-divider', role: 'separator', tabIndex: 0, 'aria-label': '调整 LuckyTV Agent 宽度', 'aria-orientation': 'vertical', 'aria-valuemin': 320, 'aria-valuemax': Math.max(320, availableWidth - 286), 'aria-valuenow': agentWidth, 'aria-controls': 'luckytv-agent-panel', onPointerDown: startResize, onPointerMove: moveResize, onPointerUp: endResize, onPointerCancel: endResize, onLostPointerCapture: endResize, onKeyDown: resizeWithKeyboard }),
+          h('aside', { id: 'luckytv-agent-panel', className: 'luckytv-harness-agent', 'aria-label': 'LuckyTV Agent', style: themeStyle },
+            h('div', { className: 'luckytv-harness-agent-header' },
+              h('div', { className: 'luckytv-harness-agent-title-row' },
+                h('h2', { className: 'luckytv-harness-agent-heading' }, 'LuckyTV Agent'),
+                h('div', { className: 'luckytv-harness-actions', onBlur: event => { if (!event.currentTarget.contains(event.relatedTarget)) setActionsOpen(false) }, onKeyDown: event => { if (event.key === 'Escape') { setActionsOpen(false); actionsButton.current?.focus() } } },
                   h('button', { ref: actionsButton, type: 'button', 'aria-label': '工作台操作', 'aria-expanded': actionsOpen, onClick: () => { skipStepSave.current = false; setActionsOpen(open => !open) } }, '⋯'),
-                  actionsOpen && h('div', { className: 'beeftv-harness-action-menu' },
+                  actionsOpen && h('div', { className: 'luckytv-harness-action-menu' },
                     h('button', { type: 'button', disabled: creatingSession, onClick: startCreativeSession }, creatingSession ? '正在创建…' : '新建会话'),
                     status?.connected && !choosingWorkspace && h('button', { type: 'button', disabled: !!busy, onClick: () => { setActionsOpen(false); setChoosingWorkspace(true) } }, '切换工作区'),
                     h('button', { type: 'button', onClick: returnToConversation }, '返回 DSH'),
                     h('button', { type: 'button', 'aria-pressed': autoContinue, onClick: () => saveSettings({ autoContinue: !autoContinue }) }, '生成完自动继续'),
-                    h('label', { className: 'beeftv-harness-setting' }, '每轮工具调用上限',
+                    h('label', { className: 'luckytv-harness-setting' }, '每轮工具调用上限',
                       h('input', {
                         type: 'number', min: 5, max: 200, step: 5, defaultValue: status?.stepLimit || 40,
                         onBlur: event => {
@@ -892,10 +892,10 @@ ${themedScope('[class*="_step_"][data-state="error"]')} { --dsw-alias-label-prim
                           if (event.key === 'Enter') event.currentTarget.blur()
                         },
                       }))))),
-              h('div', { className: 'beeftv-harness-modes', 'aria-label': '协作方向' }, modes.map(mode =>
+              h('div', { className: 'luckytv-harness-modes', 'aria-label': '协作方向' }, modes.map(mode =>
                 h('button', { key: mode.id, type: 'button', title: mode.detail, 'aria-pressed': agentMode === mode.id, onClick: () => setAgentMode(mode.id) }, mode.label))),
-              workspaceContext?.canvasTitle && h('div', { className: 'beeftv-harness-context', title: workspaceContext.canvasTitle }, workspaceContext.canvasTitle)),
-            h('div', { className: 'beeftv-harness-conversation' }, renderSlot(conversationSlot, { connectionId, workspaceContext, agentMode, onError: reportError, onStaleConnection: requestStatusRefresh, onAgentActivity: requestStatusRefresh })))))
+              workspaceContext?.canvasTitle && h('div', { className: 'luckytv-harness-context', title: workspaceContext.canvasTitle }, workspaceContext.canvasTitle)),
+            h('div', { className: 'luckytv-harness-conversation' }, renderSlot(conversationSlot, { connectionId, workspaceContext, agentMode, onError: reportError, onStaleConnection: requestStatusRefresh, onAgentActivity: requestStatusRefresh })))))
     }
 
     function Icon({ size = 18 }) {
@@ -959,11 +959,11 @@ ${themedScope('[class*="_step_"][data-state="error"]')} { --dsw-alias-label-prim
         const handleAsk = askAssistant(ctx)
         ctx.effect(() => {
           const style = document.createElement('style')
-          style.dataset.pluginCss = 'dsh-beeftv'
+          style.dataset.pluginCss = 'dsh-luckytv'
           style.textContent = css
           document.head.appendChild(style)
           return () => style.remove()
-        }, 'beeftv: workbench styles')
+        }, 'luckytv: workbench styles')
         ctx.slots.inject('main', () => ctx.slots.register({
           name: 'main',
           key: panelId,
@@ -983,7 +983,7 @@ ${themedScope('[class*="_step_"][data-state="error"]')} { --dsw-alias-label-prim
           name: 'sidebar.panellist',
           id: panelId,
           order: 6,
-          label: 'BeefTV',
+          label: 'LuckyTV',
         }, Icon))
       },
     }

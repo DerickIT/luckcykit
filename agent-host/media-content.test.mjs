@@ -27,14 +27,14 @@ test('official images and bounded native media keep source evidence', () => {
   expect(request.messages[3].content.at(-1)).toEqual({
     type: 'input_audio', input_audio: { data: part().data, format: 'wav' },
   });
-  expect(request.messages[1].content).not.toContain('BEEFTV_MEDIA_PART_V1:');
+  expect(request.messages[1].content).not.toContain('LUCKYTV_MEDIA_PART_V1:');
   expect(adaptMediaRequest(request, model)).toEqual(request);
 });
 test('unsupported audio MIME fails closed before dispatch adaptation', () => {
   for (const mime of ['audio/mpeg', 'audio/ogg', 'audio/x-wav']) {
     const unsupported = part(mime);
     expect(() => mediaToolResult({ result: { content: [unsupported] } }, 'media.inspect', model)).toThrow('invalid_media_content');
-    expect(() => adaptMediaRequest(transcript('BEEFTV_MEDIA_PART_V1:' + JSON.stringify(unsupported)), model)).toThrow('invalid_media_content');
+    expect(() => adaptMediaRequest(transcript('LUCKYTV_MEDIA_PART_V1:' + JSON.stringify(unsupported)), model)).toThrow('invalid_media_content');
   }
 });
 test('Google native inlineData is unchanged by the OpenAI compatibility adapter', () => {

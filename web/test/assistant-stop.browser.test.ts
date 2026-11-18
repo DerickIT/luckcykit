@@ -80,7 +80,7 @@ beforeAll(async () => {
         if (pathname.endsWith("/assistant/chat")) {
             chatRequests++; chatBodies.push(await req.json());
             if (earlyStop) return new Response(new ReadableStream({ start() {} }), { headers: { "content-type": "application/x-ndjson" } });
-            if (rejectChat) return Response.json({ code: 413, reason: "body_too_large" }, { status: 413, headers: { "X-Beeftv-Turn-Admission": "rejected" } });
+            if (rejectChat) return Response.json({ code: 413, reason: "body_too_large" }, { status: 413, headers: { "X-Luckytv-Turn-Admission": "rejected" } });
             return new Response(new ReadableStream({ start(controller) {
                 controller.enqueue(new TextEncoder().encode(JSON.stringify({ type: "text_delta", delta: "两个草案已创建。" }) + "\n"));
             } }), { headers: { "content-type": "application/x-ndjson" } });

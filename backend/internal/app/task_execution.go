@@ -3,10 +3,10 @@ package app
 import (
 	"context"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	localtask "luckytv/backend/internal/task"
 )
 
 func (s *Service) processTask(ctx context.Context, task model.Task) (map[string]interface{}, []map[string]interface{}, error) {

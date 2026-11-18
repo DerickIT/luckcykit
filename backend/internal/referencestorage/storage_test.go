@@ -86,7 +86,7 @@ func TestUploadSignsPUTAndRequiresAnonymousReadableMedia(t *testing.T) {
 			})}
 			link, err := upload(context.Background(), config, path, client)
 			if mode == "success" {
-				if err != nil || !strings.HasPrefix(link, config.PublicBaseURL+"/beeftv/references/") {
+				if err != nil || !strings.HasPrefix(link, config.PublicBaseURL+"/luckytv/references/") {
 					t.Fatalf("upload %q %v", link, err)
 				}
 			} else if err == nil {
@@ -142,30 +142,30 @@ func TestObjectEndpointURLHandlesVirtualHostedAndPathStyleProviders(t *testing.T
 			name:     "standard path style S3/R2",
 			endpoint: "https://s3.example.com",
 			bucket:   "fixture",
-			want:     "https://s3.example.com/fixture/beeftv/references/abc",
+			want:     "https://s3.example.com/fixture/luckytv/references/abc",
 		},
 		{
 			name:     "tencent cos service endpoint promotes to virtual-hosted bucket domain",
 			endpoint: "https://cos.ap-guangzhou.myqcloud.com",
 			bucket:   "media-1250000000",
-			want:     "https://media-1250000000.cos.ap-guangzhou.myqcloud.com/beeftv/references/abc",
+			want:     "https://media-1250000000.cos.ap-guangzhou.myqcloud.com/luckytv/references/abc",
 		},
 		{
 			name:     "tencent cos bucket domain avoids duplicate bucket path segment",
 			endpoint: "https://media-1250000000.cos.ap-guangzhou.myqcloud.com",
 			bucket:   "media-1250000000",
-			want:     "https://media-1250000000.cos.ap-guangzhou.myqcloud.com/beeftv/references/abc",
+			want:     "https://media-1250000000.cos.ap-guangzhou.myqcloud.com/luckytv/references/abc",
 		},
 		{
 			name:     "alibaba oss service endpoint promotes to virtual-hosted bucket domain",
 			endpoint: "https://oss-cn-hangzhou.aliyuncs.com",
-			bucket:   "beeftv-media",
-			want:     "https://beeftv-media.oss-cn-hangzhou.aliyuncs.com/beeftv/references/abc",
+			bucket:   "luckytv-media",
+			want:     "https://luckytv-media.oss-cn-hangzhou.aliyuncs.com/luckytv/references/abc",
 		},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			got, err := objectEndpointURL(Config{Endpoint: tc.endpoint, Bucket: tc.bucket}, "beeftv/references/abc")
+			got, err := objectEndpointURL(Config{Endpoint: tc.endpoint, Bucket: tc.bucket}, "luckytv/references/abc")
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}

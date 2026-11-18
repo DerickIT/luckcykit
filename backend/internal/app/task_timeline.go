@@ -3,16 +3,16 @@ package app
 import (
 	"context"
 
-	"infinite-canvas/backend/internal/editing"
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/editing"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
 )
 
 type timelineTranscriptionInput = localtask.TimelineTranscriptionInput
 
 func (w *taskWorkerCoordinator) processTimelineTranscription(task *model.Task, ctx context.Context) error {
 	s := w.service
-	return localtask.ProcessTimelineTranscription(ctx, s.repo, s.beefTV, func() error {
+	return localtask.ProcessTimelineTranscription(ctx, s.repo, s.luckyTV, func() error {
 		return s.RequireFeature(FeatureTimelineTranscription)
 	}, s.transcriptionExecutor, s.logInfo, task)
 }
@@ -36,7 +36,7 @@ func (s *Service) CreateTimelineTranscriptionTask(userID string, req TimelineTra
 }
 
 func (s *Service) bindTranscriptionModel(modelID string) (string, error) {
-	return localtask.BindTranscriptionModel(s.beefTV, modelID)
+	return localtask.BindTranscriptionModel(s.luckyTV, modelID)
 }
 
 type TimelineRenderCreateRequest = localtask.TimelineRenderCreateRequest

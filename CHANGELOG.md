@@ -1,6 +1,6 @@
 # Changelog
 
-All notable public changes to BeefTV are documented in this file.
+All notable public changes to LuckyTV are documented in this file.
 
 ## Unreleased
 

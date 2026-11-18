@@ -17,10 +17,10 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/outbound"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/outbound"
+	"luckytv/backend/internal/protocol"
 )
 
 func recoveryTestAdapter(t *testing.T) protocol.Adapter {
@@ -176,7 +176,7 @@ func TestVideoRecoveryDownloadDisconnectKeepsOriginalTask(t *testing.T) {
 	}
 }
 
-func TestVideoRecoveryBeefTVQueryUsesOnlyGet(t *testing.T) {
+func TestVideoRecoveryLuckyTVQueryUsesOnlyGet(t *testing.T) {
 	allowLoopbackProviderTest(t)
 	var queries, downloads atomic.Int32
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -198,13 +198,13 @@ func TestVideoRecoveryBeefTVQueryUsesOnlyGet(t *testing.T) {
 		_, _ = io.WriteString(w, `{"data":{"id":"original","status":"completed"}}`)
 	}))
 	defer server.Close()
-	result, _, err := queryBeefTVVideoResult(generation.WithEndpoints(context.Background(), generation.Endpoints{BeefTVVideoBaseURL: server.URL}), canvasGenerationInput{Config: providerConfig{BaseURL: server.URL + "/v1", APIKey: "test-key"}}, "original")
+	result, _, err := queryLuckyTVVideoResult(generation.WithEndpoints(context.Background(), generation.Endpoints{LuckyTVVideoBaseURL: server.URL}), canvasGenerationInput{Config: providerConfig{BaseURL: server.URL + "/v1", APIKey: "test-key"}}, "original")
 	if err != nil || result == nil || queries.Load() != 1 || downloads.Load() != 1 {
 		t.Fatalf("result=%v err=%v queries=%d downloads=%d", result, err, queries.Load(), downloads.Load())
 	}
 }
 
-func TestVideoRecoveryBeefTVRejectsDifferentTaskBeforeDownload(t *testing.T) {
+func TestVideoRecoveryLuckyTVRejectsDifferentTaskBeforeDownload(t *testing.T) {
 	allowLoopbackProviderTest(t)
 	var queries, downloads, creates atomic.Int32
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -221,7 +221,7 @@ func TestVideoRecoveryBeefTVRejectsDifferentTaskBeforeDownload(t *testing.T) {
 		_, _ = io.WriteString(w, `{"id":"original","data":{"task_id":"different","status":"completed"}}`)
 	}))
 	defer server.Close()
-	result, _, err := queryBeefTVVideoResult(generation.WithEndpoints(context.Background(), generation.Endpoints{BeefTVVideoBaseURL: server.URL}), canvasGenerationInput{Config: providerConfig{BaseURL: server.URL + "/v1", APIKey: "test-key"}}, "original")
+	result, _, err := queryLuckyTVVideoResult(generation.WithEndpoints(context.Background(), generation.Endpoints{LuckyTVVideoBaseURL: server.URL}), canvasGenerationInput{Config: providerConfig{BaseURL: server.URL + "/v1", APIKey: "test-key"}}, "original")
 	if err == nil || result != nil || queries.Load() != 1 || downloads.Load() != 0 || creates.Load() != 0 {
 		t.Fatalf("result=%v err=%v queries=%d downloads=%d creates=%d", result, err, queries.Load(), downloads.Load(), creates.Load())
 	}
@@ -246,7 +246,7 @@ func TestVideoRecoveryTaskLogsExplainFailureWithoutRawPayload(t *testing.T) {
 	}
 }
 
-func TestFailedBeefTVVideoRecoveryQueriesFreshURLAndKeepsOriginalTask(t *testing.T) {
+func TestFailedLuckyTVVideoRecoveryQueriesFreshURLAndKeepsOriginalTask(t *testing.T) {
 	allowLoopbackProviderTest(t)
 	payload, err := os.ReadFile("testdata/reference-fragmented-30fps.mp4")
 	if err != nil {
@@ -254,7 +254,7 @@ func TestFailedBeefTVVideoRecoveryQueriesFreshURLAndKeepsOriginalTask(t *testing
 	}
 	var creates, polls, primary, mediaDownloads atomic.Int32
 	media := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Header.Get("Authorization") != "" || r.Header.Get("X-Gateway-Secret") != "" || r.Header.Get("X-Beeftv-Video-Delivery") != "" {
+		if r.Header.Get("Authorization") != "" || r.Header.Get("X-Gateway-Secret") != "" || r.Header.Get("X-Luckytv-Video-Delivery") != "" {
 			t.Error("gateway credentials reached external media")
 		}
 		if r.URL.Path == "/tos.mp4" {
@@ -303,7 +303,7 @@ func TestFailedBeefTVVideoRecoveryQueriesFreshURLAndKeepsOriginalTask(t *testing
 	if err := db.Create(&task).Error; err != nil {
 		t.Fatal(err)
 	}
-	ctx := generation.WithEndpoints(context.Background(), generation.Endpoints{BeefTVVideoBaseURL: gateway.URL})
+	ctx := generation.WithEndpoints(context.Background(), generation.Endpoints{LuckyTVVideoBaseURL: gateway.URL})
 	recovered, err := svc.QueryFailedVideoTask(ctx, task.UserID, task.ID)
 	if err != nil {
 		t.Fatal(err)
@@ -352,8 +352,8 @@ func TestFailedThirdPartyVideoRecoveryRenewsOriginalTaskAndMaterializes(t *testi
 	defer media.Close()
 	var polls, downloads atomic.Int32
 	provider := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodGet || r.Header.Get("x-goog-api-key") != "provider-fixture" || r.Header.Get("Authorization") != "" || r.URL.Query().Get("delivery") != "" || r.Header.Get("X-Beeftv-Video-Delivery") != "" {
-			t.Error("third-party recovery changed auth or attempted generation/BeefTV backup")
+		if r.Method != http.MethodGet || r.Header.Get("x-goog-api-key") != "provider-fixture" || r.Header.Get("Authorization") != "" || r.URL.Query().Get("delivery") != "" || r.Header.Get("X-Luckytv-Video-Delivery") != "" {
+			t.Error("third-party recovery changed auth or attempted generation/LuckyTV backup")
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -442,7 +442,7 @@ func TestFailedHandwrittenVideoRecoveryQueriesOriginalTaskWithoutCreating(t *tes
 					w.WriteHeader(http.StatusBadRequest)
 					return
 				}
-				if r.Header.Get("Authorization") != "Bearer provider-fixture" || r.Header.Get("X-Private-Channel") != "private-fixture" || r.URL.Query().Get("delivery") != "" || r.Header.Get("X-Beeftv-Video-Delivery") != "" {
+				if r.Header.Get("Authorization") != "Bearer provider-fixture" || r.Header.Get("X-Private-Channel") != "private-fixture" || r.URL.Query().Get("delivery") != "" || r.Header.Get("X-Luckytv-Video-Delivery") != "" {
 					t.Error("legacy original-task retrieval changed provider authentication")
 				}
 				if r.URL.Path == "/fresh.mp4" {

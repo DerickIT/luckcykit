@@ -5,7 +5,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"infinite-canvas/backend/internal/canvas"
+	"luckytv/backend/internal/canvas"
 )
 
 // storyboardTitleTemplateMaxRunes 与 schema 的 maxLength 一致；入口不执行 JSON Schema，长度在这里校验。

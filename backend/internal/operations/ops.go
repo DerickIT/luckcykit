@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/canvas"
-	"infinite-canvas/backend/internal/canvas/capability"
+	"luckytv/backend/internal/canvas"
+	"luckytv/backend/internal/canvas/capability"
 )
 
 type CanvasProjectCreator interface {
@@ -319,11 +319,11 @@ func opCanvasGenerationPropose(ctx *Context, params json.RawMessage) (any, error
 	if ctx.Caller.Kind == CallerExternal && !ctx.Caller.ReadOnly {
 		if approvalMode == ApprovalModeAsk {
 			result["nextAction"] = map[string]any{
-				"operation":  "beeftv approve " + proposalID,
+				"operation":  "luckytv approve " + proposalID,
 				"approval":   "owner-required",
 				"proposalId": proposalID,
 				"params":     map[string]any{"canvasId": args.CanvasID, "proposalId": proposalID, "nodeIds": nodeIDs, "kind": args.Kind, "expectedRevision": doc["revision"], "expectedModelConfigRevision": resolved.Revision},
-				"message":    "生成单已开出（待人工批准）。请在 BeefTV 界面确认，或在终端运行 `beeftv approve " + proposalID + "` 批准并执行；Agent 自身凭据不能自批。",
+				"message":    "生成单已开出（待人工批准）。请在 LuckyTV 界面确认，或在终端运行 `luckytv approve " + proposalID + "` 批准并执行；Agent 自身凭据不能自批。",
 			}
 		} else {
 			result["nextAction"] = map[string]any{

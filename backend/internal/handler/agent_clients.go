@@ -11,9 +11,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"infinite-canvas/backend/internal/agentconnect"
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/app"
+	"luckytv/backend/internal/agentconnect"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/app"
 )
 
 // 外部 Agent 接入的签发面：只有桌面自己的界面能开客户端凭据，外部客户端拿到的
@@ -75,7 +75,7 @@ func RegisterAgentClientRoutes(r gin.IRouter, svc ownerCredentialDirs, clients a
 		kind := agentops.NormalizeClientKind(req.Kind)
 		cliPath, available := bundledCLIPath()
 		if !available {
-			failAgentOps(c, agentops.PreconditionFailed("cli_unavailable", "安装文件不完整，无法连接外部工具。请重新下载并完整解压 BeefTV。", nil))
+			failAgentOps(c, agentops.PreconditionFailed("cli_unavailable", "安装文件不完整，无法连接外部工具。请重新下载并完整解压 LuckyTV。", nil))
 			return
 		}
 		dataDir, err := filepath.Abs(svc.DataDir())
@@ -121,7 +121,7 @@ func failAgentOps(c *gin.Context, err error) {
 // requireDesktopUITrust 复用签发内置 UI 会话的同一条信任链。
 // 外部客户端凭据在这里没有任何作用：它只能操作工作区，不能签发或吊销凭据。
 func requireDesktopUITrust(c *gin.Context, svc ownerCredentialDirs, desktopTrust func(*http.Request) bool) bool {
-	if strings.TrimSpace(c.GetHeader("X-Beeftv-Client")) != "" {
+	if strings.TrimSpace(c.GetHeader("X-Luckytv-Client")) != "" {
 		fail(c, http.StatusForbidden, app.BadAuthRequest("外部客户端不能管理客户端凭据"))
 		return false
 	}
@@ -129,8 +129,8 @@ func requireDesktopUITrust(c *gin.Context, svc ownerCredentialDirs, desktopTrust
 		fail(c, http.StatusForbidden, app.BadAuthRequest("只接受本机同源请求"))
 		return false
 	}
-	ownerOK := agentops.OwnerTokenMatches(svc.DataDir(), strings.TrimSpace(c.GetHeader("X-Beeftv-Owner")))
-	devBootstrap := strings.TrimSpace(os.Getenv("BEEFTV_UI_BOOTSTRAP")) == "1"
+	ownerOK := agentops.OwnerTokenMatches(svc.DataDir(), strings.TrimSpace(c.GetHeader("X-Luckytv-Owner")))
+	devBootstrap := strings.TrimSpace(os.Getenv("LUCKYTV_UI_BOOTSTRAP")) == "1"
 	desktopShell := desktopTrust != nil && desktopTrust(c.Request)
 	if !ownerOK && !devBootstrap && !desktopShell {
 		fail(c, http.StatusForbidden, app.BadAuthRequest("管理客户端凭据需要 owner 凭据或桌面界面"))
@@ -173,15 +173,15 @@ func clientView(item agentops.ClientRegistration) gin.H {
 // bundledCLIPath 给出随包 CLI 的绝对路径。
 //
 // 安装版里 CLI 在主程序旁边的 cli 目录里：macOS 是
-// BeefTV.app/Contents/MacOS/cli/beeftv，Windows 是 BeefTV.exe 旁边的 cli\beeftv.exe。
-// 它不能直接放在主程序同一层：macOS 与 Windows 的文件名都不分大小写，beeftv 会和
-// BeefTV / BeefTV.exe 变成同一个文件，把主程序覆盖掉。
+// LuckyTV.app/Contents/MacOS/cli/luckytv，Windows 是 LuckyTV.exe 旁边的 cli\luckytv.exe。
+// 它不能直接放在主程序同一层：macOS 与 Windows 的文件名都不分大小写，luckytv 会和
+// LuckyTV / LuckyTV.exe 变成同一个文件，把主程序覆盖掉。
 //
-// 缺失时不回退 PATH：Windows 会把 beeftv.exe 解析成桌面主程序 BeefTV.exe。
+// 缺失时不回退 PATH：Windows 会把 luckytv.exe 解析成桌面主程序 LuckyTV.exe。
 func bundledCLIPath() (string, bool) {
-	name := "beeftv"
+	name := "luckytv"
 	if runtime.GOOS == "windows" {
-		name = "beeftv.exe"
+		name = "luckytv.exe"
 	}
 	executable, err := os.Executable()
 	if err != nil {
@@ -198,13 +198,13 @@ func bundledCLIPath() (string, bool) {
 	return candidate, true
 }
 
-// cliInstallCommand 把随包 CLI 接到用户的 PATH 上，方便在终端直接敲 beeftv。
+// cliInstallCommand 把随包 CLI 接到用户的 PATH 上，方便在终端直接敲 luckytv。
 func cliInstallCommand(cliPath string) string {
 	if runtime.GOOS == "windows" {
 		dir := filepath.Dir(cliPath)
 		return `[Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", "User") + ` + shellQuote(";"+dir) + `, "User")`
 	}
-	return "ln -sf " + shellQuote(cliPath) + " /usr/local/bin/beeftv"
+	return "ln -sf " + shellQuote(cliPath) + " /usr/local/bin/luckytv"
 }
 
 // clientSetup 生成可直接粘贴的接入配置。命令里带的是客户端自己的凭据，
@@ -214,19 +214,19 @@ func clientSetup(kind agentops.ClientKind, cliPath, dataDir string, reg agentops
 	serveArgs := strings.Join(launch.Args, " ")
 	switch kind {
 	case agentops.ClientKindCodex:
-		command := "codex mcp add beeftv" +
-			" --env BEEFTV_DATA_DIR=" + shellQuote(dataDir) +
-			" --env BEEFTV_CLIENT_ID=" + shellQuote(reg.ID) +
-			" --env BEEFTV_CLIENT_TOKEN=" + shellQuote(token) +
+		command := "codex mcp add luckytv" +
+			" --env LUCKYTV_DATA_DIR=" + shellQuote(dataDir) +
+			" --env LUCKYTV_CLIENT_ID=" + shellQuote(reg.ID) +
+			" --env LUCKYTV_CLIENT_TOKEN=" + shellQuote(token) +
 			" -- " + shellQuote(launch.Command) + " " + serveArgs
-		return gin.H{"kind": string(kind), "title": "在 Codex 里加上 BeefTV", "command": command}
+		return gin.H{"kind": string(kind), "title": "在 Codex 里加上 LuckyTV", "command": command}
 	case agentops.ClientKindClaude:
-		command := "claude mcp add beeftv --scope user" +
-			" -e BEEFTV_DATA_DIR=" + shellQuote(dataDir) +
-			" -e BEEFTV_CLIENT_ID=" + shellQuote(reg.ID) +
-			" -e BEEFTV_CLIENT_TOKEN=" + shellQuote(token) +
+		command := "claude mcp add luckytv --scope user" +
+			" -e LUCKYTV_DATA_DIR=" + shellQuote(dataDir) +
+			" -e LUCKYTV_CLIENT_ID=" + shellQuote(reg.ID) +
+			" -e LUCKYTV_CLIENT_TOKEN=" + shellQuote(token) +
 			" -- " + shellQuote(launch.Command) + " " + serveArgs
-		return gin.H{"kind": string(kind), "title": "在 Claude Code 里加上 BeefTV", "command": command}
+		return gin.H{"kind": string(kind), "title": "在 Claude Code 里加上 LuckyTV", "command": command}
 	case agentops.ClientKindClaudeDesktop:
 		return gin.H{"kind": string(kind), "title": "在 Claude Desktop 的开发者设置中编辑配置",
 			"json": mcpServersJSON(launch)}
@@ -240,7 +240,7 @@ func clientSetup(kind agentops.ClientKind, cliPath, dataDir string, reg agentops
 }
 
 func mcpServersJSON(launch agentconnect.LaunchSpec) string {
-	payload := map[string]any{"mcpServers": map[string]any{"beeftv": map[string]any{
+	payload := map[string]any{"mcpServers": map[string]any{"luckytv": map[string]any{
 		"command": launch.Command,
 		"args":    launch.Args,
 		"env":     launch.EnvMap(),

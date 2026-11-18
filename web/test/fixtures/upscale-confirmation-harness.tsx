@@ -14,7 +14,7 @@ import { createCanvasPageUiStore } from "../../src/stores/canvas/use-canvas-page
 const pageUi = createCanvasPageUiStore();
 
 setActiveUserScope("upscale-confirmation-test");
-useConfigStore.setState(state => ({ config: { ...state.config, channels: [createModelChannel({ id: "beeftv", pinned: true, enabled: true, credentialRef: "beeftv", baseUrl: "https://beeftv.app", models: [] })] } }));
+useConfigStore.setState(state => ({ config: { ...state.config, channels: [createModelChannel({ id: "luckytv", pinned: true, enabled: true, credentialRef: "luckytv", baseUrl: "https://luckytv.app", models: [] })] } }));
 
 function Harness() {
     const [nodes, setNodes] = useState<CanvasNodeData[]>([

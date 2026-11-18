@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func TestStartupDoesNotImportExternalSkillDirectories(t *testing.T) {
@@ -36,7 +36,7 @@ func TestStartupDoesNotImportExternalSkillDirectories(t *testing.T) {
 	}
 }
 
-func TestRetireExternalSkillsKeepsBeefTVInstallationsAndBlocksLegacyUsage(t *testing.T) {
+func TestRetireExternalSkillsKeepsLuckyTVInstallationsAndBlocksLegacyUsage(t *testing.T) {
 	s, db := agentSkillFixture(t)
 	files := map[string]string{"SKILL.md": "---\nname: workflow\ndescription: Workflow\n---\nBody", "scripts/helper.py": "print('ok')"}
 	external := installAgentSkill(t, s, files)
@@ -72,7 +72,7 @@ func TestRetireExternalSkillsKeepsBeefTVInstallationsAndBlocksLegacyUsage(t *tes
 	}
 	active, err := s.AddedSkills("owner")
 	if err != nil || len(active) != len(kept) {
-		t.Fatalf("enabled BeefTV skills changed: %d, %v", len(active), err)
+		t.Fatalf("enabled LuckyTV skills changed: %d, %v", len(active), err)
 	}
 	if _, err := s.SetSkillAdded("owner", external.SkillID, true); err == nil {
 		t.Fatal("retired external skill could be enabled")
@@ -93,7 +93,7 @@ func TestRetireExternalSkillsKeepsBeefTVInstallationsAndBlocksLegacyUsage(t *tes
 	}
 	for _, pin := range kept {
 		if _, err := s.AgentVersion("owner", pin); err != nil {
-			t.Fatal("BeefTV installation stopped working", err)
+			t.Fatal("LuckyTV installation stopped working", err)
 		}
 	}
 	if setting, err := s.repo.LookupSystemSetting("local_skills_directory"); err != nil || setting != nil {

@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"infinite-canvas/backend/internal/mediatools"
+	"luckytv/backend/internal/mediatools"
 )
 
 func upscaleTempFile(dir, name string, data []byte) (string, error) {
@@ -18,7 +18,7 @@ func upscaleTempFile(dir, name string, data []byte) (string, error) {
 }
 
 func ValidateUpscaleVideoSource(ctx context.Context, data []byte) error {
-	dir, err := os.MkdirTemp("", "beeftv-upscale-probe-")
+	dir, err := os.MkdirTemp("", "luckytv-upscale-probe-")
 	if err != nil {
 		return err
 	}
@@ -41,7 +41,7 @@ func ValidateUpscaleVideoSource(ctx context.Context, data []byte) error {
 }
 
 func PreserveUpscaleAudio(ctx context.Context, source, output []byte) ([]byte, error) {
-	dir, err := os.MkdirTemp("", "beeftv-upscale-audio-")
+	dir, err := os.MkdirTemp("", "luckytv-upscale-audio-")
 	if err != nil {
 		return nil, err
 	}

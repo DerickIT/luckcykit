@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func TestChannelAPIURLNormalizesConfiguredVersionPrefix(t *testing.T) {
@@ -48,17 +48,17 @@ func TestChannelAPIURLForProtocolUsesAgnesOriginPollPath(t *testing.T) {
 	}
 }
 
-func TestProviderDownloadURLNormalizesBeefTVResultToConfiguredOrigin(t *testing.T) {
+func TestProviderDownloadURLNormalizesLuckyTVResultToConfiguredOrigin(t *testing.T) {
 	tests := []struct {
 		name, baseURL, resultURL, want string
 	}{
 		{name: "same origin", baseURL: "https://provider.example", resultURL: "https://provider.example/files/video.mp4", want: "https://provider.example/files/video.mp4"},
-		{name: "BeefTV uses configured origin", baseURL: "https://beeftv.app", resultURL: "https://beeftv.app/v1/videos/task-1/content", want: "https://beeftv.app/v1/videos/task-1/content"},
-		{name: "BeefTV lookalike stays external", baseURL: "https://beeftv.app", resultURL: "https://beeftv.app.attacker.example/video.mp4", want: "https://beeftv.app.attacker.example/video.mp4"},
-		{name: "legacy beef domain stays external", baseURL: "https://beeftv.app", resultURL: "https://legacy.example.com/v1/videos/task-1/content", want: "https://legacy.example.com/v1/videos/task-1/content"},
-		{name: "legacy enterprise domain stays external", baseURL: "https://legacy-enterprise.example.com", resultURL: "https://beeftv.app/v1/videos/task-1/content", want: "https://beeftv.app/v1/videos/task-1/content"},
-		{name: "custom provider does not rewrite BeefTV", baseURL: "https://provider.example", resultURL: "https://beeftv.app/video.mp4", want: "https://beeftv.app/video.mp4"},
-		{name: "insecure cross origin stays external", baseURL: "https://beeftv.app", resultURL: "http://beeftv.app/video.mp4", want: "http://beeftv.app/video.mp4"},
+		{name: "LuckyTV uses configured origin", baseURL: "https://luckytv.app", resultURL: "https://luckytv.app/v1/videos/task-1/content", want: "https://luckytv.app/v1/videos/task-1/content"},
+		{name: "LuckyTV lookalike stays external", baseURL: "https://luckytv.app", resultURL: "https://luckytv.app.attacker.example/video.mp4", want: "https://luckytv.app.attacker.example/video.mp4"},
+		{name: "legacy lucky domain stays external", baseURL: "https://luckytv.app", resultURL: "https://legacy.example.com/v1/videos/task-1/content", want: "https://legacy.example.com/v1/videos/task-1/content"},
+		{name: "legacy enterprise domain stays external", baseURL: "https://legacy-enterprise.example.com", resultURL: "https://luckytv.app/v1/videos/task-1/content", want: "https://luckytv.app/v1/videos/task-1/content"},
+		{name: "custom provider does not rewrite LuckyTV", baseURL: "https://provider.example", resultURL: "https://luckytv.app/video.mp4", want: "https://luckytv.app/video.mp4"},
+		{name: "insecure cross origin stays external", baseURL: "https://luckytv.app", resultURL: "http://luckytv.app/video.mp4", want: "http://luckytv.app/video.mp4"},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

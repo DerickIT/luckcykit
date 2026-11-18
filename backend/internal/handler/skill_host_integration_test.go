@@ -5,9 +5,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/operations"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/operations"
+	"luckytv/backend/internal/skills"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -186,7 +186,7 @@ func TestConfirmSkillScriptProposalRouteAndTokenBoundary(t *testing.T) {
 	hostReq.Host = "127.0.0.1:18090"
 	hostReq.RemoteAddr = "127.0.0.1:12345"
 	hostReq.Header.Set("Content-Type", "application/json")
-	hostReq.Header.Set("X-Beeftv-Agent-Token", assistantTestHostToken)
+	hostReq.Header.Set("X-Luckytv-Agent-Token", assistantTestHostToken)
 	hostRec := httptest.NewRecorder()
 	env.router.ServeHTTP(hostRec, hostReq)
 	if hostRec.Code != http.StatusForbidden || !strings.Contains(hostRec.Body.String(), "agent_token_cannot_approve") {
@@ -198,7 +198,7 @@ func TestConfirmSkillScriptProposalRouteAndTokenBoundary(t *testing.T) {
 	uiReq.Host = "127.0.0.1:18090"
 	uiReq.RemoteAddr = "127.0.0.1:12345"
 	uiReq.Header.Set("Content-Type", "application/json")
-	uiReq.Header.Set("X-Beeftv-Ui-Session", env.uiToken)
+	uiReq.Header.Set("X-Luckytv-Ui-Session", env.uiToken)
 	uiRec := httptest.NewRecorder()
 	env.router.ServeHTTP(uiRec, uiReq)
 	if uiRec.Code != http.StatusOK {
@@ -271,7 +271,7 @@ func TestConfirmSkillScriptProposalRouteAndTokenBoundary(t *testing.T) {
 	slowUIReq.Host = "127.0.0.1:18090"
 	slowUIReq.RemoteAddr = "127.0.0.1:12345"
 	slowUIReq.Header.Set("Content-Type", "application/json")
-	slowUIReq.Header.Set("X-Beeftv-Ui-Session", env.uiToken)
+	slowUIReq.Header.Set("X-Luckytv-Ui-Session", env.uiToken)
 	slowUIRec := httptest.NewRecorder()
 	env.router.ServeHTTP(slowUIRec, slowUIReq)
 	if slowUIRec.Code != http.StatusOK {

@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"strings"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/pricing"
-	"infinite-canvas/backend/internal/providerpreset"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/pricing"
+	"luckytv/backend/internal/providerpreset"
 )
 
 type LocalChannelModel struct {
@@ -187,7 +187,7 @@ func PublicCatalogFromLocalSnapshot(body []byte) (*CatalogResponse, error) {
 		}
 		cm := model.ChannelModel{ID: item.Model, ModelKey: item.Model, DisplayName: item.DisplayName, Capability: item.Capability, Protocol: model.ChannelInterfaceType(item.Protocol), Enabled: true}
 		if item.Capability == "video" {
-			if _, protocol, ok := providerpreset.HostedBeefTVVideoProfile(item.BaseURL, item.Model); ok {
+			if _, protocol, ok := providerpreset.HostedLuckyTVVideoProfile(item.BaseURL, item.Model); ok {
 				cm.Protocol = model.ChannelInterfaceType(protocol)
 			}
 		}
@@ -221,9 +221,9 @@ func PublicCatalogFromLocalSnapshot(body []byte) (*CatalogResponse, error) {
 		if err != nil {
 			continue
 		}
-		managedBeefTV := isLocalBeefTVRoute(item)
+		managedLuckyTV := isLocalLuckyTVRoute(item)
 		public.CapabilityDeclared = &declared
-		public.ManagedBeefTV = &managedBeefTV
+		public.ManagedLuckyTV = &managedLuckyTV
 		public.VideoPricing, public.Pricing = item.PublicPrices()
 		index, exists := indexes[item.ChannelID]
 		if !exists {

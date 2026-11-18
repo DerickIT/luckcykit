@@ -3,8 +3,8 @@ package skills
 import (
 	"context"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/skillhub"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/skillhub"
 )
 
 func (s *Service) MarketSearch(ctx context.Context, query string, page, pageSize int) (*skillhub.SearchResult, error) {
@@ -19,7 +19,7 @@ func (s *Service) MarketSearch(ctx context.Context, query string, page, pageSize
 	if err != nil {
 		return nil, err
 	}
-	result, err := client.Search(ctx, query, "beeftv", []string{"beeftv.canvas"}, page, pageSize)
+	result, err := client.Search(ctx, query, "luckytv", []string{"luckytv.canvas"}, page, pageSize)
 	if len(builtins) == 0 {
 		return result, err
 	}
@@ -31,7 +31,7 @@ func (s *Service) MarketSearch(ctx context.Context, query string, page, pageSize
 	}
 	if err != nil {
 		if page == 1 {
-			return &skillhub.SearchResult{Items: builtinItems, Total: len(builtinItems), Page: page, PageSize: pageSize, Target: "beeftv"}, nil
+			return &skillhub.SearchResult{Items: builtinItems, Total: len(builtinItems), Page: page, PageSize: pageSize, Target: "luckytv"}, nil
 		}
 		return nil, err
 	}
@@ -72,7 +72,7 @@ func (s *Service) MarketFile(ctx context.Context, id, release, name string, offs
 
 func checkMarketRequirements(requirements []string) error {
 	for _, required := range requirements {
-		if required != "beeftv.canvas" && required != "model.image" && required != "model.video" && required != "model.audio" {
+		if required != "luckytv.canvas" && required != "model.image" && required != "model.video" && required != "model.audio" {
 			return kernel.BadAuthRequest("当前工作区尚未验证技能要求的能力：" + required)
 		}
 	}

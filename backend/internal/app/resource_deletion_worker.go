@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func (s *Service) startResourceDeletionWorker(ctx context.Context) {

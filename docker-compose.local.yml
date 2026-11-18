@@ -1,6 +1,6 @@
 services:
   backend:
-    image: beeftv-backend:local
+    image: luckytv-backend:local
     build:
       context: .
       dockerfile: backend/Dockerfile
@@ -33,7 +33,7 @@ services:
             - data/
 
   web:
-    image: beeftv-web:local
+    image: luckytv-web:local
     build:
       context: .
       dockerfile: Dockerfile

@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"infinite-canvas/backend/internal/app"
+	"luckytv/backend/internal/app"
 	"net/http"
 	"testing"
 )
@@ -10,7 +10,7 @@ func TestReadOnlyRoundHTTPDiscoveryAndWritesCannotBeUpgradedByParams(t *testing.
 	env := newAssistantTestEnv(t, nil)
 	const turn = "abcdef0011223344"
 	env.beginTurn(t, turn, app.AssistantTurnInput{PermissionMode: "read-only"})
-	listed := getOps(t, env, map[string]string{"X-Beeftv-Agent-Token": assistantTestHostToken, "X-Beeftv-Agent-Turn": turn})
+	listed := getOps(t, env, map[string]string{"X-Luckytv-Agent-Token": assistantTestHostToken, "X-Luckytv-Agent-Turn": turn})
 	for _, id := range []string{"canvas.search", "asset.list", "canvas.get", "model.catalog"} {
 		if !listingHas(listed, id) {
 			t.Fatalf("workspace read missing %s", id)
@@ -50,7 +50,7 @@ func TestCanvasRoundHTTPDiscoveryHidesTaskWait(t *testing.T) {
 	env := newAssistantTestEnv(t, nil)
 	const turn = "abcdef0099aabbcc"
 	env.beginTurn(t, turn, app.AssistantTurnInput{PermissionMode: "canvas"})
-	listed := getOps(t, env, map[string]string{"X-Beeftv-Agent-Token": assistantTestHostToken, "X-Beeftv-Agent-Turn": turn})
+	listed := getOps(t, env, map[string]string{"X-Luckytv-Agent-Token": assistantTestHostToken, "X-Luckytv-Agent-Turn": turn})
 	if listingHas(listed, "task.wait") {
 		t.Fatalf("当前画布模式不应向内置模型暴露等待任务操作: %v", listed)
 	}

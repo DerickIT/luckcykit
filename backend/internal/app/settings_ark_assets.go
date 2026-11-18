@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
 
 	"gorm.io/gorm"
 )

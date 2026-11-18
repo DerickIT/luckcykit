@@ -5,13 +5,13 @@ import {
     buildTimelineRangeReplacement,
     compileCharacterReplacementPrompt,
     compileVideoReplacementPrompt,
-} from "../../plugin-packages/beeftv-plugin-character-replacement/client/compiler.js";
+} from "../../plugin-packages/luckytv-plugin-character-replacement/client/compiler.js";
 import {
     arrangeCharacterReplacementOnCanvas,
     spliceReplacedShotsIntoTimeline,
-} from "../../plugin-packages/beeftv-plugin-character-replacement/client/index.js";
+} from "../../plugin-packages/luckytv-plugin-character-replacement/client/index.js";
 
-describe("beeftv-plugin-character-replacement compiler & pipeline", () => {
+describe("luckytv-plugin-character-replacement compiler & pipeline", () => {
     test("compiles regular, positioning (with and without guide image), and manual prompts across all 5 scopes", () => {
         const scopes = ["full-person", "visible-part", "face-hair", "clothing", "arm-hand"] as const;
         for (const scope of scopes) {

@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/operations"
 )
 
 func TestExternalWritePersistenceSurgicalUndoAndDesktopExclusion(t *testing.T) {
@@ -130,8 +130,8 @@ func TestExternalWriteUndoRejectsWhenTouchedNodeModifiedLater(t *testing.T) {
 	store := operations.NewStore(h.service.Database())
 
 	extCaller := operations.ExternalCaller(false)
-	extCaller.ClientID = "beeftv-cli"
-	extCaller.ClientLabel = "beeftv CLI"
+	extCaller.ClientID = "luckytv-cli"
+	extCaller.ClientLabel = "luckytv CLI"
 
 	first, err := h.execute(t, extCaller, "canvas.node.update", "ext-conflict-1", map[string]any{
 		"canvasId":         h.canvasID,
@@ -162,8 +162,8 @@ func TestStaleRevisionConflictDetailsIncludeModifiedNodes(t *testing.T) {
 	staleRev := h.revisionNow(t)
 
 	extCaller := operations.ExternalCaller(false)
-	extCaller.ClientID = "beeftv-mcp"
-	extCaller.ClientLabel = "BeefTV MCP"
+	extCaller.ClientID = "luckytv-mcp"
+	extCaller.ClientLabel = "LuckyTV MCP"
 
 	updated, err := h.execute(t, extCaller, "canvas.node.update", "ext-advance-rev", map[string]any{
 		"canvasId":         h.canvasID,

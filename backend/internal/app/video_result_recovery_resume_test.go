@@ -16,8 +16,8 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
 )
 
 func TestFailedVideoManualRecoveryResumesProviderDownloadCache(t *testing.T) {
@@ -80,7 +80,7 @@ func TestFailedVideoManualRecoveryResumesProviderDownloadCache(t *testing.T) {
 	if err := db.Create(&task).Error; err != nil {
 		t.Fatal(err)
 	}
-	ctx := generation.WithEndpoints(context.Background(), generation.Endpoints{BeefTVVideoBaseURL: gateway.URL})
+	ctx := generation.WithEndpoints(context.Background(), generation.Endpoints{LuckyTVVideoBaseURL: gateway.URL})
 	_, _, err = generation.RunVideoDownload(withProviderAnalytics(ctx, svc, task), "original", generation.VideoPollPolicy{
 		Interval: time.Millisecond, MaxDownloadTries: 1, Sleep: generation.SleepContext,
 	}, func(ctx context.Context) ([]byte, string, error) {

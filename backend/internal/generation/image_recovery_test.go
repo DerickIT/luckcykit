@@ -25,9 +25,9 @@ func (p taggedImagePort) Intercept(*http.Request) (bool, []byte, string, error) 
 	return true, []byte(`{"data":[{"b64_json":"YQ=="}]}`), "application/json", nil
 }
 
-func beefTVImageRequest(ctx context.Context) *http.Request {
+func luckyTVImageRequest(ctx context.Context) *http.Request {
 	ctx = WithImageReplayProtocol(ctx, ImageReplayProtocol)
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, "https://beeftv.app/v1/images/generations", strings.NewReader(`{"prompt":"draw"}`))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, "https://luckytv.app/v1/images/generations", strings.NewReader(`{"prompt":"draw"}`))
 	if err != nil {
 		panic(err)
 	}
@@ -38,35 +38,35 @@ func TestDoBinaryRecoverableImageMissingOwnerSendsZeroHTTP(t *testing.T) {
 	expired, cancel := context.WithTimeout(context.Background(), 0)
 	cancel()
 
-	req := beefTVImageRequest(expired)
+	req := luckyTVImageRequest(expired)
 	_, _, err := DoBinary(req)
 	if !errors.Is(err, ErrImageOwnerMissing) {
 		t.Fatalf("DoBinary() error = %v, want ErrImageOwnerMissing", err)
 	}
 
 	ctx := WithRuntime(expired, taskRuntime())
-	req = beefTVImageRequest(ctx)
+	req = luckyTVImageRequest(ctx)
 	_, _, err = DoBinary(req)
 	if !errors.Is(err, ErrImageOwnerMissing) {
 		t.Fatalf("declined intercept error = %v, want ErrImageOwnerMissing", err)
 	}
 }
 
-func TestBeefTVImageSubmissionKeepsRecoveryOwner(t *testing.T) {
+func TestLuckyTVImageSubmissionKeepsRecoveryOwner(t *testing.T) {
 	ctx, cancel := context.WithCancel(WithImageReplayProtocol(context.Background(), ImageReplayProtocol))
 	cancel()
 	for _, path := range []string{"/v1/images/generations", "/v1/images/edits"} {
-		req, err := http.NewRequestWithContext(ctx, http.MethodPost, "https://beeftv.app"+path, strings.NewReader(`{}`))
+		req, err := http.NewRequestWithContext(ctx, http.MethodPost, "https://luckytv.app"+path, strings.NewReader(`{}`))
 		if err != nil {
 			t.Fatal(err)
 		}
 		if _, _, err = DoBinary(req); !errors.Is(err, ErrImageOwnerMissing) {
-			t.Fatalf("BeefTV %s bypassed recovery owner: %v", path, err)
+			t.Fatalf("LuckyTV %s bypassed recovery owner: %v", path, err)
 		}
 	}
 }
 
-func TestDoBinaryNonBeefTVStillPosts(t *testing.T) {
+func TestDoBinaryNonLuckyTVStillPosts(t *testing.T) {
 	t.Setenv("CANVAS_ALLOW_PRIVATE_UPSTREAMS", "true")
 	var hits atomic.Int32
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -82,7 +82,7 @@ func TestDoBinaryNonBeefTVStillPosts(t *testing.T) {
 	}
 	data, _, err := DoBinary(req)
 	if err != nil || hits.Load() != 1 || !strings.Contains(string(data), "b64_json") {
-		t.Fatalf("non-BeefTV DoBinary: hits=%d err=%v data=%s", hits.Load(), err, data)
+		t.Fatalf("non-LuckyTV DoBinary: hits=%d err=%v data=%s", hits.Load(), err, data)
 	}
 }
 
@@ -101,13 +101,13 @@ func TestParallelImagePortsCannotStealOwner(t *testing.T) {
 		wg.Add(2)
 		go func() {
 			defer wg.Done()
-			if _, _, err := DoBinary(beefTVImageRequest(ctxA)); err != nil {
+			if _, _, err := DoBinary(luckyTVImageRequest(ctxA)); err != nil {
 				failed.Add(1)
 			}
 		}()
 		go func() {
 			defer wg.Done()
-			if _, _, err := DoBinary(beefTVImageRequest(ctxB)); err != nil {
+			if _, _, err := DoBinary(luckyTVImageRequest(ctxB)); err != nil {
 				failed.Add(1)
 			}
 		}()

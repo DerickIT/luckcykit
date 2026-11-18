@@ -5,11 +5,11 @@ import (
 	"errors"
 	"strings"
 
-	"infinite-canvas/backend/internal/depthcapture"
-	"infinite-canvas/backend/internal/editing"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/transcription"
+	"luckytv/backend/internal/depthcapture"
+	"luckytv/backend/internal/editing"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/transcription"
 )
 
 type localExecutorKind struct {
@@ -164,7 +164,7 @@ func (s *Service) CreateTimelineTranscriptionTask(userID string, req TimelineTra
 		Language:       strings.TrimSpace(req.Language),
 	})
 	if req.Model != "" {
-		kind.Provider = "beeftv"
+		kind.Provider = "luckytv"
 		kind.Model = strings.TrimSpace(req.Model)
 	}
 	if err != nil {

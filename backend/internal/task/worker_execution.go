@@ -14,17 +14,17 @@ import (
 	"strings"
 	"time"
 
-	localasset "infinite-canvas/backend/internal/asset"
-	cw "infinite-canvas/backend/internal/canvasworkflow"
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/mediatools"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/outbound"
-	"infinite-canvas/backend/internal/platform"
-	"infinite-canvas/backend/internal/repository"
-	"infinite-canvas/backend/internal/taskruntime"
+	localasset "luckytv/backend/internal/asset"
+	cw "luckytv/backend/internal/canvasworkflow"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/mediatools"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/outbound"
+	"luckytv/backend/internal/platform"
+	"luckytv/backend/internal/repository"
+	"luckytv/backend/internal/taskruntime"
 )
 
 func CanvasMediaDemuxer(mime string) string {
@@ -85,7 +85,7 @@ func ProcessCanvasMedia(
 		if err != nil {
 			return localasset.RecoveredArtifact{}, err
 		}
-		dir, err := os.MkdirTemp("", "beeftv-media-")
+		dir, err := os.MkdirTemp("", "luckytv-media-")
 		if err != nil {
 			return localasset.RecoveredArtifact{}, err
 		}
@@ -521,11 +521,11 @@ func ShouldDeferVideoProviderTask(task model.Task, decryptedInput string, err er
 	if !deferSignal {
 		return false
 	}
-	if input.Config.ChannelID == "" && generation.IsBeefTVVideoConfig(context.Background(), input.Config) {
+	if input.Config.ChannelID == "" && generation.IsLuckyTVVideoConfig(context.Background(), input.Config) {
 		return true
 	}
 	resolved, resolveErr := resolveConfig(input.Config)
-	return resolveErr == nil && (resolved.InterfaceType == string(model.ChannelInterfaceNewAPIChannel2) || generation.IsBeefTVVideoConfig(context.Background(), resolved))
+	return resolveErr == nil && (resolved.InterfaceType == string(model.ChannelInterfaceNewAPIChannel2) || generation.IsLuckyTVVideoConfig(context.Background(), resolved))
 }
 
 func NewAPIChannel2TaskSyncExpired(task model.Task, err error, now time.Time) bool {

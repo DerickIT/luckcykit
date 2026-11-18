@@ -4,12 +4,12 @@ import (
 	"strconv"
 	"strings"
 
-	"infinite-canvas/backend/internal/asset"
-	"infinite-canvas/backend/internal/assets"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/platform"
-	"infinite-canvas/backend/internal/repository"
-	"infinite-canvas/backend/internal/resource"
+	"luckytv/backend/internal/asset"
+	"luckytv/backend/internal/assets"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/platform"
+	"luckytv/backend/internal/repository"
+	"luckytv/backend/internal/resource"
 )
 
 // Host 由组合根注入，避免 canvas → service 回环。

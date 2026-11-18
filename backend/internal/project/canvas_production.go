@@ -5,10 +5,10 @@ import (
 	"strings"
 
 	"gorm.io/gorm"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
+	localtask "luckytv/backend/internal/task"
 )
 
 type CanvasProductionContext struct {

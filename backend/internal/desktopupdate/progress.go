@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"time"
 
-	"infinite-canvas/backend/internal/desktopnet"
+	"luckytv/backend/internal/desktopnet"
 )
 
 const (

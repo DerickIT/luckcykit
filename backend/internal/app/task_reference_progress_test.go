@@ -1,25 +1,25 @@
 package app
 
 import (
-	"infinite-canvas/backend/internal/generation"
+	"luckytv/backend/internal/generation"
 	"sync"
 	"testing"
 )
 
-func TestReferenceProgressIsBoundToBeefTVTaskAndCleared(t *testing.T) {
+func TestReferenceProgressIsBoundToLuckyTVTaskAndCleared(t *testing.T) {
 	s := &Service{}
-	port := s.newReferenceProgressPort("beeftv-task")
+	port := s.newReferenceProgressPort("luckytv-task")
 	port.ReportReference(generation.ReferenceProgress{Label: "参考视频 1", Phase: "transferring", LoadedBytes: 512, TotalBytes: 2048})
 	if s.referenceProgressForTask("supplier-task") != nil {
 		t.Fatal("progress leaked to another task")
 	}
-	got := s.referenceProgressForTask("beeftv-task")
+	got := s.referenceProgressForTask("luckytv-task")
 	if got == nil || got.LoadedBytes != 512 {
 		t.Fatal("progress missing")
 	}
 	port.ClearReference()
 	port.ReportReference(generation.ReferenceProgress{LoadedBytes: 1024})
-	if s.referenceProgressForTask("beeftv-task") != nil {
+	if s.referenceProgressForTask("luckytv-task") != nil {
 		t.Fatal("completed upload retained stale progress")
 	}
 }

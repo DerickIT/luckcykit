@@ -19,7 +19,7 @@ import (
 	"sync"
 	"time"
 
-	"infinite-canvas/backend/internal/outbound"
+	"luckytv/backend/internal/outbound"
 )
 
 //go:embed market_skills.json

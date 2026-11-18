@@ -11,7 +11,7 @@ import zipfile
 
 
 def smoke(archive):
-    with tempfile.TemporaryDirectory(prefix="beeftv-linux-smoke-") as directory:
+    with tempfile.TemporaryDirectory(prefix="luckytv-linux-smoke-") as directory:
         root = Path(directory)
         with zipfile.ZipFile(archive) as bundle:
             for item in bundle.infolist():
@@ -21,9 +21,9 @@ def smoke(archive):
                 bundle.extract(item, root)
                 if target.is_file():
                     target.chmod((item.external_attr >> 16) & 0o777)
-        app = root / "BeefTV-linux" / "BeefTV"
+        app = root / "LuckyTV-linux" / "LuckyTV"
         data = root / "isolated data"
-        env = {k: v for k, v in os.environ.items() if not k.startswith(("CANVAS_", "BEEFTV_"))}
+        env = {k: v for k, v in os.environ.items() if not k.startswith(("CANVAS_", "LUCKYTV_"))}
         # CI has no GPU; the WebView uses software rendering under Xvfb.
         env["LIBGL_ALWAYS_SOFTWARE"] = "1"
         with (root / "desktop.log").open("w+") as log:
@@ -35,7 +35,7 @@ def smoke(archive):
                         log.seek(0)
                         raise RuntimeError("desktop exited: " + log.read()[-4000:])
                     descriptor = data / "runtime.json"
-                    window = subprocess.run(["xdotool", "search", "--onlyvisible", "--name", "^BeefTV$"], capture_output=True, text=True)
+                    window = subprocess.run(["xdotool", "search", "--onlyvisible", "--name", "^LuckyTV$"], capture_output=True, text=True)
                     if descriptor.exists() and window.returncode == 0:
                         info = json.loads(descriptor.read_text())
                         if info["pid"] != process.pid:

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 // ErrLeaseLost 表示当前执行者已失去槽位或任务租约。运行时不得把这次执行写成成功，

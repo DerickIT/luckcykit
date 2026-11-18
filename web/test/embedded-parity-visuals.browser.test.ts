@@ -55,7 +55,7 @@ afterAll(async () => {
 }, 30_000);
 
 async function capture(name: string) {
-    const directory = process.env.BEEFTV_PARITY_SCREENSHOTS_DIR;
+    const directory = process.env.LUCKYTV_PARITY_SCREENSHOTS_DIR;
     if (!directory) return;
     mkdirSync(directory, { recursive: true });
     await page.screenshot({ path: `${directory}/${name}.png`, fullPage: true });

@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
-	"infinite-canvas/backend/internal/taskruntime"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
+	"luckytv/backend/internal/taskruntime"
 )
 
 const newAPIChannel2TaskSyncMaxAge = localtask.NewAPIChannel2TaskSyncMaxAge

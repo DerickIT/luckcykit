@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/kernel"
+	"luckytv/backend/internal/kernel"
 )
 
 func NormalizedUploadKey(values []string) *string {

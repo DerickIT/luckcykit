@@ -17,7 +17,7 @@ const deferred = () => { let resolve; const promise = new Promise(done => { reso
 // Real official provider adapter, Durable SQLite/scheduler and operation bridge.
 // Only the model and Go HTTP business boundary are local, synthetic stand-ins.
 async function fixture(t, { calls = [propose], reject = false, isError = false, beforeProposal, completeTurn, onRequest } = {}) {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-proposal-yield-'));
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-proposal-yield-'));
   const state = { posts: [], issued: 0, revision: 1, completions: [], models: [] };
   const server = createServer(async (req, res) => {
     res.setHeader('content-type', 'application/json');
@@ -34,7 +34,7 @@ async function fixture(t, { calls = [propose], reject = false, isError = false, 
       await beforeProposal?.();
       if (reject) { res.writeHead(412); res.end(JSON.stringify({ code: 412, reason: 'generation_dependencies_not_ready', msg: 'Reference is not ready' })); return; }
       res.end(JSON.stringify({ code: 0, data: { result: { proposalId: `gp-${++state.issued}`, kind: 'image', nodeIds: body.params.nodeIds,
-        model: 'fixture', modelKey: 'beeftv::fixture', note: 'Confirm the next batch',
+        model: 'fixture', modelKey: 'luckytv::fixture', note: 'Confirm the next batch',
         source: { canvasId: 'canvas', canvasRevision: state.revision, modelConfigRevision: 1 } } } })); return;
     }
     assert.equal(req.url, '/ops/canvas.node.configure');

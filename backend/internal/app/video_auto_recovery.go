@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"infinite-canvas/backend/internal/mediaattempt"
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/mediaattempt"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
 )
 
 const (
@@ -52,15 +52,15 @@ func (s *Service) withFailedVideoRecoveryLease(task *model.Task, claimUserID str
 }
 
 func (s *Service) recordMissingVideoReceiptOutcome(task *model.Task, claimUserID string) {
-	localtask.RecordMissingVideoReceiptOutcome(s.repo, newID, beefTVOwnsVideoConclusion, videoRecoveryPollBackoff, task, claimUserID)
+	localtask.RecordMissingVideoReceiptOutcome(s.repo, newID, luckyTVOwnsVideoConclusion, videoRecoveryPollBackoff, task, claimUserID)
 }
 
 func (s *Service) recordUnrecoverableVideoOutcome(task *model.Task, claimUserID string) {
-	localtask.RecordFailedVideoRecoveryOutcome(s.repo, newID, beefTVOwnsVideoConclusion, videoRecoveryPollBackoff, task, claimUserID, localtask.RecoveryUnrecoverable)
+	localtask.RecordFailedVideoRecoveryOutcome(s.repo, newID, luckyTVOwnsVideoConclusion, videoRecoveryPollBackoff, task, claimUserID, localtask.RecoveryUnrecoverable)
 }
 
 func (s *Service) recordFailedVideoRecoveryOutcome(task *model.Task, claimUserID, outcome string) {
-	localtask.RecordFailedVideoRecoveryOutcome(s.repo, newID, beefTVOwnsVideoConclusion, videoRecoveryPollBackoff, task, claimUserID, outcome)
+	localtask.RecordFailedVideoRecoveryOutcome(s.repo, newID, luckyTVOwnsVideoConclusion, videoRecoveryPollBackoff, task, claimUserID, outcome)
 }
 
 func classifyFailedVideoQueryOutcome(task model.Task, providerStatus string, err error) string {
@@ -73,8 +73,8 @@ func videoRecoveryNeedsPolling(task model.Task) bool {
 func videoTaskPastRetentionWindow(task model.Task, now time.Time) bool {
 	return mediaattempt.VideoTaskPastRetentionWindow(task, now)
 }
-func beefTVOwnsVideoConclusion(task model.Task, now time.Time) bool {
-	return mediaattempt.BeefTVOwnsVideoConclusion(task, now)
+func luckyTVOwnsVideoConclusion(task model.Task, now time.Time) bool {
+	return mediaattempt.LuckyTVOwnsVideoConclusion(task, now)
 }
 func (s *Service) deferManagedVideoQuery(task *model.Task, user string) {
 	localtask.DeferManagedVideoQuery(s.repo, newID, videoRecoveryPollBackoff, task, user)

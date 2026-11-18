@@ -43,7 +43,7 @@ export function CanvasFolderCard({ project, projectName, folders = [], onMoveToF
 
     useEffect(() => {
         let active = true;
-        const coverKey = `beeftv-project-cover:${project.id}`;
+        const coverKey = `luckytv-project-cover:${project.id}`;
         const storage = localForageStorageForScope();
         void Promise.resolve(storage.getItem(coverKey))
             .then((indexedCover) => {
@@ -96,7 +96,7 @@ export function CanvasFolderCard({ project, projectName, folders = [], onMoveToF
                 canvas.height = Math.max(1, Math.round(image.height * scale));
                 canvas.getContext("2d")?.drawImage(image, 0, 0, canvas.width, canvas.height);
                 const dataUrl = canvas.toDataURL("image/jpeg", 0.84);
-                const coverKey = `beeftv-project-cover:${project.id}`;
+                const coverKey = `luckytv-project-cover:${project.id}`;
                 setCoverUrl(dataUrl);
                 void Promise.resolve(localForageStorageForScope().setItem(coverKey, dataUrl))
                     .then(() => {

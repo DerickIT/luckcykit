@@ -17,8 +17,8 @@ import (
 )
 
 const (
-	PluginPackageFormat    = "beeftv.plugin/package-v1"
-	PluginPackageExtension = ".beeftv-plugin"
+	PluginPackageFormat    = "luckytv.plugin/package-v1"
+	PluginPackageExtension = ".luckytv-plugin"
 	PluginPackageMaxBytes  = 48 << 20
 	PluginManifestMaxBytes = 512 << 10
 	pluginPackageMaxFiles  = 256
@@ -177,7 +177,7 @@ func validateManifestClientPath(raw string) error {
 }
 
 // ParsePluginPackageDir reads an unpacked npm/pi plugin directory containing a
-// package.json with a "beeftv" manifest block.
+// package.json with a "luckytv" manifest block.
 func ParsePluginPackageDir(rootDir string) (PluginPackage, error) {
 	trimmedRoot := strings.TrimSpace(rootDir)
 	if trimmedRoot == "" {
@@ -200,32 +200,32 @@ func ParsePluginPackageDir(rootDir string) (PluginPackage, error) {
 			Extensions []string `json:"extensions"`
 			Skills     []string `json:"skills"`
 		} `json:"pi"`
-		BeefTV json.RawMessage `json:"beeftv"`
+		LuckyTV json.RawMessage `json:"luckytv"`
 	}
 	if err := json.Unmarshal(pkgJSONBytes, &pkgJSON); err != nil {
 		return PluginPackage{}, fmt.Errorf("decode package.json: %w", err)
 	}
-	// A plain pi package (assistant tools and skills only) has no beeftv field;
-	// it installs with an empty BeefTV manifest and its pi resources.
-	beeftvRaw := bytes.TrimSpace(pkgJSON.BeefTV)
-	if len(beeftvRaw) == 0 || string(beeftvRaw) == "null" {
-		beeftvRaw = []byte("{}")
+	// A plain pi package (assistant tools and skills only) has no luckytv field;
+	// it installs with an empty LuckyTV manifest and its pi resources.
+	luckytvRaw := bytes.TrimSpace(pkgJSON.LuckyTV)
+	if len(luckytvRaw) == 0 || string(luckytvRaw) == "null" {
+		luckytvRaw = []byte("{}")
 	}
-	if beeftvRaw[0] != '{' {
-		return PluginPackage{}, fmt.Errorf("package.json beeftv must be an object")
+	if luckytvRaw[0] != '{' {
+		return PluginPackage{}, fmt.Errorf("package.json luckytv must be an object")
 	}
 	var manifest Manifest
-	if err := json.Unmarshal(beeftvRaw, &manifest); err != nil {
-		return PluginPackage{}, fmt.Errorf("decode package.json beeftv manifest: %w", err)
+	if err := json.Unmarshal(luckytvRaw, &manifest); err != nil {
+		return PluginPackage{}, fmt.Errorf("decode package.json luckytv manifest: %w", err)
 	}
-	var beeftvExtra struct {
+	var luckytvExtra struct {
 		DisplayName string `json:"displayName"`
 		Author      any    `json:"author"`
 	}
-	_ = json.Unmarshal(beeftvRaw, &beeftvExtra)
+	_ = json.Unmarshal(luckytvRaw, &luckytvExtra)
 
 	if strings.TrimSpace(manifest.APIVersion) == "" {
-		manifest.APIVersion = "beeftv.plugin/v3"
+		manifest.APIVersion = "luckytv.plugin/v3"
 	}
 	if strings.TrimSpace(manifest.Metadata.ID) == "" {
 		manifest.Metadata.ID = PackageIDFromName(pkgJSON.Name)
@@ -234,13 +234,13 @@ func ParsePluginPackageDir(rootDir string) (PluginPackage, error) {
 		manifest.Metadata.Version = strings.TrimSpace(pkgJSON.Version)
 	}
 	if strings.TrimSpace(manifest.Metadata.Name) == "" {
-		manifest.Metadata.Name = firstNonEmptyText(beeftvExtra.DisplayName, pkgJSON.Name, manifest.Metadata.ID)
+		manifest.Metadata.Name = firstNonEmptyText(luckytvExtra.DisplayName, pkgJSON.Name, manifest.Metadata.ID)
 	}
 	if strings.TrimSpace(manifest.Metadata.Description) == "" {
 		manifest.Metadata.Description = strings.TrimSpace(pkgJSON.Description)
 	}
 	if strings.TrimSpace(manifest.Metadata.Vendor) == "" {
-		manifest.Metadata.Vendor = firstNonEmptyText(extractPackageAuthor(beeftvExtra.Author), extractPackageAuthor(pkgJSON.Author))
+		manifest.Metadata.Vendor = firstNonEmptyText(extractPackageAuthor(luckytvExtra.Author), extractPackageAuthor(pkgJSON.Author))
 	}
 	if strings.TrimSpace(manifest.Metadata.Documentation) == "" {
 		if readmeBytes, err := os.ReadFile(filepath.Join(absRoot, "README.md")); err == nil {
@@ -331,7 +331,7 @@ func ParsePluginPackageDir(rootDir string) (PluginPackage, error) {
 }
 
 // PackageIDFromName derives a plugin ID from an npm package name when the
-// package does not set beeftv.id: "@scope/name" becomes "scope-name", so two
+// package does not set luckytv.id: "@scope/name" becomes "scope-name", so two
 // scopes publishing the same name never replace each other.
 func PackageIDFromName(raw string) string {
 	trimmed := strings.TrimSpace(raw)

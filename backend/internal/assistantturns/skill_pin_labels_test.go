@@ -4,9 +4,9 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/assistantturns"
-	"infinite-canvas/backend/internal/repository"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/assistantturns"
+	"luckytv/backend/internal/repository"
+	"luckytv/backend/internal/skills"
 )
 
 func TestTurnSkillPinLabelsPersistIntoHistory(t *testing.T) {

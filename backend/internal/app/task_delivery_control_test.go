@@ -15,9 +15,9 @@ import (
 	"time"
 
 	"gorm.io/gorm"
-	"infinite-canvas/backend/internal/diagnostics"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/supporttrace"
+	"luckytv/backend/internal/diagnostics"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/supporttrace"
 )
 
 func TestGenerationDownloadCanPauseAndResumeWithoutRegenerating(t *testing.T) {

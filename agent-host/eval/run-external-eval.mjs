@@ -1,9 +1,9 @@
 // 外部 Agent 评测驱动：用同一套 S1–S11 场景和判分，让 Claude Code / Codex / DSH headless 通过
-// `beeftv mcp serve` 操作同一个内存版 Go 权威（sim-go），和内置助手的结果直接对比。
+// `luckytv mcp serve` 操作同一个内存版 Go 权威（sim-go），和内置助手的结果直接对比。
 //
 // 和内置评测（run-eval.mjs）的差别只在「谁来回答」：
 // - 每个用户回合启动一次外部 CLI（第二轮起接着上一轮的会话），MCP 指向 sim-go；
-// - sim-go 前面放一个转发层，把当前回合 ID 写进 x-beeftv-agent-turn 头，
+// - sim-go 前面放一个转发层，把当前回合 ID 写进 x-luckytv-agent-turn 头，
 //   这样 opLog 能按回合归属，S8–S11 等按回合判分的检查照常可用；
 // - 外部 Agent 拿到的只有 MCP 工具和装好的画布技能，没有制作摘要、计划或技能 pin。
 //   技能 pin 用一句话告诉它版本号，相当于用户在对话里说「我选了这个技能」。
@@ -11,8 +11,8 @@
 // 宿主专属能力（中途插话 steer、生成完成后自动唤醒）外部 Agent 没有，对应场景标记为不适用。
 //
 // 用法（真实模型，花费记在 report.json）：
-//   BEEFTV_EVAL_AGENT=claude ANTHROPIC_BASE_URL=... ANTHROPIC_API_KEY=... BEEFTV_EVAL_AGENT_MODEL=... \
-//   BEEFTV_CLI=/path/to/beeftv bun eval/run-external-eval.mjs --scenario S1,S8 --out /tmp/ext-eval
+//   LUCKYTV_EVAL_AGENT=claude ANTHROPIC_BASE_URL=... ANTHROPIC_API_KEY=... LUCKYTV_EVAL_AGENT_MODEL=... \
+//   LUCKYTV_CLI=/path/to/luckytv bun eval/run-external-eval.mjs --scenario S1,S8 --out /tmp/ext-eval
 //
 // 预算：加 --budget-cny <元> 时，每轮开始前按已累计费用检查；设了预算就必须有非 0 单价。
 
@@ -34,7 +34,7 @@ import { parseSimCapabilities, applySimCapabilities, waitForCanvasTasks } from '
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, '..', '..');
-const canvasSkillDir = path.join(repoRoot, 'plugins', 'beeftv-skills', 'skills', 'beeftv-canvas');
+const canvasSkillDir = path.join(repoRoot, 'plugins', 'luckytv-skills', 'skills', 'luckytv-canvas');
 
 // 只靠宿主才有的能力判分的场景：外部 Agent 没有这些入口，不计入对比。
 const HOST_ONLY = new Map([
@@ -72,7 +72,7 @@ export function readEvalPrices(source = process.env) {
     if (!Number.isFinite(value)) throw new Error(`${name} 必须是数字（元/百万 token），收到: ${raw}`);
     return value;
   };
-  return { input: read('BEEFTV_EVAL_PRICE_IN') ?? 0, cache: read('BEEFTV_EVAL_PRICE_CACHE'), output: read('BEEFTV_EVAL_PRICE_OUT') ?? 0 };
+  return { input: read('LUCKYTV_EVAL_PRICE_IN') ?? 0, cache: read('LUCKYTV_EVAL_PRICE_CACHE'), output: read('LUCKYTV_EVAL_PRICE_OUT') ?? 0 };
 }
 
 // sim-go 前的转发层：补上回合头，并把 MCP 启动时会读的 /business/tools 回一个空列表。
@@ -86,7 +86,7 @@ function startTurnProxy(simGo) {
       return;
     }
     const headers = { ...req.headers, host: target.host };
-    if (state.turnId) headers['x-beeftv-agent-turn'] = state.turnId;
+    if (state.turnId) headers['x-luckytv-agent-turn'] = state.turnId;
     const upstream = http.request({ hostname: target.hostname, port: target.port, path: req.url, method: req.method, headers }, (up) => {
       res.writeHead(up.statusCode || 502, up.headers);
       up.pipe(res);
@@ -105,31 +105,31 @@ function startTurnProxy(simGo) {
 
 function skillPinNote(pin) {
   if (!pin) return '';
-  return `（我在 BeefTV 里选了技能 ${pin.skillId}，版本 versionId=${pin.versionId}，contentHash=${pin.contentHash}。需要时用 skill.get 读取它并照着做。）\n`;
+  return `（我在 LuckyTV 里选了技能 ${pin.skillId}，版本 versionId=${pin.versionId}，contentHash=${pin.contentHash}。需要时用 skill.get 读取它并照着做。）\n`;
 }
 
 // 外部 CLI 的隔离配置目录：只放画布技能和 MCP 配置，不碰真实的 ~/.claude 或 ~/.codex。
 // cleanup() 删除整个目录：里面有 owner token 的 MCP 配置，不能留在临时目录里。
 export function prepareAgentHome(kind, workDir, mcpEnv) {
-  const home = fs.mkdtempSync(path.join(os.tmpdir(), `beeftv-ext-${kind}-`));
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), `luckytv-ext-${kind}-`));
   const cleanup = () => fs.rmSync(home, { recursive: true, force: true });
   try {
-    const skillTarget = path.join(home, 'skills', 'beeftv-canvas');
+    const skillTarget = path.join(home, 'skills', 'luckytv-canvas');
     fs.mkdirSync(skillTarget, { recursive: true });
     fs.copyFileSync(path.join(canvasSkillDir, 'SKILL.md'), path.join(skillTarget, 'SKILL.md'));
-    const cli = process.env.BEEFTV_CLI || 'beeftv';
+    const cli = process.env.LUCKYTV_CLI || 'luckytv';
     if (kind === 'claude') {
       const mcpPath = path.join(home, 'mcp.json');
-      fs.writeFileSync(mcpPath, JSON.stringify({ mcpServers: { beeftv: { command: cli, args: ['mcp', 'serve'], env: mcpEnv } } }));
+      fs.writeFileSync(mcpPath, JSON.stringify({ mcpServers: { luckytv: { command: cli, args: ['mcp', 'serve'], env: mcpEnv } } }));
       return { home, mcpPath, cleanup };
     }
     const envLines = Object.entries(mcpEnv).map(([k, v]) => `${k} = ${JSON.stringify(v)}`).join('\n');
-    // 走 OpenAI 兼容网关时（BEEFTV_EVAL_CODEX_BASE_URL），用 Responses 接口和环境变量里的 Key。
-    const gateway = process.env.BEEFTV_EVAL_CODEX_BASE_URL
-      ? `model_provider = "eval"\n[model_providers.eval]\nname = "eval"\nbase_url = ${JSON.stringify(process.env.BEEFTV_EVAL_CODEX_BASE_URL)}\nenv_key = "BEEFTV_EVAL_CODEX_API_KEY"\nwire_api = "responses"\n`
+    // 走 OpenAI 兼容网关时（LUCKYTV_EVAL_CODEX_BASE_URL），用 Responses 接口和环境变量里的 Key。
+    const gateway = process.env.LUCKYTV_EVAL_CODEX_BASE_URL
+      ? `model_provider = "eval"\n[model_providers.eval]\nname = "eval"\nbase_url = ${JSON.stringify(process.env.LUCKYTV_EVAL_CODEX_BASE_URL)}\nenv_key = "LUCKYTV_EVAL_CODEX_API_KEY"\nwire_api = "responses"\n`
       : '';
-    // 只读沙箱下，没标只读的 MCP 工具默认被拒；BeefTV 工具单独放行（只连着模拟器），其余照旧锁住。
-    fs.writeFileSync(path.join(home, 'config.toml'), `${gateway}[mcp_servers.beeftv]\ncommand = ${JSON.stringify(cli)}\nargs = ["mcp", "serve"]\ndefault_tools_approval_mode = "approve"\n[mcp_servers.beeftv.env]\n${envLines}\n`);
+    // 只读沙箱下，没标只读的 MCP 工具默认被拒；LuckyTV 工具单独放行（只连着模拟器），其余照旧锁住。
+    fs.writeFileSync(path.join(home, 'config.toml'), `${gateway}[mcp_servers.luckytv]\ncommand = ${JSON.stringify(cli)}\nargs = ["mcp", "serve"]\ndefault_tools_approval_mode = "approve"\n[mcp_servers.luckytv.env]\n${envLines}\n`);
     return { home, cleanup };
   } catch (error) {
     // mkdtemp 之后的准备步骤失败时调用方拿不到 cleanup，这里必须先删掉含 owner token 的临时目录。
@@ -143,7 +143,7 @@ const PASSTHROUGH_ENV = ['PATH', 'LANG', 'LC_ALL', 'TMPDIR', 'TERM', 'SSL_CERT_F
 export function agentEnv(kind, home, source = process.env) {
   const env = { HOME: home };
   for (const key of PASSTHROUGH_ENV) if (source[key]) env[key] = source[key];
-  const prefixes = kind === 'claude' ? ['ANTHROPIC_'] : ['BEEFTV_EVAL_CODEX_', 'OPENAI_'];
+  const prefixes = kind === 'claude' ? ['ANTHROPIC_'] : ['LUCKYTV_EVAL_CODEX_', 'OPENAI_'];
   for (const [key, value] of Object.entries(source)) if (prefixes.some((p) => key.startsWith(p))) env[key] = value;
   if (kind === 'claude') env.CLAUDE_CONFIG_DIR = home; else env.CODEX_HOME = home;
   return env;
@@ -180,10 +180,10 @@ function runProcess(cmd, args, { env, cwd, timeoutMs, input, isDone = () => fals
 
 // 一个用户回合 = 一次 CLI 调用。返回内置评测同样形状的回合记录，外加用量。
 async function runClaudeTurn({ agent, message, sessionId, resume, timeoutMs }) {
-  // 只留技能加载和 BeefTV 工具：不让它读写本机文件或跑命令，和一键接入后的实际用法一致。
+  // 只留技能加载和 LuckyTV 工具：不让它读写本机文件或跑命令，和一键接入后的实际用法一致。
   const args = ['-p', '--output-format', 'json', '--mcp-config', agent.mcpPath, '--strict-mcp-config',
-    '--tools', 'Skill', '--allowedTools', 'Skill,mcp__beeftv', '--permission-mode', 'bypassPermissions'];
-  if (process.env.BEEFTV_EVAL_AGENT_MODEL) args.push('--model', process.env.BEEFTV_EVAL_AGENT_MODEL);
+    '--tools', 'Skill', '--allowedTools', 'Skill,mcp__luckytv', '--permission-mode', 'bypassPermissions'];
+  if (process.env.LUCKYTV_EVAL_AGENT_MODEL) args.push('--model', process.env.LUCKYTV_EVAL_AGENT_MODEL);
   args.push(resume ? '--resume' : '--session-id', sessionId);
   const env = agentEnv('claude', agent.home);
   const result = await runProcess('claude', args, { env, cwd: agent.workDir, timeoutMs, input: message });
@@ -200,11 +200,11 @@ async function runClaudeTurn({ agent, message, sessionId, resume, timeoutMs }) {
 }
 
 async function runCodexTurn({ agent, message, sessionId, resume, timeoutMs }) {
-  // 关掉命令行、浏览器、电脑操作和应用连接，只留 BeefTV 的 MCP 工具；沙箱只读，审批一律不弹。
+  // 关掉命令行、浏览器、电脑操作和应用连接，只留 LuckyTV 的 MCP 工具；沙箱只读，审批一律不弹。
   // 用 -c 设沙箱：exec resume 不认 --sandbox，两种调用要用同一组参数。
   const base = ['--skip-git-repo-check', '--json', '-c', 'sandbox_mode="read-only"', '-c', 'approval_policy="never"',
     '--disable', 'shell_tool', '--disable', 'browser_use', '--disable', 'computer_use', '--disable', 'in_app_browser', '--disable', 'apps'];
-  if (process.env.BEEFTV_EVAL_AGENT_MODEL) base.push('-m', process.env.BEEFTV_EVAL_AGENT_MODEL);
+  if (process.env.LUCKYTV_EVAL_AGENT_MODEL) base.push('-m', process.env.LUCKYTV_EVAL_AGENT_MODEL);
   const args = resume ? ['exec', 'resume', ...base, sessionId, '-'] : ['exec', ...base, '-'];
   const env = agentEnv('codex', agent.home);
   const result = await runProcess('codex', args, { env, cwd: agent.workDir, timeoutMs, input: message, isDone: (out) => out.includes('"type":"turn.completed"') || out.includes('"type":"turn.failed"') });
@@ -359,10 +359,10 @@ export function summarizeUsage(results, scoredRuns, { prices = {}, budget = null
 }
 
 export async function runExternalEval(options = {}) {
-  const kind = options.agent || process.env.BEEFTV_EVAL_AGENT || 'claude';
-  if (!['claude', 'codex', 'dsh'].includes(kind)) throw new Error('BEEFTV_EVAL_AGENT 只能是 claude、codex 或 dsh');
+  const kind = options.agent || process.env.LUCKYTV_EVAL_AGENT || 'claude';
+  if (!['claude', 'codex', 'dsh'].includes(kind)) throw new Error('LUCKYTV_EVAL_AGENT 只能是 claude、codex 或 dsh');
   const scenarios = resolveScenarioList(options.scenario || 'all');
-  const outDir = path.resolve(options.out || fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-ext-eval-')));
+  const outDir = path.resolve(options.out || fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-ext-eval-')));
   fs.mkdirSync(outDir, { recursive: true });
 
   // 预算与单价在任何模型调用之前校验：设了预算却没有有效单价时直接报错，不按 0 算。
@@ -376,7 +376,7 @@ export async function runExternalEval(options = {}) {
   applySimCapabilities(simGo, simCapabilities);
   await simGo.listen(0);
   const proxy = await startTurnProxy(simGo);
-  const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-ext-work-'));
+  const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-ext-work-'));
   let agent = null;
   let runTurn = null;
   const results = [];
@@ -409,11 +409,11 @@ export async function runExternalEval(options = {}) {
         workDir,
         baseUrl: proxy.baseUrl,
         ownerToken,
-        cli: process.env.BEEFTV_CLI || 'beeftv',
-        bin: process.env.BEEFTV_EVAL_DSH_BIN || 'dsh',
-        model: process.env.BEEFTV_EVAL_AGENT_MODEL,
+        cli: process.env.LUCKYTV_CLI || 'luckytv',
+        bin: process.env.LUCKYTV_EVAL_DSH_BIN || 'dsh',
+        model: process.env.LUCKYTV_EVAL_AGENT_MODEL,
       })
-      : { ...prepareAgentHome(kind, workDir, { BEEFTV_BASE_URL: proxy.baseUrl, BEEFTV_OWNER_TOKEN: ownerToken }), workDir, meta: { model: process.env.BEEFTV_EVAL_AGENT_MODEL || '(cli default)' } };
+      : { ...prepareAgentHome(kind, workDir, { LUCKYTV_BASE_URL: proxy.baseUrl, LUCKYTV_OWNER_TOKEN: ownerToken }), workDir, meta: { model: process.env.LUCKYTV_EVAL_AGENT_MODEL || '(cli default)' } };
     runTurn = kind === 'claude' ? runClaudeTurn : kind === 'codex' ? runCodexTurn : runDshTurn;
     for (let runIdx = 1; runIdx <= (options.runs || 1); runIdx++) {
       for (const scenario of scenarios) {
@@ -567,7 +567,7 @@ export async function runExternalEval(options = {}) {
     generatedAt: new Date().toISOString(),
     agent: kind,
     withDigest: Boolean(options.withDigest),
-    model: process.env.BEEFTV_EVAL_AGENT_MODEL || agent?.meta?.model || '(cli default)',
+    model: process.env.LUCKYTV_EVAL_AGENT_MODEL || agent?.meta?.model || '(cli default)',
     meta: {
       pricesCnyPerMillion: effectivePrices,
       cachePriceSource: budget.cachePriceSource,

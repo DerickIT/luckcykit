@@ -11,11 +11,11 @@ beforeAll(async () => {
   const clientPath = fileURLToPath(new URL('./client.js', import.meta.url))
   const webDir = fileURLToPath(new URL('.', import.meta.url))
   const build = await Bun.build({
-    entrypoints: ['beeftv-client-harness'],
+    entrypoints: ['luckytv-client-harness'],
     target: 'browser',
     define: { 'process.env.NODE_ENV': '"production"' },
     plugins: [{ name: 'client-harness', setup(builder) {
-      builder.onResolve({ filter: /^beeftv-client-harness$/ }, () => ({ path: 'entry', namespace: 'harness' }))
+      builder.onResolve({ filter: /^luckytv-client-harness$/ }, () => ({ path: 'entry', namespace: 'harness' }))
       builder.onLoad({ filter: /.*/, namespace: 'harness' }, () => ({
         loader: 'js',
         resolveDir: webDir,
@@ -88,7 +88,7 @@ beforeAll(async () => {
   server = Bun.serve({ port: 0, hostname: '127.0.0.1', fetch(request) {
     const path = new URL(request.url).pathname
     if (path === '/client.js') return new Response(script, { headers: { 'content-type': 'text/javascript' } })
-    if (path.startsWith('/workspace/')) return new Response(embeddedDocument('<html><head></head><body style="margin:0"><div class="canvas-topbar" style="position:absolute;inset:0 0 auto;display:flex;height:48px;box-sizing:border-box"><button>Canvas menu</button></div><div class="app-user-workspace"><button class="app-workspace-floating-menu" style="position:absolute;top:60px">Page menu</button></div><main style="position:absolute;top:120px;left:0;width:100%">Workspace</main></body></html>', '/beeftv/app/fixture'), { headers: { 'content-type': 'text/html' } })
+    if (path.startsWith('/workspace/')) return new Response(embeddedDocument('<html><head></head><body style="margin:0"><div class="canvas-topbar" style="position:absolute;inset:0 0 auto;display:flex;height:48px;box-sizing:border-box"><button>Canvas menu</button></div><div class="app-user-workspace"><button class="app-workspace-floating-menu" style="position:absolute;top:60px">Page menu</button></div><main style="position:absolute;top:120px;left:0;width:100%">Workspace</main></body></html>', '/luckytv/app/fixture'), { headers: { 'content-type': 'text/html' } })
     return new Response('<html><style>html,body,#root{height:100%;margin:0}body{--dsw-font-family:system-ui;--dsw-alias-bg-base:#fff;--dsw-alias-label-primary:#171717;--dsw-alias-label-secondary:#555;--dsw-alias-label-tertiary:#777;--dsw-alias-border-l2:#ddd}</style><div id="root"></div><script type="module" src="/client.js"></script></html>', { headers: { 'content-type': 'text/html' } })
   } })
   const executablePath = [process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH, process.env.CHROME_PATH, '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', '/usr/bin/google-chrome', '/usr/bin/chromium', '/usr/bin/chromium-browser'].find(path => path && existsSync(path))
@@ -108,30 +108,30 @@ async function openWorkbench(options: { hidden?: boolean; clock?: boolean; init?
   const prompts: Array<Record<string, any>> = []
   const settings: Array<Record<string, any>> = []
   const notices: Array<Record<string, any>> = []
-  await page.route('**/beeftv/status', async route => {
+  await page.route('**/luckytv/status', async route => {
     reads += 1
     await route.fulfill({ json: status })
   })
-  await page.route('**/beeftv/context', async route => {
+  await page.route('**/luckytv/context', async route => {
     contexts.push(route.request().postDataJSON())
     await route.fulfill({ json: { ok: true } })
   })
-  await page.route('**/beeftv/local-prompt', async route => {
+  await page.route('**/luckytv/local-prompt', async route => {
     prompts.push(route.request().postDataJSON())
     status = { ...status, localPromptDismissed: true }
     await route.fulfill({ json: status })
   })
-  await page.route('**/beeftv/settings', async route => {
+  await page.route('**/luckytv/settings', async route => {
     settings.push(route.request().postDataJSON())
     status = { ...status, ...route.request().postDataJSON() }
     await route.fulfill({ json: status })
   })
-  await page.route('**/beeftv/away-notice', async route => {
+  await page.route('**/luckytv/away-notice', async route => {
     notices.push({ path: 'away-notice', ...route.request().postDataJSON() })
     status = { ...status, awayNotice: null }
     await route.fulfill({ json: status })
   })
-  await page.route('**/beeftv/step-notice', async route => {
+  await page.route('**/luckytv/step-notice', async route => {
     notices.push({ path: 'step-notice', ...route.request().postDataJSON() })
     status = { ...status, stepNotice: null }
     await route.fulfill({ json: status })
@@ -148,7 +148,7 @@ function workspaceFrame(page: Page) {
 
 async function sendAsk(page: Page, ask: Record<string, any>) {
   const workspace = workspaceFrame(page)
-  await workspace.evaluate(message => parent.postMessage(message, location.origin), { type: 'beeftv:ask', ask })
+  await workspace.evaluate(message => parent.postMessage(message, location.origin), { type: 'luckytv:ask', ask })
   await workspace.waitForFunction(() => (window as any).askResult !== undefined)
   const result = await workspace.evaluate(() => (window as any).askResult)
   await workspace.evaluate(() => { (window as any).askResult = undefined })
@@ -159,23 +159,23 @@ async function listenAskResults(page: Page) {
   await workspaceFrame(page).evaluate(() => {
     (window as any).askResult = undefined
     window.addEventListener('message', event => {
-      if ((event.data as any)?.type === 'beeftv:ask-result') (window as any).askResult = (event.data as any).status
+      if ((event.data as any)?.type === 'luckytv:ask-result') (window as any).askResult = (event.data as any).status
     })
   })
 }
 
 async function refresh(page: Page) {
-  const response = page.waitForResponse('**/beeftv/status')
+  const response = page.waitForResponse('**/luckytv/status')
   await page.evaluate(() => window.dispatchEvent(new Event('focus')))
   await response
 }
 
-test('BeefTV Agent keeps the native conversation and sends the selected collaboration mode', async () => {
+test('LuckyTV Agent keeps the native conversation and sends the selected collaboration mode', async () => {
   const state = await openWorkbench()
   const { page, contexts } = state
-  expect(await page.getByRole('heading', { name: 'BeefTV Agent' }).count()).toBe(1)
+  expect(await page.getByRole('heading', { name: 'LuckyTV Agent' }).count()).toBe(1)
   expect(await page.getByText('当前会话', { exact: true }).count()).toBe(0)
-  expect(await page.getByRole('complementary', { name: 'BeefTV Agent' }).evaluate(element => element.getBoundingClientRect().width)).toBe(432)
+  expect(await page.getByRole('complementary', { name: 'LuckyTV Agent' }).evaluate(element => element.getBoundingClientRect().width)).toBe(432)
   await page.getByRole('button', { name: '素材', exact: true }).click()
   await page.waitForFunction(() => document.querySelector('[title="整理与复用创作素材"]')?.getAttribute('aria-pressed') === 'true')
   await page.waitForTimeout(30)
@@ -185,7 +185,7 @@ test('BeefTV Agent keeps the native conversation and sends the selected collabor
   expect(await page.evaluate(() => (window as any).nativeMounts)).toBe(1)
   await page.frameLocator('iframe').locator('body').evaluate(element => {
     element.ownerDocument.defaultView!.addEventListener('message', event => {
-      if (event.data?.type === 'beeftv:workspace-sync') (element.ownerDocument.defaultView as any).lastWorkspaceSync = event.data.activity
+      if (event.data?.type === 'luckytv:workspace-sync') (element.ownerDocument.defaultView as any).lastWorkspaceSync = event.data.activity
     })
   })
   state.setStatus({ ...state.status(), activity: { seq: 1, kind: 'canvas-created', canvasId: 'canvas-new' } } as any)
@@ -199,11 +199,11 @@ test('focus and polling preserve an unchanged iframe and native session', async 
   await page.locator('iframe').evaluate(element => { element.dataset.retained = 'yes' })
   await page.frameLocator('iframe').locator('body').evaluate(element => { (element.ownerDocument.defaultView as any).retained = true })
   await refresh(page)
-  const visibleResponse = page.waitForResponse('**/beeftv/status')
+  const visibleResponse = page.waitForResponse('**/luckytv/status')
   await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')))
   await visibleResponse
   const afterFocus = reads()
-  await page.waitForResponse('**/beeftv/status', { timeout: 6500 })
+  await page.waitForResponse('**/luckytv/status', { timeout: 6500 })
   expect(reads()).toBeGreaterThan(afterFocus)
   expect(await page.locator('iframe').getAttribute('data-retained')).toBe('yes')
   expect(await page.frameLocator('iframe').locator('body').evaluate(element => (element.ownerDocument.defaultView as any).retained)).toBe(true)
@@ -216,9 +216,9 @@ test('a changed workspace source clears old canvas context while retaining the n
   const { page } = state
   const workspace = page.frames().find(frame => frame.url().includes('/workspace/local/'))!
   await page.locator('iframe').evaluate(element => { (window as any).previousWorkspaceWindow = element.contentWindow })
-  await workspace.evaluate(() => parent.postMessage({ type: 'beeftv:context', context: { route: '/canvas/old', canvasId: 'old', canvasTitle: 'Old canvas', selectedNodeIds: ['n1'] } }, location.origin))
+  await workspace.evaluate(() => parent.postMessage({ type: 'luckytv:context', context: { route: '/canvas/old', canvasId: 'old', canvasTitle: 'Old canvas', selectedNodeIds: ['n1'] } }, location.origin))
   await page.getByText('Old canvas', { exact: true }).waitFor()
-  const newReport = page.waitForRequest(request => request.url().endsWith('/beeftv/context') && request.postDataJSON().connectionId === 'connection-next')
+  const newReport = page.waitForRequest(request => request.url().endsWith('/luckytv/context') && request.postDataJSON().connectionId === 'connection-next')
   state.setStatus({ ...state.status(), connectionId: 'connection-next', mode: 'standalone', appURL: new URL('/workspace/standalone/', server.url).href })
   await refresh(page)
   const report = (await newReport).postDataJSON()
@@ -228,7 +228,7 @@ test('a changed workspace source clears old canvas context while retaining the n
   await page.evaluate(() => window.dispatchEvent(new MessageEvent('message', {
     source: (window as any).previousWorkspaceWindow,
     origin: location.origin,
-    data: { type: 'beeftv:context', context: { route: '/canvas/late', canvasTitle: 'Stale late canvas', selectedNodeIds: [] } },
+    data: { type: 'luckytv:context', context: { route: '/canvas/late', canvasTitle: 'Stale late canvas', selectedNodeIds: [] } },
   })))
   await page.waitForTimeout(30)
   expect(await page.getByText('Stale late canvas', { exact: true }).count()).toBe(0)
@@ -240,8 +240,8 @@ test('a rejected old connection refreshes status silently while other context fa
   const state = await openWorkbench()
   const { page } = state
   let rejection = 409
-  await page.route('**/beeftv/context', route => route.fulfill({ status: rejection, json: { error: 'Context request failed' } }))
-  const refreshed = page.waitForResponse('**/beeftv/status')
+  await page.route('**/luckytv/context', route => route.fulfill({ status: rejection, json: { error: 'Context request failed' } }))
+  const refreshed = page.waitForResponse('**/luckytv/status')
   await page.getByRole('button', { name: '素材', exact: true }).click()
   await refreshed
   expect(await page.getByRole('alert').count()).toBe(0)
@@ -260,7 +260,7 @@ test('workspace selection stays open across refresh and an in-flight connect rej
   await refresh(page)
   expect(await page.getByRole('button', { name: '使用独立工作区' }).count()).toBe(1)
   let release!: () => void
-  await page.route('**/beeftv/connect', async route => {
+  await page.route('**/luckytv/connect', async route => {
     await new Promise<void>(resolve => { release = resolve })
     await route.fulfill({ json: { ...state.status(), mode: 'standalone', appURL: new URL('/workspace/standalone/', server.url).href } })
   })
@@ -277,11 +277,11 @@ test('workspace selection stays open across refresh and an in-flight connect rej
 
 test('the toolbar is removed and resizing preserves the workspace and native chat within both width limits', async () => {
   const { page } = await openWorkbench()
-  expect(await page.locator('.beeftv-harness-toolbar').count()).toBe(0)
-  expect(await page.locator('.beeftv-harness-workspace').evaluate(element => element.getBoundingClientRect().top)).toBe(0)
+  expect(await page.locator('.luckytv-harness-toolbar').count()).toBe(0)
+  expect(await page.locator('.luckytv-harness-workspace').evaluate(element => element.getBoundingClientRect().top)).toBe(0)
   await page.locator('iframe').evaluate(element => { element.dataset.retained = 'yes' })
-  const separator = page.getByRole('separator', { name: '调整 BeefTV Agent 宽度' })
-  const pane = page.getByRole('complementary', { name: 'BeefTV Agent' })
+  const separator = page.getByRole('separator', { name: '调整 LuckyTV Agent 宽度' })
+  const pane = page.getByRole('complementary', { name: 'LuckyTV Agent' })
   const bounds = await separator.boundingBox()
   if (!bounds) throw new Error('Missing resize handle')
   const x = bounds.x + bounds.width / 2
@@ -293,7 +293,7 @@ test('the toolbar is removed and resizing preserves the workspace and native cha
   await page.mouse.move(1270, y, { steps: 8 })
   await page.mouse.up()
   expect(await pane.evaluate(element => element.getBoundingClientRect().width)).toBe(320)
-  expect(await page.locator('.beeftv-harness').getAttribute('data-resizing')).toBe('false')
+  expect(await page.locator('.luckytv-harness').getAttribute('data-resizing')).toBe('false')
   await separator.press('ArrowLeft')
   expect(await pane.evaluate(element => element.getBoundingClientRect().width)).toBe(336)
   const current = await separator.boundingBox()
@@ -301,9 +301,9 @@ test('the toolbar is removed and resizing preserves the workspace and native cha
   await page.mouse.down()
   await page.mouse.move(0, y, { steps: 8 })
   await page.mouse.up()
-  expect(await page.locator('.beeftv-harness-workspace').evaluate(element => element.getBoundingClientRect().width)).toBeGreaterThanOrEqual(280)
+  expect(await page.locator('.luckytv-harness-workspace').evaluate(element => element.getBoundingClientRect().width)).toBeGreaterThanOrEqual(280)
   await page.setViewportSize({ width: 600, height: 900 })
-  await page.waitForFunction(() => document.querySelector('[aria-label="BeefTV Agent"]')?.getBoundingClientRect().width === 320)
+  await page.waitForFunction(() => document.querySelector('[aria-label="LuckyTV Agent"]')?.getBoundingClientRect().width === 320)
   expect(await page.locator('iframe').getAttribute('data-retained')).toBe('yes')
   expect(await page.evaluate(() => (window as any).nativeMounts)).toBe(1)
   await page.getByRole('button', { name: '工作台操作' }).click()
@@ -317,19 +317,19 @@ test('the workspace follows host window-control clearance across sidebar and ful
   await page.locator('iframe').evaluate(element => { element.dataset.retained = 'yes' })
   for (const clearance of [160, 84, 48, 0, 160, 0]) {
     await page.evaluate(value => document.documentElement.style.setProperty('--dsh-frame-leading-clearance', `${value}px`), clearance)
-    await page.waitForFunction(value => document.querySelector('iframe')?.contentDocument?.documentElement.style.getPropertyValue('--beeftv-host-leading') === `${value}px`, clearance)
+    await page.waitForFunction(value => document.querySelector('iframe')?.contentDocument?.documentElement.style.getPropertyValue('--luckytv-host-leading') === `${value}px`, clearance)
     expect(await page.locator('iframe').evaluate(element => element.getBoundingClientRect().left)).toBe(0)
     expect(await page.frameLocator('iframe').getByRole('button', { name: 'Canvas menu' }).evaluate(element => element.getBoundingClientRect().left)).toBe(clearance + 8)
     expect(await page.frameLocator('iframe').getByRole('main').evaluate(element => element.getBoundingClientRect().left)).toBe(0)
     expect(await page.locator('iframe').evaluate(element => element.getBoundingClientRect().top)).toBe(0)
     expect(await page.locator('iframe').getAttribute('data-retained')).toBe('yes')
-    expect(await page.getByRole('complementary', { name: 'BeefTV Agent' }).evaluate(element => element.getBoundingClientRect().width)).toBeGreaterThanOrEqual(320)
+    expect(await page.getByRole('complementary', { name: 'LuckyTV Agent' }).evaluate(element => element.getBoundingClientRect().width)).toBeGreaterThanOrEqual(320)
   }
   await page.setViewportSize({ width: 600, height: 900 })
   await page.evaluate(() => document.documentElement.style.setProperty('--dsh-frame-leading-clearance', '84px'))
-  await page.waitForFunction(() => document.querySelector('[aria-label="BeefTV Agent"]')?.getBoundingClientRect().width === 320)
+  await page.waitForFunction(() => document.querySelector('[aria-label="LuckyTV Agent"]')?.getBoundingClientRect().width === 320)
   expect(await page.locator('iframe').evaluate(element => element.getBoundingClientRect().left)).toBe(0)
-  expect(await page.locator('.beeftv-harness').evaluate(element => element.getBoundingClientRect().right)).toBe(600)
+  expect(await page.locator('.luckytv-harness').evaluate(element => element.getBoundingClientRect().right)).toBe(600)
   expect(await page.evaluate(() => (window as any).nativeMounts)).toBe(1)
   await page.close()
 })
@@ -349,17 +349,17 @@ test('hidden mounts read status once and keep subsequent hidden polling idle', a
 
 test('an outdated local App shows its upgrade requirement and is connected only after it passes the check', async () => {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
-  const upgrade = '本机 BeefTV 版本为 2.1.6，需要 2.2.0 或更高版本。请升级后重新连接。'
+  const upgrade = '本机 LuckyTV 版本为 2.1.6，需要 2.2.0 或更高版本。请升级后重新连接。'
   let status: Record<string, any> = { connected: false, mode: null, switching: false, error: null, connectionId: null, localApp: { compatible: false, version: '2.1.6', message: upgrade } }
   const connects: Array<Record<string, any>> = []
-  await page.route('**/beeftv/status', route => route.fulfill({ json: status }))
-  await page.route('**/beeftv/connect', async route => {
+  await page.route('**/luckytv/status', route => route.fulfill({ json: status }))
+  await page.route('**/luckytv/connect', async route => {
     connects.push(route.request().postDataJSON())
     await route.fulfill({ json: { connected: true, connectionId: 'connection-local', mode: 'local', appURL: new URL('/workspace/local/', server.url).href } })
   })
-  await page.route('**/beeftv/context', route => route.fulfill({ json: { ok: true } }))
+  await page.route('**/luckytv/context', route => route.fulfill({ json: { ok: true } }))
   await page.goto(server.url.href)
-  await page.getByRole('button', { name: /连接本机 BeefTV/ }).getByText(upgrade, { exact: true }).waitFor()
+  await page.getByRole('button', { name: /连接本机 LuckyTV/ }).getByText(upgrade, { exact: true }).waitFor()
   await refresh(page)
   expect(connects).toEqual([])
   expect(await page.getByRole('alert').count()).toBe(0)
@@ -387,7 +387,7 @@ test('a timed-out status read reports failure and releases polling for a success
     }) as typeof window.setInterval
     runtime.statusAttempts = 0
     window.fetch = (input, init) => {
-      if (input === '/beeftv/status') {
+      if (input === '/luckytv/status') {
         runtime.statusAttempts += 1
         if (runtime.statusAttempts === 1) {
           return new Promise<Response>((resolve, reject) => {
@@ -398,16 +398,16 @@ test('a timed-out status read reports failure and releases polling for a success
       return originalFetch(input, init)
     }
   })
-  await page.route('**/beeftv/status', async route => {
+  await page.route('**/luckytv/status', async route => {
     await route.fulfill({ json: { connected: true, connectionId: 'retry-connection', mode: 'local', appURL: new URL('/workspace/retry/', server.url).href } })
   })
-  await page.route('**/beeftv/context', route => route.fulfill({ json: { ok: true } }))
+  await page.route('**/luckytv/context', route => route.fulfill({ json: { ok: true } }))
   await page.goto(server.url.href)
   await page.waitForFunction(() => (window as any).statusAttempts === 1)
   await page.evaluate(() => (window as any).expireStatus())
   await page.getByRole('alert').waitFor()
   expect(await page.getByRole('alert').textContent()).toBe('读取工作区连接超时，请重试')
-  const retry = page.waitForResponse('**/beeftv/status')
+  const retry = page.waitForResponse('**/luckytv/status')
   await page.evaluate(() => (window as any).pollStatus())
   await retry
   await page.locator('iframe').waitFor()
@@ -420,14 +420,14 @@ test('问助手把选中的节点预填到当前对话，不发送，并把节�
   const state = await openWorkbench()
   const { page } = state
   await listenAskResults(page)
-  const posted = page.waitForRequest(request => request.url().endsWith('/beeftv/context') && request.postDataJSON()?.context?.canvasId === 'canvas-spring')
+  const posted = page.waitForRequest(request => request.url().endsWith('/luckytv/context') && request.postDataJSON()?.context?.canvasId === 'canvas-spring')
   const nodes = Array.from({ length: 7 }, (_, index) => ({ id: `n${index}`, title: `节点${index}`, type: 'image' }))
   expect(await sendAsk(page, { source: 'selection-toolbar', canvasId: 'canvas-spring', canvasTitle: '春日', nodes })).toBe('applied')
   expect(await page.evaluate(() => (window as any).lastDraft)).toEqual({
     sessionId: 'native-session',
     options: { prompt: '画布「春日」中选中的：节点0、节点1、节点2、节点3、节点4 等 7 个节点\n', whenDraftExists: 'append' },
   })
-  expect(await page.evaluate(() => (window as any).selectedPanel)).toBe('beeftv')
+  expect(await page.evaluate(() => (window as any).selectedPanel)).toBe('luckytv')
   const report = (await posted).postDataJSON()
   expect(report.context).toEqual({ route: '/', canvasId: 'canvas-spring', canvasTitle: '春日', selectedNodeIds: nodes.map(node => node.id) })
   await page.close()
@@ -500,7 +500,7 @@ test('切换会话后问助手写到新会话', async () => {
     window.dispatchEvent(new MessageEvent('message', {
       source: frame.contentWindow,
       origin: location.origin,
-      data: { type: 'beeftv:ask', ask: { source: 'selection-toolbar', canvasId: 'c', canvasTitle: '画布', nodes: [{ id: 'n1', title: '镜头一', type: 'image' }] } },
+      data: { type: 'luckytv:ask', ask: { source: 'selection-toolbar', canvasId: 'c', canvasTitle: '画布', nodes: [{ id: 'n1', title: '镜头一', type: 'image' }] } },
     }))
   })
   await workspaceFrame(page).waitForFunction(() => (window as any).askResult !== undefined)
@@ -513,7 +513,7 @@ test('不是嵌入页发来或来源不符的问助手消息会被忽略', async
   const { page } = await openWorkbench()
   await listenAskResults(page)
   const ask = { source: 'selection-toolbar', canvasId: 'c', canvasTitle: '画布', nodes: [{ id: 'n1', title: '镜头一', type: 'image' }] }
-  await page.evaluate(message => window.postMessage(message, location.origin), { type: 'beeftv:ask', ask })
+  await page.evaluate(message => window.postMessage(message, location.origin), { type: 'luckytv:ask', ask })
   // 把来源伪装成嵌入页，但 origin 不是嵌入页的来源。
   await page.evaluate(message => {
     const frame = document.querySelector('iframe')!
@@ -522,7 +522,7 @@ test('不是嵌入页发来或来源不符的问助手消息会被忽略', async
       origin: 'https://example.invalid',
       data: message,
     }))
-  }, { type: 'beeftv:ask', ask })
+  }, { type: 'luckytv:ask', ask })
   await page.waitForTimeout(50)
   expect(await workspaceFrame(page).evaluate(() => (window as any).askResult)).toBeUndefined()
   expect(await page.evaluate(() => (window as any).lastDraft)).toBeUndefined()
@@ -540,8 +540,8 @@ test('独立工作区常驻数据说明，本机可用时只提示一次并能�
     localPromptDismissed: false,
   } as any)
   await refresh(page)
-  const note = '独立工作区，和本机 BeefTV 不是同一份数据'
-  const offer = '本机 BeefTV 可以连接了，连接后用同一份画布和素材。'
+  const note = '独立工作区，和本机 LuckyTV 不是同一份数据'
+  const offer = '本机 LuckyTV 可以连接了，连接后用同一份画布和素材。'
   await page.getByText(note, { exact: true }).waitFor()
   await page.getByText(offer, { exact: true }).waitFor()
   await page.getByRole('button', { name: '暂不' }).click()
@@ -558,7 +558,7 @@ test('独立工作区常驻数据说明，本机可用时只提示一次并能�
 test('暂不 会丢弃还在路上的旧状态响应', async () => {
   const state = await openWorkbench()
   const { page } = state
-  const offer = '本机 BeefTV 可以连接了，连接后用同一份画布和素材。'
+  const offer = '本机 LuckyTV 可以连接了，连接后用同一份画布和素材。'
   state.setStatus({
     ...state.status(),
     mode: 'standalone',
@@ -569,7 +569,7 @@ test('暂不 会丢弃还在路上的旧状态响应', async () => {
   await refresh(page)
   await page.getByText(offer, { exact: true }).waitFor()
   let release!: () => void
-  await page.route('**/beeftv/status', async route => {
+  await page.route('**/luckytv/status', async route => {
     await new Promise<void>(resolve => { release = resolve })
     await route.fulfill({ json: { ...state.status(), localPromptDismissed: false } }).catch(() => {})
   })
@@ -606,13 +606,13 @@ test('面板可以开关生成完自动继续、调整每轮步数上限，并�
   const toggle = page.getByRole('button', { name: /生成完自动继续/ })
   expect(await toggle.getAttribute('aria-pressed')).toBe('true')
   await toggle.click()
-  await page.waitForFunction(() => document.querySelector('.beeftv-harness-action-menu button[aria-pressed="false"]') !== null)
+  await page.waitForFunction(() => document.querySelector('.luckytv-harness-action-menu button[aria-pressed="false"]') !== null)
   expect(await toggle.getAttribute('aria-pressed')).toBe('false')
   expect(state.settings.at(-1)).toEqual({ autoContinue: false })
 
-  const stepLimit = page.locator('.beeftv-harness-setting input')
+  const stepLimit = page.locator('.luckytv-harness-setting input')
   await stepLimit.fill('12')
-  const saved = page.waitForResponse('**/beeftv/settings')
+  const saved = page.waitForResponse('**/luckytv/settings')
   await stepLimit.press('Enter')
   await saved
   expect(state.settings.at(-1)).toEqual({ stepLimit: 12 })
@@ -625,7 +625,7 @@ test('保存设置或关闭提示会丢弃在途的旧状态响应', async () =>
   const { page } = state
   let release!: () => void
   let delayed = false
-  await page.route('**/beeftv/status', async route => {
+  await page.route('**/luckytv/status', async route => {
     if (!delayed) {
       delayed = true
       await new Promise<void>(resolve => { release = resolve })
@@ -641,7 +641,7 @@ test('保存设置或关闭提示会丢弃在途的旧状态响应', async () =>
   await page.getByRole('button', { name: '工作台操作' }).click()
   const toggle = page.getByRole('button', { name: /生成完自动继续/ })
   await toggle.click()
-  await page.waitForFunction(() => document.querySelector('.beeftv-harness-action-menu button[aria-pressed="false"]') !== null)
+  await page.waitForFunction(() => document.querySelector('.luckytv-harness-action-menu button[aria-pressed="false"]') !== null)
   release()
   await page.waitForTimeout(100)
   expect(await toggle.getAttribute('aria-pressed')).toBe('false')
@@ -656,14 +656,14 @@ test('开关有可见勾选；取消步数编辑后再修改仍会保存', async
   await page.getByRole('button', { name: '工作台操作' }).click()
   const toggle = page.getByRole('button', { name: /生成完自动继续/ })
   expect(await toggle.evaluate(element => getComputedStyle(element, '::after').content)).toContain('✓')
-  const input = page.locator('.beeftv-harness-setting input')
+  const input = page.locator('.luckytv-harness-setting input')
   await input.focus()
   await input.press('Escape')
-  await page.waitForFunction(() => document.querySelector('.beeftv-harness-action-menu') === null)
+  await page.waitForFunction(() => document.querySelector('.luckytv-harness-action-menu') === null)
   await page.getByRole('button', { name: '工作台操作' }).click()
-  const reopened = page.locator('.beeftv-harness-setting input')
+  const reopened = page.locator('.luckytv-harness-setting input')
   await reopened.fill('12')
-  const saved = page.waitForResponse('**/beeftv/settings')
+  const saved = page.waitForResponse('**/luckytv/settings')
   await reopened.press('Enter')
   await saved
   expect(state.settings.at(-1)).toEqual({ stepLimit: 12 })
@@ -674,7 +674,7 @@ test('写入期间新发起的状态轮询不会把刚保存的值翻回去', as
   const state = await openWorkbench()
   const { page } = state
   let releaseSettings!: () => void
-  await page.route('**/beeftv/settings', async route => {
+  await page.route('**/luckytv/settings', async route => {
     await new Promise<void>(resolve => { releaseSettings = resolve })
     state.setStatus({ ...state.status(), autoContinue: false })
     await route.fulfill({ json: state.status() })
@@ -687,7 +687,7 @@ test('写入期间新发起的状态轮询不会把刚保存的值翻回去', as
 
   let releaseStatus!: () => void
   let delayed = false
-  await page.route('**/beeftv/status', async route => {
+  await page.route('**/luckytv/status', async route => {
     if (!delayed) {
       delayed = true
       await new Promise<void>(resolve => { releaseStatus = resolve })
@@ -701,7 +701,7 @@ test('写入期间新发起的状态轮询不会把刚保存的值翻回去', as
   expect(typeof releaseStatus).toBe('function')
 
   releaseSettings()
-  await page.waitForFunction(() => document.querySelector('.beeftv-harness-action-menu button[aria-pressed="false"]') !== null)
+  await page.waitForFunction(() => document.querySelector('.luckytv-harness-action-menu button[aria-pressed="false"]') !== null)
   releaseStatus()
   await page.waitForTimeout(100)
   expect(await toggle.getAttribute('aria-pressed')).toBe('false')
@@ -712,13 +712,13 @@ test('嵌入页的明暗与底色会同步到右侧 Agent 面板，无彩度主�
   const { page } = await openWorkbench()
   const workspace = workspaceFrame(page)
   // 先等 bridge 自己发完初始主题，再手工注入，避免 120ms 窗口里的真实 post 覆盖手工值。
-  await page.waitForFunction(() => document.querySelector('.beeftv-harness-agent')?.style.getPropertyValue('--dsw-alias-bg-base') !== '')
-  await workspace.evaluate(() => parent.postMessage({ type: 'beeftv:theme', dark: true, background: 'rgb(20, 20, 20)', foreground: 'rgba(255, 255, 255, 0.85)', accent: '#4096ff' }, location.origin))
-  await page.waitForFunction(() => document.querySelector('.beeftv-harness-agent')?.style.getPropertyValue('--dsw-alias-bg-base') === 'rgb(20, 20, 20)')
+  await page.waitForFunction(() => document.querySelector('.luckytv-harness-agent')?.style.getPropertyValue('--dsw-alias-bg-base') !== '')
+  await workspace.evaluate(() => parent.postMessage({ type: 'luckytv:theme', dark: true, background: 'rgb(20, 20, 20)', foreground: 'rgba(255, 255, 255, 0.85)', accent: '#4096ff' }, location.origin))
+  await page.waitForFunction(() => document.querySelector('.luckytv-harness-agent')?.style.getPropertyValue('--dsw-alias-bg-base') === 'rgb(20, 20, 20)')
   const dark = await page.evaluate(() => {
-    const element = document.querySelector('.beeftv-harness-agent') as HTMLElement
+    const element = document.querySelector('.luckytv-harness-agent') as HTMLElement
     return {
-      harnessBg: getComputedStyle(document.querySelector('.beeftv-harness')!).backgroundColor,
+      harnessBg: getComputedStyle(document.querySelector('.luckytv-harness')!).backgroundColor,
       background: element.style.getPropertyValue('--dsw-alias-bg-base'),
       scheme: element.style.colorScheme,
       link: element.style.getPropertyValue('--dsw-alias-link'),
@@ -733,9 +733,9 @@ test('嵌入页的明暗与底色会同步到右侧 Agent 面板，无彩度主�
 
   // 各种语法的无彩度色与全透明 8 位 hex 都不会冒充强调色把链接染白或变透明。
   for (const monochrome of ['oklch(0.922 0 0)', 'oklab(0.922 0 0)', 'hsl(0 0% 100%)', 'hwb(0 50% 50%)', '#ffffff00']) {
-    await workspace.evaluate(accent => parent.postMessage({ type: 'beeftv:theme', dark: true, background: '#0f0f0f', foreground: '#ffffff', accent }, location.origin), monochrome)
-    await page.waitForFunction(() => document.querySelector('.beeftv-harness-agent')?.style.getPropertyValue('--dsw-alias-bg-base') === '#0f0f0f')
-    expect(await page.evaluate(() => (document.querySelector('.beeftv-harness-agent') as HTMLElement).style.getPropertyValue('--dsw-alias-link'))).toBe('#60a5fa')
+    await workspace.evaluate(accent => parent.postMessage({ type: 'luckytv:theme', dark: true, background: '#0f0f0f', foreground: '#ffffff', accent }, location.origin), monochrome)
+    await page.waitForFunction(() => document.querySelector('.luckytv-harness-agent')?.style.getPropertyValue('--dsw-alias-bg-base') === '#0f0f0f')
+    expect(await page.evaluate(() => (document.querySelector('.luckytv-harness-agent') as HTMLElement).style.getPropertyValue('--dsw-alias-link'))).toBe('#60a5fa')
   }
 
   // 浅色自定义黄色主色（#ffd400 + --primary-foreground #171717）：链接回退到高对比蓝色，主按钮保留黄底深字，发送按钮保留蓝底白字。
@@ -748,9 +748,9 @@ test('嵌入页的明暗与底色会同步到右侧 Agent 面板，无彩度主�
     document.body.style.background = 'rgb(255, 255, 255)'
     document.body.style.color = 'rgb(23, 23, 23)'
   })
-  await page.waitForFunction(() => document.querySelector('.beeftv-harness-agent')?.style.getPropertyValue('--dsw-alias-bg-base') === 'rgb(255, 255, 255)')
+  await page.waitForFunction(() => document.querySelector('.luckytv-harness-agent')?.style.getPropertyValue('--dsw-alias-bg-base') === 'rgb(255, 255, 255)')
   const yellowSkin = await page.evaluate(() => {
-    const element = document.querySelector('.beeftv-harness-agent') as HTMLElement
+    const element = document.querySelector('.luckytv-harness-agent') as HTMLElement
     return {
       scheme: element.style.colorScheme,
       link: element.style.getPropertyValue('--dsw-alias-link'),
@@ -768,10 +768,10 @@ test('嵌入页的明暗与底色会同步到右侧 Agent 面板，无彩度主�
   expect(yellowSkin.infoFill).toBe('#2563eb')
 
   // 深色自定义深蓝主色（#1d4ed8）：在 #0f0f0f 上对比度不足 4.5:1，链接回退 #60a5fa，主按钮文字自动选白色。
-  await workspace.evaluate(() => parent.postMessage({ type: 'beeftv:theme', dark: true, background: '#0f0f0f', foreground: '#f9fafb', accent: '#1d4ed8', accentForeground: '#0f0f0f' }, location.origin))
-  await page.waitForFunction(() => document.querySelector('.beeftv-harness-agent')?.style.getPropertyValue('--dsw-alias-button-primary-fill') === '#1d4ed8')
+  await workspace.evaluate(() => parent.postMessage({ type: 'luckytv:theme', dark: true, background: '#0f0f0f', foreground: '#f9fafb', accent: '#1d4ed8', accentForeground: '#0f0f0f' }, location.origin))
+  await page.waitForFunction(() => document.querySelector('.luckytv-harness-agent')?.style.getPropertyValue('--dsw-alias-button-primary-fill') === '#1d4ed8')
   const darkBlueSkin = await page.evaluate(() => {
-    const element = document.querySelector('.beeftv-harness-agent') as HTMLElement
+    const element = document.querySelector('.luckytv-harness-agent') as HTMLElement
     return {
       link: element.style.getPropertyValue('--dsw-alias-link'),
       primaryFg: element.style.getPropertyValue('--dsw-alias-label-primary-foreground'),
@@ -783,14 +783,14 @@ test('嵌入页的明暗与底色会同步到右侧 Agent 面板，无彩度主�
   expect(darkBlueSkin.infoFill).toBe('#1d4ed8')
 
   // 仅更新 accentForeground（dark/background/foreground/accent 完全不变）也会触发重算；同时校验在背景上 >= 4.5 但菜单底色上 < 4.5 的强调色（#ea580c）不会用作链接色。
-  await workspace.evaluate(() => parent.postMessage({ type: 'beeftv:theme', dark: true, background: '#0f0f0f', foreground: '#f9fafb', accent: '#38bdf8', accentForeground: '#ffffff' }, location.origin))
-  await page.waitForFunction(() => document.querySelector('.beeftv-harness-agent')?.style.getPropertyValue('--dsw-alias-label-primary-foreground') === '#0a0a0a')
-  await workspace.evaluate(() => parent.postMessage({ type: 'beeftv:theme', dark: true, background: '#0f0f0f', foreground: '#f9fafb', accent: '#38bdf8', accentForeground: '#1e293b' }, location.origin))
-  await page.waitForFunction(() => document.querySelector('.beeftv-harness-agent')?.style.getPropertyValue('--dsw-alias-label-primary-foreground') === '#1e293b')
+  await workspace.evaluate(() => parent.postMessage({ type: 'luckytv:theme', dark: true, background: '#0f0f0f', foreground: '#f9fafb', accent: '#38bdf8', accentForeground: '#ffffff' }, location.origin))
+  await page.waitForFunction(() => document.querySelector('.luckytv-harness-agent')?.style.getPropertyValue('--dsw-alias-label-primary-foreground') === '#0a0a0a')
+  await workspace.evaluate(() => parent.postMessage({ type: 'luckytv:theme', dark: true, background: '#0f0f0f', foreground: '#f9fafb', accent: '#38bdf8', accentForeground: '#1e293b' }, location.origin))
+  await page.waitForFunction(() => document.querySelector('.luckytv-harness-agent')?.style.getPropertyValue('--dsw-alias-label-primary-foreground') === '#1e293b')
 
-  await workspace.evaluate(() => parent.postMessage({ type: 'beeftv:theme', dark: true, background: 'rgb(15, 15, 15)', foreground: '#ffffff', accent: '#ea580c', accentForeground: '#ffffff' }, location.origin))
-  await page.waitForFunction(() => document.querySelector('.beeftv-harness-agent')?.style.getPropertyValue('--dsw-alias-button-primary-fill') === '#ea580c')
-  expect(await page.evaluate(() => (document.querySelector('.beeftv-harness-agent') as HTMLElement).style.getPropertyValue('--dsw-alias-link'))).toBe('#60a5fa')
+  await workspace.evaluate(() => parent.postMessage({ type: 'luckytv:theme', dark: true, background: 'rgb(15, 15, 15)', foreground: '#ffffff', accent: '#ea580c', accentForeground: '#ffffff' }, location.origin))
+  await page.waitForFunction(() => document.querySelector('.luckytv-harness-agent')?.style.getPropertyValue('--dsw-alias-button-primary-fill') === '#ea580c')
+  expect(await page.evaluate(() => (document.querySelector('.luckytv-harness-agent') as HTMLElement).style.getPropertyValue('--dsw-alias-link'))).toBe('#60a5fa')
   await page.close()
 })
 
@@ -854,7 +854,7 @@ test('宿主与嵌入页明暗相反时，控件、JSON 树、计划/交付/日�
     delete document.body.dataset.dsDarkTheme
   })
 
-  // 方向 1：DSH 宿主浅色（无 data-ds-dark-theme）+ BeefTV 深色（带自定义暖橙色 #ff6600）。
+  // 方向 1：DSH 宿主浅色（无 data-ds-dark-theme）+ LuckyTV 深色（带自定义暖橙色 #ff6600）。
   await workspace.evaluate(() => {
     const root = document.documentElement
     root.classList.add('dark')
@@ -863,11 +863,11 @@ test('宿主与嵌入页明暗相反时，控件、JSON 树、计划/交付/日�
     document.body.style.background = 'rgb(15, 15, 15)'
     document.body.style.color = 'rgb(255, 255, 255)'
   })
-  await page.waitForFunction(() => document.querySelector('.beeftv-harness-agent')?.style.getPropertyValue('--dsw-alias-bg-base') === 'rgb(15, 15, 15)')
+  await page.waitForFunction(() => document.querySelector('.luckytv-harness-agent')?.style.getPropertyValue('--dsw-alias-bg-base') === 'rgb(15, 15, 15)')
 
   const measureContrast = (hostSelector: string) => page.evaluate(selector => {
     const container = document.querySelector(selector) as HTMLElement
-    const panel = document.querySelector('.beeftv-harness-agent') as HTMLElement
+    const panel = document.querySelector('.luckytv-harness-agent') as HTMLElement
     const panelBg = getComputedStyle(panel).backgroundColor
     const canvas = document.createElement('canvas')
     canvas.width = 1
@@ -997,9 +997,9 @@ test('宿主与嵌入页明暗相反时，控件、JSON 树、计划/交付/日�
     }
   }, hostSelector)
 
-  const dark = await measureContrast('.beeftv-harness-agent')
+  const dark = await measureContrast('.luckytv-harness-agent')
   expect(dark.scheme).toBe('dark')
-  expect(await page.evaluate(() => getComputedStyle(document.querySelector('.beeftv-harness')!).backgroundColor)).toBe('rgb(15, 15, 15)')
+  expect(await page.evaluate(() => getComputedStyle(document.querySelector('.luckytv-harness')!).backgroundColor)).toBe('rgb(15, 15, 15)')
   expect(dark.link).toBe('#ff6600')
   expect(dark.specificMenu).not.toBe('#f8f9faf0')
   expect(dark.hoverSolid).not.toBe('#ebedf0')
@@ -1012,7 +1012,7 @@ test('宿主与嵌入页明暗相反时，控件、JSON 树、计划/交付/日�
   }
 
   // 从工作台内部触发挂到 document.body 的菜单、背板、气泡提示、对话框、轻提示与悬停卡时，都跟随嵌入页主题。
-  await page.getByRole('heading', { name: 'BeefTV Agent' }).click()
+  await page.getByRole('heading', { name: 'LuckyTV Agent' }).click()
   const portalInWorkbench = await page.evaluate(() => {
     const backing = document.createElement('div')
     backing.setAttribute('data-menu-backing', '')
@@ -1034,7 +1034,7 @@ test('宿主与嵌入页明暗相反时，控件、JSON 树、计划/交付/日�
     document.body.append(backing, menu, dialog, alert, tooltip, hovercard)
     menu.focus()
     return {
-      active: document.body.dataset.beeftvPortalTheme,
+      active: document.body.dataset.luckytvPortalTheme,
       activeInPortal: document.activeElement === menu,
       menuFill: getComputedStyle(menu).getPropertyValue('--dsw-menu-surface-fill').trim(),
       backingBase: getComputedStyle(backing).getPropertyValue('--dsw-alias-bg-base').trim(),
@@ -1072,13 +1072,13 @@ test('宿主与嵌入页明暗相反时，控件、JSON 树、计划/交付/日�
     document.body.style.background = 'rgb(255, 255, 255)'
     document.body.style.color = 'oklch(0.145 0 0)'
   })
-  await page.waitForFunction(() => document.querySelector('.beeftv-harness-agent')?.style.getPropertyValue('--dsw-alias-bg-base') === 'rgb(255, 255, 255)')
+  await page.waitForFunction(() => document.querySelector('.luckytv-harness-agent')?.style.getPropertyValue('--dsw-alias-bg-base') === 'rgb(255, 255, 255)')
 
   const portalAfterThemeFlip = await page.evaluate(() => {
     const menu = document.getElementById('portal-menu-probe')!
     const dialog = document.getElementById('portal-dialog-probe')!
     return {
-      active: document.body.dataset.beeftvPortalTheme,
+      active: document.body.dataset.luckytvPortalTheme,
       menuFill: getComputedStyle(menu).getPropertyValue('--dsw-menu-surface-fill').trim(),
       dialogBase: getComputedStyle(dialog).getPropertyValue('--dsw-alias-bg-base').trim(),
     }
@@ -1095,8 +1095,8 @@ test('宿主与嵌入页明暗相反时，控件、JSON 树、计划/交付/日�
     expect(value).toBeGreaterThanOrEqual(4.5)
   }
 
-  // 验证 DSH 深色 + BeefTV 浅色下，面板内控件、JSON 树（含错误载荷）与四类对话卡片也全部覆盖了 body[data-ds-dark-theme] 且 >= 4.5:1。
-  const light = await measureContrast('.beeftv-harness-agent')
+  // 验证 DSH 深色 + LuckyTV 浅色下，面板内控件、JSON 树（含错误载荷）与四类对话卡片也全部覆盖了 body[data-ds-dark-theme] 且 >= 4.5:1。
+  const light = await measureContrast('.luckytv-harness-agent')
   expect(light.scheme).toBe('light')
   expect(light.link).toBe('#2563eb')
   expect(light.specificMenu).not.toBe('#303136f0')
@@ -1116,9 +1116,9 @@ test('宿主与嵌入页明暗相反时，控件、JSON 树、计划/交付/日�
     { accent: '#c2410c', accentForeground: '#ffffff' },
     { accent: '#ffd400', accentForeground: '#171717' },
   ]) {
-    await workspace.evaluate(payload => parent.postMessage({ type: 'beeftv:theme', dark: false, background: '#ffffff', foreground: '#111111', ...payload }, location.origin), accentCase)
-    await page.waitForFunction(fill => document.querySelector('.beeftv-harness-agent')?.style.getPropertyValue('--dsw-alias-button-primary-fill') === fill, accentCase.accent)
-    const accentMeasured = await measureContrast('.beeftv-harness-agent')
+    await workspace.evaluate(payload => parent.postMessage({ type: 'luckytv:theme', dark: false, background: '#ffffff', foreground: '#111111', ...payload }, location.origin), accentCase)
+    await page.waitForFunction(fill => document.querySelector('.luckytv-harness-agent')?.style.getPropertyValue('--dsw-alias-button-primary-fill') === fill, accentCase.accent)
+    const accentMeasured = await measureContrast('.luckytv-harness-agent')
     expect(accentMeasured.primaryButton.contrast).toBeGreaterThanOrEqual(4.5)
     expect(accentMeasured.primaryHoverButton.contrast).toBeGreaterThanOrEqual(4.5)
     expect(accentMeasured.cards.doneStep).toBeGreaterThanOrEqual(4.5)
@@ -1130,9 +1130,9 @@ test('宿主与嵌入页明暗相反时，控件、JSON 树、计划/交付/日�
     { dark: false, background: 'rgb(36, 32, 46)', foreground: 'rgb(244, 242, 250)', expectedScheme: 'dark' },
     { dark: true, background: 'rgb(245, 240, 230)', foreground: 'rgb(28, 25, 23)', expectedScheme: 'light' },
   ]) {
-    await workspace.evaluate(payload => parent.postMessage({ type: 'beeftv:theme', ...payload }, location.origin), custom)
-    await page.waitForFunction(bg => document.querySelector('.beeftv-harness-agent')?.style.getPropertyValue('--dsw-alias-bg-base') === bg, custom.background)
-    const measured = await measureContrast('.beeftv-harness-agent')
+    await workspace.evaluate(payload => parent.postMessage({ type: 'luckytv:theme', ...payload }, location.origin), custom)
+    await page.waitForFunction(bg => document.querySelector('.luckytv-harness-agent')?.style.getPropertyValue('--dsw-alias-bg-base') === bg, custom.background)
+    const measured = await measureContrast('.luckytv-harness-agent')
     expect(measured.scheme).toBe(custom.expectedScheme)
     for (const metric of [measured.addButton, measured.hoverButton, measured.primaryButton, measured.primaryHoverButton, measured.menuPrimary, measured.menuSpecific, measured.menuTertiary, measured.menuIcon, measured.composerCaption, measured.bubble, measured.codeKeyword]) {
       expect(metric.contrast).toBeGreaterThanOrEqual(4.5)
@@ -1154,7 +1154,7 @@ test('宿主与嵌入页明暗相反时，控件、JSON 树、计划/交付/日�
     const menu = document.getElementById('portal-menu-probe')!
     const fill = getComputedStyle(menu).getPropertyValue('--dsw-menu-surface-fill').trim()
     document.querySelectorAll('#portal-menu-probe, #portal-dialog-probe, #portal-alert-probe, #portal-tooltip-probe, #portal-hovercard-probe, [data-menu-backing]').forEach(node => node.remove())
-    return { active: document.body.dataset.beeftvPortalTheme, fill }
+    return { active: document.body.dataset.luckytvPortalTheme, fill }
   })
   expect(portalInHost.active).toBeUndefined()
   expect(portalInHost.fill).toBe('#303136a3')
@@ -1165,12 +1165,12 @@ test('宿主与嵌入页明暗相反时，控件、JSON 树、计划/交付/日�
     { background: 'threedface', foreground: 'windowtext', accent: 'activecaption', accentForeground: 'menutext' },
     { background: 'color-mix(in srgb, windowtext 50%, #000000)', foreground: 'CanvasText', accent: 'Highlight' },
   ]) {
-    await workspace.evaluate(payload => parent.postMessage({ type: 'beeftv:theme', dark: false, background: '#ffffff', foreground: '#111111' }, location.origin), unsafe)
-    await page.waitForFunction(() => document.querySelector('.beeftv-harness-agent')?.style.getPropertyValue('--dsw-alias-bg-base') === '#ffffff')
-    await workspace.evaluate(payload => parent.postMessage({ type: 'beeftv:theme', dark: true, ...payload }, location.origin), unsafe)
-    await page.waitForFunction(() => document.querySelector('.beeftv-harness-agent')?.style.getPropertyValue('--dsw-alias-bg-base') === '#141414')
+    await workspace.evaluate(payload => parent.postMessage({ type: 'luckytv:theme', dark: false, background: '#ffffff', foreground: '#111111' }, location.origin), unsafe)
+    await page.waitForFunction(() => document.querySelector('.luckytv-harness-agent')?.style.getPropertyValue('--dsw-alias-bg-base') === '#ffffff')
+    await workspace.evaluate(payload => parent.postMessage({ type: 'luckytv:theme', dark: true, ...payload }, location.origin), unsafe)
+    await page.waitForFunction(() => document.querySelector('.luckytv-harness-agent')?.style.getPropertyValue('--dsw-alias-bg-base') === '#141414')
     const safe = await page.evaluate(() => {
-      const aside = document.querySelector('.beeftv-harness-agent') as HTMLElement
+      const aside = document.querySelector('.luckytv-harness-agent') as HTMLElement
       return {
         bg: aside.style.getPropertyValue('--dsw-alias-bg-base'),
         fg: aside.style.getPropertyValue('--dsw-alias-label-primary'),
@@ -1182,13 +1182,13 @@ test('宿主与嵌入页明暗相反时，控件、JSON 树、计划/交付/日�
     expect(safe.link).toBe('#60a5fa')
   }
 
-  // 重新激活门户后卸载工作台，确认 body 属性与 <style data-beeftv-portal-theme> 均被彻底移除。
-  await page.getByRole('heading', { name: 'BeefTV Agent' }).click()
-  expect(await page.evaluate(() => document.body.dataset.beeftvPortalTheme)).toBe('1')
+  // 重新激活门户后卸载工作台，确认 body 属性与 <style data-luckytv-portal-theme> 均被彻底移除。
+  await page.getByRole('heading', { name: 'LuckyTV Agent' }).click()
+  expect(await page.evaluate(() => document.body.dataset.luckytvPortalTheme)).toBe('1')
   await page.evaluate(() => (window as any).__unmountWorkbench())
   const tornDown = await page.evaluate(() => ({
-    attr: document.body.dataset.beeftvPortalTheme,
-    styles: document.querySelectorAll('style[data-beeftv-portal-theme]').length,
+    attr: document.body.dataset.luckytvPortalTheme,
+    styles: document.querySelectorAll('style[data-luckytv-portal-theme]').length,
   }))
   expect(tornDown.attr).toBeUndefined()
   expect(tornDown.styles).toBe(0)

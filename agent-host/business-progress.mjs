@@ -4,7 +4,7 @@ const TOOLS = new Set(['canvas_generation_submit', 'canvas_timeline_render', 'ca
 const STAGES = new Set(['processing', 'downloading', 'saving', 'saved', 'binding', 'rendering', 'exporting', 'checking', 'observation_unavailable']);
 
 export function businessLifecycle(toolName, details) {
-  const progress = details?.beeftvProgress;
+  const progress = details?.luckytvProgress;
   if (!TOOLS.has(toolName) || !STAGES.has(progress?.stage)) return null;
   const result = { type: 'lifecycle', phase: 'business', toolName, stage: progress.stage };
   if (Number.isSafeInteger(progress.total) && progress.total > 0 && progress.total <= 1000 &&

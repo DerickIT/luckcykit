@@ -3,7 +3,7 @@ package playback
 import (
 	"sync"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 type memStore struct {

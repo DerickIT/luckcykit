@@ -2,7 +2,7 @@ package assistantturns
 
 import (
 	"gorm.io/gorm"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 // StopContinuationsForIntent freezes running host identities before any HTTP

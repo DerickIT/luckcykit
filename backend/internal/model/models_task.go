@@ -59,32 +59,32 @@ type Task struct {
 	// before public completion projections remove media and provider settings.
 	WorkflowSourceCipher string `json:"-" gorm:"type:text"`
 
-	// BeefTV 扣费与异步结算原值，仅内部持久化与 Outcome 投影读取。
-	BeefUsageState        *string `json:"-" gorm:"column:beef_usage_state;size:64"`
-	BeefBillingState      *string `json:"-" gorm:"column:beef_billing_state;size:64"`
-	BeefReconcileDeadline *string `json:"-" gorm:"column:beef_reconcile_deadline;size:128"`
+	// LuckyTV 扣费与异步结算原值，仅内部持久化与 Outcome 投影读取。
+	LuckyUsageState        *string `json:"-" gorm:"column:lucky_usage_state;size:64"`
+	LuckyBillingState      *string `json:"-" gorm:"column:lucky_billing_state;size:64"`
+	LuckyReconcileDeadline *string `json:"-" gorm:"column:lucky_reconcile_deadline;size:128"`
 	ImageJobID            string  `json:"-" gorm:"column:image_job_id;size:191"`
 }
 
 func (t Task) ProviderUsageState() string {
-	if t.BeefUsageState == nil {
+	if t.LuckyUsageState == nil {
 		return ""
 	}
-	return *t.BeefUsageState
+	return *t.LuckyUsageState
 }
 
 func (t Task) ProviderBillingState() string {
-	if t.BeefBillingState == nil {
+	if t.LuckyBillingState == nil {
 		return ""
 	}
-	return *t.BeefBillingState
+	return *t.LuckyBillingState
 }
 
 func (t Task) ProviderReconcileDeadline() string {
-	if t.BeefReconcileDeadline == nil {
+	if t.LuckyReconcileDeadline == nil {
 		return ""
 	}
-	return *t.BeefReconcileDeadline
+	return *t.LuckyReconcileDeadline
 }
 
 // TaskFailureDiagnostics contains bounded, redacted evidence, never request bodies.

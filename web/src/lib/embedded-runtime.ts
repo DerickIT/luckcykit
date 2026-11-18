@@ -33,20 +33,20 @@ const ASK_RESULT_STATUSES: readonly EmbeddedAskResultStatus[] = ["applied", "pre
 
 declare global {
     interface Window {
-        __BEEFTV_HARNESS__?: EmbeddedHarnessConfig;
+        __LUCKYTV_HARNESS__?: EmbeddedHarnessConfig;
     }
 }
 
 export function isEmbeddedRuntime(): boolean {
-    return typeof window !== "undefined" && window.__BEEFTV_HARNESS__?.embedded === true;
+    return typeof window !== "undefined" && window.__LUCKYTV_HARNESS__?.embedded === true;
 }
 
 export function getEmbeddedHarnessConfig(): EmbeddedHarnessConfig | undefined {
     if (!isEmbeddedRuntime()) return undefined;
-    const config = window.__BEEFTV_HARNESS__!;
-    const basePath = config.basePath || "/beeftv/app";
+    const config = window.__LUCKYTV_HARNESS__!;
+    const basePath = config.basePath || "/luckytv/app";
     const parsed = new URL(basePath, window.location.origin);
-    if (!(basePath === "/beeftv/app" || basePath.startsWith("/beeftv/app/")) || basePath.endsWith("/") || parsed.pathname !== basePath || parsed.search || parsed.hash || config.apiBase !== `${basePath}/api`) {
+    if (!(basePath === "/luckytv/app" || basePath.startsWith("/luckytv/app/")) || basePath.endsWith("/") || parsed.pathname !== basePath || parsed.search || parsed.hash || config.apiBase !== `${basePath}/api`) {
         throw new Error("Invalid embedded workspace path");
     }
     return { ...config, basePath };
@@ -97,12 +97,12 @@ export function isTrustedEmbeddedParent(event: MessageEvent): boolean {
 }
 
 export function publishEmbeddedContext(context: EmbeddedWorkspaceContext): void {
-    postToEmbeddedParent({ type: "beeftv:context", context });
+    postToEmbeddedParent({ type: "luckytv:context", context });
 }
 
 /**
  * 把选中节点交给右侧对话。返回是否已按嵌入模式接管；
- * 单独打开 BeefTV 时返回 false，由页面继续走内置助手。
+ * 单独打开 LuckyTV 时返回 false，由页面继续走内置助手。
  */
 export function publishSelectionAsk(input: {
     canvasId: string;
@@ -121,13 +121,13 @@ export function publishSelectionAsk(input: {
             type: node.type,
         }));
     const ask: EmbeddedAsk = { source: "selection-toolbar", canvasId: input.canvasId, canvasTitle: input.canvasTitle, nodes };
-    return postToEmbeddedParent({ type: "beeftv:ask", ask });
+    return postToEmbeddedParent({ type: "luckytv:ask", ask });
 }
 
 export function parseEmbeddedAskResult(data: unknown): EmbeddedAskResultStatus | null {
     if (!data || typeof data !== "object") return null;
     const message = data as { type?: unknown; status?: unknown };
-    if (message.type !== "beeftv:ask-result") return null;
+    if (message.type !== "luckytv:ask-result") return null;
     return ASK_RESULT_STATUSES.find((status) => status === message.status) ?? null;
 }
 

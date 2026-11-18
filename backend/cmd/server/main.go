@@ -15,7 +15,7 @@ import (
 	"syscall"
 	"time"
 
-	"infinite-canvas/backend/internal/bootstrap"
+	"luckytv/backend/internal/bootstrap"
 
 	"github.com/gin-gonic/gin"
 )

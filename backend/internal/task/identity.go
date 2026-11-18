@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"strings"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
 )
 
 func IsRetiredAgentOperation(operation string) bool {

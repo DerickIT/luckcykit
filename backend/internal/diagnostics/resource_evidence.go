@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func (s *Service) collectResourceEvidence(userID string, tasks []model.Task, c *collection) {

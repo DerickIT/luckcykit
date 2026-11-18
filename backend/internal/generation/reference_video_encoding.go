@@ -7,10 +7,10 @@ import (
 	"net/url"
 	"strings"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/playback"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/playback"
 )
 
 // ReferenceVideoEncoding inspects the video track sample timing and FourCC codec.

@@ -31,13 +31,13 @@ describe('sim-go 内存版 Go 业务权威模拟器测试', () => {
     try {
       // 未授权 token 应被拒绝
       const unauth = await fetch(`${sim.opsUrl}/ops`, {
-        headers: { 'X-Beeftv-Agent-Token': 'wrong-token' },
+        headers: { 'X-Luckytv-Agent-Token': 'wrong-token' },
       });
       expect(unauth.status).toBe(403);
 
       // 正常获取描述符
       const opsRes = await fetch(`${sim.opsUrl}/ops`, {
-        headers: { 'X-Beeftv-Agent-Token': 'secret-token' },
+        headers: { 'X-Luckytv-Agent-Token': 'secret-token' },
       });
       expect(opsRes.status).toBe(200);
       const opsJson = await opsRes.json();
@@ -535,23 +535,23 @@ describe('预算门禁、密钥脱敏与评测配置校验测试', () => {
     expect(() => validateEvalConfig(args, {})).toThrow(/real_mode_price_missing/);
     expect(() =>
       validateEvalConfig(args, {
-        BEEFTV_EVAL_PRICE_IN: '0',
-        BEEFTV_EVAL_PRICE_OUT: '15',
+        LUCKYTV_EVAL_PRICE_IN: '0',
+        LUCKYTV_EVAL_PRICE_OUT: '15',
       }),
     ).toThrow(/real_mode_price_missing/);
     expect(() =>
       validateEvalConfig(args, {
-        BEEFTV_EVAL_PRICE_IN: '2',
-        BEEFTV_EVAL_PRICE_OUT: '8',
+        LUCKYTV_EVAL_PRICE_IN: '2',
+        LUCKYTV_EVAL_PRICE_OUT: '8',
       }),
     ).toThrow(/real_mode_credentials_missing/);
 
     const valid = validateEvalConfig(args, {
-      BEEFTV_EVAL_PRICE_IN: '2.5',
-      BEEFTV_EVAL_PRICE_OUT: '10',
-      BEEFTV_AGENT_BASE_URL: 'https://example.invalid/v1',
-      BEEFTV_AGENT_API_KEY: 'sk-test-secret-123456',
-      BEEFTV_AGENT_MODEL: 'gpt-test',
+      LUCKYTV_EVAL_PRICE_IN: '2.5',
+      LUCKYTV_EVAL_PRICE_OUT: '10',
+      LUCKYTV_AGENT_BASE_URL: 'https://example.invalid/v1',
+      LUCKYTV_AGENT_API_KEY: 'sk-test-secret-123456',
+      LUCKYTV_AGENT_MODEL: 'gpt-test',
     });
     expect(valid.modelMode).toBe('real');
     expect(valid.priceInPerMillion).toBe(2.5);
@@ -559,7 +559,7 @@ describe('预算门禁、密钥脱敏与评测配置校验测试', () => {
   });
 
   test('累计费用超预算上限时立即触发 aborted_budget 熔断并记录 ledger.jsonl', () => {
-    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-meter-test-'));
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-meter-test-'));
     const ledgerPath = path.join(tmpDir, 'ledger.jsonl');
     try {
       const meter = createCostMeter({
@@ -616,7 +616,7 @@ describe('预算门禁、密钥脱敏与评测配置校验测试', () => {
     expect(resolveScenarioList('S1,S3').map((s) => s.code)).toEqual(['S1', 'S3']);
     expect(buildS3SeedCanvas('c-s3').nodes.length).toBe(9);
 
-    const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-eval-e2e-'));
+    const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-eval-e2e-'));
     try {
       const res = await runEval({
         scenario: 'S2',
@@ -662,13 +662,13 @@ describe('预算门禁、密钥脱敏与评测配置校验测试', () => {
         ],
       })}\n\ndata: [DONE]\n`;
 
-    // 1) 空画布已有 <beeftv_studio> 仍调用 canvas_get -> 可省往返
+    // 1) 空画布已有 <luckytv_studio> 仍调用 canvas_get -> 可省往返
     const tEmptyGet = extractModelRequestTrace(
       {
         messages: [
           { role: 'system', content: 'sys' },
           { role: 'user', content: '帮我做两镜短剧' },
-          { role: 'user', content: '<beeftv_studio>\n[制作现场｜画布版本 1]\n概况：画布是空的。\n</beeftv_studio>' },
+          { role: 'user', content: '<luckytv_studio>\n[制作现场｜画布版本 1]\n概况：画布是空的。\n</luckytv_studio>' },
         ],
       },
       sseWithTool('canvas_get', { canvasId: 'c1' }),
@@ -677,7 +677,7 @@ describe('预算门禁、密钥脱敏与评测配置校验测试', () => {
     expect(tEmptyGet.trigger).toBe('user_message');
     expect(tEmptyGet.responseTools).toEqual(['canvas_get']);
     expect(tEmptyGet.eliminable).toBe(true);
-    expect(tEmptyGet.eliminableReason).toContain('空画布已有 <beeftv_studio>');
+    expect(tEmptyGet.eliminableReason).toContain('空画布已有 <luckytv_studio>');
 
     // 2) 工具报错触发的下一跳重试 -> 可省往返
     const tErrRetry = extractModelRequestTrace(
@@ -691,7 +691,7 @@ describe('预算门禁、密钥脱敏与评测配置校验测试', () => {
             tool_calls: [{ id: 'tc-1', function: { name: 'canvas_script_prepare', arguments: '{}' } }],
           },
           { role: 'tool', tool_call_id: 'tc-1', content: '{"error":"模拟器未实现操作: canvas.script.prepare"}' },
-          { role: 'user', content: '<beeftv_studio>\n概况：画布是空的。\n</beeftv_studio>' },
+          { role: 'user', content: '<luckytv_studio>\n概况：画布是空的。\n</luckytv_studio>' },
         ],
       },
       sseWithTool('canvas_nodes_create', { nodes: [{ type: 'script', title: '分镜' }] }),
@@ -759,7 +759,7 @@ describe('预算门禁、密钥脱敏与评测配置校验测试', () => {
           { role: 'tool', tool_call_id: 'tc-s1', content: '{"revision":2}' },
           {
             role: 'user',
-            content: [{ type: 'text', text: '[BEEFTV_INPUT:1]' }, { type: 'text', text: '改成赛博朋克 2 镜' }],
+            content: [{ type: 'text', text: '[LUCKYTV_INPUT:1]' }, { type: 'text', text: '改成赛博朋克 2 镜' }],
           },
         ],
       },
@@ -885,7 +885,7 @@ describe('预算门禁、密钥脱敏与评测配置校验测试', () => {
   });
 
   test('事件自动唤醒与用户复查分别计分，技能仅首轮激活后仍进入后续请求', async () => {
-    const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-eval-truth-'));
+    const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-eval-truth-'));
     try {
       const { report, markdown } = await runEval({
         scenario: 'S5,S6,S7', model: 'fake', runs: 1, maxRequests: 20, budgetCny: 10, outDir,
@@ -961,7 +961,7 @@ describe('请求归属、原文落盘与场景收尾', () => {
   });
 
   test('请求登记：迟到归回原场景、未知会话单列、在途计数准确、落盘脱敏', () => {
-    const requestsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-tracker-'));
+    const requestsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-tracker-'));
     let context = { runIndex: 1, scenarioId: 'S5', turnId: 's5-1' };
     const tracker = createRequestTracker({ requestsDir, getContext: () => context, secrets: ['sk-secret-value-123'] });
     try {
@@ -1202,7 +1202,7 @@ describe('模拟器任务耗时与外部提交（替代场景 R1 / R3 的前置�
     // task.wait 的 HTTP 入口会等任务结束，并回报节点是否已绑定。
     const waitRes = await fetch(`${simGo.baseUrl}/ops/task.wait`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-beeftv-agent-turn': 'turn-external' },
+      headers: { 'Content-Type': 'application/json', 'x-luckytv-agent-turn': 'turn-external' },
       body: JSON.stringify({ opId: 'wait-op-1', params: { taskId: submitted.taskIds[0], canvasId, nodeId: 'node-image', timeoutMs: 50 } }),
     });
     const waitBody = await waitRes.json();
@@ -1450,7 +1450,7 @@ describe('模拟器任务耗时与外部提交（替代场景 R1 / R3 的前置�
     };
     const rejected = await fetch(`${simGo.baseUrl}/api/ops/canvas.generation.submit`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Beeftv-Agent-Token': 'host-token', 'x-beeftv-agent-turn': 'turn-host-submit' },
+      headers: { 'Content-Type': 'application/json', 'X-Luckytv-Agent-Token': 'host-token', 'x-luckytv-agent-turn': 'turn-host-submit' },
       body: JSON.stringify({ opId: 'host-submit-1', params: submitParams }),
     });
     expect(rejected.status).toBe(403);
@@ -1461,7 +1461,7 @@ describe('模拟器任务耗时与外部提交（替代场景 R1 / R3 的前置�
     // 确认后任务完成会写回节点并推进画布版本，重提时带当前版本。
     const replay = await fetch(`${simGo.baseUrl}/api/ops/canvas.generation.submit`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Beeftv-Agent-Token': 'host-token', 'x-beeftv-agent-turn': 'turn-host-submit' },
+      headers: { 'Content-Type': 'application/json', 'X-Luckytv-Agent-Token': 'host-token', 'x-luckytv-agent-turn': 'turn-host-submit' },
       body: JSON.stringify({ opId: 'host-submit-2', params: { ...submitParams, expectedRevision: simGo.ensureCanvas(canvasId).revision } }),
     });
     const replayBody = await replay.json();
@@ -1479,7 +1479,7 @@ describe('模拟器任务耗时与外部提交（替代场景 R1 / R3 的前置�
     simGo.beginTurn({ turnId: 'turn-wait-hidden', canvasId, permissionMode: 'canvas' });
     const hidden = await fetch(`${simGo.baseUrl}/api/ops/task.wait`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-beeftv-agent-turn': 'turn-wait-hidden' },
+      headers: { 'Content-Type': 'application/json', 'x-luckytv-agent-turn': 'turn-wait-hidden' },
       body: JSON.stringify({ opId: 'wait-hidden', params: { taskId: 'task-1', timeoutMs: 1 } }),
     });
     expect(hidden.status).toBe(404);
@@ -1487,7 +1487,7 @@ describe('模拟器任务耗时与外部提交（替代场景 R1 / R3 的前置�
     simGo.enableTaskWait();
     const exposed = await fetch(`${simGo.baseUrl}/api/ops/task.wait`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-beeftv-agent-turn': 'turn-wait-hidden' },
+      headers: { 'Content-Type': 'application/json', 'x-luckytv-agent-turn': 'turn-wait-hidden' },
       body: JSON.stringify({ opId: 'wait-exposed', params: { taskId: 'task-1', timeoutMs: 1 } }),
     });
     expect(exposed.status).toBe(200);

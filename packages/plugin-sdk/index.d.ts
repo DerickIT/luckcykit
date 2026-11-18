@@ -56,7 +56,7 @@ export type PluginProviderOperation = {
   headers?: Record<string, string>;
 };
 
-/** How BeefTV sends the key. `none` is for services without one; users can leave the key empty. */
+/** How LuckyTV sends the key. `none` is for services without one; users can leave the key empty. */
 export type PluginProviderAuth = {
   type: "none" | "bearer" | "header" | "api-key" | "query" | "basic";
   /** Which key to send: `apiKey` or `secretKey`. */
@@ -79,7 +79,7 @@ type PluginProviderBase = {
   parameters?: PluginParameter[];
 };
 
-/** A generation service described as HTTP requests; BeefTV sends them. */
+/** A generation service described as HTTP requests; LuckyTV sends them. */
 export type PluginHttpProviderContribution = PluginProviderBase & {
   variables?: Array<{ name: string; value: unknown }>;
   validations?: Array<{ assert: unknown; message: string }>;
@@ -138,13 +138,13 @@ export type PluginContributions = {
 };
 
 /**
- * The `beeftv` block of package.json. The plugin ID, version, description and author come
+ * The `luckytv` block of package.json. The plugin ID, version, description and author come
  * from package.json's own `name`, `version`, `description` and `author`. Assistant skills
- * and extensions go in package.json's `pi` block. BeefTV refuses to install a package whose
- * `beeftv` block has keys other than these and says how to fix each one.
+ * and extensions go in package.json's `pi` block. LuckyTV refuses to install a package whose
+ * `luckytv` block has keys other than these and says how to fix each one.
  */
 export type PluginManifest = {
-  /** Name shown in BeefTV; defaults to package.json's `name`. */
+  /** Name shown in LuckyTV; defaults to package.json's `name`. */
   name?: string;
   /** Browser entry, a relative path such as `./client/index.js`. */
   client?: string;
@@ -167,7 +167,7 @@ export type MediaReference = {
   metadata?: Record<string, unknown>;
 };
 
-/** What BeefTV passes to `submit` and `query`. Provider-specific values are in `extra`. */
+/** What LuckyTV passes to `submit` and `query`. Provider-specific values are in `extra`. */
 export type GenerationRequest = {
   capability?: ProtocolCapability;
   model: string;
@@ -188,7 +188,7 @@ export type GenerationRequest = {
   operation?: string;
   output?: Record<string, unknown>;
   providerOptions?: Record<string, Record<string, unknown>>;
-  /** `extra.idempotencyKey` stays the same if BeefTV has to submit the same task again. */
+  /** `extra.idempotencyKey` stays the same if LuckyTV has to submit the same task again. */
   extra?: Record<string, unknown>;
 };
 
@@ -203,7 +203,7 @@ export type GenerationResult = {
 export type GenerationTaskState = {
   taskId?: string;
   status: "pending" | "processing" | "succeeded" | "failed" | "cancelled";
-  /** Required once `status` is `"succeeded"`. BeefTV downloads the media URLs into the workspace. */
+  /** Required once `status` is `"succeeded"`. LuckyTV downloads the media URLs into the workspace. */
   result?: GenerationResult;
   /** Shown to the user when the task failed. */
   message?: string;
@@ -212,9 +212,9 @@ export type GenerationTaskState = {
 export type ProviderModuleContext = {
   /** The channel the user picked: its base URL and API key. */
   config: { baseUrl?: string; apiKey?: string };
-  /** Aborted when BeefTV stops this call, for example when the user cancels the task. */
+  /** Aborted when LuckyTV stops this call, for example when the user cancels the task. */
   signal: AbortSignal;
-  /** Writes a line to the BeefTV backend log. Do not log keys. */
+  /** Writes a line to the LuckyTV backend log. Do not log keys. */
   log(message: string): void;
 };
 
@@ -226,19 +226,19 @@ export type ProviderModel = {
 };
 
 /**
- * The file a `module` provider points to. It runs in a Node process next to the BeefTV
+ * The file a `module` provider points to. It runs in a Node process next to the LuckyTV
  * backend, so it can use fetch and Node built-ins.
  *
  * - `submit` starts a task and returns its `taskId`, or the final result when the service
- *   answers at once. If `submit` throws, BeefTV cannot tell whether the task was created
+ *   answers at once. If `submit` throws, LuckyTV cannot tell whether the task was created
  *   and does not retry.
- * - `query` is called until the task finishes, including after BeefTV restarts. If it throws,
- *   BeefTV tries again later; three throws in a row fail the task with the last error's message.
+ * - `query` is called until the task finishes, including after LuckyTV restarts. If it throws,
+ *   LuckyTV tries again later; three throws in a row fail the task with the last error's message.
  * - `models` is optional. When the user adds this service under model services and clicks
- *   "读取模型", BeefTV calls it with the address and key they entered. Without it, users
+ *   "读取模型", LuckyTV calls it with the address and key they entered. Without it, users
  *   type model IDs by hand.
  *
- * BeefTV does not ask the service to cancel a task; cancelling only stops BeefTV waiting.
+ * LuckyTV does not ask the service to cancel a task; cancelling only stops LuckyTV waiting.
  */
 export type ProviderModule = {
   submit(request: GenerationRequest, ctx: ProviderModuleContext): GenerationTaskState | Promise<GenerationTaskState>;
@@ -279,13 +279,13 @@ export type PluginCanvasNodeProps<TPluginData = Record<string, unknown>> = {
     };
     [key: string]: unknown;
   };
-  host?: BeefTVPluginHost;
+  host?: LuckyTVPluginHost;
   updateNodeData?: (patch: Partial<TPluginData>) => void | Promise<void>;
   onContentChange?: (nodeId: string, content: string) => void;
 };
 
 export type PluginInstallConfirmRequest = {
-  /** npm spec, local package directory, or the name of a sample shipped with BeefTV. */
+  /** npm spec, local package directory, or the name of a sample shipped with LuckyTV. */
   source: string;
   name?: string;
   version?: string;
@@ -496,7 +496,7 @@ export type AssistantToolCardSlotContribution = {
   }) => unknown;
 };
 
-export interface BeefTVSlotMap {
+export interface LuckyTVSlotMap {
   "canvas.node": CanvasNodeSlotContribution;
   "canvas.addNodeMenu": CanvasAddNodeMenuSlotContribution;
   "canvas.toolbar.main": CanvasToolbarSlotContribution;
@@ -526,9 +526,9 @@ export interface BeefTVSlotMap {
   "assistant.toolCard": AssistantToolCardSlotContribution;
 }
 
-export type BeefTVSlotName = keyof BeefTVSlotMap;
+export type LuckyTVSlotName = keyof LuckyTVSlotMap;
 
-export interface BeefTVEventMap {
+export interface LuckyTVEventMap {
   "generation.submitted": { nodeId: string; nodeType: string; model?: string; prompt: string; taskId?: string };
   "generation.completed": { nodeId: string; nodeType: string };
   "generation.failed": { nodeId: string; nodeType: string; error: string; taskId?: string };
@@ -536,17 +536,17 @@ export interface BeefTVEventMap {
   "assistant.turnCompleted": { canvasId?: string; sessionId?: string; turnId?: string; status: "completed" | "failed" | "cancelled" };
 }
 
-export type BeefTVEventName = keyof BeefTVEventMap;
+export type LuckyTVEventName = keyof LuckyTVEventMap;
 
-export interface BeefTVPluginHost {
+export interface LuckyTVPluginHost {
   readonly pluginId: string;
   readonly manifest: PluginManifest;
   /** The host's React; plugins must not bundle their own copy. */
   readonly React: typeof import("react");
-  contribute<K extends BeefTVSlotName>(slot: K, payload: BeefTVSlotMap[K]): () => void;
+  contribute<K extends LuckyTVSlotName>(slot: K, payload: LuckyTVSlotMap[K]): () => void;
   events: {
-    on<K extends BeefTVEventName>(event: K, handler: (payload: BeefTVEventMap[K]) => void): () => void;
-    emit<K extends BeefTVEventName>(event: K, payload: BeefTVEventMap[K]): void;
+    on<K extends LuckyTVEventName>(event: K, handler: (payload: LuckyTVEventMap[K]) => void): () => void;
+    emit<K extends LuckyTVEventName>(event: K, payload: LuckyTVEventMap[K]): void;
   };
   storage: PluginStorage;
   config: {
@@ -620,12 +620,12 @@ export interface PiExtensionAPI {
   registerTool<TParams = Record<string, unknown>>(definition: PiToolDefinition<TParams>): void;
 }
 
-export declare const BEEFTV_SLOTS: readonly BeefTVSlotName[];
-export declare const BEEFTV_EVENTS: readonly BeefTVEventName[];
+export declare const LUCKYTV_SLOTS: readonly LuckyTVSlotName[];
+export declare const LUCKYTV_EVENTS: readonly LuckyTVEventName[];
 
 export declare function definePlugin(
-  activate: (host: BeefTVPluginHost) => void | (() => void) | Promise<void | (() => void)>
-): (host: BeefTVPluginHost) => void | (() => void) | Promise<void | (() => void)>;
+  activate: (host: LuckyTVPluginHost) => void | (() => void) | Promise<void | (() => void)>
+): (host: LuckyTVPluginHost) => void | (() => void) | Promise<void | (() => void)>;
 
 export declare function defineProvider<T extends ProviderModule>(module: T): T;
 

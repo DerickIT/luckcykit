@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/operations"
 )
 
 func TestModelCatalogUsesPublicProjectionAndRejectsExtraParameters(t *testing.T) {

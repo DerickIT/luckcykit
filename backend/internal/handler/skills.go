@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/skills"
 
 	"github.com/gin-gonic/gin"
 )

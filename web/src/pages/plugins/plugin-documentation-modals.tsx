@@ -76,7 +76,7 @@ export function UploadPluginModal({ open, onClose, onUpload }: UploadPluginModal
                     >
                         <Upload.Dragger
                             className="plugin-upload-dropzone"
-                            accept=".beeftv-plugin,.tgz,application/zip,application/gzip"
+                            accept=".luckytv-plugin,.tgz,application/zip,application/gzip"
                             maxCount={1}
                             showUploadList={false}
                             beforeUpload={(file) => {
@@ -86,12 +86,12 @@ export function UploadPluginModal({ open, onClose, onUpload }: UploadPluginModal
                         >
                             <CloudUpload className="plugin-upload-dropzone-icon" />
                             <p className="ant-upload-text">{isDraggingPlugin ? "释放文件以上传插件" : "点击选择插件文件，也可拖拽到此处"}</p>
-                            <p className="ant-upload-hint">支持 .beeftv-plugin 包或 npm 打出的 .tgz 包 · 大小不超过 48 MiB</p>
+                            <p className="ant-upload-hint">支持 .luckytv-plugin 包或 npm 打出的 .tgz 包 · 大小不超过 48 MiB</p>
                         </Upload.Dragger>
                     </div>
                     <div className="plugin-upload-notice">
                         <AlertTriangle className="size-4" />
-                        <span>插件会运行它自带的代码，能读取你在 BeefTV 里的数据和本机保存的 API Key。请只上传你信任的插件。</span>
+                        <span>插件会运行它自带的代码，能读取你在 LuckyTV 里的数据和本机保存的 API Key。请只上传你信任的插件。</span>
                     </div>
                 </aside>
             </div>

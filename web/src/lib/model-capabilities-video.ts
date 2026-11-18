@@ -481,7 +481,7 @@ export function alignDocumentedVideoRouteLimits(video: VideoCapabilityConfig | u
         const raw = (channel?.baseUrl || "").trim();
         host = new URL(isRawChannelBaseUrl(raw) ? cleanChannelBaseUrl(raw) : raw).hostname.toLowerCase();
     } catch { /* no public URL */ }
-    const materialHost = ["beeftv.app", "whatstoken.ai", "www.whatstoken.ai"].includes(host) || channel?.id === "beeftv";
+    const materialHost = ["luckytv.app", "whatstoken.ai", "www.whatstoken.ai"].includes(host) || channel?.id === "luckytv";
     if ((isVolcengineArkVideoProtocol(protocol) || materialHost) && video.references.minVideoPixels === 409600 && video.references.maxVideoPixels === 8295044) video.references.minVideoPixels = 407696;
     // 输出时长下限官方 4 秒：区间、连续（fractionalMin）和枚举三种配置都要收紧，枚举里的 -1（自动）保留。
     video.duration = tightenDocumentedOutputDuration(video.duration);

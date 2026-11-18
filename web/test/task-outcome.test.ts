@@ -205,10 +205,10 @@ describe("task-outcome", () => {
         const expiredIso = new Date(nowMs - 60_000).toISOString();
 
         const futureCopy = formatReconcileDeadlineCopy(futureIso, nowMs);
-        expect(futureCopy).toMatch(/^BeefTV 正在核对上次提交，预计 \d{2}:\d{2} 前有结论$/);
+        expect(futureCopy).toMatch(/^LuckyTV 正在核对上次提交，预计 \d{2}:\d{2} 前有结论$/);
 
         const expiredCopy = formatReconcileDeadlineCopy(expiredIso, nowMs);
-        expect(expiredCopy).toBe("BeefTV 正在核对，已超过预计时间，可联系客服");
+        expect(expiredCopy).toBe("LuckyTV 正在核对，已超过预计时间，可联系客服");
 
         const confirmUncertain = taskOutcomeCopy(
             {
@@ -232,8 +232,8 @@ describe("task-outcome", () => {
         expect(confirmCharged.reason).toBe("上次已扣费，但结果拿不回，重新生成会再扣一次");
 
         const forbiddenTokens = [
-            "BeefAPI",
-            "beefapi",
+            "LuckyAPI",
+            "luckyapi",
             "usage_state",
             "billing_state",
             "reconcile_deadline",

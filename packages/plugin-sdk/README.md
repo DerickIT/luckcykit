@@ -1,24 +1,24 @@
-# `@beeftv/plugin-sdk`
+# `@luckytv/plugin-sdk`
 
-BeefTV 插件开发 SDK，提供：
+LuckyTV 插件开发 SDK，提供：
 
-- `package.json` 里 `beeftv` 一段的类型（`PluginManifest`）
-- 浏览器端 `activate(host)` 的宿主接口类型（`BeefTVPluginHost`）
-- 全部界面扩展位（`BeefTVSlotMap`）与宿主事件（`BeefTVEventMap`）
+- `package.json` 里 `luckytv` 一段的类型（`PluginManifest`）
+- 浏览器端 `activate(host)` 的宿主接口类型（`LuckyTVPluginHost`）
+- 全部界面扩展位（`LuckyTVSlotMap`）与宿主事件（`LuckyTVEventMap`）
 - 用 JS 写生成服务时的 `submit` / `query` 类型（`defineProvider`、`ProviderModule`）
 - 助手端 `pi` 扩展工具定义辅助函数（`definePiExtension`、`PiExtensionAPI`）
 
 ## 清单
 
-插件 ID、版本、说明和作者直接取 `package.json` 的 `name`、`version`、`description`、`author`，`beeftv` 里只写 BeefTV 自己的东西：
+插件 ID、版本、说明和作者直接取 `package.json` 的 `name`、`version`、`description`、`author`，`luckytv` 里只写 LuckyTV 自己的东西：
 
 ```json
 {
-  "name": "beeftv-plugin-sticky-note",
+  "name": "luckytv-plugin-sticky-note",
   "version": "0.1.0",
   "description": "在画布上放一张便签",
-  "keywords": ["beeftv-plugin"],
-  "beeftv": {
+  "keywords": ["luckytv-plugin"],
+  "luckytv": {
     "name": "画布便签",
     "client": "./client/index.js",
     "contributes": {
@@ -30,21 +30,21 @@ BeefTV 插件开发 SDK，提供：
 }
 ```
 
-写了别的键（比如 `beeftv.id`、顶层 `canvasNodes`、节点的 `type`）时，BeefTV 不会安装，并逐项说明该怎么改。
+写了别的键（比如 `luckytv.id`、顶层 `canvasNodes`、节点的 `type`）时，LuckyTV 不会安装，并逐项说明该怎么改。
 
 ## 怎么用
 
-BeefTV 直接加载插件里的 JS 文件，不经过打包，所以文件里不能 `import "@beeftv/plugin-sdk"`。把仓库内的 `packages/plugin-sdk` 装成开发依赖（例如 `npm i -D <BeefTV仓库路径>/packages/plugin-sdk`），用 JSDoc 拿到编辑器提示；用 TypeScript 或打包工具的插件也可以直接用 `definePlugin`、`defineProvider`，打包后发布。
+LuckyTV 直接加载插件里的 JS 文件，不经过打包，所以文件里不能 `import "@luckytv/plugin-sdk"`。把仓库内的 `packages/plugin-sdk` 装成开发依赖（例如 `npm i -D <LuckyTV仓库路径>/packages/plugin-sdk`），用 JSDoc 拿到编辑器提示；用 TypeScript 或打包工具的插件也可以直接用 `definePlugin`、`defineProvider`，打包后发布。
 
 ## 界面插件
 
 ```js
-/** @param {import("@beeftv/plugin-sdk").BeefTVPluginHost} host */
+/** @param {import("@luckytv/plugin-sdk").LuckyTVPluginHost} host */
 export function activate(host) {
   host.contribute("app.command", {
-    id: "hello-beeftv",
-    label: "向 BeefTV 问好",
-    onSelect: () => host.ui.notify("你好，BeefTV！", "success"),
+    id: "hello-luckytv",
+    label: "向 LuckyTV 问好",
+    onSelect: () => host.ui.notify("你好，LuckyTV！", "success"),
   });
 }
 ```
@@ -54,7 +54,7 @@ export function activate(host) {
 在清单里登记 `"providers": [{ "id": "my-service", "label": "我的服务", "capabilities": ["image"], "scopes": ["user.custom-channel"], "module": "./provider.js" }]`（只支持图片、视频、音频），然后在 `provider.js` 里：
 
 ```js
-/** @type {import("@beeftv/plugin-sdk").ProviderModule["submit"]} */
+/** @type {import("@luckytv/plugin-sdk").ProviderModule["submit"]} */
 export async function submit(request, ctx) {
   const response = await fetch(`${ctx.config.baseUrl}/tasks`, {
     method: "POST",
@@ -66,7 +66,7 @@ export async function submit(request, ctx) {
   return { taskId: (await response.json()).id, status: "pending" };
 }
 
-/** @type {import("@beeftv/plugin-sdk").ProviderModule["query"]} */
+/** @type {import("@luckytv/plugin-sdk").ProviderModule["query"]} */
 export async function query(taskId, request, ctx) {
   const task = await (await fetch(`${ctx.config.baseUrl}/tasks/${taskId}`, { signal: ctx.signal })).json();
   if (task.state === "done") return { taskId, status: "succeeded", result: { images: [{ url: task.imageUrl }] } };
@@ -74,6 +74,6 @@ export async function query(taskId, request, ctx) {
 }
 ```
 
-还可以导出 `models(ctx)`，返回 `[{ id, displayName, capability }]`。装好插件后，这个服务会出现在「模型服务 → 选择服务商」里，用户填好地址后点「读取模型」，BeefTV 就调用它列出模型；不写的话，用户要手动填模型 ID。
+还可以导出 `models(ctx)`，返回 `[{ id, displayName, capability }]`。装好插件后，这个服务会出现在「模型服务 → 选择服务商」里，用户填好地址后点「读取模型」，LuckyTV 就调用它列出模型；不写的话，用户要手动填模型 ID。
 
-这个文件跑在 BeefTV 后端旁边的 Node 进程里。BeefTV 负责记任务、重启后继续查询、把结果下载进工作区；插件只管跟服务商说话。
+这个文件跑在 LuckyTV 后端旁边的 Node 进程里。LuckyTV 负责记任务、重启后继续查询、把结果下载进工作区；插件只管跟服务商说话。

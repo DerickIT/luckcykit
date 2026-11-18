@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"infinite-canvas/backend/internal/mediatools"
+	"luckytv/backend/internal/mediatools"
 )
 
 // PrepareWAV writes the media stream to a temp file and converts it to 16 kHz
@@ -19,7 +19,7 @@ func PrepareWAV(ctx context.Context, reader io.Reader, mime string) (string, fun
 	if err != nil {
 		return "", nil, fmt.Errorf("音频预处理依赖未安装（需要 ffmpeg）")
 	}
-	tmpDir, err := os.MkdirTemp("", "beeftv-whisper-*")
+	tmpDir, err := os.MkdirTemp("", "luckytv-whisper-*")
 	if err != nil {
 		return "", nil, fmt.Errorf("创建临时目录失败: %w", err)
 	}

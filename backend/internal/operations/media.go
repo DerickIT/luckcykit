@@ -17,9 +17,9 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/assets"
-	"infinite-canvas/backend/internal/editing"
-	"infinite-canvas/backend/internal/mediatools"
+	"luckytv/backend/internal/assets"
+	"luckytv/backend/internal/editing"
+	"luckytv/backend/internal/mediatools"
 )
 
 // MediaSourceOpener is optional: domain implementations must open only owned,
@@ -310,7 +310,7 @@ func runMedia(opCtx *Context, operation string, raw json.RawMessage) (any, error
 		case <-readDone:
 		}
 	}()
-	dir, err := os.MkdirTemp("", "beeftv-media-*")
+	dir, err := os.MkdirTemp("", "luckytv-media-*")
 	if err != nil {
 		return nil, PreconditionFailed("media_storage_unavailable", "媒体检查临时空间不可用", nil)
 	}

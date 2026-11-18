@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"infinite-canvas/backend/internal/kernel"
+	"luckytv/backend/internal/kernel"
 )
 
 // StoryboardPreparation creates the production drafts for existing, authored

@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"infinite-canvas/backend/internal/beeftv"
+	"luckytv/backend/internal/luckytv"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -42,10 +42,10 @@ func TestRunMusicNormalizesOldFormatAndSendsSSE(t *testing.T) {
 		w.Write([]byte(": PING\n\ndata: {\"type\":\"speech.audio.delta\",\"audio\":\"SUQzbXVzaWM=\"}\n\ndata: {\"type\":\"speech.audio.done\"}\n\n"))
 	}))
 	defer server.Close()
-	t.Setenv("BEEFTV_ENTERPRISE_TEST_ORIGIN", server.URL)
+	t.Setenv("LUCKYTV_ENTERPRISE_TEST_ORIGIN", server.URL)
 	for _, withPlugin := range []bool{false, true} {
-		ctx := WithEndpoints(context.Background(), Endpoints{BeefTVVideoBaseURL: server.URL})
-		config := Config{CredentialRef: beeftv.CredentialRef, Model: "minimax-music-v3.0", BaseURL: server.URL, AudioFormat: "flac"}
+		ctx := WithEndpoints(context.Background(), Endpoints{LuckyTVVideoBaseURL: server.URL})
+		config := Config{CredentialRef: luckytv.CredentialRef, Model: "minimax-music-v3.0", BaseURL: server.URL, AudioFormat: "flac"}
 		if withPlugin {
 			config.InterfaceType = "openai-audio"
 			registry := LoadOfficialFallbackRegistry()
@@ -66,19 +66,19 @@ func TestRunMusicNormalizesOldFormatAndSendsSSE(t *testing.T) {
 }
 
 func TestMusicSSEEndpointUsesExactProductionOrExplicitLoopback(t *testing.T) {
-	t.Setenv("BEEFTV_ENTERPRISE_TEST_ORIGIN", "http://127.0.0.1:33419")
-	for _, endpoint := range []string{"https://beeftv.app", "https://beeftv.app/v1", "http://127.0.0.1:33419/v1"} {
-		if !isBeefTVHostFromURL(endpoint) {
+	t.Setenv("LUCKYTV_ENTERPRISE_TEST_ORIGIN", "http://127.0.0.1:33419")
+	for _, endpoint := range []string{"https://luckytv.app", "https://luckytv.app/v1", "http://127.0.0.1:33419/v1"} {
+		if !isLuckyTVHostFromURL(endpoint) {
 			t.Errorf("rejected endpoint %s", endpoint)
 		}
 	}
-	for _, endpoint := range []string{"http://127.0.0.1:33418", "https://beeftv.app.attacker.example", "https://user@beeftv.app", "https://beeftv.app:444", "https://legacy-enterprise.example.com/v1", "https://api.legacy.example.com", "http://192.168.1.4:33419"} {
-		if isBeefTVHostFromURL(endpoint) {
+	for _, endpoint := range []string{"http://127.0.0.1:33418", "https://luckytv.app.attacker.example", "https://user@luckytv.app", "https://luckytv.app:444", "https://legacy-enterprise.example.com/v1", "https://api.legacy.example.com", "http://192.168.1.4:33419"} {
+		if isLuckyTVHostFromURL(endpoint) {
 			t.Errorf("accepted endpoint %s", endpoint)
 		}
 	}
-	t.Setenv("BEEFTV_ENTERPRISE_TEST_ORIGIN", "https://attacker.example")
-	if isBeefTVHostFromURL("https://attacker.example") {
+	t.Setenv("LUCKYTV_ENTERPRISE_TEST_ORIGIN", "https://attacker.example")
+	if isLuckyTVHostFromURL("https://attacker.example") {
 		t.Fatal("accepted invalid test origin")
 	}
 }
@@ -101,7 +101,7 @@ func TestMusicPluginRejectsIncompleteOrNonAudioResponses(t *testing.T) {
 				w.Write([]byte(tc.body))
 			}))
 			defer server.Close()
-			t.Setenv("BEEFTV_ENTERPRISE_TEST_ORIGIN", server.URL)
+			t.Setenv("LUCKYTV_ENTERPRISE_TEST_ORIGIN", server.URL)
 			_, err := RunAudioTask(WithProtocolRegistry(context.Background(), registry), Input{Mode: "audio", Config: Config{InterfaceType: "openai-audio", Model: "minimax-music-v3.0", BaseURL: server.URL, AudioFormat: "flac"}, Prompt: "piano"})
 			if err == nil {
 				t.Fatal("accepted invalid audio result")
@@ -111,7 +111,7 @@ func TestMusicPluginRejectsIncompleteOrNonAudioResponses(t *testing.T) {
 }
 
 func TestMusicChannelNameDoesNotEnableSSEForCustomOrigin(t *testing.T) {
-	t.Setenv("BEEFTV_ENTERPRISE_TEST_ORIGIN", "")
+	t.Setenv("LUCKYTV_ENTERPRISE_TEST_ORIGIN", "")
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var body map[string]interface{}
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
@@ -126,7 +126,7 @@ func TestMusicChannelNameDoesNotEnableSSEForCustomOrigin(t *testing.T) {
 	defer server.Close()
 	for _, withPlugin := range []bool{false, true} {
 		ctx := context.Background()
-		config := Config{ChannelID: "beeftv", Model: "minimax-music-v3.0", BaseURL: server.URL}
+		config := Config{ChannelID: "luckytv", Model: "minimax-music-v3.0", BaseURL: server.URL}
 		if withPlugin {
 			config.InterfaceType = "openai-audio"
 			ctx = WithProtocolRegistry(ctx, LoadOfficialFallbackRegistry())
@@ -158,7 +158,7 @@ func TestMusicSignedResultDownloadsWithoutModelCredential(t *testing.T) {
 		_, _ = w.Write([]byte(done))
 	}))
 	defer provider.Close()
-	t.Setenv("BEEFTV_ENTERPRISE_TEST_ORIGIN", provider.URL)
+	t.Setenv("LUCKYTV_ENTERPRISE_TEST_ORIGIN", provider.URL)
 	for _, withPlugin := range []bool{false, true} {
 		ctx := context.Background()
 		config := Config{Model: "minimax-music-v3.0", BaseURL: provider.URL, APIKey: "model-key-fixture"}

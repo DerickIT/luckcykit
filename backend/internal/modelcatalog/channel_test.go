@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/protocol"
 )
 
 func TestNormalizeChannelModelContractAcceptsProtocolAlias(t *testing.T) {

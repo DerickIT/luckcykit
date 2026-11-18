@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/outbound"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/outbound"
+	"luckytv/backend/internal/protocol"
 )
 
 func FinishProtocolResult(ctx context.Context, config Config, mode string, taskID string, result *protocol.Result, pollPolicy VideoPollPolicy) (map[string]interface{}, error) {

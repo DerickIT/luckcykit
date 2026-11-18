@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func TestUserCanvasLibraryPageIsBoundedAndScoped(t *testing.T) {

@@ -7,10 +7,10 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/database"
-	"infinite-canvas/backend/internal/operations"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/database"
+	"luckytv/backend/internal/operations"
+	"luckytv/backend/internal/skills"
 )
 
 func TestBuiltInAgentPreparesPrivateDraftButCannotUploadOrSubmit(t *testing.T) {
@@ -30,7 +30,7 @@ func TestBuiltInAgentPreparesPrivateDraftButCannotUploadOrSubmit(t *testing.T) {
 		w.WriteHeader(500)
 	}))
 	defer remote.Close()
-	t.Setenv("BEEFTV_SKILLHUB_URL", remote.URL)
+	t.Setenv("LUCKYTV_SKILLHUB_URL", remote.URL)
 	registry := operations.NewRegistry(env.service, operations.NewStore(env.service.Database()))
 	operations.RegisterDefaultOps(registry)
 	scope := &agentops.AssistantScope{CanvasID: env.canvasID, PermissionMode: "canvas"}

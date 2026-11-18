@@ -6,7 +6,7 @@ import { starterAssistantHandler, useCanvasStarterNavigation } from "@/pages/can
 
 const embedded = new URLSearchParams(window.location.search).get("embedded") === "1";
 if (embedded) {
-    window.__BEEFTV_HARNESS__ = { embedded: true, apiBase: "/beeftv/app/api", basePath: "/beeftv/app", parentOrigin: window.location.origin };
+    window.__LUCKYTV_HARNESS__ = { embedded: true, apiBase: "/luckytv/app/api", basePath: "/luckytv/app", parentOrigin: window.location.origin };
 }
 
 function Harness() {

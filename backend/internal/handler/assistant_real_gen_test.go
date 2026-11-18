@@ -16,16 +16,16 @@ import (
 
 // 真实宿主 + 真实 Go 业务层 + 可真实出图/出视频的生成链路。
 //
-// 默认跳过；BEEFTV_REAL_GEN=1 时用本测试内的本地假 OpenAI 图片/视频上游返回合法产物，
+// 默认跳过；LUCKYTV_REAL_GEN=1 时用本测试内的本地假 OpenAI 图片/视频上游返回合法产物，
 // 只验证「分镜 → 首帧图 → 检查 → 视频 → 剪成片 → 下载产物」整条流程。
-// 设置 BEEFTV_REAL_GEN_URL / BEEFTV_REAL_GEN_KEY 后自动改为转发真实网关，费用自理。
+// 设置 LUCKYTV_REAL_GEN_URL / LUCKYTV_REAL_GEN_KEY 后自动改为转发真实网关，费用自理。
 // 上游密钥只从环境变量进入本进程内存，不写入配置、日志或报告。
 func TestAssistantRealGenerationEndToEnd(t *testing.T) {
 	if testing.Short() {
 		t.Skip("spawns the real agent host and local task worker")
 	}
-	if os.Getenv("BEEFTV_REAL_GEN") != "1" && strings.TrimSpace(os.Getenv("BEEFTV_REAL_GEN_URL")) == "" {
-		t.Skip("设置 BEEFTV_REAL_GEN=1 跑本地假生成；设置 BEEFTV_REAL_GEN_URL 跑真实生成")
+	if os.Getenv("LUCKYTV_REAL_GEN") != "1" && strings.TrimSpace(os.Getenv("LUCKYTV_REAL_GEN_URL")) == "" {
+		t.Skip("设置 LUCKYTV_REAL_GEN=1 跑本地假生成；设置 LUCKYTV_REAL_GEN_URL 跑真实生成")
 	}
 	harness := newE2EGenerationHarness(t, false)
 	reportRaw := harness.runDriver(t, map[string]any{
@@ -58,14 +58,14 @@ type e2eGenerationHarness struct {
 
 func newE2EGenerationHarness(t *testing.T, forceFake bool) *e2eGenerationHarness {
 	t.Helper()
-	upstreamURL := strings.TrimSpace(os.Getenv("BEEFTV_REAL_GEN_URL"))
-	upstreamKey := strings.TrimSpace(os.Getenv("BEEFTV_REAL_GEN_KEY"))
+	upstreamURL := strings.TrimSpace(os.Getenv("LUCKYTV_REAL_GEN_URL"))
+	upstreamKey := strings.TrimSpace(os.Getenv("LUCKYTV_REAL_GEN_KEY"))
 	fake := forceFake || upstreamURL == ""
 	if forceFake {
 		upstreamURL = ""
 	}
 	if !fake && upstreamKey == "" {
-		t.Fatal("设置 BEEFTV_REAL_GEN_URL 时必须同时通过 BEEFTV_REAL_GEN_KEY 提供密钥")
+		t.Fatal("设置 LUCKYTV_REAL_GEN_URL 时必须同时通过 LUCKYTV_REAL_GEN_KEY 提供密钥")
 	}
 	if err := e2eValidateConfirmDelay(fake); err != nil {
 		t.Fatal(err)
@@ -92,7 +92,7 @@ func newE2EGenerationHarness(t *testing.T, forceFake bool) *e2eGenerationHarness
 		png, mp4 = generateFakeGenerationMedia(t)
 	}
 	upstream := newE2EGenerationUpstream(fake, upstreamURL, upstreamKey, png, mp4)
-	upstream.imageDelay = time.Duration(envInt("BEEFTV_REAL_GEN_TEST_IMAGE_DELAY_MS", 0)) * time.Millisecond
+	upstream.imageDelay = time.Duration(envInt("LUCKYTV_REAL_GEN_TEST_IMAGE_DELAY_MS", 0)) * time.Millisecond
 	upstreamServer := httptest.NewServer(upstream)
 	t.Cleanup(upstreamServer.Close)
 	upstream.publicBase = upstreamServer.URL
@@ -118,8 +118,8 @@ func newE2EGenerationHarness(t *testing.T, forceFake bool) *e2eGenerationHarness
 		_ = env.service.StopWorker(ctx)
 	})
 
-	maxTasks := envInt("BEEFTV_REAL_GEN_MAX_TASKS", 6)
-	maxVideoSeconds := envInt("BEEFTV_REAL_GEN_MAX_VIDEO_SECONDS", 5)
+	maxTasks := envInt("LUCKYTV_REAL_GEN_MAX_TASKS", 6)
+	maxVideoSeconds := envInt("LUCKYTV_REAL_GEN_MAX_VIDEO_SECONDS", 5)
 	mux := http.NewServeMux()
 	mux.Handle("/", env.router)
 	registerE2EGenerationEndpoints(mux, env, owner.ID, canvasID, maxTasks, maxVideoSeconds)
@@ -130,7 +130,7 @@ func newE2EGenerationHarness(t *testing.T, forceFake bool) *e2eGenerationHarness
 	if err != nil {
 		t.Fatal(err)
 	}
-	out := os.Getenv("BEEFTV_REAL_GEN_OUT")
+	out := os.Getenv("LUCKYTV_REAL_GEN_OUT")
 	if out == "" {
 		out = t.TempDir()
 	}
@@ -166,10 +166,10 @@ func (h *e2eGenerationHarness) prepareDriver(t *testing.T, extra map[string]any)
 		"hostToken": assistantTestHostToken, "provider": h.provider, "canvasId": h.canvasID,
 		"messages": h.messages, "outDir": out, "maxRequests": 160,
 		"maxTasks": h.maxTasks, "maxVideoSeconds": h.maxVideoSeconds,
-		"turnTimeoutMs":  envInt("BEEFTV_REAL_GEN_TURN_TIMEOUT_MS", 600000),
-		"imageTimeoutMs": envInt("BEEFTV_REAL_GEN_IMAGE_TIMEOUT_MS", 300000),
-		"videoTimeoutMs": envInt("BEEFTV_REAL_GEN_VIDEO_TIMEOUT_MS", 900000),
-		"pollIntervalMs": envInt("BEEFTV_REAL_GEN_POLL_INTERVAL_MS", 1000),
+		"turnTimeoutMs":  envInt("LUCKYTV_REAL_GEN_TURN_TIMEOUT_MS", 600000),
+		"imageTimeoutMs": envInt("LUCKYTV_REAL_GEN_IMAGE_TIMEOUT_MS", 300000),
+		"videoTimeoutMs": envInt("LUCKYTV_REAL_GEN_VIDEO_TIMEOUT_MS", 900000),
+		"pollIntervalMs": envInt("LUCKYTV_REAL_GEN_POLL_INTERVAL_MS", 1000),
 	}
 	for key, value := range extra {
 		driverConfig[key] = value

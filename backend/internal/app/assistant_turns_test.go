@@ -10,9 +10,9 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"infinite-canvas/backend/internal/database"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/database"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 )
 
 // 按轮撤销用真实 SQLite 与真实画布写入验证：撤销必须是「写回旧文档的新版本」，

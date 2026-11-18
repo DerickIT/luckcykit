@@ -9,10 +9,10 @@ import (
 	"testing"
 	"time"
 
-	localasset "infinite-canvas/backend/internal/asset"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
-	localtask "infinite-canvas/backend/internal/task"
+	localasset "luckytv/backend/internal/asset"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
+	localtask "luckytv/backend/internal/task"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"

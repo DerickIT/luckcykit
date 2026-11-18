@@ -15,7 +15,7 @@ esac
 source_commit=894da5ca7d
 source_url="https://codeload.github.com/FFmpeg/FFmpeg/tar.gz/$source_commit"
 source_sha=06cd2ab358134bd99e6f43b1792143e153a5b409ff1c0c88a1cf5ff9b1ea52f8
-scratch="$(mktemp -d "${TMPDIR:-/tmp}/beeftv-media.XXXXXX")"
+scratch="$(mktemp -d "${TMPDIR:-/tmp}/luckytv-media.XXXXXX")"
 trap 'rm -rf "$scratch"' EXIT
 if [[ -z "$archive" ]]; then
   archive="$scratch/source.tar.gz"

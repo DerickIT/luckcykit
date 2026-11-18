@@ -5,8 +5,8 @@ import (
 	"errors"
 	"time"
 
-	"infinite-canvas/backend/internal/canvas"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/canvas"
+	"luckytv/backend/internal/model"
 
 	"gorm.io/gorm"
 )

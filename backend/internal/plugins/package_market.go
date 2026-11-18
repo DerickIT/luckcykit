@@ -16,8 +16,8 @@ import (
 	"sync"
 	"time"
 
-	"infinite-canvas/backend/internal/outbound"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/outbound"
+	"luckytv/backend/internal/protocol"
 )
 
 func (s *Service) ResolvePackageFile(id string, filePath string) (string, string, error) {
@@ -132,7 +132,7 @@ func (s *Service) SearchMarket(ctx context.Context, query string, registry ...st
 			}
 			pkgName := item.PackageSpec
 			if pkgName == "" {
-				pkgName = "@beeftv/plugin-" + item.Manifest.ID
+				pkgName = "@luckytv/plugin-" + item.Manifest.ID
 			}
 			localItems = append(localItems, MarketPluginItem{
 				ID:          item.Manifest.ID,
@@ -141,7 +141,7 @@ func (s *Service) SearchMarket(ctx context.Context, query string, registry ...st
 				Version:     item.Manifest.Version,
 				Description: item.Manifest.Description,
 				Author:      item.Manifest.Author,
-				Keywords:    []string{"beeftv-plugin", "pi-package"},
+				Keywords:    []string{"luckytv-plugin", "pi-package"},
 				Installed:   true,
 				Enabled:     item.Status == StatusEnabled,
 			})
@@ -298,11 +298,11 @@ func searchSingleNpmRegistry(ctx context.Context, registry, query string, instal
 	base := strings.TrimRight(strings.TrimSpace(registry), "/")
 	trimmedQuery := strings.TrimSpace(query)
 	// npmmirror's /-/v1/search returns 0 objects when given the "keywords:"
-	// qualifier, so use plain text "beeftv-plugin" on npmmirror and filter in Go
+	// qualifier, so use plain text "luckytv-plugin" on npmmirror and filter in Go
 	// (same strategy as Magpie internal/plugin/market.go searchNPM).
-	searchTerm := "beeftv-plugin"
+	searchTerm := "luckytv-plugin"
 	if !strings.Contains(base, "npmmirror.com") {
-		searchTerm = "keywords:beeftv-plugin"
+		searchTerm = "keywords:luckytv-plugin"
 	}
 	if trimmedQuery != "" {
 		searchTerm = trimmedQuery + " " + searchTerm
@@ -339,7 +339,7 @@ func searchSingleNpmRegistry(ctx context.Context, registry, query string, instal
 	out := make([]MarketPluginItem, 0, len(payload.Objects))
 	for _, obj := range payload.Objects {
 		pkg := obj.Package
-		if !isBeefTVMarketNpmPackage(pkg.Name, pkg.Keywords) {
+		if !isLuckyTVMarketNpmPackage(pkg.Name, pkg.Keywords) {
 			continue
 		}
 		if trimmedQuery != "" {
@@ -370,14 +370,14 @@ func searchSingleNpmRegistry(ctx context.Context, registry, query string, instal
 	return out, true
 }
 
-func isBeefTVMarketNpmPackage(name string, keywords []string) bool {
+func isLuckyTVMarketNpmPackage(name string, keywords []string) bool {
 	lowerName := strings.ToLower(strings.TrimSpace(name))
-	if strings.Contains(lowerName, "beeftv-plugin") && lowerName != CuratedCatalogPackage {
+	if strings.Contains(lowerName, "luckytv-plugin") && lowerName != CuratedCatalogPackage {
 		return true
 	}
 	for _, kw := range keywords {
 		lowerKW := strings.ToLower(strings.TrimSpace(kw))
-		if lowerKW == "beeftv-plugin" || lowerKW == "pi-package" {
+		if lowerKW == "luckytv-plugin" || lowerKW == "pi-package" {
 			return true
 		}
 	}

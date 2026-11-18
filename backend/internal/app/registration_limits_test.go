@@ -2,7 +2,7 @@ package app
 
 import (
 	"context"
-	"infinite-canvas/backend/internal/platform"
+	"luckytv/backend/internal/platform"
 	"testing"
 	"time"
 )

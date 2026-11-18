@@ -29,7 +29,7 @@ func TestAssistantChatRequestIDIsValidatedAndNeverReplacesTheTurn(t *testing.T) 
 	})
 	for _, bad := range []string{`""`, `"   "`, `"` + strings.Repeat("a", 129) + `"`, `"has space"`, `"supplement:x"`, `"中文"`, `7`} {
 		response := env.call(t, http.MethodPost, "/assistant/chat", `{"canvasId":"`+env.canvasID+`","message":"hi","requestId":`+bad+`}`)
-		if response.Code != http.StatusBadRequest || response.Header().Get("X-Beeftv-Turn-Admission") != "rejected" {
+		if response.Code != http.StatusBadRequest || response.Header().Get("X-Luckytv-Turn-Admission") != "rejected" {
 			t.Fatalf("requestId %s: want 400 and not admitted, got %d %v %s", bad, response.Code, response.Header(), response.Body.String())
 		}
 	}

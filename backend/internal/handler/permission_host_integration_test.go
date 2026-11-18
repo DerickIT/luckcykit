@@ -3,8 +3,8 @@ package handler
 import (
 	"context"
 	"encoding/json"
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/model"
 	"net/http/httptest"
 	"os"
 	"os/exec"

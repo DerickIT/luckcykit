@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/pluginhost"
+	"luckytv/backend/internal/pluginhost"
 )
 
 // 退出时还在跑的生成任务要等它们自己停下，插件宿主不能先被关掉。

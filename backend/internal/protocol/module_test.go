@@ -12,7 +12,7 @@ func moduleManifest(provider map[string]any) []byte {
 	for key, value := range provider {
 		base[key] = value
 	}
-	raw, _ := json.Marshal(map[string]any{"apiVersion": "beeftv.plugin/v2", "id": "beeftv-plugin-comfyui", "name": "ComfyUI", "version": "1.2.0", "contributes": map[string]any{"providers": []any{base}}})
+	raw, _ := json.Marshal(map[string]any{"apiVersion": "luckytv.plugin/v2", "id": "luckytv-plugin-comfyui", "name": "ComfyUI", "version": "1.2.0", "contributes": map[string]any{"providers": []any{base}}})
 	return raw
 }
 
@@ -22,7 +22,7 @@ func TestModuleProviderLoadsAndBindsToPackageDir(t *testing.T) {
 		t.Fatal(err)
 	}
 	module, ok := adapters[0].(ModuleProvider)
-	if !ok || module.Plugin != "beeftv-plugin-comfyui" || module.Info.ID != "comfy" || module.Info.Execution != ExecutionModule || module.Info.Version != "1.2.0" {
+	if !ok || module.Plugin != "luckytv-plugin-comfyui" || module.Info.ID != "comfy" || module.Info.Execution != ExecutionModule || module.Info.Version != "1.2.0" {
 		t.Fatalf("adapter = %#v", adapters[0])
 	}
 	if _, err := module.BuildCreate(t.Context(), RequestContext{}); err == nil {

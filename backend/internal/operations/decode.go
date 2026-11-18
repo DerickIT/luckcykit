@@ -11,9 +11,9 @@ import (
 
 	"gorm.io/gorm"
 
-	"infinite-canvas/backend/internal/conversation"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/taskbinding"
+	"luckytv/backend/internal/conversation"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/taskbinding"
 )
 
 func decodeParams(params json.RawMessage, target any) error {

@@ -3,7 +3,7 @@ package creation
 import (
 	"encoding/json"
 
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/protocol"
 )
 
 func validatePreparedProtocol(taskInputJSON string) error {

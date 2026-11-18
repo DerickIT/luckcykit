@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/protocol"
 )
 
 func TestVideoCredentialRemovalPreservesSignedRawQuery(t *testing.T) {
@@ -85,7 +85,7 @@ func TestVideoCredentialRemovalPreservesSignedRawQuery(t *testing.T) {
 
 func reviewVideoOutputAdapter(t *testing.T) protocol.Adapter {
 	t.Helper()
-	manifest := []byte(`{"apiVersion":"beeftv.plugin/v2","id":"video-output-identity-fixture","name":"Fixture","version":"1.0.0","contributes":{"providers":[{"id":"video-output-identity-fixture","label":"Fixture","capabilities":["video"],"scopes":["canvas"],"auth":{"type":"bearer","field":"apiKey"},"create":{"method":"POST","path":"/v1/tasks"},"poll":{"method":"GET","path":"/v1/tasks/{{taskId}}"},"result":{"method":"GET","path":"/v1/tasks/{{taskId}}/result"},"response":{"taskId":{"$ref":"response.id"},"status":{"$ref":"response.status"},"videos":{"$ref":"response.videos"}}}]}}`)
+	manifest := []byte(`{"apiVersion":"luckytv.plugin/v2","id":"video-output-identity-fixture","name":"Fixture","version":"1.0.0","contributes":{"providers":[{"id":"video-output-identity-fixture","label":"Fixture","capabilities":["video"],"scopes":["canvas"],"auth":{"type":"bearer","field":"apiKey"},"create":{"method":"POST","path":"/v1/tasks"},"poll":{"method":"GET","path":"/v1/tasks/{{taskId}}"},"result":{"method":"GET","path":"/v1/tasks/{{taskId}}/result"},"response":{"taskId":{"$ref":"response.id"},"status":{"$ref":"response.status"},"videos":{"$ref":"response.videos"}}}]}}`)
 	adapter, err := protocol.LoadInstalledPlugin(manifest)
 	if err != nil {
 		t.Fatal(err)
@@ -120,7 +120,7 @@ func TestVideoRenewalPreservesOriginalTaskAndOutputIdentity(t *testing.T) {
 			defer media.Close()
 			provider := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				if r.Method != http.MethodGet || r.Header.Get("Authorization") != "Bearer provider-key" || r.URL.Query().Get("delivery") != "" {
-					t.Error("renewal changed original query auth/method or used BeefTV backup")
+					t.Error("renewal changed original query auth/method or used LuckyTV backup")
 					w.WriteHeader(http.StatusBadRequest)
 					return
 				}
@@ -192,7 +192,7 @@ func TestSameOriginVideoLinkRejectionRenewsOriginalTask(t *testing.T) {
 			var expired, queries, fresh atomic.Int32
 			provider := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				if r.Method != http.MethodGet || r.Header.Get("Authorization") != "Bearer provider-key" || r.URL.Query().Get("delivery") != "" {
-					t.Error("same-origin renewal changed auth or entered generation/BeefTV backup")
+					t.Error("same-origin renewal changed auth or entered generation/LuckyTV backup")
 					w.WriteHeader(http.StatusBadRequest)
 					return
 				}
@@ -224,7 +224,7 @@ func TestSameOriginVideoLinkRejectionRenewsOriginalTask(t *testing.T) {
 	}
 }
 
-func TestBeefTVVideoPrimaryAuthenticationRejectionStops(t *testing.T) {
+func TestLuckyTVVideoPrimaryAuthenticationRejectionStops(t *testing.T) {
 	t.Setenv("CANVAS_ALLOWED_PRIVATE_UPSTREAM_HOSTS", "127.0.0.1")
 	for _, status := range []int{http.StatusUnauthorized, http.StatusForbidden} {
 		t.Run(http.StatusText(status), func(t *testing.T) {
@@ -237,7 +237,7 @@ func TestBeefTVVideoPrimaryAuthenticationRejectionStops(t *testing.T) {
 				w.WriteHeader(status)
 			}))
 			defer provider.Close()
-			ctx := WithEndpoints(context.Background(), Endpoints{BeefTVVideoBaseURL: provider.URL})
+			ctx := WithEndpoints(context.Background(), Endpoints{LuckyTVVideoBaseURL: provider.URL})
 			_, _, err := DownloadVideoResult(ctx, Config{BaseURL: provider.URL, APIKey: "provider-key"}, provider.URL+"/v1/videos/original/content", "original")
 			if err == nil || requests.Load() != 1 {
 				t.Fatalf("requests=%d err=%v", requests.Load(), err)

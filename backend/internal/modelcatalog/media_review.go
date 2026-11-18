@@ -3,7 +3,7 @@ package modelcatalog
 import (
 	"strings"
 
-	"infinite-canvas/backend/internal/assistant"
+	"luckytv/backend/internal/assistant"
 )
 
 const MediaReviewModel = "wand-vega-vl-1.0-flash"

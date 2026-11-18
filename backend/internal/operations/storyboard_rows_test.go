@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"testing"
 
-	"infinite-canvas/backend/internal/canvas"
-	"infinite-canvas/backend/internal/writechange"
+	"luckytv/backend/internal/canvas"
+	"luckytv/backend/internal/writechange"
 )
 
 // storyboardProbe 记录 handler 转发给领域的参数，并返回可预测的写入结果。

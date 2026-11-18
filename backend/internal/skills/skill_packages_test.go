@@ -16,10 +16,10 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/outbound"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/outbound"
+	"luckytv/backend/internal/repository"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -73,14 +73,14 @@ func TestArchiveFromZipRejectsTraversalAndMultipleSkills(t *testing.T) {
 }
 
 func TestParseGitHubSkillURL(t *testing.T) {
-	spec, err := parseGitHubSkillURL("https://github.com/example/beeftv-skills/tree/main/skills/canvas-context", "", "")
+	spec, err := parseGitHubSkillURL("https://github.com/example/luckytv-skills/tree/main/skills/canvas-context", "", "")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if spec.Owner != "example" || spec.Repo != "beeftv-skills" || spec.Ref != "main" || spec.Subdir != "skills/canvas-context" {
+	if spec.Owner != "example" || spec.Repo != "luckytv-skills" || spec.Ref != "main" || spec.Subdir != "skills/canvas-context" {
 		t.Fatalf("spec = %#v", spec)
 	}
-	if _, err := parseGitHubSkillURL("https://github.com/example/beeftv-skills/blob/main/SKILL.md", "", ""); err == nil {
+	if _, err := parseGitHubSkillURL("https://github.com/example/luckytv-skills/blob/main/SKILL.md", "", ""); err == nil {
 		t.Fatal("expected blob URL to be rejected")
 	}
 }
@@ -104,20 +104,20 @@ func TestFetchGitHubSkillArchiveMirrorFallbackAndCommitVerification(t *testing.T
 	}
 	validBody := "---\nname: canvas-context\ndescription: 画布上下文技能\n---\n# 画布上下文技能\n\n读取画布说明。\n"
 	buildCommitZip := func(commitSHA string) []byte {
-		return buildCommitZipWithBody(commitSHA, true, "beeftv-skills-"+commitSHA, validBody)
+		return buildCommitZipWithBody(commitSHA, true, "luckytv-skills-"+commitSHA, validBody)
 	}
 
-	urls := outbound.ExpandGitHubMirrorURLs("https://codeload.github.com/example/beeftv-skills/zip/"+wantSHA, "", wantSHA, "")
-	if len(urls) < 3 || urls[0] != "https://codeload.github.com/example/beeftv-skills/zip/"+wantSHA || !strings.HasPrefix(urls[1], "https://gh-proxy.com/https://codeload.github.com/") {
+	urls := outbound.ExpandGitHubMirrorURLs("https://codeload.github.com/example/luckytv-skills/zip/"+wantSHA, "", wantSHA, "")
+	if len(urls) < 3 || urls[0] != "https://codeload.github.com/example/luckytv-skills/zip/"+wantSHA || !strings.HasPrefix(urls[1], "https://gh-proxy.com/https://codeload.github.com/") {
 		t.Fatalf("expected codeload origin first and China GitHub proxies as fallback, got %v", urls)
 	}
 	if err := verifyGitHubCommitZip(buildCommitZip(wrongSHA), wantSHA); err == nil {
 		t.Fatal("expected tampered commit SHA zip to be rejected")
 	}
-	if err := verifyGitHubCommitZip(buildCommitZipWithBody(wantSHA, false, "beeftv-skills-"+wantSHA, validBody), wantSHA); err == nil {
+	if err := verifyGitHubCommitZip(buildCommitZipWithBody(wantSHA, false, "luckytv-skills-"+wantSHA, validBody), wantSHA); err == nil {
 		t.Fatal("expected zip without commit comment to be rejected")
 	}
-	if err := verifyGitHubCommitZip(buildCommitZipWithBody(wantSHA, true, "beeftv-skills", validBody), wantSHA); err == nil {
+	if err := verifyGitHubCommitZip(buildCommitZipWithBody(wantSHA, true, "luckytv-skills", validBody), wantSHA); err == nil {
 		t.Fatal("expected zip without -<40hex> directory suffix to be rejected")
 	}
 	validZip := buildCommitZip(wantSHA)
@@ -125,14 +125,14 @@ func TestFetchGitHubSkillArchiveMirrorFallbackAndCommitVerification(t *testing.T
 	if err != nil {
 		t.Fatal(err)
 	}
-	treeSHA, err := computeGitZipTreeSHA(zr, "beeftv-skills-"+wantSHA)
+	treeSHA, err := computeGitZipTreeSHA(zr, "luckytv-skills-"+wantSHA)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if err := verifyGitHubCommitZip(validZip, wantSHA, treeSHA); err != nil {
 		t.Fatalf("expected matching commit+tree SHA zip to pass: %v", err)
 	}
-	tamperedBodyZip := buildCommitZipWithBody(wantSHA, true, "beeftv-skills-"+wantSHA, "---\nname: canvas-context\ndescription: tampered\n---\n# Tampered\n")
+	tamperedBodyZip := buildCommitZipWithBody(wantSHA, true, "luckytv-skills-"+wantSHA, "---\nname: canvas-context\ndescription: tampered\n---\n# Tampered\n")
 	if err := verifyGitHubCommitZip(tamperedBodyZip, wantSHA, treeSHA); err == nil {
 		t.Fatal("expected zip with reused commitSHA suffix but tampered file content to fail tree SHA verification")
 	}
@@ -140,16 +140,16 @@ func TestFetchGitHubSkillArchiveMirrorFallbackAndCommitVerification(t *testing.T
 	redirectTarget := ""
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
-		case "/repos/example/beeftv-skills":
+		case "/repos/example/luckytv-skills":
 			_ = json.NewEncoder(w).Encode(map[string]any{"default_branch": "main"})
-		case "/repos/example/beeftv-skills/commits/main":
+		case "/repos/example/luckytv-skills/commits/main":
 			_ = json.NewEncoder(w).Encode(map[string]any{
 				"sha": wantSHA,
 				"commit": map[string]any{
 					"tree": map[string]any{"sha": treeSHA},
 				},
 			})
-		case "/example/beeftv-skills/zip/" + wantSHA:
+		case "/example/luckytv-skills/zip/" + wantSHA:
 			if redirectTarget != "" {
 				http.Redirect(w, r, redirectTarget, http.StatusFound)
 				return
@@ -169,13 +169,13 @@ func TestFetchGitHubSkillArchiveMirrorFallbackAndCommitVerification(t *testing.T
 
 	archive, commit, canonicalURL, resolvedRef, err := fetchGitHubSkillArchive(context.Background(), githubSkillSpec{
 		Owner:  "example",
-		Repo:   "beeftv-skills",
+		Repo:   "luckytv-skills",
 		Subdir: "canvas-context",
 	})
 	if err != nil {
 		t.Fatalf("fetchGitHubSkillArchive failed: %v", err)
 	}
-	if commit != wantSHA || canonicalURL != "https://github.com/example/beeftv-skills" || resolvedRef != "main" || archive.Metadata.Name != "画布上下文技能" {
+	if commit != wantSHA || canonicalURL != "https://github.com/example/luckytv-skills" || resolvedRef != "main" || archive.Metadata.Name != "画布上下文技能" {
 		t.Fatalf("unexpected archive metadata: commit=%s url=%s ref=%s name=%s", commit, canonicalURL, resolvedRef, archive.Metadata.Name)
 	}
 
@@ -183,7 +183,7 @@ func TestFetchGitHubSkillArchiveMirrorFallbackAndCommitVerification(t *testing.T
 		redirectTarget = badRedirect
 		if _, _, _, _, err := fetchGitHubSkillArchive(context.Background(), githubSkillSpec{
 			Owner:  "example",
-			Repo:   "beeftv-skills",
+			Repo:   "luckytv-skills",
 			Subdir: "canvas-context",
 		}); err == nil {
 			t.Fatalf("expected redirect to %s to be rejected", badRedirect)

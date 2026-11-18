@@ -12,13 +12,13 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/database"
-	"infinite-canvas/backend/internal/editing"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/database"
+	"luckytv/backend/internal/editing"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
+	localtask "luckytv/backend/internal/task"
 )
 
 func TestRegisteredClientCannotCreatePaidTasksWithDesktopHeaders(t *testing.T) {
@@ -34,7 +34,7 @@ func TestRegisteredClientCannotCreatePaidTasksWithDesktopHeaders(t *testing.T) {
 	service := app.NewLocal(repository.New(db), t.TempDir())
 	t.Cleanup(func() { _ = service.Close() })
 	trust := func(r *http.Request) bool {
-		return r.Header.Get("X-Desktop-Token") == "launch" && r.Header.Get("X-Beeftv-UI-Bootstrap") == "ui"
+		return r.Header.Get("X-Desktop-Token") == "launch" && r.Header.Get("X-Luckytv-UI-Bootstrap") == "ui"
 	}
 	capture := &captureTaskPort{}
 	deps := defaultRuntimeDependencies(service)
@@ -51,14 +51,14 @@ func TestRegisteredClientCannotCreatePaidTasksWithDesktopHeaders(t *testing.T) {
 		t.Fatal(err)
 	}
 	agentHeaders := map[string]string{
-		"X-Beeftv-Client": reg.ID, "Authorization": "Bearer " + token,
+		"X-Luckytv-Client": reg.ID, "Authorization": "Bearer " + token,
 	}
 	stolenDesktop := map[string]string{
-		"X-Beeftv-Client": reg.ID, "Authorization": "Bearer " + token,
-		"X-Desktop-Token": "launch", "X-Beeftv-UI-Bootstrap": "ui",
+		"X-Luckytv-Client": reg.ID, "Authorization": "Bearer " + token,
+		"X-Desktop-Token": "launch", "X-Luckytv-UI-Bootstrap": "ui",
 	}
 	trustedUI := map[string]string{
-		"X-Desktop-Token": "launch", "X-Beeftv-UI-Bootstrap": "ui",
+		"X-Desktop-Token": "launch", "X-Luckytv-UI-Bootstrap": "ui",
 	}
 
 	visible := true
@@ -192,7 +192,7 @@ func TestRegisteredClientCannotRetryPaidTasksWithDesktopHeaders(t *testing.T) {
 	}
 	seedRetryableFailedTask(t, db, owner.ID, "retry-auth-1")
 	trust := func(r *http.Request) bool {
-		return r.Header.Get("X-Desktop-Token") == "launch" && r.Header.Get("X-Beeftv-UI-Bootstrap") == "ui"
+		return r.Header.Get("X-Desktop-Token") == "launch" && r.Header.Get("X-Luckytv-UI-Bootstrap") == "ui"
 	}
 	deps := defaultRuntimeDependencies(service)
 	deps.DesktopTrust = trust
@@ -206,11 +206,11 @@ func TestRegisteredClientCannotRetryPaidTasksWithDesktopHeaders(t *testing.T) {
 		t.Fatal(err)
 	}
 	agentHeaders := map[string]string{
-		"X-Beeftv-Client": reg.ID, "Authorization": "Bearer " + token,
+		"X-Luckytv-Client": reg.ID, "Authorization": "Bearer " + token,
 	}
 	stolenDesktop := map[string]string{
-		"X-Beeftv-Client": reg.ID, "Authorization": "Bearer " + token,
-		"X-Desktop-Token": "launch", "X-Beeftv-UI-Bootstrap": "ui",
+		"X-Luckytv-Client": reg.ID, "Authorization": "Bearer " + token,
+		"X-Desktop-Token": "launch", "X-Luckytv-UI-Bootstrap": "ui",
 	}
 	path := "/api/tasks/retry-auth-1/retry"
 	message := "任务只能由当前桌面界面重试"
@@ -236,7 +236,7 @@ func TestRegisteredClientCannotRetryPaidTasksWithDesktopHeaders(t *testing.T) {
 	}
 
 	retried := creationAuthCall(t, router, http.MethodPost, path, map[string]string{
-		"X-Desktop-Token": "launch", "X-Beeftv-UI-Bootstrap": "ui",
+		"X-Desktop-Token": "launch", "X-Luckytv-UI-Bootstrap": "ui",
 	}, "{}")
 	if retried.Code != http.StatusOK {
 		t.Fatalf("trusted desktop UI should retry: %d %s", retried.Code, retried.Body.String())

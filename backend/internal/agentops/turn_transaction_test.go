@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"gorm.io/gorm"
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/operations"
 )
 
 func TestSettledTurnRejectsWriteAfterSuccessfulPreflight(t *testing.T) {

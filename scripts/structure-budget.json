@@ -5,7 +5,7 @@
     "backend/internal/protocol/manifest.go",
     "backend/internal/repository/project_mutate.go",
     "backend/internal/repository/repository.go",
-    "plugin-packages/beeftv-plugin-character-replacement/client/index.js",
+    "plugin-packages/luckytv-plugin-character-replacement/client/index.js",
     "web/src/components/canvas/canvas-timeline-dialog.tsx",
     "web/src/components/canvas/director/canvas-director-workbench.tsx",
     "web/src/components/canvas/director/director-viewport.tsx",

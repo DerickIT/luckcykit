@@ -3,7 +3,7 @@
 // 由 backend/internal/handler/assistant_real_gen_test.go 起隔离环境。文本模型请求经过本进程的
 // 计量代理；假模式由本文件的确定性导演脚本发出画布/生成工具调用，真实模式转发到上游模型。
 // 图片/视频上游由 Go 测试提供（假模式返回合法 PNG/MP4，真实模式转发网关）。
-// 上游密钥只从环境变量 BEEFTV_REAL_GEN_KEY 读取，不写入任何文件或报告。
+// 上游密钥只从环境变量 LUCKYTV_REAL_GEN_KEY 读取，不写入任何文件或报告。
 import fs from 'node:fs';
 import path from 'node:path';
 import { createServer } from 'node:http';
@@ -19,7 +19,7 @@ const config = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
 const fakeDirector = createFakeDirector(config.messages || []);
 const startedAt = new Date().toISOString();
 const upstream = config.provider; // { baseUrl, model, api } 或 { fake: true }
-const upstreamKey = process.env.BEEFTV_REAL_GEN_KEY || '';
+const upstreamKey = process.env.LUCKYTV_REAL_GEN_KEY || '';
 const maxRequests = Number(config.maxRequests || 160);
 const outDir = config.outDir;
 const records = [];
@@ -71,7 +71,7 @@ const proxy = createServer(async (req, res) => {
       requestChars: raw.length, tools: [], calls: [], promptTokens: 0, cachedTokens: 0, cacheKnown: false,
       completionTokens: 0, ms: 0, replied: false, usageMissing: true };
     records.push(record);
-    if (process.env.BEEFTV_REAL_GEN_DUMP_REQUESTS === '1') {
+    if (process.env.LUCKYTV_REAL_GEN_DUMP_REQUESTS === '1') {
       fs.mkdirSync(path.join(outDir, 'requests'), { recursive: true });
       fs.writeFileSync(path.join(outDir, 'requests', `${String(records.length).padStart(4, '0')}.json`),
         redact(JSON.stringify(body, null, 2)));
@@ -241,12 +241,12 @@ async function main(state) {
   await new Promise((resolve) => reservation.close(resolve));
   const base = `http://127.0.0.1:${port}`;
 
-  const env = { ...process.env, BEEFTV_AGENT_DATA_DIR: config.directory, BEEFTV_AGENT_PORT: String(port),
-    BEEFTV_AGENT_HOST_TOKEN: config.hostToken, BEEFTV_OPS_URL: config.backend,
-    BEEFTV_AGENT_API_KEY: 'via-local-meter', BEEFTV_AGENT_API: upstream.api || 'openai-completions',
-    BEEFTV_AGENT_MODEL: upstream.model || 'synthetic', BEEFTV_AGENT_BASE_URL: `http://127.0.0.1:${modelPort}/v1`,
-    BEEFTV_AGENT_TOTAL_REQUEST_BUDGET: '0' };
-  delete env.BEEFTV_REAL_GEN_KEY;
+  const env = { ...process.env, LUCKYTV_AGENT_DATA_DIR: config.directory, LUCKYTV_AGENT_PORT: String(port),
+    LUCKYTV_AGENT_HOST_TOKEN: config.hostToken, LUCKYTV_OPS_URL: config.backend,
+    LUCKYTV_AGENT_API_KEY: 'via-local-meter', LUCKYTV_AGENT_API: upstream.api || 'openai-completions',
+    LUCKYTV_AGENT_MODEL: upstream.model || 'synthetic', LUCKYTV_AGENT_BASE_URL: `http://127.0.0.1:${modelPort}/v1`,
+    LUCKYTV_AGENT_TOTAL_REQUEST_BUDGET: '0' };
+  delete env.LUCKYTV_REAL_GEN_KEY;
   child = spawn(process.execPath, [path.join(config.root, 'agent-host/server.mjs')], { cwd: config.root, env, stdio: ['ignore', 'pipe', 'pipe'] });
   child.stdout.on('data', (chunk) => { hostLog += chunk; });
   child.stderr.on('data', (chunk) => { hostLog += chunk; });
@@ -260,7 +260,7 @@ async function main(state) {
   try { state.mediaReview = await backendJson(config.mediaReviewUrl); }
   catch (error) { state.mediaReview = { ok: false, reason: redact(String(error?.message || error)).slice(0, 200) }; }
 
-  const hostHeaders = { 'content-type': 'application/json', 'X-Beeftv-Agent-Token': config.hostToken };
+  const hostHeaders = { 'content-type': 'application/json', 'X-Luckytv-Agent-Token': config.hostToken };
   const knownTasks = new Set((await fetchTasks(config.canvasId)).map((task) => task.id));
   const downloaded = new Set();
 

@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	localasset "infinite-canvas/backend/internal/asset"
-	"infinite-canvas/backend/internal/model"
+	localasset "luckytv/backend/internal/asset"
+	"luckytv/backend/internal/model"
 )
 
 func TestReserveUserUploadQuotaRejectsSingleFileAtLimit(t *testing.T) {

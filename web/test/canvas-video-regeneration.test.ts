@@ -91,21 +91,21 @@ describe("listVideoReferenceModels", () => {
         expect(listVideoReferenceModels(config)).toEqual([]);
     });
 
-    test("connected BeefTV with empty key stays selectable", () => {
+    test("connected LuckyTV with empty key stays selectable", () => {
         const config = supportedVideoConfig();
         config.channels[0] = {
             ...config.channels[0],
-            id: "beeftv",
+            id: "luckytv",
             pinned: true,
             apiKey: "",
-            credentialRef: "beeftv",
+            credentialRef: "luckytv",
             hasApiKey: true,
             models: ["seedance-1.0-pro"],
         };
         config.channels[0].modelProfiles![0].videoCapabilitiesVersion = "fixture-v1";
-        config.model = "beeftv::seedance-1.0-pro";
-        config.videoModel = "beeftv::seedance-1.0-pro";
-        expect(listVideoReferenceModels(config)).toEqual(["beeftv::seedance-1.0-pro"]);
+        config.model = "luckytv::seedance-1.0-pro";
+        config.videoModel = "luckytv::seedance-1.0-pro";
+        expect(listVideoReferenceModels(config)).toEqual(["luckytv::seedance-1.0-pro"]);
     });
 });
 

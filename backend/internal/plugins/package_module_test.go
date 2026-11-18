@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/protocol"
 )
 
 func TestPackageModuleProviderResolvesInsideInstalledPackage(t *testing.T) {
@@ -16,7 +16,7 @@ func TestPackageModuleProviderResolvesInsideInstalledPackage(t *testing.T) {
 	svc := New(rt, nil)
 	svc.SetPackageFetcher(copyPackageFetcher)
 	src := t.TempDir()
-	pkgJSON := `{"name":"beeftv-plugin-module-test","version":"1.0.0","description":"module provider","beeftv":{"contributes":{"providers":[{"id":"module-test","label":"Module Test","module":"./provider.mjs","capabilities":["image"],"scopes":["canvas"]}]}}}`
+	pkgJSON := `{"name":"luckytv-plugin-module-test","version":"1.0.0","description":"module provider","luckytv":{"contributes":{"providers":[{"id":"module-test","label":"Module Test","module":"./provider.mjs","capabilities":["image"],"scopes":["canvas"]}]}}}`
 	for name, content := range map[string]string{"package.json": pkgJSON, "provider.mjs": "export async function submit() {}\n"} {
 		if err := os.WriteFile(filepath.Join(src, name), []byte(content), 0o644); err != nil {
 			t.Fatal(err)
@@ -30,7 +30,7 @@ func TestPackageModuleProviderResolvesInsideInstalledPackage(t *testing.T) {
 		t.Fatal("module provider is not registered")
 	}
 	module, ok := adapter.(protocol.ModuleProvider)
-	if !ok || module.Plugin != "beeftv-plugin-module-test" || !filepath.IsAbs(module.Module) {
+	if !ok || module.Plugin != "luckytv-plugin-module-test" || !filepath.IsAbs(module.Module) {
 		t.Fatalf("adapter = %#v", adapter)
 	}
 	if _, err := os.Stat(module.Module); err != nil {

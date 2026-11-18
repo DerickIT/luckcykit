@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/operations"
 )
 
 func submitExternalNode(t *testing.T, svc *Service, r *operations.Registry, canvasID, nodeID, operationID string) error {
@@ -108,7 +108,7 @@ func TestExternalGenerationKeepsNodeWhoseTaskMayStillDeliver(t *testing.T) {
 			meta["status"], meta["taskStatus"], meta["content"] = "success", "succeeded", "https://example.invalid/delivered.png"
 		}},
 		{name: "provider may still return the result", task: map[string]any{"status": model.TaskStatusFailed, "provider_request_id": "upstream-job-1"}},
-		{name: "charge still being settled", task: map[string]any{"status": model.TaskStatusFailed, "beef_billing_state": "reserved"}},
+		{name: "charge still being settled", task: map[string]any{"status": model.TaskStatusFailed, "lucky_billing_state": "reserved"}},
 		{name: "retry already submitting", task: upstreamRejection, mutate: func(meta map[string]any) {
 			meta["taskClientOperationId"], meta["generationSubmissionState"] = "retry:in-flight", "submitting"
 		}},
@@ -151,8 +151,8 @@ func TestCanvasFailureWritebackFollowsTaskOutcome(t *testing.T) {
 	tasks := []model.Task{
 		{ID: "video-rejected", RecoveryOutcome: str("no_result")},
 		{ID: "video-pending-result", ProviderRequestID: "upstream-job-1"},
-		{ID: "video-settling", BeefBillingState: str("reserved")},
-		{ID: "video-charged", BeefBillingState: str("reserved")},
+		{ID: "video-settling", LuckyBillingState: str("reserved")},
+		{ID: "video-charged", LuckyBillingState: str("reserved")},
 		{ID: "video-retrying", RecoveryOutcome: str("no_result")},
 		{ID: "video-kept-media", RecoveryOutcome: str("no_result")},
 		{ID: "video-explained", RecoveryOutcome: str("no_result")},
@@ -210,8 +210,8 @@ func TestCanvasFailureWritebackFollowsTaskOutcome(t *testing.T) {
 
 	// Settlement finishes later; the next pass follows the task's new outcome,
 	// including a charge that leaves the result to be retrieved.
-	updateTask(t, svc, "video-settling", map[string]any{"beef_billing_state": "refunded"})
-	updateTask(t, svc, "video-charged", map[string]any{"beef_billing_state": "settled"})
+	updateTask(t, svc, "video-settling", map[string]any{"lucky_billing_state": "refunded"})
+	updateTask(t, svc, "video-charged", map[string]any{"lucky_billing_state": "settled"})
 	if err := svc.recoverPendingCanvasFailures(0); err != nil {
 		t.Fatal(err)
 	}

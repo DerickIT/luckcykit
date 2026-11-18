@@ -2,7 +2,7 @@ package modelcatalog
 
 import (
 	"fmt"
-	"infinite-canvas/backend/internal/kernel"
+	"luckytv/backend/internal/kernel"
 )
 
 func videoTaskOperation(profile *VideoCapabilityConfig, input TaskInput) string {

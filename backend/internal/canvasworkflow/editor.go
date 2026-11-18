@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"strings"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/mediatools"
-	"infinite-canvas/backend/internal/modelcatalog"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/mediatools"
+	"luckytv/backend/internal/modelcatalog"
 )
 
 // EditorDefinition fills public editor fields from a private recipe.
@@ -51,7 +51,7 @@ func EditorDefinition(d Definition, recipes RecipesByNode) Definition {
 		config, _ := recipe.Request.Input["config"].(map[string]any)
 		channel := recipe.ChannelID
 		if IsOfficialWorkflowChannel(channel) {
-			channel = "beeftv"
+			channel = "luckytv"
 		}
 		if channel != "" && stringValue(config["model"]) != "" {
 			n.Config["modelOption"] = channel + "::" + stringValue(config["model"])
@@ -88,7 +88,7 @@ func PresentOperations(host CompileHost) []Operation {
 	if snapshot, err := host.ProviderConfig(); err == nil {
 		upscaleChannels := []FieldOption{}
 		if host.UpscaleAvailable("") == nil {
-			upscaleChannels = append(upscaleChannels, FieldOption{Label: "官方算力", Value: "beeftv"})
+			upscaleChannels = append(upscaleChannels, FieldOption{Label: "官方算力", Value: "luckytv"})
 		}
 		textModels := []FieldOption{}
 		for _, model := range DescribeModels(snapshot) {

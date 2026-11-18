@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"infinite-canvas/backend/internal/securefile"
+	"luckytv/backend/internal/securefile"
 )
 
 // ClientMode 是服务端授予客户端的能力模式。客户端只能出示身份，不能自己声明模式。
@@ -25,7 +25,7 @@ const (
 )
 
 // ClientApprovalMode 是外部客户端凭据在执行付费生成时的审批档位。
-// - ask：每次问我（开单后进入待批准，需在 BeefTV 界面或用 beeftv approve 批准）
+// - ask：每次问我（开单后进入待批准，需在 LuckyTV 界面或用 luckytv approve 批准）
 // - caller：调用方自己批（外部 Agent 凭据默认；先 propose 拿到生成单再凭单 submit）
 // - auto：自动，不设限额（确定性脚本专用；submit 一步开单即批）
 type ClientApprovalMode string
@@ -379,7 +379,7 @@ func HostTokenMatches(dataDir, presented string) bool {
 	if presented == "" {
 		return false
 	}
-	expected := strings.TrimSpace(os.Getenv("BEEFTV_AGENT_HOST_TOKEN"))
+	expected := strings.TrimSpace(os.Getenv("LUCKYTV_AGENT_HOST_TOKEN"))
 	if expected == "" {
 		if strings.TrimSpace(dataDir) == "" {
 			return false

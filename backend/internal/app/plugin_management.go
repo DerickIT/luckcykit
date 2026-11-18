@@ -1,8 +1,8 @@
 package app
 
 import (
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/plugins"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/plugins"
 )
 
 const (

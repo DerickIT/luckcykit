@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/generation"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/generation"
 )
 
 func TestNoAvailableChannelIsNotUserRateLimiting(t *testing.T) {
@@ -341,7 +341,7 @@ func TestThinkingModeToolChoice(t *testing.T) {
 	}
 }
 
-func TestBeefTVErrorCodeInventory(t *testing.T) {
+func TestLuckyTVErrorCodeInventory(t *testing.T) {
 	data, err := os.ReadFile("../../../fixtures/generation-error-codes.json")
 	if err != nil {
 		t.Fatal(err)
@@ -351,7 +351,7 @@ func TestBeefTVErrorCodeInventory(t *testing.T) {
 		t.Fatal(err)
 	}
 	if len(inventory) != 53 {
-		t.Fatalf("BeefTV error code inventory has %d entries, want 53", len(inventory))
+		t.Fatalf("LuckyTV error code inventory has %d entries, want 53", len(inventory))
 	}
 	for code, category := range inventory {
 		t.Run(code, func(t *testing.T) {
@@ -617,7 +617,7 @@ func TestThirdPartyGatewayChannelExcludedAndWrapperParity(t *testing.T) {
 }
 
 func TestClassifyManagedMediaTaskErrorRefinesSanitizedMessage(t *testing.T) {
-	modErr := &beeftv.MediaTaskError{
+	modErr := &luckytv.MediaTaskError{
 		TaskID:  "med_mod_123456",
 		Code:    "media_generation_failed",
 		Message: "OutputVideoSensitiveContentDetected: The output video may contain sensitive information.",
@@ -627,7 +627,7 @@ func TestClassifyManagedMediaTaskErrorRefinesSanitizedMessage(t *testing.T) {
 		t.Fatalf("moderation media task error misclassified: %+v", modFailure)
 	}
 
-	heightErr := &beeftv.MediaTaskError{
+	heightErr := &luckytv.MediaTaskError{
 		TaskID:  "med_height_123456",
 		Code:    "media_submission_rejected",
 		Message: "Height must be between 300px and 6000px",
@@ -637,7 +637,7 @@ func TestClassifyManagedMediaTaskErrorRefinesSanitizedMessage(t *testing.T) {
 		t.Fatalf("height media task error lost range guidance: %+v", heightFailure)
 	}
 
-	chineseErr := &beeftv.MediaTaskError{
+	chineseErr := &luckytv.MediaTaskError{
 		TaskID:  "med_cn_123456",
 		Code:    "media_submission_rejected",
 		Message: "第 1 张参考图高度为 200 像素，需要 300–6000 像素；请调整尺寸或更换后再提交",
@@ -647,7 +647,7 @@ func TestClassifyManagedMediaTaskErrorRefinesSanitizedMessage(t *testing.T) {
 		t.Fatalf("chinese media task error lost message: %+v", chineseFailure)
 	}
 
-	fallbackErr := &beeftv.MediaTaskError{
+	fallbackErr := &luckytv.MediaTaskError{
 		TaskID:   "med_fallback_123456",
 		Code:     "media_task_failed",
 		Category: "unknown",

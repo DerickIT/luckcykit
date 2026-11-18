@@ -161,10 +161,10 @@ describe("付费生成提议", () => {
     });
     test("普通提议带上逐项明细和预计费用，确认卡才能显示费用", () => {
         const turn = resetTurnAccumulator(newTurnAccumulator(), 4);
-        const targets = [{ nodeId: "n1", title: "镜头1", kind: "image", modelKey: "beeftv::gpt-image-2", prompt: "雨夜", parameters: { count: "1" },
+        const targets = [{ nodeId: "n1", title: "镜头1", kind: "image", modelKey: "luckytv::gpt-image-2", prompt: "雨夜", parameters: { count: "1" },
             estimate: { amount: 0.35, basis: "1K 低质量 ¥0.35/张 × 1 张", text: "预计 ¥0.35（1K 低质量 ¥0.35/张 × 1 张）" } }];
         const estimate = { amount: 0.35, priced: 1, unknown: 0, text: "预计费用：¥0.35" };
-        collectTurnEffects(turn, "canvas.generation.propose", { proposalId: "gp-cost", kind: "image", nodeIds: ["n1"], model: "gpt-image-2", modelKey: "beeftv::gpt-image-2", targets, estimate });
+        collectTurnEffects(turn, "canvas.generation.propose", { proposalId: "gp-cost", kind: "image", nodeIds: ["n1"], model: "gpt-image-2", modelKey: "luckytv::gpt-image-2", targets, estimate });
         expect(turn.proposals[0].targets).toEqual(targets);
         expect(turn.proposals[0].estimate).toEqual(estimate);
     });
@@ -173,12 +173,12 @@ describe("付费生成提议", () => {
 
         collectTurnEffects(turn, "canvas.generation.propose", {
             proposalId: "gp-1", kind: "video", nodeIds: ["n1", "n2"],
-            model: "wan3.0-video", modelKey: "beeftv::wan3.0-video", note: "两段镜头",
+            model: "wan3.0-video", modelKey: "luckytv::wan3.0-video", note: "两段镜头",
         });
 
         expect(turnChange(turn)).toBeNull();
         expect(turn.proposals).toEqual([{ proposalId: "gp-1", kind: "video", nodeIds: ["n1", "n2"],
-            model: "wan3.0-video", modelKey: "beeftv::wan3.0-video", note: "两段镜头" }]);
+            model: "wan3.0-video", modelKey: "luckytv::wan3.0-video", note: "两段镜头" }]);
     });
 
     test("技能脚本提议在需确认与本对话始终允许自动完成时均记入 turn.scriptProposals 且按 proposalId 去重", () => {
@@ -244,7 +244,7 @@ describe("供应商定义", () => {
         const registration = providerRegistration({ api: "anthropic-messages", baseUrl: "https://enterprise.example.com",
             modelId: "claude-fable-5", maxTokens: 4096, contextWindow: 200000 });
 
-        expect(registration.apiKey).toBe("$BEEFTV_AGENT_API_KEY");
+        expect(registration.apiKey).toBe("$LUCKYTV_AGENT_API_KEY");
         expect(registration.api).toBe("anthropic-messages");
         expect(registration.baseUrl).toBe("https://enterprise.example.com");
         expect(registration.models[0]).toMatchObject({ id: "claude-fable-5", name: "claude-fable-5", reasoning: true,
@@ -268,14 +268,14 @@ describe("供应商定义", () => {
     });
 
     test("宿主模型目录只包含登记的后端供应商，不内置默认 OpenAI 供应商", async () => {
-        const directory = fs.mkdtempSync(path.join(os.tmpdir(), "beeftv-models-only-"));
+        const directory = fs.mkdtempSync(path.join(os.tmpdir(), "luckytv-models-only-"));
         try {
             const runtime = await ModelRuntime.create({
                 authPath: path.join(directory, "auth.json"),
                 modelsPath: null,
                 refreshOnCreate: false,
             });
-            runtime.registerProvider("beeftv", providerRegistration({
+            runtime.registerProvider("luckytv", providerRegistration({
                 api: "anthropic-messages",
                 baseUrl: "https://enterprise.example.com",
                 modelId: "claude-opus-5-5",
@@ -283,17 +283,17 @@ describe("供应商定义", () => {
                 contextWindow: 200000,
             }));
             const models = createModels();
-            models.setProvider(runtime.getProvider("beeftv"));
-            expect(models.getProviders().map((p) => p.id)).toEqual(["beeftv"]);
+            models.setProvider(runtime.getProvider("luckytv"));
+            expect(models.getProviders().map((p) => p.id)).toEqual(["luckytv"]);
             expect(models.getModel("openai", "gpt-5")).toBeUndefined();
-            expect(models.getModel("beeftv", "claude-opus-5-5")?.api).toBe("anthropic-messages");
+            expect(models.getModel("luckytv", "claude-opus-5-5")?.api).toBe("anthropic-messages");
         } finally {
             fs.rmSync(directory, { recursive: true, force: true });
         }
     });
 
     test("缺少模型或密钥时宿主仍然监听，只在 /health 里说明原因", async () => {
-        const directory = fs.mkdtempSync(path.join(os.tmpdir(), "beeftv-health-nokey-"));
+        const directory = fs.mkdtempSync(path.join(os.tmpdir(), "luckytv-health-nokey-"));
         const reservation = createServer();
         await new Promise((resolve) => reservation.listen(0, "127.0.0.1", resolve));
         const port = reservation.address().port;
@@ -302,13 +302,13 @@ describe("供应商定义", () => {
         const child = spawn(process.execPath, [serverPath], {
             env: {
                 ...process.env,
-                BEEFTV_AGENT_DATA_DIR: directory,
-                BEEFTV_AGENT_HOST_TOKEN: "test-host-token",
-                BEEFTV_AGENT_PORT: String(port),
-                BEEFTV_AGENT_MODEL: "deepseek-v4.1-flash",
-                BEEFTV_AGENT_API: "openai-completions",
-                BEEFTV_AGENT_BASE_URL: "http://127.0.0.1:9/v1",
-                BEEFTV_AGENT_API_KEY: "",
+                LUCKYTV_AGENT_DATA_DIR: directory,
+                LUCKYTV_AGENT_HOST_TOKEN: "test-host-token",
+                LUCKYTV_AGENT_PORT: String(port),
+                LUCKYTV_AGENT_MODEL: "deepseek-v4.1-flash",
+                LUCKYTV_AGENT_API: "openai-completions",
+                LUCKYTV_AGENT_BASE_URL: "http://127.0.0.1:9/v1",
+                LUCKYTV_AGENT_API_KEY: "",
             },
             stdio: ["ignore", "pipe", "pipe"],
         });
@@ -356,7 +356,7 @@ describe("回合上下文", () => {
 
 describe('会话亲和性透传与升级恢复', () => {
   test('OpenAI 兼容请求携带 prompt_cache_key===entry.sessionId，Anthropic 请求携带 metadata.user_id===entry.sessionId 且保留 cache_control', async () => {
-    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-affinity-'));
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-affinity-'));
     const openaiPayloads = [];
     const anthropicPayloads = [];
     const server = createServer(async (req, res) => {
@@ -382,22 +382,22 @@ describe('会话亲和性透传与升级恢复', () => {
     });
     await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
     const port = server.address().port;
-    const prevKey = process.env.BEEFTV_AGENT_API_KEY;
-    process.env.BEEFTV_AGENT_API_KEY = 'sk-test-affinity';
+    const prevKey = process.env.LUCKYTV_AGENT_API_KEY;
+    process.env.LUCKYTV_AGENT_API_KEY = 'sk-test-affinity';
     try {
       for (const [api, modelId, baseUrl] of [
         ['openai-completions', 'deepseek-v4.1-flash', `http://127.0.0.1:${port}/v1`],
         ['anthropic-messages', 'claude-opus-5-5', `http://127.0.0.1:${port}`],
       ]) {
         const runtime = await ModelRuntime.create({ authPath: path.join(directory, `${api}-auth.json`), modelsPath: null, refreshOnCreate: false });
-        runtime.registerProvider('beeftv', providerRegistration({ api, baseUrl, modelId, maxTokens: 4096, contextWindow: 200000 }));
+        runtime.registerProvider('luckytv', providerRegistration({ api, baseUrl, modelId, maxTokens: 4096, contextWindow: 200000 }));
         const models = createModels();
-        models.setProvider(runtime.getProvider('beeftv'));
+        models.setProvider(runtime.getProvider('luckytv'));
         const store = createDurableSessionStore({
           sessionRoot: path.join(directory, `${api}-sessions`),
           workspaceRoot: path.join(directory, `${api}-workspace`),
           getModels: () => models,
-          getModelRef: () => ({ provider: 'beeftv', modelId }),
+          getModelRef: () => ({ provider: 'luckytv', modelId }),
           buildTools: () => [],
           authorizeTurn: async () => ({ open: true, canvasId: 'c1', permissionMode: 'canvas' }),
           settings: { retry: { maxRetries: 0 } },
@@ -417,8 +417,8 @@ describe('会话亲和性透传与升级恢复', () => {
         }
       }
     } finally {
-      if (prevKey === undefined) delete process.env.BEEFTV_AGENT_API_KEY;
-      else process.env.BEEFTV_AGENT_API_KEY = prevKey;
+      if (prevKey === undefined) delete process.env.LUCKYTV_AGENT_API_KEY;
+      else process.env.LUCKYTV_AGENT_API_KEY = prevKey;
       server.closeAllConnections();
       await new Promise((resolve) => server.close(resolve));
       fs.rmSync(directory, { recursive: true, force: true });
@@ -426,7 +426,7 @@ describe('会话亲和性透传与升级恢复', () => {
   });
 
   test('升级前未固定渠道亲和性的已有 Claude 会话恢复时降级旧 thinking 签名，新回合条目保留签名', async () => {
-    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-legacy-claude-'));
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-legacy-claude-'));
     const anthropicPayloads = [];
     let callCount = 0;
     const server = createServer(async (req, res) => {
@@ -473,10 +473,10 @@ describe('会话亲和性透传与升级恢复', () => {
     });
     await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
     const port = server.address().port;
-    const prevKey = process.env.BEEFTV_AGENT_API_KEY;
-    process.env.BEEFTV_AGENT_API_KEY = 'sk-test-legacy-claude';
+    const prevKey = process.env.LUCKYTV_AGENT_API_KEY;
+    process.env.LUCKYTV_AGENT_API_KEY = 'sk-test-legacy-claude';
     const hostStateDoc = defineDoc({
-      kind: 'beeftv.host',
+      kind: 'luckytv.host',
       version: 1,
       scope: 'session',
       initial: () => ({}),
@@ -484,7 +484,7 @@ describe('会话亲和性透传与升级恢复', () => {
     });
     try {
       const runtime = await ModelRuntime.create({ authPath: path.join(directory, 'auth.json'), modelsPath: null, refreshOnCreate: false });
-      runtime.registerProvider('beeftv', providerRegistration({
+      runtime.registerProvider('luckytv', providerRegistration({
         api: 'anthropic-messages',
         baseUrl: `http://127.0.0.1:${port}`,
         modelId: 'claude-opus-5-5',
@@ -492,12 +492,12 @@ describe('会话亲和性透传与升级恢复', () => {
         contextWindow: 200000,
       }));
       const models = createModels();
-      models.setProvider(runtime.getProvider('beeftv'));
+      models.setProvider(runtime.getProvider('luckytv'));
       const storeOptions = {
         sessionRoot: path.join(directory, 'sessions'),
         workspaceRoot: path.join(directory, 'workspace'),
         getModels: () => models,
-        getModelRef: () => ({ provider: 'beeftv', modelId: 'claude-opus-5-5' }),
+        getModelRef: () => ({ provider: 'luckytv', modelId: 'claude-opus-5-5' }),
         buildTools: () => [],
         authorizeTurn: async () => ({ open: true, canvasId: 'c1', permissionMode: 'canvas' }),
         settings: { retry: { maxRetries: 0 } },
@@ -536,8 +536,8 @@ describe('会话亲和性透传与升级恢复', () => {
         await store2.disposeAll();
       }
     } finally {
-      if (prevKey === undefined) delete process.env.BEEFTV_AGENT_API_KEY;
-      else process.env.BEEFTV_AGENT_API_KEY = prevKey;
+      if (prevKey === undefined) delete process.env.LUCKYTV_AGENT_API_KEY;
+      else process.env.LUCKYTV_AGENT_API_KEY = prevKey;
       server.closeAllConnections();
       await new Promise((resolve) => server.close(resolve));
       fs.rmSync(directory, { recursive: true, force: true });
@@ -545,7 +545,7 @@ describe('会话亲和性透传与升级恢复', () => {
   });
 
   test('长轮次超过默认 100 条观察窗口时，恢复快照会补读前半段正文与思考；宿主状态在轮次结束或达到增量阈值时写完整快照', async () => {
-    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-long-watch-'));
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-long-watch-'));
     const server = createServer(async (_req, res) => {
       res.writeHead(200, { 'content-type': 'text/event-stream' });
       res.write('data: ' + JSON.stringify({ id: 'c1', object: 'chat.completion.chunk', choices: [{ index: 0, delta: { role: 'assistant', content: '尾段正文。' }, finish_reason: null }] }) + '\n\n');
@@ -554,11 +554,11 @@ describe('会话亲和性透传与升级恢复', () => {
     });
     await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
     const port = server.address().port;
-    const prevKey = process.env.BEEFTV_AGENT_API_KEY;
-    process.env.BEEFTV_AGENT_API_KEY = 'sk-test-long-watch';
+    const prevKey = process.env.LUCKYTV_AGENT_API_KEY;
+    process.env.LUCKYTV_AGENT_API_KEY = 'sk-test-long-watch';
     try {
       const runtime = await ModelRuntime.create({ authPath: path.join(directory, 'auth.json'), modelsPath: null, refreshOnCreate: false });
-      runtime.registerProvider('beeftv', providerRegistration({
+      runtime.registerProvider('luckytv', providerRegistration({
         api: 'openai-completions',
         baseUrl: `http://127.0.0.1:${port}/v1`,
         modelId: 'deepseek-v4.1-flash',
@@ -566,13 +566,13 @@ describe('会话亲和性透传与升级恢复', () => {
         contextWindow: 200000,
       }));
       const models = createModels();
-      models.setProvider(runtime.getProvider('beeftv'));
+      models.setProvider(runtime.getProvider('luckytv'));
       const sessionRoot = path.join(directory, 'sessions');
       const store = createDurableSessionStore({
         sessionRoot,
         workspaceRoot: path.join(directory, 'workspace'),
         getModels: () => models,
-        getModelRef: () => ({ provider: 'beeftv', modelId: 'deepseek-v4.1-flash' }),
+        getModelRef: () => ({ provider: 'luckytv', modelId: 'deepseek-v4.1-flash' }),
         buildTools: () => [],
         authorizeTurn: async () => ({ open: true, canvasId: 'c1', permissionMode: 'canvas' }),
         settings: { retry: { maxRetries: 0 } },
@@ -598,7 +598,7 @@ describe('会话亲和性透传与升级恢复', () => {
                 { type: 'text', text: '最早期正文片段。' },
               ],
               api: 'openai-completions',
-              provider: 'beeftv',
+              provider: 'luckytv',
               model: 'deepseek-v4.1-flash',
               usage: { input: 1, output: 1, cacheRead: 0, cacheWrite: 0, totalTokens: 2, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 } },
               stopReason: 'toolUse',
@@ -606,7 +606,7 @@ describe('会话亲和性透传与升级恢复', () => {
             }],
           });
           for (let i = 0; i < 110; i += 1) {
-            await tx.appendEntry(entry.root.id, { kind: 'beeftv.progress', data: { step: i } });
+            await tx.appendEntry(entry.root.id, { kind: 'luckytv.progress', data: { step: i } });
           }
         }, BACKGROUND_CONTEXT);
         // 确认直接 watch({ from: status.entry + 1 }) 会因为超过 100 条而截断并产生 before
@@ -630,10 +630,10 @@ describe('会话亲和性透传与升级恢复', () => {
         await store.disposeAll();
       }
 
-      // 检查 SQLite 中 beeftv.host 文档的快照基线（轮次结束 active===null 时写 base 并裁掉历史 delta）
+      // 检查 SQLite 中 luckytv.host 文档的快照基线（轮次结束 active===null 时写 base 并裁掉历史 delta）
       const db = new DatabaseSync(sqliteFile, { readOnly: true });
       try {
-        const docRow = db.prepare('SELECT id FROM documents WHERE kind = ?').get(JSON.stringify('beeftv.host'));
+        const docRow = db.prepare('SELECT id FROM documents WHERE kind = ?').get(JSON.stringify('luckytv.host'));
         expect(docRow).toBeDefined();
         const revisions = db.prepare('SELECT seq, kind FROM document_revisions WHERE document_id = ? ORDER BY seq ASC').all(docRow.id);
         expect(revisions).toHaveLength(1);
@@ -642,8 +642,8 @@ describe('会话亲和性透传与升级恢复', () => {
         db.close();
       }
     } finally {
-      if (prevKey === undefined) delete process.env.BEEFTV_AGENT_API_KEY;
-      else process.env.BEEFTV_AGENT_API_KEY = prevKey;
+      if (prevKey === undefined) delete process.env.LUCKYTV_AGENT_API_KEY;
+      else process.env.LUCKYTV_AGENT_API_KEY = prevKey;
       server.closeAllConnections();
       await new Promise((resolve) => server.close(resolve));
       fs.rmSync(directory, { recursive: true, force: true });
@@ -651,7 +651,7 @@ describe('会话亲和性透传与升级恢复', () => {
   });
 
   test('本轮中途发生压缩时，实时流、重连快照与终态历史均保留压缩前后的完整回复与思考', async () => {
-    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-midturn-compaction-'));
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-midturn-compaction-'));
     let requestCount = 0;
     const server = createServer(async (_req, res) => {
       requestCount += 1;
@@ -700,11 +700,11 @@ describe('会话亲和性透传与升级恢复', () => {
     });
     await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
     const port = server.address().port;
-    const prevKey = process.env.BEEFTV_AGENT_API_KEY;
-    process.env.BEEFTV_AGENT_API_KEY = 'sk-test-midturn-compaction';
+    const prevKey = process.env.LUCKYTV_AGENT_API_KEY;
+    process.env.LUCKYTV_AGENT_API_KEY = 'sk-test-midturn-compaction';
     try {
       const runtime = await ModelRuntime.create({ authPath: path.join(directory, 'auth.json'), modelsPath: null, refreshOnCreate: false });
-      runtime.registerProvider('beeftv', providerRegistration({
+      runtime.registerProvider('luckytv', providerRegistration({
         api: 'openai-completions',
         baseUrl: `http://127.0.0.1:${port}/v1`,
         modelId: 'deepseek-v4.1-flash',
@@ -712,13 +712,13 @@ describe('会话亲和性透传与升级恢复', () => {
         contextWindow: 200000,
       }));
       const models = createModels();
-      models.setProvider(runtime.getProvider('beeftv'));
+      models.setProvider(runtime.getProvider('luckytv'));
       let sessionEntry;
       const store = createDurableSessionStore({
         sessionRoot: path.join(directory, 'sessions'),
         workspaceRoot: path.join(directory, 'workspace'),
         getModels: () => models,
-        getModelRef: () => ({ provider: 'beeftv', modelId: 'deepseek-v4.1-flash' }),
+        getModelRef: () => ({ provider: 'luckytv', modelId: 'deepseek-v4.1-flash' }),
         buildTools: () => [{
           name: 'canvas_probe',
           label: 'Probe',
@@ -787,8 +787,8 @@ describe('会话亲和性透传与升级恢复', () => {
         await store.disposeAll();
       }
     } finally {
-      if (prevKey === undefined) delete process.env.BEEFTV_AGENT_API_KEY;
-      else process.env.BEEFTV_AGENT_API_KEY = prevKey;
+      if (prevKey === undefined) delete process.env.LUCKYTV_AGENT_API_KEY;
+      else process.env.LUCKYTV_AGENT_API_KEY = prevKey;
       server.closeAllConnections();
       await new Promise((resolve) => server.close(resolve));
       fs.rmSync(directory, { recursive: true, force: true });

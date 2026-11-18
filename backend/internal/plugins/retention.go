@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/protocol"
 )
 
 // ReferenceUsage counts the saved state that still needs one provider ID. The

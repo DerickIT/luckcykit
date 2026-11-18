@@ -10,8 +10,8 @@ import (
 
 	"gorm.io/gorm"
 
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
 )
 
 func TestGeneratedMediaIngestDiskFullReturnsStructuredFailure(t *testing.T) {

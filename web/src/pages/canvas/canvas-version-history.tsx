@@ -9,6 +9,7 @@ import { normalizeCanvasProjectGraph } from "@/lib/canvas/canvas-content";
 import { exportCanvasProjects } from "@/lib/canvas/canvas-export";
 import type { CanvasProject } from "@/stores/canvas/use-canvas-store";
 import { useCanvasStore } from "@/stores/canvas/use-canvas-store";
+import { isBrowserLocalRuntime } from "@/lib/runtime-mode";
 import { canvasSyncProgressKey, useSyncProgressStore } from "@/stores/use-sync-progress-store";
 import "./canvas-version-history.css";
 
@@ -71,6 +72,11 @@ export function useCanvasVersionHistory(projectId: string, onRestore: (snapshotI
         setLoading(true);
         setError("");
         setEntries([]);
+        if (isBrowserLocalRuntime()) {
+            setLoading(false);
+            setError("浏览器本地模式暂不提供服务端版本历史");
+            return () => controller.abort();
+        }
         setCurrentRevision(undefined);
         void listCanvasHistory(projectId, controller.signal)
             .then((result) => {
@@ -115,7 +121,7 @@ export function useCanvasVersionHistory(projectId: string, onRestore: (snapshotI
     );
 
     const selectVersion = (entry: CanvasHistoryEntry) => {
-        if (restoring || confirming) return;
+        if (isBrowserLocalRuntime() || restoring || confirming) return;
         previewRequest.current?.abort();
         const controller = new AbortController();
         previewRequest.current = controller;

@@ -6,19 +6,19 @@ import (
 	"net/http"
 	"time"
 
-	"infinite-canvas/backend/internal/appearance"
-	"infinite-canvas/backend/internal/assistantruntime"
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/conversation"
-	"infinite-canvas/backend/internal/diagnostics"
-	"infinite-canvas/backend/internal/eagle"
-	"infinite-canvas/backend/internal/localapp"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	localproject "infinite-canvas/backend/internal/project"
-	localtask "infinite-canvas/backend/internal/task"
-	"infinite-canvas/backend/internal/textreplay"
-	"infinite-canvas/backend/internal/workspace"
+	"luckytv/backend/internal/appearance"
+	"luckytv/backend/internal/assistantruntime"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/conversation"
+	"luckytv/backend/internal/diagnostics"
+	"luckytv/backend/internal/eagle"
+	"luckytv/backend/internal/localapp"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	localproject "luckytv/backend/internal/project"
+	localtask "luckytv/backend/internal/task"
+	"luckytv/backend/internal/textreplay"
+	"luckytv/backend/internal/workspace"
 
 	"github.com/gin-gonic/gin"
 )
@@ -53,7 +53,7 @@ type RuntimeDependencies struct {
 	Conversations      *conversation.Service
 	// TextReplay is the archive owned by the runtime; legacy callers use its app facade.
 	TextReplay  textreplay.API
-	BeefTV      *beeftv.Service
+	LuckyTV      *luckytv.Service
 	Eagle       *eagle.Client
 	Diagnostics *diagnostics.Service
 	Appearance  *appearance.Service

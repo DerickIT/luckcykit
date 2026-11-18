@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"infinite-canvas/backend/internal/outbound"
+	"luckytv/backend/internal/outbound"
 )
 
 func TestProviderImageDownloadRedirectNeverRestoresCredentials(t *testing.T) {

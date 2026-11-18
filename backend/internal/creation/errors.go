@@ -4,8 +4,8 @@ import (
 	"errors"
 
 	"gorm.io/gorm"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/repository"
 )
 
 const (

@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"infinite-canvas/backend/internal/agentops"
+	"luckytv/backend/internal/agentops"
 )
 
 func TestAssistantAcceptanceRejectsMissingForeignAndExpiredUISessions(t *testing.T) {

@@ -10,7 +10,7 @@ import (
 	"os"
 	"strings"
 
-	"infinite-canvas/backend/internal/skillhub"
+	"luckytv/backend/internal/skillhub"
 )
 
 type Error struct {
@@ -92,12 +92,12 @@ func run(ctx context.Context, args []string, out io.Writer) error {
 		return err
 	}
 	if a.command == "help" || a.command == "--help" || a.options["help"] == "true" {
-		_, err = io.WriteString(out, "beeftv skills — 无需运行 BeefTV 的技能市场客户端\n\nsearch QUERY [--target codex|claude-code|beeftv] [--json]\nshow SKILL_ID --release RELEASE_ID\nfetch SKILL_ID --release RELEASE_ID --output DIRECTORY\ninstall SKILL_ID --release RELEASE_ID --agent codex|claude-code --scope project|user\ninspect DIRECTORY --metadata FILE\nauthorize --state FILE\npoll --state FILE\nupload DIRECTORY --metadata FILE --state FILE --confirm-upload --content-hash HASH --archive-sha256 HASH\npreview|status|revoke --state FILE\nsubmit --state FILE --confirm-submit --revision NUMBER --preview-digest DIGEST\n\n公共查询不登录。投稿需浏览器授权，上传和发布分别确认。\n所有网络命令可使用 --market 指定可信 HTTPS 市场或本机测试服务。\n")
+		_, err = io.WriteString(out, "luckytv skills — 无需运行 LuckyTV 的技能市场客户端\n\nsearch QUERY [--target codex|claude-code|luckytv] [--json]\nshow SKILL_ID --release RELEASE_ID\nfetch SKILL_ID --release RELEASE_ID --output DIRECTORY\ninstall SKILL_ID --release RELEASE_ID --agent codex|claude-code --scope project|user\ninspect DIRECTORY --metadata FILE\nauthorize --state FILE\npoll --state FILE\nupload DIRECTORY --metadata FILE --state FILE --confirm-upload --content-hash HASH --archive-sha256 HASH\npreview|status|revoke --state FILE\nsubmit --state FILE --confirm-submit --revision NUMBER --preview-digest DIGEST\n\n公共查询不登录。投稿需浏览器授权，上传和发布分别确认。\n所有网络命令可使用 --market 指定可信 HTTPS 市场或本机测试服务。\n")
 		return err
 	}
 	base := a.options["market"]
 	if base == "" {
-		base = os.Getenv("BEEFTV_SKILLHUB_URL")
+		base = os.Getenv("LUCKYTV_SKILLHUB_URL")
 	}
 	if base == "" {
 		base = skillhub.DefaultURL

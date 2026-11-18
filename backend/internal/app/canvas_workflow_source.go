@@ -1,8 +1,8 @@
 package app
 
 import (
-	cw "infinite-canvas/backend/internal/canvasworkflow"
-	"infinite-canvas/backend/internal/model"
+	cw "luckytv/backend/internal/canvasworkflow"
+	"luckytv/backend/internal/model"
 )
 
 func (s *Service) captureCanvasWorkflowSource(task model.Task) (string, error) {

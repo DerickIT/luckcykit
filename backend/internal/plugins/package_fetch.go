@@ -20,10 +20,10 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/assistantruntime"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/outbound"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/assistantruntime"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/outbound"
+	"luckytv/backend/internal/protocol"
 )
 
 const (
@@ -131,7 +131,7 @@ func (s *Service) InstallPackage(source, registry string) (View, error) {
 // InstallPackageArchive installs an uploaded npm tarball through the same npm
 // path as registry packages, so its dependencies are installed too.
 func (s *Service) InstallPackageArchive(data []byte, registry string) (View, error) {
-	file, err := os.CreateTemp("", "beeftv-plugin-*.tgz")
+	file, err := os.CreateTemp("", "luckytv-plugin-*.tgz")
 	if err != nil {
 		return View{}, err
 	}
@@ -683,11 +683,11 @@ func (c *Runtime) cleanupUninstalledPackageDir(previous map[string]Record, next 
 const bundledPluginsSubdir = "bundled-plugins"
 
 // BundledBuiltinPluginNames is the single source of truth for default built-in
-// plugin directories shipped inside the BeefTV desktop app (agent-host/bundled-plugins).
+// plugin directories shipped inside the LuckyTV desktop app (agent-host/bundled-plugins).
 var BundledBuiltinPluginNames = []string{
-	"beeftv-plugin-market",
-	"beeftv-plugin-ll2",
-	"beeftv-plugin-ysdui",
+	"luckytv-plugin-market",
+	"luckytv-plugin-ll2",
+	"luckytv-plugin-ysdui",
 }
 
 var (
@@ -705,7 +705,7 @@ func isBundledBuiltinPlugin(name string) bool {
 }
 
 // BundledSampleDir resolves a built-in plugin package directory shipped with
-// BeefTV (only beeftv-plugin-market and beeftv-plugin-ll2). Market plugins are
+// LuckyTV (only luckytv-plugin-market and luckytv-plugin-ll2). Market plugins are
 // never bundled inside the desktop app and are always installed online.
 func BundledSampleDir(name string) (string, bool) {
 	executable, _ := runtimeExecutable()

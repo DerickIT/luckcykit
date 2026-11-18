@@ -5,9 +5,9 @@ import (
 
 	"gorm.io/gorm"
 
-	"infinite-canvas/backend/internal/assistantturns"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/assistantturns"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/skills"
 )
 
 func (s *Service) ChangeAssistantSkillContext(userID, canvasID string, change assistantturns.SkillContextChange) (*assistantturns.SkillContext, error) {

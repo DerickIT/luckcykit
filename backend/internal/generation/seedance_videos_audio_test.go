@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/modelcatalog"
+	"luckytv/backend/internal/modelcatalog"
 )
 
 // 自建渠道的 seedance-videos-compatible 协议走手写 /videos 请求体。能力目录把声音

@@ -154,7 +154,7 @@ export function WorkspaceStartupError({
                 return;
             }
 
-            triggerBrowserJsonDownload("beeftv-startup-client-diagnostics.json", JSON.stringify(payload, null, 2));
+            triggerBrowserJsonDownload("luckytv-startup-client-diagnostics.json", JSON.stringify(payload, null, 2));
             setNotice("已保存前端启动诊断快照。");
         } catch {
             setNotice("导出诊断包未完成，请点击「打开数据目录」查看 diagnostics 文件夹。");

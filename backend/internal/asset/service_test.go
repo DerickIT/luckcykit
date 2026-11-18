@@ -3,7 +3,7 @@ package asset
 import (
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 type listingRepository struct {

@@ -3,23 +3,23 @@ package generation
 import (
 	"context"
 	"errors"
-	"infinite-canvas/backend/internal/beeftv"
+	"luckytv/backend/internal/luckytv"
 	"testing"
 )
 
-func completeBeefTVSeedanceMultipart(ctx context.Context, config Config, session BeefTVSeedanceUploadSession, data []byte) (BeefTVSeedanceUploadComplete, error) {
-	return CompleteBeefTVSeedanceUpload(ctx, config, session, data)
+func completeLuckyTVSeedanceMultipart(ctx context.Context, config Config, session LuckyTVSeedanceUploadSession, data []byte) (LuckyTVSeedanceUploadComplete, error) {
+	return CompleteLuckyTVSeedanceUpload(ctx, config, session, data)
 }
 func retrySeedanceUpload(ctx context.Context, err error, _ bool) bool {
-	return ctx.Err() == nil && beeftv.RetryUploadError(err)
+	return ctx.Err() == nil && luckytv.RetryUploadError(err)
 }
 
-func TestPrepareBeefTVVideoReferencesSkipsTextAndAudioTasks(t *testing.T) {
+func TestPrepareLuckyTVVideoReferencesSkipsTextAndAudioTasks(t *testing.T) {
 	cfg := Config{
-		BaseURL:       "https://beeftv.app/v1",
+		BaseURL:       "https://luckytv.app/v1",
 		APIKey:        "test-key",
 		Model:         "claude-fable-5",
-		CredentialRef: beeftv.CredentialRef,
+		CredentialRef: luckytv.CredentialRef,
 	}
 	for _, mode := range []string{"text", "audio"} {
 		input := Input{
@@ -27,7 +27,7 @@ func TestPrepareBeefTVVideoReferencesSkipsTextAndAudioTasks(t *testing.T) {
 			Config:          cfg,
 			ReferenceImages: []Media{{DataURL: "data:image/png;base64,aGVsbG8=", MimeType: "image/png"}},
 		}
-		err := PrepareBeefTVVideoReferences(context.Background(), cfg, &input, func(string, Media) ([]byte, string, bool, error) {
+		err := PrepareLuckyTVVideoReferences(context.Background(), cfg, &input, func(string, Media) ([]byte, string, bool, error) {
 			return nil, "", false, errors.New("must not read or preupload reference media for non-video mode")
 		})
 		if err != nil {

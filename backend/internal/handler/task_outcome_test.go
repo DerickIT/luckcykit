@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func TestTaskOutcomeReadEndpointsOnlyAddPublicProjection(t *testing.T) {

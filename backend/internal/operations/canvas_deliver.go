@@ -8,9 +8,9 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"infinite-canvas/backend/internal/canvas"
-	"infinite-canvas/backend/internal/editing"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/canvas"
+	"luckytv/backend/internal/editing"
+	localtask "luckytv/backend/internal/task"
 )
 
 const canvasDeliveryDefaultTitle = "成片"

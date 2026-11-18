@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme/beeftv-wordmark.svg" width="640" alt="BeefTV — High-performance, lightweight, AI-native video workspace">
+  <img src="assets/readme/luckytv-wordmark.svg" width="640" alt="LuckyTV — High-performance, lightweight, AI-native video workspace">
 </p>
 
 <p align="center"><strong>High-performance · Lightweight · AI Native</strong></p>
@@ -10,23 +10,23 @@
 </p>
 
 <p align="center">
-  与 BeefTV Agent 一起推进创作，用 Skills 扩展方法，用工作流复用过程。<br>
+  与 LuckyTV Agent 一起推进创作，用 Skills 扩展方法，用工作流复用过程。<br>
   从分镜、素材到成片，让创作可以继续编辑、迭代和积累。
 </p>
 
 <p align="center">
-  <a href="https://github.com/glanderness/BeefTV/stargazers"><img src="https://img.shields.io/github/stars/glanderness/BeefTV?style=flat-square&amp;logo=github&amp;label=Stars&amp;labelColor=303030&amp;color=E86C36" alt="BeefTV GitHub Stars"></a>
-  <a href="https://github.com/glanderness/BeefTV/releases/latest"><img src="https://img.shields.io/github/v/release/glanderness/BeefTV?style=flat-square&amp;label=Release&amp;labelColor=303030&amp;color=525252" alt="BeefTV 最新版本"></a>
+  <a href="https://github.com/glanderness/LuckyTV/stargazers"><img src="https://img.shields.io/github/stars/glanderness/LuckyTV?style=flat-square&amp;logo=github&amp;label=Stars&amp;labelColor=303030&amp;color=E86C36" alt="LuckyTV GitHub Stars"></a>
+  <a href="https://github.com/glanderness/LuckyTV/releases/latest"><img src="https://img.shields.io/github/v/release/glanderness/LuckyTV?style=flat-square&amp;label=Release&amp;labelColor=303030&amp;color=525252" alt="LuckyTV 最新版本"></a>
   <a href="QUICKSTART.md#下载与首次打开"><img src="https://img.shields.io/badge/Desktop-macOS%20%7C%20Windows-525252?style=flat-square&amp;labelColor=303030" alt="桌面版支持 macOS 和 Windows"></a>
   <a href="QUICKSTART.md"><img src="https://img.shields.io/badge/Workspace-Local--first-525252?style=flat-square&amp;labelColor=303030" alt="本地优先工作区"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Source%20Available-525252?style=flat-square&amp;labelColor=303030" alt="源码可用，许可范围见 LICENSE"></a>
 </p>
 
 <p align="center">
-  <a href="https://beeftv.app/"><img src="assets/readme/button-website.svg" width="180" alt="访问 BeefTV 官网"></a>
-  <a href="https://github.com/glanderness/BeefTV/releases/latest"><img src="assets/readme/button-download.svg" width="175" alt="下载 BeefTV 桌面版"></a>
-  <a href="https://beeftv.app/assets/beeftv-wecom-qr.png"><img src="assets/readme/button-community.svg" width="185" alt="扫码加入 BeefTV 社群"></a>
-  <a href="https://x.com/beefnoode"><img src="assets/readme/button-x.svg" width="180" alt="在 X 关注 @beefnoode"></a>
+  <a href="https://luckytv.app/"><img src="assets/readme/button-website.svg" width="180" alt="访问 LuckyTV 官网"></a>
+  <a href="https://github.com/glanderness/LuckyTV/releases/latest"><img src="assets/readme/button-download.svg" width="175" alt="下载 LuckyTV 桌面版"></a>
+  <a href="https://luckytv.app/assets/luckytv-wecom-qr.png"><img src="assets/readme/button-community.svg" width="185" alt="扫码加入 LuckyTV 社群"></a>
+  <a href="https://x.com/luckynoode"><img src="assets/readme/button-x.svg" width="180" alt="在 X 关注 @luckynoode"></a>
 </p>
 
 <p align="center">
@@ -34,7 +34,7 @@
   <a href="#最近更新">最近更新</a> ·
   <a href="#产品演示">产品演示</a> ·
   <a href="#工作流">工作流</a> ·
-  <a href="#beeftv-agent">Agent</a> ·
+  <a href="#luckytv-agent">Agent</a> ·
   <a href="#skills">Skills</a> ·
   <a href="docs/content/docs/overview/features.mdx">功能清单</a> ·
   <a href="QUICKSTART.md">开始使用</a> ·
@@ -43,17 +43,17 @@
 
 ## 最近更新
 
-- **[v2.2.5](https://github.com/glanderness/BeefTV/releases/tag/v2.2.5)** — 修复画布上传完成后偶发回退「上传中」与替换素材被旧任务覆盖，修复桌面端资源缩略图、独立分镜生成与批量下载编号，升级视频原生截帧与音视频分离，放开内置助手选用大型技能的大小与数量限制并支持长文档按行分段读取。
-- **[v2.2.4](https://github.com/glanderness/BeefTV/releases/tag/v2.2.4)** — 修复桌面端 Eagle 素材库预览与导入下载，支持自定义模型服务无 `/v1` 前缀地址与手动模型改删，修复提示词长按退格、个人资产库分页计数与生成历史本地视频预览。
-- **[v2.2.3](https://github.com/glanderness/BeefTV/releases/tag/v2.2.3)** — 接入 Seedream 5.5 图片生成与细粒度图层拆分，优化画布视频首尾帧自动识别与参考预检，修复超分与去字幕终态重试及诊断耗时显示，并补充银盛云枢壹算品牌图标与简介。
-- **[v2.2.2](https://github.com/glanderness/BeefTV/releases/tag/v2.2.2)** — 上线实时余额与在线充值，完善生成费用预估，升级 DeepSeek Harness 协同与画布视频处理。
-- **[v2.2.1](https://github.com/glanderness/BeefTV/releases/tag/v2.2.1)** — 新增银盛云枢壹算渠道插件，改版插件与账户设置，改善画布预览及生成报错与重试。
+- **[v2.2.5](https://github.com/glanderness/LuckyTV/releases/tag/v2.2.5)** — 修复画布上传完成后偶发回退「上传中」与替换素材被旧任务覆盖，修复桌面端资源缩略图、独立分镜生成与批量下载编号，升级视频原生截帧与音视频分离，放开内置助手选用大型技能的大小与数量限制并支持长文档按行分段读取。
+- **[v2.2.4](https://github.com/glanderness/LuckyTV/releases/tag/v2.2.4)** — 修复桌面端 Eagle 素材库预览与导入下载，支持自定义模型服务无 `/v1` 前缀地址与手动模型改删，修复提示词长按退格、个人资产库分页计数与生成历史本地视频预览。
+- **[v2.2.3](https://github.com/glanderness/LuckyTV/releases/tag/v2.2.3)** — 接入 Seedream 5.5 图片生成与细粒度图层拆分，优化画布视频首尾帧自动识别与参考预检，修复超分与去字幕终态重试及诊断耗时显示，并补充银盛云枢壹算品牌图标与简介。
+- **[v2.2.2](https://github.com/glanderness/LuckyTV/releases/tag/v2.2.2)** — 上线实时余额与在线充值，完善生成费用预估，升级 DeepSeek Harness 协同与画布视频处理。
+- **[v2.2.1](https://github.com/glanderness/LuckyTV/releases/tag/v2.2.1)** — 新增银盛云枢壹算渠道插件，改版插件与账户设置，改善画布预览及生成报错与重试。
 
-[查看全部版本与详细说明](https://github.com/glanderness/BeefTV/releases)
+[查看全部版本与详细说明](https://github.com/glanderness/LuckyTV/releases)
 
 ## 特别鸣谢
 
-感谢支持 BeefTV 持续发展的合作伙伴、赞助商与客户。
+感谢支持 LuckyTV 持续发展的合作伙伴、赞助商与客户。
 
 <table>
   <tr><th width="26%" align="center">鸣谢对象</th><th align="center">介绍</th></tr>
@@ -75,7 +75,7 @@
   </tr>
   <tr>
     <td align="center" valign="middle"><img src="assets/readme/partner-pccooler.png" width="120" alt="超频三标志"><br><strong>超频三</strong></td>
-    <td><a href="https://www.cpspccooler.cn/">超频三</a>是深耕高性能计算硬件与散热系统的上市公司，提供 AI 模组化整机、AI 工作站等产品。结合超频三的硬件研发能力与 BeefTV 的 AIGC 软件生态，双方将共同探索软硬件一体化的本地 AI 创作解决方案。</td>
+    <td><a href="https://www.cpspccooler.cn/">超频三</a>是深耕高性能计算硬件与散热系统的上市公司，提供 AI 模组化整机、AI 工作站等产品。结合超频三的硬件研发能力与 LuckyTV 的 AIGC 软件生态，双方将共同探索软硬件一体化的本地 AI 创作解决方案。</td>
   </tr>
 </table>
 
@@ -91,7 +91,7 @@
 
 将素材、媒体处理与 AI 生成连接成一套可编辑流程。以**单人物替换工作流**为例：输入动作视频和人物参考图，先适配视频帧率，再交给 Seedance 2.0 Fast 生成替换结果。
 
-![单人物替换工作流真实编辑界面：可替换的视频与图片输入、帧率适配、视频生成节点及模型参数](assets/readme/beeftv-character-workflow-editor.png)
+![单人物替换工作流真实编辑界面：可替换的视频与图片输入、帧率适配、视频生成节点及模型参数](assets/readme/luckytv-character-workflow-editor.png)
 
 <table>
   <tr><th width="50%">原片</th><th width="50%">人物替换完整版</th></tr>
@@ -109,7 +109,7 @@
 
 本地 2.0.1 中的模板版本 13、14 已有成功运行记录。上方完整版还包含逐镜修正、拼接与原声回填，这些步骤尚未全部封装进模板；不代表任意素材一键完成或逐帧保真。模型生成按所用渠道计费。
 
-## BeefTV Agent
+## LuckyTV Agent
 
 **通过聊天，把故事搭成可编辑的创作工程。**
 
@@ -120,19 +120,19 @@
 <table>
   <tr><th width="25%">角色设定 · 沈默</th><th width="25%">场景设定 · 水塔配给点</th><th width="25%">生成镜头一</th><th width="25%">生成镜头二</th></tr>
   <tr>
-    <td><img src="assets/readme/beeftv-agent-drama-role-shenmo.webp" alt="Agent 生成的主角沈默设定图"></td>
-    <td><img src="assets/readme/beeftv-agent-drama-scene-water-tower.webp" alt="Agent 生成的末日水塔配给点场景"></td>
+    <td><img src="assets/readme/luckytv-agent-drama-role-shenmo.webp" alt="Agent 生成的主角沈默设定图"></td>
+    <td><img src="assets/readme/luckytv-agent-drama-scene-water-tower.webp" alt="Agent 生成的末日水塔配给点场景"></td>
     <td><video src="https://github.com/user-attachments/assets/0c0e1174-479d-4394-a4b2-7c64a3367e0a" controls preload="metadata" playsinline></video></td>
     <td><video src="https://github.com/user-attachments/assets/b304bdd1-5a3f-4e96-929b-46a9cbff29bf" controls preload="metadata" playsinline></video></td>
   </tr>
 </table>
 
-![BeefTV Agent 实际使用画面：角色与场景节点通过连线关联分镜和视频，右侧显示制作步骤与执行进度](assets/readme/beeftv-agent-drama-canvas.png)
+![LuckyTV Agent 实际使用画面：角色与场景节点通过连线关联分镜和视频，右侧显示制作步骤与执行进度](assets/readme/luckytv-agent-drama-canvas.png)
 
 - **先规划**：确定世界观、角色与分镜，写入镜头时长、画面、动作和声音要求。
 - **再执行**：创建节点与参考连线，确认后调用模型，生成角色图、场景图、镜头和旁白。
 - **可检查、可继续**：读取实际产物，核对设定图与分镜首帧，保留成功素材和失败状态，继续调整与编辑。
-- **支持外部 Agent / MCP 接入**：在侧栏「BeefTV MCP」页一键把 Claude Code、Codex 接入本地画布，并装好一份画布使用说明；Claude Desktop、Cursor 等客户端可生成连接配置接入。详见[外部 Agent 接入](docs/content/docs/backend/external-agents.mdx)。
+- **支持外部 Agent / MCP 接入**：在侧栏「LuckyTV MCP」页一键把 Claude Code、Codex 接入本地画布，并装好一份画布使用说明；Claude Desktop、Cursor 等客户端可生成连接配置接入。详见[外部 Agent 接入](docs/content/docs/backend/external-agents.mdx)。
 
 ## Skills
 
@@ -140,7 +140,7 @@
 
 为创作助手提供特定任务的方法、步骤与要求。浏览技能市场，查看使用条件与文件，再安装指定版本。
 
-![BeefTV 2.0.1 技能市场：浏览技能、用途和固定版本](assets/readme/beeftv-2.0.1-skills.webp)
+![LuckyTV 2.0.1 技能市场：浏览技能、用途和固定版本](assets/readme/luckytv-2.0.1-skills.webp)
 
 | 官方技能 | 本次实际交付 |
 | --- | --- |
@@ -161,9 +161,9 @@
 - **加工**：继续裁切、标注、局部重绘、拆分、引用和组合结果。
 - **迭代**：保留过程、复用素材，让一次生成变成可持续演进的工作流。
 
-BeefTV 同时提供项目库、个人资产库、异步任务、模型渠道与创作工具。
+LuckyTV 同时提供项目库、个人资产库、异步任务、模型渠道与创作工具。
 
-## 为什么选择BeefTV
+## 为什么选择LuckyTV
 
 | High Performance | Lightweight | AI Native |
 | --- | --- | --- |
@@ -177,8 +177,8 @@ BeefTV 同时提供项目库、个人资产库、异步任务、模型渠道与�
 
 ## 开始使用
 
-1. [下载桌面版](https://github.com/glanderness/BeefTV/releases/latest)，按[首次打开说明](QUICKSTART.md#下载与首次打开)进入本地工作区，无需注册。
-2. 在「模型配置」中连接 BeefTV 官方账号，或添加自己的模型渠道。
+1. [下载桌面版](https://github.com/glanderness/LuckyTV/releases/latest)，按[首次打开说明](QUICKSTART.md#下载与首次打开)进入本地工作区，无需注册。
+2. 在「模型配置」中连接 LuckyTV 官方账号，或添加自己的模型渠道。
 3. 新建画布，添加参考素材，向创作助手描述目标；也可从节点开始自由创作。
 
 模型配置与源码构建见 [快速开始](QUICKSTART.md)，打包要求见[桌面发布文档](docs/desktop-release.md)。
@@ -189,28 +189,28 @@ BeefTV 同时提供项目库、个人资产库、异步任务、模型渠道与�
 
 仓库采用分范围许可：自首次引入新许可的提交起，符合授权条件的新增原创内容适用 [`BeefTV Source Available License 1.0`](LICENSE)；已按 MIT 发布的历史内容继续适用同文件保留的 MIT 条款，上游和第三方材料保留各自许可。
 
-新许可允许自部署、内部二开及使用 BeefTV 制作并销售作品；对其覆盖的软件进行商业转售、套壳销售、收费部署或定制交付，以及免费或收费向第三方提供托管功能，均需事先书面授权。独立教程、培训和一般技术咨询可收费，不能借此变相交付软件系统。授权联系：[lucas@bf-labs.cn](mailto:lucas@bf-labs.cn)。
+新许可允许自部署、内部二开及使用 LuckyTV 制作并销售作品；对其覆盖的软件进行商业转售、套壳销售、收费部署或定制交付，以及免费或收费向第三方提供托管功能，均需事先书面授权。独立教程、培训和一般技术咨询可收费，不能借此变相交付软件系统。授权联系：[lucas@bf-labs.cn](mailto:lucas@bf-labs.cn)。
 
 新限制不追溯适用于历史 MIT 内容，也不覆盖第三方独立许可的材料。这是一份源码可用许可，不能将整个仓库视为标准 MIT 或 OSI 定义的开源项目。具体场景及覆盖边界见[许可说明](docs/content/docs/overview/licensing.mdx)，上游来源与第三方归属见 [`NOTICE`](NOTICE)。
 
 ## 开源参考
 
-BeefTV 的开发基于并参考了以下开源项目与技术：
+LuckyTV 的开发基于并参考了以下开源项目与技术：
 
-- **[影策 Open AI Canvas](https://github.com/ddcat-ai/open-ai-canvas)**（https://github.com/ddcat-ai/open-ai-canvas）：面向 AI 影视与短剧创作的工作台。BeefTV 是基于该项目进行二次开发，画布节点编排、模型渠道接入、任务与素材管理及社区内置插件等基础能力来自该项目，并在此基础上持续改进优化为本地应用版本。再次感谢 [ddcat](https://github.com/ddcat-ai) 及所有 Open AI Canvas 贡献者对开源 AIGC 社区作出的贡献。
+- **[影策 Open AI Canvas](https://github.com/ddcat-ai/open-ai-canvas)**（https://github.com/ddcat-ai/open-ai-canvas）：面向 AI 影视与短剧创作的工作台。LuckyTV 是基于该项目进行二次开发，画布节点编排、模型渠道接入、任务与素材管理及社区内置插件等基础能力来自该项目，并在此基础上持续改进优化为本地应用版本。再次感谢 [ddcat](https://github.com/ddcat-ai) 及所有 Open AI Canvas 贡献者对开源 AIGC 社区作出的贡献。
   
-- **[basketikun 的 infinite-canvas](https://github.com/basketikun/infinite-canvas)**：将无限画布与 AI 图片创作结合的开源工作台。BeefTV 参考了其无限画布整体架构，并沿用了部分画布代码与技术能力，包括节点拖拽与缩放、连线、撤销重做、画布导入导出等。感谢 [basketikun](https://github.com/basketikun) 及所有贡献者。
+- **[basketikun 的 infinite-canvas](https://github.com/basketikun/infinite-canvas)**：将无限画布与 AI 图片创作结合的开源工作台。LuckyTV 参考了其无限画布整体架构，并沿用了部分画布代码与技术能力，包括节点拖拽与缩放、连线、撤销重做、画布导入导出等。感谢 [basketikun](https://github.com/basketikun) 及所有贡献者。
   
-- **[Pi（Pi Agent）](https://github.com/earendil-works/pi)**：轻量、可扩展的 Agent 框架，提供 Agent 执行循环、工具调用与会话管理等能力。BeefTV 内置 Agent 基于 Pi 构建，并围绕视频创作场景进行适配与扩展，接入画布操作、创作计划与技能管理等能力。感谢 Pi 的作者、[维护团队](https://github.com/earendil-works)及所有贡献者。
+- **[Pi（Pi Agent）](https://github.com/earendil-works/pi)**：轻量、可扩展的 Agent 框架，提供 Agent 执行循环、工具调用与会话管理等能力。LuckyTV 内置 Agent 基于 Pi 构建，并围绕视频创作场景进行适配与扩展，接入画布操作、创作计划与技能管理等能力。感谢 Pi 的作者、[维护团队](https://github.com/earendil-works)及所有贡献者。
 
-感谢以上项目作者、维护者及所有贡献者提供的基础与启发。BeefTV 在这些成果之上持续进行独立开发和深度优化；上游与第三方代码、版权声明及许可仍按各自条款保留，具体归属与许可范围见 [`NOTICE`](NOTICE)、[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) 和 [`LICENSE`](LICENSE)。
+感谢以上项目作者、维护者及所有贡献者提供的基础与启发。LuckyTV 在这些成果之上持续进行独立开发和深度优化；上游与第三方代码、版权声明及许可仍按各自条款保留，具体归属与许可范围见 [`NOTICE`](NOTICE)、[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) 和 [`LICENSE`](LICENSE)。
 
 ## ⭐ Star History
 
-<a href="https://www.star-history.com/?repos=glanderness%2FBeefTV&amp;type=date&amp;legend=bottom-right">
+<a href="https://www.star-history.com/?repos=glanderness%2FLuckyTV&amp;type=date&amp;legend=bottom-right">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=glanderness/BeefTV&amp;type=date&amp;theme=dark&amp;legend=bottom-right" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=glanderness/BeefTV&amp;type=date&amp;legend=bottom-right" />
-    <img alt="BeefTV GitHub Star History" src="https://api.star-history.com/chart?repos=glanderness/BeefTV&amp;type=date&amp;legend=bottom-right" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=glanderness/LuckyTV&amp;type=date&amp;theme=dark&amp;legend=bottom-right" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=glanderness/LuckyTV&amp;type=date&amp;legend=bottom-right" />
+    <img alt="LuckyTV GitHub Star History" src="https://api.star-history.com/chart?repos=glanderness/LuckyTV&amp;type=date&amp;legend=bottom-right" />
   </picture>
 </a>

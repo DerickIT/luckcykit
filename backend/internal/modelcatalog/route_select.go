@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"infinite-canvas/backend/internal/kernel"
+	"luckytv/backend/internal/kernel"
 )
 
 func (r *Router) ResolveLogicalModel(logicalModelID string, intent ModelRequestIntent) (*RoutedModel, error) {

@@ -31,10 +31,10 @@ function installBrowserWindow(options: { embedded?: boolean; parentOrigin?: stri
         postMessage: (message, targetOrigin) => { posted.push({ message, targetOrigin }); },
     };
     const fakeWindow = {
-        __BEEFTV_HARNESS__: options.embedded === false ? undefined : {
+        __LUCKYTV_HARNESS__: options.embedded === false ? undefined : {
             embedded: true,
-            apiBase: "/beeftv/app/api",
-            basePath: "/beeftv/app",
+            apiBase: "/luckytv/app/api",
+            basePath: "/luckytv/app",
             ...(options.parentOrigin === null ? {} : { parentOrigin: options.parentOrigin ?? "https://host.test" }),
         },
         location: { origin: "https://app.test" },
@@ -95,7 +95,7 @@ describe("问助手交接", () => {
         expect(posted).toHaveLength(1);
         expect(posted[0].targetOrigin).toBe("https://host.test");
         const message = posted[0].message as { type: string; ask: { source: string; canvasId: string; canvasTitle: string; nodes: { id: string; title: string; type: string }[] } };
-        expect(message.type).toBe("beeftv:ask");
+        expect(message.type).toBe("luckytv:ask");
         expect(message.ask.source).toBe("selection-toolbar");
         expect(message.ask.canvasId).toBe("canvas-1");
         expect(message.ask.canvasTitle).toBe("第一场");
@@ -123,7 +123,7 @@ describe("问助手交接", () => {
         const { parent } = installBrowserWindow();
         const notices: string[] = [];
         const handler = createEmbeddedAskResultHandler((text) => notices.push(text));
-        const event = (status: unknown, source: unknown = parent, origin = "https://host.test") => handler(parentEvent(source, { type: "beeftv:ask-result", status }, origin));
+        const event = (status: unknown, source: unknown = parent, origin = "https://host.test") => handler(parentEvent(source, { type: "luckytv:ask-result", status }, origin));
 
         event("applied");
         event("preserved");
@@ -132,8 +132,8 @@ describe("问助手交接", () => {
         event("blocked", {});
         event("blocked", parent, "https://other.test");
         expect(notices).toEqual(["右侧正在发送，稍后再点", "右侧对话还没准备好，稍后再点"]);
-        expect(parseEmbeddedAskResult({ type: "beeftv:ask-result", status: "blocked" })).toBe("blocked");
-        expect(parseEmbeddedAskResult({ type: "beeftv:ask-result", status: "unknown" })).toBeNull();
+        expect(parseEmbeddedAskResult({ type: "luckytv:ask-result", status: "blocked" })).toBe("blocked");
+        expect(parseEmbeddedAskResult({ type: "luckytv:ask-result", status: "unknown" })).toBeNull();
         expect(embeddedAskResultNotice("applied")).toBeNull();
         expect(embeddedAskResultNotice("preserved")).toBeNull();
     });
@@ -143,7 +143,7 @@ describe("问助手交接", () => {
             const { parent } = installBrowserWindow({ parentOrigin });
             const accepted: string[] = [];
             const handler = createEmbeddedAskResultHandler((text) => accepted.push(text));
-            const event = (origin: string) => handler(parentEvent(parent, { type: "beeftv:ask-result", status: "blocked" }, origin));
+            const event = (origin: string) => handler(parentEvent(parent, { type: "luckytv:ask-result", status: "blocked" }, origin));
             event("https://evil.test");
             expect(accepted).toHaveLength(0);
             event("https://host.test");
@@ -186,7 +186,7 @@ describe("工作区同步不拉走页面", () => {
             openCanvasInUi: () => {},
             notifyCanvasChange: () => { calls.push("notice"); },
         });
-        handler(parentEvent(parent, { type: "beeftv:workspace-sync", activity: { kind: "canvas-created", canvasId: "canvas-1" } }, "https://evil.test"));
+        handler(parentEvent(parent, { type: "luckytv:workspace-sync", activity: { kind: "canvas-created", canvasId: "canvas-1" } }, "https://evil.test"));
         await flushAsyncWork();
         expect(calls).toEqual([]);
     });
@@ -208,7 +208,7 @@ describe("工作区同步不拉走页面", () => {
             notifyCanvasChange: (notice) => { notices.push(notice); },
         });
 
-        handler(parentEvent(parent, { type: "beeftv:workspace-sync", activity: { kind: "canvas-created", canvasId: "canvas-1" } }));
+        handler(parentEvent(parent, { type: "luckytv:workspace-sync", activity: { kind: "canvas-created", canvasId: "canvas-1" } }));
         await flushAsyncWork();
 
         expect(calls).not.toContain("navigate:canvas-1");
@@ -234,7 +234,7 @@ describe("工作区同步不拉走页面", () => {
             openCanvasInUi: () => {},
             notifyCanvasChange: (notice) => { notices.push(notice); },
         });
-        handler(parentEvent(parent, { type: "beeftv:workspace-sync", activity: { kind: "canvas-updated", canvasId: "canvas-1" } }));
+        handler(parentEvent(parent, { type: "luckytv:workspace-sync", activity: { kind: "canvas-updated", canvasId: "canvas-1" } }));
         await flushAsyncWork();
         expect(notices).toHaveLength(0);
     });
@@ -255,7 +255,7 @@ describe("工作区同步不拉走页面", () => {
             openCanvasInUi: () => {},
             notifyCanvasChange: (notice) => { notices.push(notice); },
         });
-        handler(parentEvent(parent, { type: "beeftv:workspace-sync", activity: { kind: "canvas-created", canvasId: "canvas-1" } }));
+        handler(parentEvent(parent, { type: "luckytv:workspace-sync", activity: { kind: "canvas-created", canvasId: "canvas-1" } }));
         await flushAsyncWork();
         expect(notices).toHaveLength(0);
     });

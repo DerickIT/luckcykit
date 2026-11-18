@@ -11,9 +11,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/privatefile"
-	"infinite-canvas/backend/internal/skillhub"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/privatefile"
+	"luckytv/backend/internal/skillhub"
 )
 
 type marketAuth struct {
@@ -93,7 +93,7 @@ func (s *Service) MarketAuthorization(ctx context.Context, user string, start bo
 	websiteURL := website.String()
 	if start {
 		var a skillhub.Authorization
-		e = c.JSON(ctx, "POST", "authorizations", "", "", map[string]string{"clientName": "BeefTV 创作助手"}, &a)
+		e = c.JSON(ctx, "POST", "authorizations", "", "", map[string]string{"clientName": "LuckyTV 创作助手"}, &a)
 		if e != nil {
 			return nil, e
 		}

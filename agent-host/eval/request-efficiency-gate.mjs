@@ -2,8 +2,8 @@
 // 请求效率门禁（Request Efficiency Gate）
 // 用评测台假模型抓包运行 S1–S11，断言：
 // 1. 完整覆盖 S1–S11 共 11 个场景（每个场景至少 1 对相邻请求，且场景业务检查无失败）；
-// 2. 一个会话内头部 system 文本逐字节不变，且仅含稳定内容（<instructions> 在前、<beeftv_skill_catalog> 在后，无其他段落）；
-// 3. 每次请求末尾均带有非 system 的瞬态上下文（含 <beeftv_studio>）；
+// 2. 一个会话内头部 system 文本逐字节不变，且仅含稳定内容（<instructions> 在前、<luckytv_skill_catalog> 在后，无其他段落）；
+// 3. 每次请求末尾均带有非 system 的瞬态上下文（含 <luckytv_studio>）；
 // 4. S1–S11 中至少 95% 的相邻请求对公共前缀覆盖前一次请求除末尾瞬态上下文外的全部内容（100% 字节一致）；
 // 5. 记录头部 system + 工具定义的字符数并设只降不升上限（--update 仅允许收紧，不允许调高）。
 
@@ -51,7 +51,7 @@ export function commonPrefixLength(a = '', b = '') {
 }
 
 const CANONICAL_HEADER_RE =
-  /^<instructions>\n[\s\S]*\n<\/instructions>(?:\n\n<beeftv_skill_catalog>\n[\s\S]*\n<\/beeftv_skill_catalog>)?$/;
+  /^<instructions>\n[\s\S]*\n<\/instructions>(?:\n\n<luckytv_skill_catalog>\n[\s\S]*\n<\/luckytv_skill_catalog>)?$/;
 
 export function analyzeCapturedRequests(
   capturedRequests = [],
@@ -154,30 +154,30 @@ export function analyzeCapturedRequests(
       }
 
       if (
-        leadingText.includes('<beeftv_studio>') ||
-        leadingText.includes('<beeftv_plan>') ||
-        leadingText.includes('<beeftv_active_skills>')
+        leadingText.includes('<luckytv_studio>') ||
+        leadingText.includes('<luckytv_plan>') ||
+        leadingText.includes('<luckytv_active_skills>')
       ) {
         sessionHeaderClean = false;
         violations.push(
-          `${session.scenarioCode} req#${idx + 1}: 头部 system 仍包含动态区块（beeftv_studio / beeftv_plan / beeftv_active_skills）`,
+          `${session.scenarioCode} req#${idx + 1}: 头部 system 仍包含动态区块（luckytv_studio / luckytv_plan / luckytv_active_skills）`,
         );
       }
 
       const instrIdx = leadingText.indexOf('<instructions>');
-      const catalogIdx = leadingText.indexOf('<beeftv_skill_catalog>');
+      const catalogIdx = leadingText.indexOf('<luckytv_skill_catalog>');
       if (instrIdx < 0) {
         sessionHeaderClean = false;
         violations.push(`${session.scenarioCode} req#${idx + 1}: 头部 system 缺少 <instructions>`);
       } else if (catalogIdx >= 0 && instrIdx > catalogIdx) {
         sessionHeaderClean = false;
         violations.push(
-          `${session.scenarioCode} req#${idx + 1}: <beeftv_skill_catalog> (${catalogIdx}) 排在 <instructions> (${instrIdx}) 前面`,
+          `${session.scenarioCode} req#${idx + 1}: <luckytv_skill_catalog> (${catalogIdx}) 排在 <instructions> (${instrIdx}) 前面`,
         );
       } else if (!CANONICAL_HEADER_RE.test(leadingText.trim())) {
         sessionHeaderClean = false;
         violations.push(
-          `${session.scenarioCode} req#${idx + 1}: 头部 system 不符合规范结构（必须以 <instructions> 开头，仅允许紧跟 <beeftv_skill_catalog>）`,
+          `${session.scenarioCode} req#${idx + 1}: 头部 system 不符合规范结构（必须以 <instructions> 开头，仅允许紧跟 <luckytv_skill_catalog>）`,
         );
       }
 
@@ -185,11 +185,11 @@ export function analyzeCapturedRequests(
       const lastMsgText = extractMessageText(lastMsg);
       if (
         !isTransientStudioTailMessage(lastMsg) ||
-        !/<beeftv_studio>\n[\s\S]*\n<\/beeftv_studio>$/.test(lastMsgText.trim())
+        !/<luckytv_studio>\n[\s\S]*\n<\/luckytv_studio>$/.test(lastMsgText.trim())
       ) {
         sessionTailValid = false;
         violations.push(
-          `${session.scenarioCode} req#${idx + 1}: 末尾消息缺少非 system 的 <beeftv_studio> 瞬态上下文`,
+          `${session.scenarioCode} req#${idx + 1}: 末尾消息缺少非 system 的 <luckytv_studio> 瞬态上下文`,
         );
       }
 
@@ -199,10 +199,10 @@ export function analyzeCapturedRequests(
           extractMessageText(m).includes('Current plan:') &&
           !extractMessageText(m).includes('No active plan.'),
       );
-      if (hasCompletedPlanUpdate && !/<beeftv_plan>\n[\s\S]*\n<\/beeftv_plan>/.test(lastMsgText)) {
+      if (hasCompletedPlanUpdate && !/<luckytv_plan>\n[\s\S]*\n<\/luckytv_plan>/.test(lastMsgText)) {
         sessionTailValid = false;
         violations.push(
-          `${session.scenarioCode} req#${idx + 1}: plan_update 生效后末尾瞬态消息缺少 <beeftv_plan>`,
+          `${session.scenarioCode} req#${idx + 1}: plan_update 生效后末尾瞬态消息缺少 <luckytv_plan>`,
         );
       }
 

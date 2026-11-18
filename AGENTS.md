@@ -1,10 +1,10 @@
 # AGENTS.md
 
-本文件是BeefTV仓库中 AI、自动化工具和协作者的工作约定。用户当前任务优先于本文件；本文件优先于个人习惯。所有结论应能回溯到代码、配置、测试、日志或文档，不用历史印象替代现状。
+本文件是LuckyTV仓库中 AI、自动化工具和协作者的工作约定。用户当前任务优先于本文件；本文件优先于个人习惯。所有结论应能回溯到代码、配置、测试、日志或文档，不用历史印象替代现状。
 
 ## 1. 项目边界
 
-BeefTV（`glanderness/BeefTV`）是面向 AI 影视与短剧创作的工作台，当前仍在快速开发。公开接口、数据结构和部署配置可能直接调整；除非任务明确要求，不为旧字段、旧 API 或旧数据增加兼容层。
+LuckyTV（`glanderness/LuckyTV`）是面向 AI 影视与短剧创作的工作台，当前仍在快速开发。公开接口、数据结构和部署配置可能直接调整；除非任务明确要求，不为旧字段、旧 API 或旧数据增加兼容层。
 
 仓库由几个边界清晰但可独立运行的单元组成：
 
@@ -85,7 +85,7 @@ BeefTV（`glanderness/BeefTV`）是面向 AI 影视与短剧创作的工作台�
 ### 数据、缓存和写路径
 
 - 画布、项目、任务、素材和大 JSON 使用按工作区命名空间区分的 `localforage`；`localStorage` 只保存小型配置、当前命名空间或 UI 偏好。命名空间（`getActiveUserScope` / `scopedStorageKey`）只用于区分本地存储，改动会让用户读不到已有数据。
-- BeefTV 不管账号：每个后端进程只服务一个本地工作区，运行中不会切换。账号、登录、钱包、余额和扣费归服务端 API；BeefTV 只记当前服务端连接，切换连接时刷新模型能力目录。不要为"异步操作期间切换账号"加保护或测试；异步写回只需核对画布、项目、节点是否仍是原目标。
+- LuckyTV 不管账号：每个后端进程只服务一个本地工作区，运行中不会切换。账号、登录、钱包、余额和扣费归服务端 API；LuckyTV 只记当前服务端连接，切换连接时刷新模型能力目录。不要为"异步操作期间切换账号"加保护或测试；异步写回只需核对画布、项目、节点是否仍是原目标。
 - 任务状态与可操作动作（重试、继续取回、失败原因）只认后端 `task.outcome`（`phase`、`regenerate`、`reason`），前端不自行拼凑覆盖。重新生成节点即使保留上一次成功媒体，只要最新任务处于可继续取回态，仍按最新 `task.outcome` 展示继续取回；继续取回只恢复原 `taskId` 轮询与结果入库，不重复发起上游扣费提交。
 - 任务本地权威输出字段（如 `task.outputs[].resourceId`、`storageKey`、`mimeType`）必须在统一解析入口（`parseBackendGenerationResult`）合并进媒体条目，确保生成历史预览、节点回填与插入画布读取同一套媒体源，不在局部按钮分支打补丁。
 - 后端不可用时的本地缓存是降级，不代表服务端已保存。UI 必须区分“本地缓存成功”和“服务端持久化成功”。
@@ -121,7 +121,7 @@ BeefTV（`glanderness/BeefTV`）是面向 AI 影视与短剧创作的工作台�
 
 ### 字体、排版与可读性硬约束
 
-- **统一字体入口**：同一系统内的工作区页面、原生控件、AntD 控件与 Portal 浮层（`.app-user-overlays`）保持一致的系统无衬线字体栈，禁止混用字体家族或仅加局部工具类宣称统一；仅源码、命令和技术标识使用 `--font-mono`，需要对齐的计数、时间、金额与表格进度使用 `font-variant-numeric: tabular-nums`。BeefTV 标志的字重与斜体仅限品牌资产，不扩散到标题与导航。
+- **统一字体入口**：同一系统内的工作区页面、原生控件、AntD 控件与 Portal 浮层（`.app-user-overlays`）保持一致的系统无衬线字体栈，禁止混用字体家族或仅加局部工具类宣称统一；仅源码、命令和技术标识使用 `--font-mono`，需要对齐的计数、时间、金额与表格进度使用 `font-variant-numeric: tabular-nums`。LuckyTV 标志的字重与斜体仅限品牌资产，不扩散到标题与导航。
 - **标准字号角色与行高**：普通界面字距为 `0`、字形为 `normal`，按完整角色组合使用：`16px/22px`（页面/侧栏/弹窗标题，字重 `500`）与 `16px/24px`（页面内主分区标题，字重 `500`；禁止拿历史 `22px` `--fs-title` 当普通页面标题）、`14px/22px`（条目名称 `500`、可读正文 `400`、导航 `400`；多段长文 `14px/24px`，导航选中只切换主文字色与底色/标记，禁止加粗引起宽度跳动）、`13px/20px`（输入/选择/菜单/分页 `400`，标准按钮 `550`）、`12px/18px`（表单字段标签 `500`、日期与必要辅助说明 `400`、紧凑次级按钮 `550`；注意 `--fs-label` 当前为 `11px`，不等于表单标签）、`12px/20px`（等宽代码）。新增普通 UI 禁用 `7/9/10px` 字号、随意 `620+` 字重、斜体、全大写转换或中文 `tracking-wide`；首页、项目库和资产库既有卡片精调值仅作基准页例外保留，不外推为新页面默认。
 - **语义文字色与对比度门槛**：工作区文字引用 `--user-ink`（主文字）、`--user-ink-muted`（简介、日期、必要说明、常态导航）、`--user-ink-soft`（仅占位符与非关键元数据）及 `--user-action-foreground`，不在各页散写 `#999`、`text-white/45` 或对整块文字容器叠加透明度。新增普通文字与实际合成背景对比度须不低于 `4.5:1`（浅色主题下 `--user-ink-soft` 低于 `4.5:1`，需读懂的日期、状态与说明须选 `--user-ink-muted`，深浅主题分别核对）。
 - **截断、换行与窄窗口响应**：卡片名称单行省略须保留可访问名称及详情/Tooltip/`title` 完整查看入口；报错、费用、授权与确认文案禁止省略截断。长文件名或 URL 按需使用 `overflow-wrap: anywhere`，禁止全站 `word-break: break-all`；窄窗口优先重排、换行或收纳次要操作，禁止整页 `transform: scale()`、整体缩字号、把 `line-height` 设成控件高度或用逐项 `translateY` 凑图标文字居中。
@@ -139,7 +139,7 @@ BeefTV（`glanderness/BeefTV`）是面向 AI 影视与短剧创作的工作台�
 - 宿主机开发：`backend/` 运行 `CANVAS_BACKEND_DATA_DIR=../.local/project-workbench-debug go run ./cmd/server`，`web/` 使用 Bun 和 Vite；不要用 pnpm/npm 覆盖同一套 `node_modules`，也不要提交 `pnpm-lock.yaml` 或 `package-lock.json`。Docker 热更新使用 `docker-compose.dev.yml`；本地构建运行使用 `docker-compose.local.yml`。
 - 单机 Compose 使用 `docker-compose.yml`（SQLite 数据卷，backend、web），源码构建可叠加 `docker-compose.build.yml`。公网只暴露 web 的 `3000`，backend `8080` 留在 Compose 网络内。
 - 默认不启动 dev server；只有用户明确要求浏览器预览或联调时才启动，并先确认端口、数据目录和现有进程。
-- macOS 本机唯一正式应用路径是 `/Applications/BeefTV.app`。需要更新本机应用时只运行 `./scripts/update-local-beeftv-app.sh`；不将 `build/bin/BeefTV.app` 作为可使用版本保留，不复制、重命名或存档额外 `.app` 副本。
+- macOS 本机唯一正式应用路径是 `/Applications/LuckyTV.app`。需要更新本机应用时只运行 `./scripts/update-local-luckytv-app.sh`；不将 `build/bin/LuckyTV.app` 作为可使用版本保留，不复制、重命名或存档额外 `.app` 副本。
 - 健康检查只能证明入口可用，不能替代登录、SSE、任务生成和资源访问验证。
 
 ## 8. 验证纪律
@@ -171,7 +171,7 @@ BeefTV（`glanderness/BeefTV`）是面向 AI 影视与短剧创作的工作台�
 重构后的结构靠下面几条守住，修 bug 和加功能时同样适用；每次改动提交或交付前必须主动自检，不等用户追问：
 
 - 同一个结论只在一处计算。任务能否重试、能否取回只读后端 `task.outcome`，前端不另行推断或补写；模型能力、协议、扣费结论和错误归类归服务端 API。
-- 客户端不加参考素材（尺寸、比例、像素、大小、格式、时长等）预检门禁；上游报错脱敏、真实原因透传与具体素材定位（如「第 N 张参考图 `@图片N`」）统一在服务端 API 完成，BeefTV 只展示与透传。
+- 客户端不加参考素材（尺寸、比例、像素、大小、格式、时长等）预检门禁；上游报错脱敏、真实原因透传与具体素材定位（如「第 N 张参考图 `@图片N`」）统一在服务端 API 完成，LuckyTV 只展示与透传。
 - 不新增按模型名写的规则。内置渠道的差异交给服务端 API；自带 Key 的第三方渠道写成协议插件（`plugin-packages/`）。
 - 新代码不放进 `backend/internal/app`，放到对应领域包；新包不得 import `internal/app`。
 - 已发布的数据库迁移版本不改，只追加新版本。

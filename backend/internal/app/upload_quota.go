@@ -1,6 +1,6 @@
 package app
 
-import "infinite-canvas/backend/internal/asset"
+import "luckytv/backend/internal/asset"
 
 func (s *Service) fileQuota() *asset.FileQuota {
 	s.fileQuotaOnce.Do(func() {

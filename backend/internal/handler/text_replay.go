@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/textreplay"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/textreplay"
 
 	"github.com/gin-gonic/gin"
 )

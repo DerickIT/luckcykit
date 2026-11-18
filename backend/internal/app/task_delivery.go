@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
-	"infinite-canvas/backend/internal/taskdelivery"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
+	"luckytv/backend/internal/taskdelivery"
 )
 
 const generationDeliveryRecoveryInterval = taskdelivery.GenerationDeliveryRecoveryInterval

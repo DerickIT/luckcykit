@@ -14,7 +14,7 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/editing"
+	"luckytv/backend/internal/editing"
 )
 
 type archiveTestSource struct {
@@ -46,7 +46,7 @@ func TestProjectArchiveRoundTripKeepsPortraitAndEditableSubtitle(t *testing.T) {
 		if err := WriteProjectArchive(context.Background(), &out, raw, archiveTestSource{body: mediaBytes.String()}); err != nil {
 			t.Fatal(err)
 		}
-		if directory := os.Getenv("BEEFTV_TEST_ARCHIVE_OUTPUT_DIR"); directory != "" {
+		if directory := os.Getenv("LUCKYTV_TEST_ARCHIVE_OUTPUT_DIR"); directory != "" {
 			if err := os.WriteFile(filepath.Join(directory, "portable-project.zip"), out.Bytes(), 0600); err != nil {
 				t.Fatal(err)
 			}

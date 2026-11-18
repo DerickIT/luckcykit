@@ -10,9 +10,9 @@ import (
 	"runtime"
 	"sync"
 
-	"infinite-canvas/backend/internal/assets"
-	"infinite-canvas/backend/internal/mediatools"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/assets"
+	"luckytv/backend/internal/mediatools"
+	"luckytv/backend/internal/model"
 )
 
 // Service owns probe, claim, ffmpeg, persist, range, and recovery for

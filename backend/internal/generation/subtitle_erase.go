@@ -9,14 +9,14 @@ import (
 	"strings"
 	"time"
 
-	localasset "infinite-canvas/backend/internal/asset"
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/model"
+	localasset "luckytv/backend/internal/asset"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/model"
 )
 
 func SubtitleEraseTaskInput(ctx context.Context, user string, request SubtitleEraseRequest, ensureMetadata func(context.Context, string, string) (*model.Resource, error), lookupCred func() (string, string, string, string, error)) (Input, *model.Resource, error) {
 	var input Input
-	if strings.TrimSpace(request.ResourceID) == "" || (request.ChannelID != "" && request.ChannelID != "beeftv") {
+	if strings.TrimSpace(request.ResourceID) == "" || (request.ChannelID != "" && request.ChannelID != "luckytv") {
 		return input, nil, BadAuthRequest("请选择视频素材与官方算力")
 	}
 	opts, err := normalizeSmartEraseOptions(requestToOptions(request))
@@ -58,7 +58,7 @@ func prepareOwnedSubtitleEraseSource(ctx context.Context, input Input) (Input, e
 		return input, err
 	}
 	label := resolveSmartEraseSpec(input.SubtitleErase, input.Config.Model).Prompt
-	if !managedConnection(input.Config) && !IsBeefTVVideoConfig(ctx, input.Config) {
+	if !managedConnection(input.Config) && !IsLuckyTVVideoConfig(ctx, input.Config) {
 		return input, fmt.Errorf("%s需要连接官方算力账号", label)
 	}
 	runtime, _ := RuntimeFromContext(ctx)
@@ -94,14 +94,14 @@ func PrepareSubtitleErase(ctx context.Context, input Input) (Input, error) {
 		return input, err
 	}
 	runtime, _ := RuntimeFromContext(ctx)
-	if err := PrepareBeefTVVideoReferences(ctx, input.Config, &input, ownedSeedanceMediaReader(ctx, runtime.Call.UserID)); err != nil {
+	if err := PrepareLuckyTVVideoReferences(ctx, input.Config, &input, ownedSeedanceMediaReader(ctx, runtime.Call.UserID)); err != nil {
 		return input, err
 	}
 	return input, nil
 }
 
-func subtitleEraseInputFromPrepared(input Input) beeftv.SubtitleEraseInput {
-	req := beeftv.SubtitleEraseInput{Model: input.Config.Model}
+func subtitleEraseInputFromPrepared(input Input) luckytv.SubtitleEraseInput {
+	req := luckytv.SubtitleEraseInput{Model: input.Config.Model}
 	if input.SubtitleErase != nil {
 		opts := *input.SubtitleErase
 		if normalized, err := normalizeSmartEraseOptions(opts); err == nil {
@@ -113,7 +113,7 @@ func subtitleEraseInputFromPrepared(input Input) beeftv.SubtitleEraseInput {
 		req.WatermarkModel = opts.WatermarkModel
 		req.PrivacyModel = opts.PrivacyModel
 		req.PrivacyTargets = append([]string(nil), opts.PrivacyTargets...)
-		req.Region = toBeefTVSubtitleRegion(opts.Region)
+		req.Region = toLuckyTVSubtitleRegion(opts.Region)
 		req.OCRExtract = opts.OCRExtract
 		req.SubtitleLang = opts.SubtitleLang
 		req.SubtitleFormat = opts.SubtitleFormat
@@ -142,7 +142,7 @@ func EstimateVideoSubtitleErase(ctx context.Context, user string, request Subtit
 	if bindRuntime != nil {
 		ctx = bindRuntime(ctx, CallMeta{UserID: user, RequestKind: "estimate"})
 	}
-	var req beeftv.SubtitleEraseInput
+	var req luckytv.SubtitleEraseInput
 	if resource.Width > 0 && resource.Height > 0 && resource.DurationMs > 0 {
 		prepared, prepErr := prepareOwnedSubtitleEraseSource(ctx, input)
 		if prepErr != nil {
@@ -199,7 +199,7 @@ func BuildVideoSubtitleEraseTaskPayload(ctx context.Context, user string, reques
 		return Input{}, nil, err
 	}
 	config := payload["config"].(map[string]any)
-	config["credentialRef"] = beeftv.CredentialRef
+	config["credentialRef"] = luckytv.CredentialRef
 	payload["metadata"] = map[string]any{
 		"clientOperationId": request.ClientOperationID,
 		"nodeId":            request.NodeID,
@@ -209,7 +209,7 @@ func BuildVideoSubtitleEraseTaskPayload(ctx context.Context, user string, reques
 	return input, payload, nil
 }
 
-func useManagedMediaEnvelopeForSubtitleErase(ctx context.Context, config Config, managedOp string) (*beeftv.MediaClient, bool, error) {
+func useManagedMediaEnvelopeForSubtitleErase(ctx context.Context, config Config, managedOp string) (*luckytv.MediaClient, bool, error) {
 	if !managedConnection(config) {
 		return nil, false, nil
 	}
@@ -217,7 +217,7 @@ func useManagedMediaEnvelopeForSubtitleErase(ctx context.Context, config Config,
 	if runtime.ManagedMedia == nil {
 		return nil, false, nil
 	}
-	client, _ := ctx.Value(managedClientContextKey{}).(*beeftv.MediaClient)
+	client, _ := ctx.Value(managedClientContextKey{}).(*luckytv.MediaClient)
 	if client == nil {
 		client = managedMediaClient(ctx, config)
 	}
@@ -225,7 +225,7 @@ func useManagedMediaEnvelopeForSubtitleErase(ctx context.Context, config Config,
 	if err != nil || sent {
 		return client, sent, err
 	}
-	if config.MediaProtocolVersion != beeftv.MediaProtocolVersion || ResumedProviderRequestID(ctx) != "" {
+	if config.MediaProtocolVersion != luckytv.MediaProtocolVersion || ResumedProviderRequestID(ctx) != "" {
 		return nil, false, nil
 	}
 	discovery, err := client.Discover(ctx)
@@ -251,7 +251,7 @@ func RunSubtitleEraseTask(ctx context.Context, input Input) (map[string]any, err
 		return nil, RequestPreparationError{Cause: err}
 	}
 	label := resolveSmartEraseSpec(input.SubtitleErase, input.Config.Model).Prompt
-	if !managedConnection(input.Config) && !IsBeefTVVideoConfig(ctx, input.Config) {
+	if !managedConnection(input.Config) && !IsLuckyTVVideoConfig(ctx, input.Config) {
 		return nil, RequestPreparationError{Cause: fmt.Errorf("%s需要连接官方算力账号", label)}
 	}
 	managedOp := smartEraseManagedOperation(input.SubtitleErase, input.Config.Model)
@@ -291,7 +291,7 @@ func RunSubtitleEraseTask(ctx context.Context, input Input) (map[string]any, err
 	})
 }
 
-func runManagedSubtitleEraseTask(ctx context.Context, client *beeftv.MediaClient, input Input, managedOp string) (map[string]any, error) {
+func runManagedSubtitleEraseTask(ctx context.Context, client *luckytv.MediaClient, input Input, managedOp string) (map[string]any, error) {
 	label := resolveSmartEraseSpec(input.SubtitleErase, input.Config.Model).Prompt
 	runtime, _ := RuntimeFromContext(ctx)
 	if runtime.ManagedMedia == nil {
@@ -309,10 +309,10 @@ func runManagedSubtitleEraseTask(ctx context.Context, client *beeftv.MediaClient
 	}
 	ref := managedReference(input.ReferenceVideos[0], "source")
 	ref.Kind = "video"
-	options := beeftv.SubtitleEraseBody(subtitleEraseInputFromPrepared(input))
+	options := luckytv.SubtitleEraseBody(subtitleEraseInputFromPrepared(input))
 	delete(options, "model")
 	delete(options, "video_url")
-	request := beeftv.MediaRequest{
+	request := luckytv.MediaRequest{
 		TaskRef:   SubmissionKeyFromContext(ctx),
 		MediaType: "video",
 		Model:     input.Config.Model,
@@ -320,7 +320,7 @@ func runManagedSubtitleEraseTask(ctx context.Context, client *beeftv.MediaClient
 		Options:   options,
 	}
 	client.ExpectedOutputKind = "video"
-	result, err := executeManagedMedia(ctx, client, request, []beeftv.LocalMediaReference{ref})
+	result, err := executeManagedMedia(ctx, client, request, []luckytv.LocalMediaReference{ref})
 	if err != nil {
 		return nil, err
 	}

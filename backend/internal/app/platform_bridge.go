@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"time"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/platform"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/platform"
+	"luckytv/backend/internal/repository"
 )
 
 type (

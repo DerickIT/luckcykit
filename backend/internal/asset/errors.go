@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"infinite-canvas/backend/internal/kernel"
+	"luckytv/backend/internal/kernel"
 )
 
 func UploadInProgress() error {

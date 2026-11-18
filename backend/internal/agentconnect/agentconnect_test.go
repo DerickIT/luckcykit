@@ -12,8 +12,8 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/securefile"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/securefile"
 )
 
 type runCall struct {
@@ -93,29 +93,29 @@ func cliManager(t *testing.T) (*Manager, *fakeRunner) {
 }
 
 func spec(tokenFile string) LaunchSpec {
-	return Launch("/Applications/BeefTV.app/Contents/MacOS/cli/beeftv", "/tmp/beeftv data", tokenFile, agentops.ClientReadWrite, "client-1")
+	return Launch("/Applications/LuckyTV.app/Contents/MacOS/cli/luckytv", "/tmp/luckytv data", tokenFile, agentops.ClientReadWrite, "client-1")
 }
 
 func TestLaunchUsesTokenFileForOneClickAndTokenForManualSetup(t *testing.T) {
-	oneClick := Launch("/cli/beeftv", "/data", "/data/agent-clients/claude.token", agentops.ClientReadOnly, "client-1")
-	if oneClick.Command != "/cli/beeftv" {
+	oneClick := Launch("/cli/luckytv", "/data", "/data/agent-clients/claude.token", agentops.ClientReadOnly, "client-1")
+	if oneClick.Command != "/cli/luckytv" {
 		t.Fatalf("command = %q", oneClick.Command)
 	}
 	if got := strings.Join(oneClick.Args, " "); got != "mcp serve --read-only" {
 		t.Fatalf("args = %q", got)
 	}
-	if len(oneClick.Env) != 3 || oneClick.Env[0].Key != "BEEFTV_DATA_DIR" || oneClick.Env[1].Key != "BEEFTV_CLIENT_ID" || oneClick.Env[2].Key != "BEEFTV_CLIENT_TOKEN_FILE" {
+	if len(oneClick.Env) != 3 || oneClick.Env[0].Key != "LUCKYTV_DATA_DIR" || oneClick.Env[1].Key != "LUCKYTV_CLIENT_ID" || oneClick.Env[2].Key != "LUCKYTV_CLIENT_TOKEN_FILE" {
 		t.Fatalf("env order = %#v", oneClick.Env)
 	}
-	if oneClick.EnvMap()["BEEFTV_CLIENT_TOKEN_FILE"] != "/data/agent-clients/claude.token" {
+	if oneClick.EnvMap()["LUCKYTV_CLIENT_TOKEN_FILE"] != "/data/agent-clients/claude.token" {
 		t.Fatalf("env map = %#v", oneClick.EnvMap())
 	}
-	if _, ok := oneClick.EnvMap()["BEEFTV_CLIENT_TOKEN"]; ok {
+	if _, ok := oneClick.EnvMap()["LUCKYTV_CLIENT_TOKEN"]; ok {
 		t.Fatal("one-click launch must not carry the raw token")
 	}
 
-	manual := ManualLaunch("/cli/beeftv", "/data", agentops.ClientReadWrite, "client-1", "secret")
-	if manual.EnvMap()["BEEFTV_CLIENT_TOKEN"] != "secret" {
+	manual := ManualLaunch("/cli/luckytv", "/data", agentops.ClientReadWrite, "client-1", "secret")
+	if manual.EnvMap()["LUCKYTV_CLIENT_TOKEN"] != "secret" {
 		t.Fatalf("manual env = %#v", manual.EnvMap())
 	}
 }
@@ -131,15 +131,15 @@ func TestConnectUsesClaudeCLIAndInstallsManagedSkill(t *testing.T) {
 		t.Fatalf("calls = %#v", calls)
 	}
 	remove := calls[0]
-	if remove.name != "/fake/claude" || strings.Join(remove.args, " ") != "mcp remove --scope user beeftv" {
+	if remove.name != "/fake/claude" || strings.Join(remove.args, " ") != "mcp remove --scope user luckytv" {
 		t.Fatalf("remove call = %#v", remove)
 	}
 	add := calls[1]
-	if add.name != "/fake/claude" || add.args[0] != "mcp" || add.args[1] != "add" || add.args[2] != "beeftv" || add.args[3] != "--scope" || add.args[4] != "user" {
+	if add.name != "/fake/claude" || add.args[0] != "mcp" || add.args[1] != "add" || add.args[2] != "luckytv" || add.args[3] != "--scope" || add.args[4] != "user" {
 		t.Fatalf("add call = %#v", add)
 	}
 	joined := strings.Join(add.args, " ")
-	for _, want := range []string{"-e BEEFTV_DATA_DIR=/tmp/beeftv data", "-e BEEFTV_CLIENT_TOKEN_FILE=" + tokenFile, "-- /Applications/BeefTV.app/Contents/MacOS/cli/beeftv mcp serve"} {
+	for _, want := range []string{"-e LUCKYTV_DATA_DIR=/tmp/luckytv data", "-e LUCKYTV_CLIENT_TOKEN_FILE=" + tokenFile, "-- /Applications/LuckyTV.app/Contents/MacOS/cli/luckytv mcp serve"} {
 		if !strings.Contains(joined, want) {
 			t.Fatalf("add call missing %q: %s", want, joined)
 		}
@@ -484,11 +484,11 @@ func TestIntegrationOriginDoesNotDependOnLabel(t *testing.T) {
 }
 
 func TestWindowsBatchCommandLineQuotesAndRejectsUnsafeCharacters(t *testing.T) {
-	line, err := windowsBatchCommandLine(`C:\Windows\System32\cmd.exe`, `C:\Users\A B\claude.cmd`, []string{"mcp", "add", "beeftv", "--", `C:\Program Files\BeefTV\cli\beeftv.exe`, "mcp", "serve"})
+	line, err := windowsBatchCommandLine(`C:\Windows\System32\cmd.exe`, `C:\Users\A B\claude.cmd`, []string{"mcp", "add", "luckytv", "--", `C:\Program Files\LuckyTV\cli\luckytv.exe`, "mcp", "serve"})
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := `"C:\Windows\System32\cmd.exe" /d /s /c ""C:\Users\A B\claude.cmd" "mcp" "add" "beeftv" "--" "C:\Program Files\BeefTV\cli\beeftv.exe" "mcp" "serve""`
+	want := `"C:\Windows\System32\cmd.exe" /d /s /c ""C:\Users\A B\claude.cmd" "mcp" "add" "luckytv" "--" "C:\Program Files\LuckyTV\cli\luckytv.exe" "mcp" "serve""`
 	if line != want {
 		t.Fatalf("line = %s\nwant = %s", line, want)
 	}
@@ -620,7 +620,7 @@ func TestRetryStaleOneClickCredentialsSkipsCorruptState(t *testing.T) {
 }
 
 func TestEmbeddedCanvasSkillMatchesCanonicalPluginSource(t *testing.T) {
-	canonical, err := os.ReadFile(filepath.Join("..", "..", "..", "plugins", "beeftv-skills", "skills", SkillName, "SKILL.md"))
+	canonical, err := os.ReadFile(filepath.Join("..", "..", "..", "plugins", "luckytv-skills", "skills", SkillName, "SKILL.md"))
 	if err != nil {
 		t.Fatalf("read canonical skill: %v", err)
 	}

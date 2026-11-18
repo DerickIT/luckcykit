@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 )
 
 // RegistrySettingKey is the namespaced SystemSetting row that stores the

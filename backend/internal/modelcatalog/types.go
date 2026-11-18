@@ -1,8 +1,8 @@
 package modelcatalog
 
 import (
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/pricing"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/pricing"
 )
 
 // ModelCapabilityConfig 是模型能力声明，不包含供应商字段名；协议适配器负责把统一参数映射到上游请求。
@@ -77,7 +77,7 @@ type ParameterSupport struct {
 
 // ImageResponseFormat 是图片接口 response_format 的开关与取值。
 // Value 为空时按 b64_json 处理，保持既有渠道的行为不变；url 让上游返回图片链接，
-// 由 BeefTV 下载成字节后再落库——链接会过期，不能直接当作结果保存。
+// 由 LuckyTV 下载成字节后再落库——链接会过期，不能直接当作结果保存。
 type ImageResponseFormat struct {
 	Supported bool   `json:"supported"`
 	Value     string `json:"value,omitempty"`
@@ -86,7 +86,7 @@ type ImageResponseFormat struct {
 const (
 	// ImageResponseFormatBase64 让上游内联返回 base64，是默认取值。
 	ImageResponseFormatBase64 = "b64_json"
-	// ImageResponseFormatURL 让上游返回图片链接，由 BeefTV 下载后转成字节。
+	// ImageResponseFormatURL 让上游返回图片链接，由 LuckyTV 下载后转成字节。
 	ImageResponseFormatURL = "url"
 )
 
@@ -254,7 +254,7 @@ type PublicChannelModel struct {
 	AudioOptions       *AudioGenerationOptions `json:"audioOptions,omitempty"`
 	Available          bool                    `json:"available"`
 	CapabilityDeclared *bool                   `json:"-"`
-	ManagedBeefTV      *bool                   `json:"-"`
+	ManagedLuckyTV      *bool                   `json:"-"`
 }
 
 type ChannelModelRequest struct {

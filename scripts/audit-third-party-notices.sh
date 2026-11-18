@@ -24,7 +24,7 @@ for module in \
   github.com/gin-gonic/gin \
   github.com/google/uuid \
   github.com/volcengine/volc-sdk-golang \
-  github.com/wailsapp/wails/v2 \
+  github.com/wailsapp/wails/v3 \
   golang.org/x/net \
   golang.org/x/sync \
   golang.org/x/sys \

@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/kernel"
+	"luckytv/backend/internal/kernel"
 )
 
 func TestSkillScriptInterpreterAndMissingInterpreterErrors(t *testing.T) {
@@ -183,14 +183,14 @@ process.stdin.on('end', () => {
     fs.writeFileSync('SKILL.md', 'MUTATED_SKILL');
     fs.writeFileSync('scripts/run.js', 'MUTATED_SCRIPT');
     console.log(fs.readFileSync('references/data.txt', 'utf8').trim() + '|' + input.trim());
-    if (process.env.BEEFTV_OUTPUT_DIR) {
-      fs.writeFileSync(path.join(process.env.BEEFTV_OUTPUT_DIR, 'out.json'), '{"ok":true}');
+    if (process.env.LUCKYTV_OUTPUT_DIR) {
+      fs.writeFileSync(path.join(process.env.LUCKYTV_OUTPUT_DIR, 'out.json'), '{"ok":true}');
     }
     return;
   }
   if (mode === 'env') {
     const leaked = Object.keys(process.env).filter(k =>
-      k.startsWith('BEEFTV_AGENT_') || k.startsWith('OPENAI_') || k.startsWith('ANTHROPIC_') || k === 'SECRET_TEST_TOKEN'
+      k.startsWith('LUCKYTV_AGENT_') || k.startsWith('OPENAI_') || k.startsWith('ANTHROPIC_') || k === 'SECRET_TEST_TOKEN'
     );
     console.log(JSON.stringify({ leaked, home: process.env.HOME, tmp: process.env.TMPDIR }));
     return;
@@ -244,8 +244,8 @@ process.stdin.on('end', () => {
 	}
 
 	// 2. Environment scrubbing
-	t.Setenv("BEEFTV_AGENT_API_KEY", "super-secret-agent-key")
-	t.Setenv("BEEFTV_AGENT_HOST_TOKEN", "super-secret-host-token")
+	t.Setenv("LUCKYTV_AGENT_API_KEY", "super-secret-agent-key")
+	t.Setenv("LUCKYTV_AGENT_HOST_TOKEN", "super-secret-host-token")
 	t.Setenv("OPENAI_API_KEY", "sk-openai-secret")
 	t.Setenv("ANTHROPIC_API_KEY", "sk-ant-secret")
 	t.Setenv("SECRET_TEST_TOKEN", "top-secret")

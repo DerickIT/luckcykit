@@ -1,6 +1,6 @@
 package assistantturns
 
-import "infinite-canvas/backend/internal/model"
+import "luckytv/backend/internal/model"
 
 // PendingContinuations is a bounded workspace scan. The durable receipt remains
 // the queue; the cursor only prevents an incomplete old batch starving others.

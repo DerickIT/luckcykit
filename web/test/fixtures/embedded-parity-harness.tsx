@@ -6,7 +6,7 @@ import { CanvasProjectSelectionToolbar } from "@/pages/canvas/canvas-project-sel
 import { WorkspaceNoticeStack, type WorkspaceNoticeItem } from "@/components/layout/workspace-notice";
 import { embeddedCanvasNoticeText } from "@/lib/embedded-workspace-sync";
 
-window.__BEEFTV_HARNESS__ = { embedded: true, apiBase: "/beeftv/app/api", basePath: "/beeftv/app", parentOrigin: window.location.origin };
+window.__LUCKYTV_HARNESS__ = { embedded: true, apiBase: "/luckytv/app/api", basePath: "/luckytv/app", parentOrigin: window.location.origin };
 
 function NoticeDemo({ count }: { count: number }) {
     const [open, setOpen] = useState(true);

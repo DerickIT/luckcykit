@@ -6,9 +6,9 @@ import (
 	"errors"
 	"image"
 	"image/png"
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/operations"
 	"testing"
 )
 

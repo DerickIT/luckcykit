@@ -7,8 +7,8 @@ import (
 	"errors"
 	"strings"
 
-	"infinite-canvas/backend/internal/depthruntime"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/depthruntime"
+	"luckytv/backend/internal/model"
 )
 
 func (s *Service) resolveRuntime(ctx context.Context, task *model.Task, platform, variant string) (python string, toolDir string, modelRuntime string, err error) {
@@ -73,14 +73,14 @@ func defaultFallbackManifest() *depthruntime.Manifest {
 	return &depthruntime.Manifest{
 		Version: 1,
 		Runtime: depthruntime.Artifact{
-			URLs:         componentSources("beeftv-depth-runtime-v1-darwin-arm64.zip", "https://github.com/glanderness/BeefTV/releases/download/v1.5.5/beeftv-depth-runtime-v1-darwin-arm64.zip"),
+			URLs:         componentSources("luckytv-depth-runtime-v1-darwin-arm64.zip", "https://github.com/glanderness/LuckyTV/releases/download/v1.5.5/luckytv-depth-runtime-v1-darwin-arm64.zip"),
 			Size:         294629974,
 			SHA256:       "f606dee084ec9d38d76a80e409e4cb9a80ad7db51c18778285a63e8f24376682",
 			Files:        23_481,
 			ExpandedSize: 955_790_953,
 		},
 		Model: depthruntime.Artifact{
-			URLs:   append(componentSources("video_depth_anything_vits.pth", "https://github.com/glanderness/BeefTV/releases/download/v1.5.5/video_depth_anything_vits.pth"), "https://huggingface.co/depth-anything/Video-Depth-Anything-Small/resolve/main/video_depth_anything_vits.pth"),
+			URLs:   append(componentSources("video_depth_anything_vits.pth", "https://github.com/glanderness/LuckyTV/releases/download/v1.5.5/video_depth_anything_vits.pth"), "https://huggingface.co/depth-anything/Video-Depth-Anything-Small/resolve/main/video_depth_anything_vits.pth"),
 			Size:   116440756,
 			SHA256: "13379300b739e659f076a59d52e9801bd8d38c541a7e71f73bbca4dcfb013609",
 		},

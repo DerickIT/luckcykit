@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"strings"
 
-	"infinite-canvas/backend/internal/editing"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/repository"
-	"infinite-canvas/backend/internal/workspace"
+	"luckytv/backend/internal/editing"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/repository"
+	"luckytv/backend/internal/workspace"
 )
 
 func DecodeRecipes(decrypt func(string) (string, error), cipher string) (RecipesByNode, error) {

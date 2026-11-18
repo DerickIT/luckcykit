@@ -1,8 +1,8 @@
 package app
 
 import (
-	"infinite-canvas/backend/internal/assistantdiagnostics"
-	"infinite-canvas/backend/internal/diagnostics"
+	"luckytv/backend/internal/assistantdiagnostics"
+	"luckytv/backend/internal/diagnostics"
 )
 
 type DiagnosticClientEvent = diagnostics.ClientEvent

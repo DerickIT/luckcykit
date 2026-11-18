@@ -3,15 +3,15 @@ package handler
 import (
 	"net/http"
 
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/eagle"
-	"infinite-canvas/backend/internal/modelcatalog"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/eagle"
+	"luckytv/backend/internal/modelcatalog"
 
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterCanvasAPI is kept as the standalone-development entrypoint. BeefTV
+// RegisterCanvasAPI is kept as the standalone-development entrypoint. LuckyTV
 // has one local-only HTTP surface, so development and Wails use the same route
 // graph instead of selecting between desktop and SaaS profiles at runtime.
 func RegisterCanvasAPI(api *gin.RouterGroup, svc *app.Service) {
@@ -46,7 +46,7 @@ func RegisterDesktopCanvasAPIWithDependencies(api *gin.RouterGroup, svc *app.Ser
 
 // registerDesktopCanvasAPI is deliberately a separate call graph. Keeping the
 // local composition root free of runtime profile branches lets the Go linker
-// discard hosted handlers and their SaaS-only service methods from BeefTV.
+// discard hosted handlers and their SaaS-only service methods from LuckyTV.
 func registerDesktopCanvasAPI(api *gin.RouterGroup, svc *app.Service, dependencies RuntimeDependencies) {
 	// A process supervisor needs an explicit Close owner. Only the composition
 	// root supplies it; standalone route registration must not create a child
@@ -55,7 +55,7 @@ func registerDesktopCanvasAPI(api *gin.RouterGroup, svc *app.Service, dependenci
 	api.Use(SupportTracingMiddleware(svc))
 	RegisterOpenAPIRoutes(api)
 	RegisterWorkspaceRoutes(api, svc)
-	RegisterBeefTVConnectionRoutes(api, svc)
+	RegisterLuckyTVConnectionRoutes(api, svc)
 	RegisterDesktopAppearanceRoutes(api, svc)
 	RegisterDesktopFeatureAvailabilityRoutes(api, svc)
 	// 旧内置 Agent 已从产品运行面退场：这里不再注册 /agent/*，运行、审批和记忆入口

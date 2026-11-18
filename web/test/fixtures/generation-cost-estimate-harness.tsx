@@ -17,15 +17,15 @@ declare global {
 }
 
 const channel = createModelChannel({
-    id: "beeftv",
-    name: "BeefTV 官方算力",
-    baseUrl: "https://beeftv.example",
+    id: "luckytv",
+    name: "LuckyTV 官方算力",
+    baseUrl: "https://luckytv.example",
     apiKey: "fixture",
     models: ["fixture-image", "fixture-video"],
 });
 channel.pinned = true;
 useConfigStore.setState({
-    config: { ...defaultConfig, channels: [channel], imageModel: "beeftv::fixture-image", videoModel: "beeftv::fixture-video" },
+    config: { ...defaultConfig, channels: [channel], imageModel: "luckytv::fixture-image", videoModel: "luckytv::fixture-video" },
     isAiConfigReady: () => true,
 });
 
@@ -86,7 +86,7 @@ function Harness() {
         <main style={{ padding: 24 }}>
             <div data-testid="badge-wrap" style={{ marginBottom: 48 }}>
                 <GenerationCostBadge
-                    target={{ modelKey: "beeftv::fixture-video", kind: "video", parameters: { seconds, vquality: "720", count: "1" } }}
+                    target={{ modelKey: "luckytv::fixture-video", kind: "video", parameters: { seconds, vquality: "720", count: "1" } }}
                     fetcher={(targets, signal) => window.__costEstimateFetcher(targets, signal)}
                 />
             </div>

@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/outbound"
+	"luckytv/backend/internal/outbound"
 )
 
 type videoDownloadPartialContext struct{}
@@ -23,7 +23,7 @@ func withVideoDownloadPartial(ctx context.Context) (context.Context, func(), err
 			return context.WithValue(ctx, videoDownloadPartialContext{}, path), func() {}, nil
 		}
 	}
-	directory, err := os.MkdirTemp("", "beeftv-video-download-")
+	directory, err := os.MkdirTemp("", "luckytv-video-download-")
 	if err != nil {
 		return ctx, nil, err
 	}

@@ -1,5 +1,6 @@
 import { fetchPlugins, setPluginPlatformEnabled, setUserPluginEnabled, type PluginManagement } from "@/services/api/plugins";
 import { usePluginStore } from "@/stores/use-plugin-store";
+import { isBrowserLocalRuntime } from "@/lib/runtime-mode";
 
 export async function setPluginActivation(pluginId: string, enabled: boolean, scope: PluginManagement["activationScope"] = "user") {
     const next = scope === "system"
@@ -15,6 +16,7 @@ export async function setPluginActivation(pluginId: string, enabled: boolean, sc
 // route follows it through the plugin store, so plugin canvas nodes render even
 // when the plugin center was never opened in this window.
 export async function syncPluginsFromBackend() {
+    if (isBrowserLocalRuntime()) return { plugins: [], states: {} };
     const result = await fetchPlugins();
     const plugins = (result.plugins || []).map((item) => ({
         manifest: {

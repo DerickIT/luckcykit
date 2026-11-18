@@ -6,12 +6,12 @@ import (
 
 	"gorm.io/gorm"
 
-	"infinite-canvas/backend/internal/canvas"
-	"infinite-canvas/backend/internal/conversation"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
-	localtask "infinite-canvas/backend/internal/task"
-	"infinite-canvas/backend/internal/taskbinding"
+	"luckytv/backend/internal/canvas"
+	"luckytv/backend/internal/conversation"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
+	localtask "luckytv/backend/internal/task"
+	"luckytv/backend/internal/taskbinding"
 )
 
 func WorkspaceTask(repo *repository.Repository, userID, id string) (*model.Task, error) {

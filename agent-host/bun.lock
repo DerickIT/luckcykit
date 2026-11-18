@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "beeftv-agent-host",
+      "name": "luckytv-agent-host",
       "dependencies": {
         "@earendil-works/chord": "1.5.0",
         "@earendil-works/pi-ai": "1.5.0",

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme/beeftv-wordmark.svg" width="640" alt="BeefTV — High-performance, lightweight, AI-native video workspace">
+  <img src="assets/readme/luckytv-wordmark.svg" width="640" alt="LuckyTV — High-performance, lightweight, AI-native video workspace">
 </p>
 
 <p align="center"><strong>High-performance · Lightweight · AI Native</strong></p>
@@ -10,23 +10,23 @@
 </p>
 
 <p align="center">
-  Create with BeefTV Agent, extend your methods with Skills, and reuse your process with Workflows.<br>
+  Create with LuckyTV Agent, extend your methods with Skills, and reuse your process with Workflows.<br>
   From storyboards and media to finished videos, keep your work editable and ready to build on.
 </p>
 
 <p align="center">
-  <a href="https://github.com/glanderness/BeefTV/stargazers"><img src="https://img.shields.io/github/stars/glanderness/BeefTV?style=flat-square&amp;logo=github&amp;label=Stars&amp;labelColor=303030&amp;color=E86C36" alt="BeefTV GitHub stars"></a>
-  <a href="https://github.com/glanderness/BeefTV/releases/latest"><img src="https://img.shields.io/github/v/release/glanderness/BeefTV?style=flat-square&amp;label=Release&amp;labelColor=303030&amp;color=525252" alt="Latest BeefTV release"></a>
+  <a href="https://github.com/glanderness/LuckyTV/stargazers"><img src="https://img.shields.io/github/stars/glanderness/LuckyTV?style=flat-square&amp;logo=github&amp;label=Stars&amp;labelColor=303030&amp;color=E86C36" alt="LuckyTV GitHub stars"></a>
+  <a href="https://github.com/glanderness/LuckyTV/releases/latest"><img src="https://img.shields.io/github/v/release/glanderness/LuckyTV?style=flat-square&amp;label=Release&amp;labelColor=303030&amp;color=525252" alt="Latest LuckyTV release"></a>
   <a href="QUICKSTART.md#下载与首次打开"><img src="https://img.shields.io/badge/Desktop-macOS%20%7C%20Windows-525252?style=flat-square&amp;labelColor=303030" alt="Desktop support for macOS and Windows"></a>
   <a href="QUICKSTART.md"><img src="https://img.shields.io/badge/Workspace-Local--first-525252?style=flat-square&amp;labelColor=303030" alt="Local-first workspace"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Source%20Available-525252?style=flat-square&amp;labelColor=303030" alt="Source-available license; see LICENSE for terms"></a>
 </p>
 
 <p align="center">
-  <a href="https://beeftv.app/"><img src="assets/readme/button-website.svg" width="180" alt="Visit the BeefTV website"></a>
-  <a href="https://github.com/glanderness/BeefTV/releases/latest"><img src="assets/readme/button-download.svg" width="175" alt="Download BeefTV desktop app"></a>
-  <a href="https://beeftv.app/assets/beeftv-wecom-qr.png"><img src="assets/readme/button-community.svg" width="185" alt="Scan to join the BeefTV community"></a>
-  <a href="https://x.com/beefnoode"><img src="assets/readme/button-x.svg" width="180" alt="Follow @beefnoode on X"></a>
+  <a href="https://luckytv.app/"><img src="assets/readme/button-website.svg" width="180" alt="Visit the LuckyTV website"></a>
+  <a href="https://github.com/glanderness/LuckyTV/releases/latest"><img src="assets/readme/button-download.svg" width="175" alt="Download LuckyTV desktop app"></a>
+  <a href="https://luckytv.app/assets/luckytv-wecom-qr.png"><img src="assets/readme/button-community.svg" width="185" alt="Scan to join the LuckyTV community"></a>
+  <a href="https://x.com/luckynoode"><img src="assets/readme/button-x.svg" width="180" alt="Follow @luckynoode on X"></a>
 </p>
 
 <p align="center">
@@ -34,7 +34,7 @@
   <a href="#recent-updates">Recent updates</a> ·
   <a href="#product-demo">Product demo</a> ·
   <a href="#workflows">Workflows</a> ·
-  <a href="#beeftv-agent">Agent</a> ·
+  <a href="#luckytv-agent">Agent</a> ·
   <a href="#skills">Skills</a> ·
   <a href="docs/content/docs/overview/features.mdx">Feature list</a> ·
   <a href="QUICKSTART.md">Get started</a> ·
@@ -43,17 +43,17 @@
 
 ## Recent updates
 
-- **[v2.2.5](https://github.com/glanderness/BeefTV/releases/tag/v2.2.5)** — Fix canvas uploads reverting to uploading overlays and replaced nodes being overwritten by stale tasks, fix desktop resource thumbnails, standalone storyboard generation, and batch download numbering, upgrade native video frame extraction and audio separation, and lift assistant skill size and count limits with paged line-by-line long-document reading.
-- **[v2.2.4](https://github.com/glanderness/BeefTV/releases/tag/v2.2.4)** — Fix Eagle library previews and downloads on desktop, support prefixless custom model URLs and editing/deleting manual models, and fix prompt backspace editing, asset library pagination counts, and local video previews in generation history.
-- **[v2.2.3](https://github.com/glanderness/BeefTV/releases/tag/v2.2.3)** — Add Seedream 5.5 image generation and fine-grained layer splitting, improve automatic first/last frame assignment and reference checks, fix upscale and subtitle-removal retry states and diagnostics, and add Yinsheng Yunshu Yisuan branding.
-- **[v2.2.2](https://github.com/glanderness/BeefTV/releases/tag/v2.2.2)** — Add live balances and online top-ups, refine generation cost estimates, and upgrade DeepSeek Harness collaboration and canvas video processing.
-- **[v2.2.1](https://github.com/glanderness/BeefTV/releases/tag/v2.2.1)** — Add the Yinsheng Yunshu Yisuan provider plugin, redesign plugin and account settings, and improve canvas previews, generation errors, and retries.
+- **[v2.2.5](https://github.com/glanderness/LuckyTV/releases/tag/v2.2.5)** — Fix canvas uploads reverting to uploading overlays and replaced nodes being overwritten by stale tasks, fix desktop resource thumbnails, standalone storyboard generation, and batch download numbering, upgrade native video frame extraction and audio separation, and lift assistant skill size and count limits with paged line-by-line long-document reading.
+- **[v2.2.4](https://github.com/glanderness/LuckyTV/releases/tag/v2.2.4)** — Fix Eagle library previews and downloads on desktop, support prefixless custom model URLs and editing/deleting manual models, and fix prompt backspace editing, asset library pagination counts, and local video previews in generation history.
+- **[v2.2.3](https://github.com/glanderness/LuckyTV/releases/tag/v2.2.3)** — Add Seedream 5.5 image generation and fine-grained layer splitting, improve automatic first/last frame assignment and reference checks, fix upscale and subtitle-removal retry states and diagnostics, and add Yinsheng Yunshu Yisuan branding.
+- **[v2.2.2](https://github.com/glanderness/LuckyTV/releases/tag/v2.2.2)** — Add live balances and online top-ups, refine generation cost estimates, and upgrade DeepSeek Harness collaboration and canvas video processing.
+- **[v2.2.1](https://github.com/glanderness/LuckyTV/releases/tag/v2.2.1)** — Add the Yinsheng Yunshu Yisuan provider plugin, redesign plugin and account settings, and improve canvas previews, generation errors, and retries.
 
-[All releases and detailed notes](https://github.com/glanderness/BeefTV/releases)
+[All releases and detailed notes](https://github.com/glanderness/LuckyTV/releases)
 
 ## Special thanks
 
-Thank you to the partners, sponsors, and customers supporting BeefTV's continued development.
+Thank you to the partners, sponsors, and customers supporting LuckyTV's continued development.
 
 <table>
   <tr><th width="26%" align="center">Acknowledgements</th><th align="center">About</th></tr>
@@ -75,7 +75,7 @@ Thank you to the partners, sponsors, and customers supporting BeefTV's continued
   </tr>
   <tr>
     <td align="center" valign="middle"><img src="assets/readme/partner-pccooler.png" width="120" alt="PCCOOLER logo"><br><strong>PCCOOLER</strong></td>
-    <td><a href="https://www.cpspccooler.cn/">PCCOOLER</a> is a publicly listed company specializing in high-performance computing hardware and cooling systems, with products including modular AI PCs and AI workstations. Combining PCCOOLER's hardware R&amp;D capabilities with BeefTV's AIGC software ecosystem, the two teams will explore integrated hardware and software solutions for local AI creation.</td>
+    <td><a href="https://www.cpspccooler.cn/">PCCOOLER</a> is a publicly listed company specializing in high-performance computing hardware and cooling systems, with products including modular AI PCs and AI workstations. Combining PCCOOLER's hardware R&amp;D capabilities with LuckyTV's AIGC software ecosystem, the two teams will explore integrated hardware and software solutions for local AI creation.</td>
   </tr>
 </table>
 
@@ -91,7 +91,7 @@ Thank you to the partners, sponsors, and customers supporting BeefTV's continued
 
 Connect media, local processing, and AI generation in an editable workflow. The **single-character replacement workflow** takes a motion video and a character reference image, adapts the video frame rate, then passes both references to Seedance 2.0 Fast.
 
-![Actual single-character replacement workflow editor: replaceable video and image inputs, frame-rate adaptation, video generation, and model settings](assets/readme/beeftv-character-workflow-editor.png)
+![Actual single-character replacement workflow editor: replaceable video and image inputs, frame-rate adaptation, video generation, and model settings](assets/readme/luckytv-character-workflow-editor.png)
 
 <table>
   <tr><th width="50%">Source video</th><th width="50%">Finished character replacement</th></tr>
@@ -109,7 +109,7 @@ Connect media, local processing, and AI generation in an editable workflow. The 
 
 Template revisions 13 and 14 have successful runs in the local 2.0.1 app. The finished example also includes shot-level corrections, stitching, and restoration of the original audio. Those steps are not all encapsulated in the template; this does not demonstrate one-click completion for arbitrary media or frame-perfect preservation. Model generation is billed by your chosen provider.
 
-## BeefTV Agent
+## LuckyTV Agent
 
 **Turn a conversation into an editable creative project.**
 
@@ -120,19 +120,19 @@ In the local example **The Last Bottle of Water**, the user specified the produc
 <table>
   <tr><th width="25%">Character design · Shenmo</th><th width="25%">Scene design · Water ration point</th><th width="25%">Generated shot 1</th><th width="25%">Generated shot 2</th></tr>
   <tr>
-    <td><img src="assets/readme/beeftv-agent-drama-role-shenmo.webp" alt="Lead character design generated by the Agent"></td>
-    <td><img src="assets/readme/beeftv-agent-drama-scene-water-tower.webp" alt="Post-apocalyptic water ration point generated by the Agent"></td>
+    <td><img src="assets/readme/luckytv-agent-drama-role-shenmo.webp" alt="Lead character design generated by the Agent"></td>
+    <td><img src="assets/readme/luckytv-agent-drama-scene-water-tower.webp" alt="Post-apocalyptic water ration point generated by the Agent"></td>
     <td><video src="https://github.com/user-attachments/assets/0c0e1174-479d-4394-a4b2-7c64a3367e0a" controls preload="metadata" playsinline></video></td>
     <td><video src="https://github.com/user-attachments/assets/b304bdd1-5a3f-4e96-929b-46a9cbff29bf" controls preload="metadata" playsinline></video></td>
   </tr>
 </table>
 
-![BeefTV Agent in use: character and scene nodes connect to storyboard and video nodes, with production steps and progress shown on the right](assets/readme/beeftv-agent-drama-canvas.png)
+![LuckyTV Agent in use: character and scene nodes connect to storyboard and video nodes, with production steps and progress shown on the right](assets/readme/luckytv-agent-drama-canvas.png)
 
 - **Plan:** Define the world, characters, and storyboard, including shot duration, visuals, motion, and sound.
 - **Execute:** Create nodes and reference connections, then generate characters, scenes, shots, and narration after confirmation.
 - **Inspect and continue:** Read actual outputs, check designs and first frames, preserve successful assets and failure states, and continue refining.
-- **Connect external Agents via MCP:** In the sidebar "BeefTV MCP" page, connect Claude Code or Codex to the local canvas in one click, including a canvas usage skill; Claude Desktop, Cursor, and other clients can still generate a connection config. See [External Agent Integration](docs/content/docs/backend/external-agents.mdx) (Chinese).
+- **Connect external Agents via MCP:** In the sidebar "LuckyTV MCP" page, connect Claude Code or Codex to the local canvas in one click, including a canvas usage skill; Claude Desktop, Cursor, and other clients can still generate a connection config. See [External Agent Integration](docs/content/docs/backend/external-agents.mdx) (Chinese).
 
 ## Skills
 
@@ -140,7 +140,7 @@ In the local example **The Last Bottle of Water**, the user specified the produc
 
 Give the creative assistant methods, steps, and requirements for specific tasks. Browse the skill marketplace, review requirements and files, then install a specific version.
 
-![BeefTV 2.0.1 skill marketplace: browse skills, purposes, and fixed versions](assets/readme/beeftv-2.0.1-skills.webp)
+![LuckyTV 2.0.1 skill marketplace: browse skills, purposes, and fixed versions](assets/readme/luckytv-2.0.1-skills.webp)
 
 | Official skill | Actual deliverable in this session |
 | --- | --- |
@@ -161,9 +161,9 @@ Text-only skills do not require a multimodal model. Skills involving images, vid
 - **Refine:** Crop, annotate, inpaint, split, reference, and combine results.
 - **Iterate:** Keep your process and reuse assets, turning a single generation into an evolving workflow.
 
-BeefTV also includes project and personal asset libraries, asynchronous tasks, model providers, and creative tools.
+LuckyTV also includes project and personal asset libraries, asynchronous tasks, model providers, and creative tools.
 
-## Why BeefTV
+## Why LuckyTV
 
 | High Performance | Lightweight | AI Native |
 | --- | --- | --- |
@@ -177,8 +177,8 @@ BeefTV also includes project and personal asset libraries, asynchronous tasks, m
 
 ## Get started
 
-1. [Download the desktop app](https://github.com/glanderness/BeefTV/releases/latest) and follow the [first-launch instructions](QUICKSTART.md#下载与首次打开). Enter your local workspace without signing up.
-2. In model settings, connect your BeefTV account or add your own model provider.
+1. [Download the desktop app](https://github.com/glanderness/LuckyTV/releases/latest) and follow the [first-launch instructions](QUICKSTART.md#下载与首次打开). Enter your local workspace without signing up.
+2. In model settings, connect your LuckyTV account or add your own model provider.
 3. Create a canvas, add reference media, and describe your goal to the creative assistant. You can also start creating directly with nodes.
 
 See [Quick Start](QUICKSTART.md) for model setup and building from source, and the [desktop release guide](docs/desktop-release.md) for packaging requirements.
@@ -189,26 +189,26 @@ Issues and pull requests are welcome. See [`CONTRIBUTING.md`](CONTRIBUTING.md) f
 
 The repository uses licenses with different scopes. Original content added under the new license, starting with the commit that first introduced it and subject to its terms, is covered by the [`BeefTV Source Available License 1.0`](LICENSE). Historical content released under MIT remains under the MIT terms retained in the same file. Upstream and third-party materials keep their respective licenses.
 
-The new license permits self-hosting, internal customization, and creating and selling works with BeefTV. Written authorization is required for commercial resale, rebranding and resale, paid deployment or custom delivery of covered software, and providing hosted features to third parties, whether free or paid. Independent tutorials, training, and general technical consulting may be paid services, but must not be used to deliver the software system indirectly. Contact us about authorization at [lucas@bf-labs.cn](mailto:lucas@bf-labs.cn).
+The new license permits self-hosting, internal customization, and creating and selling works with LuckyTV. Written authorization is required for commercial resale, rebranding and resale, paid deployment or custom delivery of covered software, and providing hosted features to third parties, whether free or paid. Independent tutorials, training, and general technical consulting may be paid services, but must not be used to deliver the software system indirectly. Contact us about authorization at [lucas@bf-labs.cn](mailto:lucas@bf-labs.cn).
 
 The new restrictions do not apply retroactively to historical MIT content or override independently licensed third-party materials. This is a source-available license; the entire repository should not be treated as standard MIT or as an open source project under the OSI definition. See the [license guide](docs/content/docs/overview/licensing.mdx) for covered scenarios and boundaries, and [`NOTICE`](NOTICE) for upstream sources and third-party attributions.
 
 ## Open source acknowledgments
 
-BeefTV builds on and draws from the following open source projects and technologies:
+LuckyTV builds on and draws from the following open source projects and technologies:
 
-- **[影策 Open AI Canvas (Yingce Open AI Canvas)](https://github.com/ddcat-ai/open-ai-canvas)** (https://github.com/ddcat-ai/open-ai-canvas): A workspace for AI filmmaking and short drama creation. BeefTV is developed on top of this project. Foundational capabilities such as canvas node workflows, model provider integration, task and asset management, and community-contributed built-in plugins come from this project and continue to be refined and optimized into a local desktop app. Thanks again to [ddcat](https://github.com/ddcat-ai) and all Open AI Canvas contributors for their contributions to the open source AIGC community.
-- **[basketikun's infinite-canvas](https://github.com/basketikun/infinite-canvas)**: An open source workspace combining an infinite canvas with AI image creation. BeefTV draws on its overall infinite canvas architecture and reuses parts of its canvas code and capabilities, including node dragging and zooming, connections, undo/redo, and canvas import/export. Thanks to [basketikun](https://github.com/basketikun) and all contributors.
-- **[Pi (Pi Agent)](https://github.com/earendil-works/pi)**: A lightweight, extensible agent framework providing the agent execution loop, tool calling, and session management. BeefTV's built-in Agent is built on Pi, with adaptations and extensions for video creation, including canvas operations, creative planning, and skill management. Thanks to Pi's authors, [maintainers](https://github.com/earendil-works), and all contributors.
+- **[影策 Open AI Canvas (Yingce Open AI Canvas)](https://github.com/ddcat-ai/open-ai-canvas)** (https://github.com/ddcat-ai/open-ai-canvas): A workspace for AI filmmaking and short drama creation. LuckyTV is developed on top of this project. Foundational capabilities such as canvas node workflows, model provider integration, task and asset management, and community-contributed built-in plugins come from this project and continue to be refined and optimized into a local desktop app. Thanks again to [ddcat](https://github.com/ddcat-ai) and all Open AI Canvas contributors for their contributions to the open source AIGC community.
+- **[basketikun's infinite-canvas](https://github.com/basketikun/infinite-canvas)**: An open source workspace combining an infinite canvas with AI image creation. LuckyTV draws on its overall infinite canvas architecture and reuses parts of its canvas code and capabilities, including node dragging and zooming, connections, undo/redo, and canvas import/export. Thanks to [basketikun](https://github.com/basketikun) and all contributors.
+- **[Pi (Pi Agent)](https://github.com/earendil-works/pi)**: A lightweight, extensible agent framework providing the agent execution loop, tool calling, and session management. LuckyTV's built-in Agent is built on Pi, with adaptations and extensions for video creation, including canvas operations, creative planning, and skill management. Thanks to Pi's authors, [maintainers](https://github.com/earendil-works), and all contributors.
 
-We thank these projects' authors, maintainers, and contributors for their foundations and inspiration. BeefTV continues independent development and extensive optimization on top of this work. Upstream and third-party code, copyright notices, and licenses retain their respective terms. See [`NOTICE`](NOTICE), [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md), and [`LICENSE`](LICENSE) for attribution and license scope.
+We thank these projects' authors, maintainers, and contributors for their foundations and inspiration. LuckyTV continues independent development and extensive optimization on top of this work. Upstream and third-party code, copyright notices, and licenses retain their respective terms. See [`NOTICE`](NOTICE), [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md), and [`LICENSE`](LICENSE) for attribution and license scope.
 
 ## ⭐ Star History
 
-<a href="https://www.star-history.com/?repos=glanderness%2FBeefTV&amp;type=date&amp;legend=bottom-right">
+<a href="https://www.star-history.com/?repos=glanderness%2FLuckyTV&amp;type=date&amp;legend=bottom-right">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=glanderness/BeefTV&amp;type=date&amp;theme=dark&amp;legend=bottom-right" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=glanderness/BeefTV&amp;type=date&amp;legend=bottom-right" />
-    <img alt="BeefTV GitHub star history" src="https://api.star-history.com/chart?repos=glanderness/BeefTV&amp;type=date&amp;legend=bottom-right" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=glanderness/LuckyTV&amp;type=date&amp;theme=dark&amp;legend=bottom-right" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=glanderness/LuckyTV&amp;type=date&amp;legend=bottom-right" />
+    <img alt="LuckyTV GitHub star history" src="https://api.star-history.com/chart?repos=glanderness/LuckyTV&amp;type=date&amp;legend=bottom-right" />
   </picture>
 </a>

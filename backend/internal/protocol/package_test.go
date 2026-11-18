@@ -9,14 +9,14 @@ import (
 )
 
 func TestParsePluginPackageRejectsBareManifest(t *testing.T) {
-	if _, err := ParsePluginPackage([]byte(`{"apiVersion":"beeftv.plugin/v1"}`)); err == nil {
+	if _, err := ParsePluginPackage([]byte(`{"apiVersion":"luckytv.plugin/v1"}`)); err == nil {
 		t.Fatal("bare JSON manifest was accepted as a plugin package")
 	}
 }
 
 func TestParsePluginPackageRejectsFilesOutsidePackageRoots(t *testing.T) {
 	manifest := []byte(`{
-		"apiVersion":"beeftv.plugin/v1",
+		"apiVersion":"luckytv.plugin/v1",
         "id":"ui-extension",
         "name":"UI Extension",
         "version":"1.0.0",
@@ -32,14 +32,14 @@ func TestParsePluginPackageRejectsFilesOutsidePackageRoots(t *testing.T) {
 	}
 }
 
-func TestPluginPackageUsesBeefTVFormat(t *testing.T) {
-	if PluginPackageFormat != "beeftv.plugin/package-v1" {
+func TestPluginPackageUsesLuckyTVFormat(t *testing.T) {
+	if PluginPackageFormat != "luckytv.plugin/package-v1" {
 		t.Fatalf("package format = %q", PluginPackageFormat)
 	}
 }
 
-func TestPluginPackageUsesBeefTVFileExtension(t *testing.T) {
-	if PluginPackageExtension != ".beeftv-plugin" {
+func TestPluginPackageUsesLuckyTVFileExtension(t *testing.T) {
+	if PluginPackageExtension != ".luckytv-plugin" {
 		t.Fatalf("package extension = %q", PluginPackageExtension)
 	}
 }
@@ -98,15 +98,15 @@ func TestParsePluginPackageDirValidatesPiPackageAndClientCanvasNode(t *testing.T
 		t.Fatal(err)
 	}
 	packageJSON := []byte(`{
-		"name": "@beeftv/plugin-storyboard-grid",
+		"name": "@luckytv/plugin-storyboard-grid",
 		"version": "1.2.0",
 		"description": "分镜九宫格拆解与合成插件",
-		"author": {"name": "BeefTV"},
+		"author": {"name": "LuckyTV"},
 		"pi": {
 			"extensions": ["./extensions/index.ts"],
 			"skills": ["./skills"]
 		},
-		"beeftv": {
+		"luckytv": {
 			"id": "storyboard-grid",
 			"displayName": "分镜九宫格",
 			"client": "./dist/client.js",
@@ -134,7 +134,7 @@ func TestParsePluginPackageDirValidatesPiPackageAndClientCanvasNode(t *testing.T
 	if pkg.Manifest.Metadata.ID != "storyboard-grid" || pkg.Manifest.Metadata.Name != "分镜九宫格" || pkg.Manifest.Metadata.Version != "1.2.0" {
 		t.Fatalf("unexpected manifest metadata: %#v", pkg.Manifest.Metadata)
 	}
-	if pkg.Manifest.Metadata.Vendor != "BeefTV" || pkg.Manifest.Metadata.Documentation != "# 分镜九宫格插件" {
+	if pkg.Manifest.Metadata.Vendor != "LuckyTV" || pkg.Manifest.Metadata.Documentation != "# 分镜九宫格插件" {
 		t.Fatalf("unexpected vendor/docs: %#v", pkg.Manifest.Metadata)
 	}
 	if pkg.Manifest.Client != "./dist/client.js" {
@@ -152,7 +152,7 @@ func TestParsePluginPackageDirValidatesPiPackageAndClientCanvasNode(t *testing.T
 
 func TestValidateManifestClientAndCanvasNodeConstraints(t *testing.T) {
 	base := Manifest{
-		APIVersion: "beeftv.plugin/v1",
+		APIVersion: "luckytv.plugin/v1",
 		Metadata:   Metadata{ID: "demo", Name: "Demo", Version: "1.0.0"},
 		Contributes: ManifestContributions{
 			CanvasNodes: []ManifestCanvasNode{{ID: "demo-node", Label: "Demo", DefaultTitle: "Demo", Renderer: "client"}},
@@ -191,7 +191,7 @@ func TestParsePluginPackageDirAcceptsPlainPiPackage(t *testing.T) {
 	}
 	pkg, err := ParsePluginPackageDir(dir)
 	if err != nil {
-		t.Fatalf("a pi package without a beeftv field must install: %v", err)
+		t.Fatalf("a pi package without a luckytv field must install: %v", err)
 	}
 	if pkg.Manifest.Metadata.ID != "someone-pi-web-tools" || pkg.Manifest.Metadata.Version != "2.0.0" || len(pkg.ExtensionPaths) != 1 {
 		t.Fatalf("unexpected parse: %#v", pkg.Manifest.Metadata)
@@ -202,6 +202,6 @@ func TestParsePluginPackageDirAcceptsPlainPiPackage(t *testing.T) {
 		t.Fatal(err)
 	}
 	if _, err := ParsePluginPackageDir(empty); err == nil {
-		t.Fatal("a package with neither beeftv nor pi resources is not a plugin")
+		t.Fatal("a package with neither luckytv nor pi resources is not a plugin")
 	}
 }

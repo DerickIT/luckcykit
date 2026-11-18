@@ -95,10 +95,10 @@ describe("applyNodeConfigPatch 模型切换清理生成参数", () => {
         expect(draft720.videoReturnLastFrame).toBe("false");
 
         const baseChannel = createModelChannel({
-            id: "BeefTV",
-            name: "BeefTV",
+            id: "LuckyTV",
+            name: "LuckyTV",
             scope: "system",
-            baseUrl: "https://beeftv.app/v1",
+            baseUrl: "https://luckytv.app/v1",
             models: ["seedance-2.5"],
             modelProfiles: [
                 {
@@ -133,7 +133,7 @@ describe("applyNodeConfigPatch 模型切换清理生成参数", () => {
             ],
         });
         const normalizedConfig = effectiveConfigForCustomChannels({ ...defaultConfig, channels: [baseChannel] }, false);
-        const cap = modelCapabilityConfigFor(normalizedConfig, "BeefTV::seedance-2.5");
+        const cap = modelCapabilityConfigFor(normalizedConfig, "LuckyTV::seedance-2.5");
         expect(cap.video?.draft?.supported).toBe(true);
         expect(cap.video?.returnLastFrame?.supported).toBe(true);
         expect(cap.video?.resolutions.includes("480p")).toBe(true);

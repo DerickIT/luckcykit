@@ -4,9 +4,9 @@ import (
 	"errors"
 	"strings"
 
-	"infinite-canvas/backend/internal/assets"
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/assets"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
 )
 
 // AttachMessage binds a durable backend task output onto an existing

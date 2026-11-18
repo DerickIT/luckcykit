@@ -1,7 +1,7 @@
 package app
 
 import (
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 	"testing"
 )
 

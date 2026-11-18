@@ -10,8 +10,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
 )
 
 // Runtime 拥有任务领取循环、槽位/任务租约续期、有界并发、排空和已领取任务的执行窗口。

@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"testing"
 
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/assistantturns"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/assistantturns"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/operations"
 )
 
 func regenerateExternalNode(t *testing.T, svc *Service, r *operations.Registry, canvasID, nodeID, operationID string, caller operations.Caller) (operations.Result, error) {
@@ -116,7 +116,7 @@ func TestRegenerateKeepsUnfinishedNode(t *testing.T) {
 		{name: "queued"},
 		{name: "running", task: map[string]any{"status": model.TaskStatusRunning}},
 		{name: "provider may still return the result", task: map[string]any{"status": model.TaskStatusFailed, "provider_request_id": "upstream-job-1"}},
-		{name: "charge still being settled", task: map[string]any{"status": model.TaskStatusFailed, "beef_billing_state": "reserved"}},
+		{name: "charge still being settled", task: map[string]any{"status": model.TaskStatusFailed, "lucky_billing_state": "reserved"}},
 		{name: "downloading", task: map[string]any{"status": model.TaskStatusSucceeded, "result_json": `{"images":["https://example.invalid/pending.png"]}`}},
 		{name: "saving", task: map[string]any{"status": model.TaskStatusSucceeded, "result_json": `{"images":["https://example.invalid/pending.png"]}`, "stage": "正在取回结果"}},
 		{name: "submitting retry", task: upstreamRejection, mutate: func(meta map[string]any) {

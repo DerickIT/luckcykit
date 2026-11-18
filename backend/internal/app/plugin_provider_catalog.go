@@ -1,5 +1,5 @@
 package app
 
-import "infinite-canvas/backend/internal/plugins"
+import "luckytv/backend/internal/plugins"
 
 type PluginProviderCatalogItem = plugins.ProviderCatalogItem

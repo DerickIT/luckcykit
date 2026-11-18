@@ -6,9 +6,9 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/skillhub"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/skillhub"
+	"luckytv/backend/internal/skills"
 )
 
 func marketReply(c *gin.Context, value any, err error) {

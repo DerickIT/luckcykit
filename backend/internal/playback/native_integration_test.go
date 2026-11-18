@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func TestNativeHEVCPlaybackPreservesOriginal(t *testing.T) {

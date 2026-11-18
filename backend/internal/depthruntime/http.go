@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"infinite-canvas/backend/internal/desktopnet"
+	"luckytv/backend/internal/desktopnet"
 )
 
 var downloadClient = newDownloadClient()

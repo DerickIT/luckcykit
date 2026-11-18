@@ -4,9 +4,9 @@ import (
 	"context"
 	"log"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/playback"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/playback"
+	"luckytv/backend/internal/repository"
 )
 
 // PlaybackService exposes the domain service to the HTTP composition layer.

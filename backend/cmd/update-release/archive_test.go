@@ -15,7 +15,7 @@ func TestPackageDarwinLayoutAndModes(t *testing.T) {
 		t.Skip("macOS packaging requires a filesystem that preserves Unix executable modes")
 	}
 	root := t.TempDir()
-	app := writeFakeDarwinApp(t, filepath.Join(root, "BeefTV.app"))
+	app := writeFakeDarwinApp(t, filepath.Join(root, "LuckyTV.app"))
 	outside := filepath.Join(root, "outside.txt")
 	if err := os.WriteFile(outside, []byte("nope"), 0o644); err != nil {
 		t.Fatal(err)
@@ -27,11 +27,11 @@ func TestPackageDarwinLayoutAndModes(t *testing.T) {
 		t.Fatal(err)
 	}
 	pluginDir := filepath.Join(app, "Contents", "Resources", "plugin-packages")
-	if err := os.WriteFile(filepath.Join(pluginDir, "real.beeftv-plugin"), []byte("plugin-bytes"), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(pluginDir, "real.luckytv-plugin"), []byte("plugin-bytes"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	if runtime.GOOS != "windows" {
-		if err := os.Symlink("real.beeftv-plugin", filepath.Join(pluginDir, "alias.beeftv-plugin")); err != nil {
+		if err := os.Symlink("real.luckytv-plugin", filepath.Join(pluginDir, "alias.luckytv-plugin")); err != nil {
 			t.Fatal(err)
 		}
 		if err := os.Symlink(outside, filepath.Join(app, "Contents", "MacOS", "escaped")); err != nil {
@@ -39,7 +39,7 @@ func TestPackageDarwinLayoutAndModes(t *testing.T) {
 		}
 	}
 
-	out := filepath.Join(t.TempDir(), "BeefTV-v1.6.0-darwin-arm64.zip")
+	out := filepath.Join(t.TempDir(), "LuckyTV-v1.6.0-darwin-arm64.zip")
 	var stdout bytes.Buffer
 	err := run([]string{"package", "--platform", "darwin-arm64", "--input", app, "--output", out}, &stdout, ioDiscard{})
 	if runtime.GOOS != "windows" {
@@ -58,20 +58,20 @@ func TestPackageDarwinLayoutAndModes(t *testing.T) {
 	}
 
 	names := zipNames(t, out)
-	if !names["BeefTV.app/Contents/MacOS/cli/beeftv"] {
+	if !names["LuckyTV.app/Contents/MacOS/cli/luckytv"] {
 		t.Fatal("missing bundled CLI")
 	}
-	if !names["BeefTV.app/Contents/MacOS/BeefTV"] {
+	if !names["LuckyTV.app/Contents/MacOS/LuckyTV"] {
 		t.Fatalf("missing executable: %v", names)
 	}
-	if !names["BeefTV.app/Contents/Resources/agent-host/runtime/bin/node"] || !names["BeefTV.app/Contents/Resources/agent-host/server.mjs"] {
+	if !names["LuckyTV.app/Contents/Resources/agent-host/runtime/bin/node"] || !names["LuckyTV.app/Contents/Resources/agent-host/server.mjs"] {
 		t.Fatalf("missing agent host: %v", names)
 	}
-	if names["BeefTV.app/.env"] || names["BeefTV.app/Contents/Resources/user.db"] {
+	if names["LuckyTV.app/.env"] || names["LuckyTV.app/Contents/Resources/user.db"] {
 		t.Fatalf("secret or db leaked into zip: %v", names)
 	}
 	if runtime.GOOS != "windows" {
-		if !names["BeefTV.app/Contents/Resources/plugin-packages/alias.beeftv-plugin"] {
+		if !names["LuckyTV.app/Contents/Resources/plugin-packages/alias.luckytv-plugin"] {
 			t.Fatalf("dereferenced plugin alias missing: %v", names)
 		}
 	}
@@ -82,13 +82,13 @@ func TestPackageDarwinLayoutAndModes(t *testing.T) {
 	defer reader.Close()
 	var sawExec, sawSymlink bool
 	for _, file := range reader.File {
-		if file.Name == "BeefTV.app/Contents/Resources/agent-host/runtime/bin/node" && file.Mode()&0o111 == 0 {
+		if file.Name == "LuckyTV.app/Contents/Resources/agent-host/runtime/bin/node" && file.Mode()&0o111 == 0 {
 			t.Fatal("bundled Node executable mode not preserved")
 		}
 		if file.Mode()&os.ModeSymlink != 0 {
 			sawSymlink = true
 		}
-		if file.Name == "BeefTV.app/Contents/MacOS/BeefTV" {
+		if file.Name == "LuckyTV.app/Contents/MacOS/LuckyTV" {
 			sawExec = true
 			if file.Mode()&0o111 == 0 {
 				t.Fatalf("executable mode not preserved: %s", file.Mode())
@@ -107,7 +107,7 @@ func TestPackageDarwinLayoutAndModes(t *testing.T) {
 				}
 			}
 		}
-		if file.Name == "BeefTV.app/Contents/Resources/plugin-packages/alias.beeftv-plugin" {
+		if file.Name == "LuckyTV.app/Contents/Resources/plugin-packages/alias.luckytv-plugin" {
 			if got := string(readZipFile(t, file)); got != "plugin-bytes" {
 				t.Fatalf("alias content %q", got)
 			}
@@ -132,15 +132,15 @@ func TestPackageWindowsLayout(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(bin, "extra.dll"), []byte("ignore"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	out := filepath.Join(t.TempDir(), "BeefTV-v1.6.0-windows-amd64.zip")
+	out := filepath.Join(t.TempDir(), "LuckyTV-v1.6.0-windows-amd64.zip")
 	if err := run([]string{"package", "--platform", "windows-amd64", "--input", bin, "--output", out}, ioDiscard{}, ioDiscard{}); err != nil {
 		t.Fatal(err)
 	}
 	names := zipNames(t, out)
-	if !names["cli/beeftv.exe"] {
+	if !names["cli/luckytv.exe"] {
 		t.Fatal("missing bundled CLI")
 	}
-	if !names["BeefTV.exe"] || !names["plugin-packages/core.beeftv-plugin"] || !names["agent-host/runtime/node.exe"] || !names["agent-host/node_modules/@earendil-works/pi-coding-agent/package.json"] {
+	if !names["LuckyTV.exe"] || !names["plugin-packages/core.luckytv-plugin"] || !names["agent-host/runtime/node.exe"] || !names["agent-host/node_modules/@earendil-works/pi-coding-agent/package.json"] {
 		t.Fatalf("windows zip layout %v", names)
 	}
 	if names[".env.local"] || names["extra.dll"] {
@@ -194,13 +194,13 @@ func TestPackageRejectsInvalidInputs(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(dataDir, "open_ai_canvas.db"), []byte("db"), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(dataDir, "BeefTV.exe"), []byte("exe"), 0o755); err != nil {
+	if err := os.WriteFile(filepath.Join(dataDir, "LuckyTV.exe"), []byte("exe"), 0o755); err != nil {
 		t.Fatal(err)
 	}
 	if err := os.MkdirAll(filepath.Join(dataDir, "plugin-packages"), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(dataDir, "plugin-packages", "core.beeftv-plugin"), []byte("p"), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(dataDir, "plugin-packages", "core.luckytv-plugin"), []byte("p"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	if err := run([]string{"package", "--platform", "windows-amd64", "--input", dataDir, "--output", out}, ioDiscard{}, ioDiscard{}); err == nil {
@@ -235,7 +235,7 @@ func TestPackageWindowsNestedMediaRuntimeUsesReleasedRootLayout(t *testing.T) {
 	}
 	for name := range entries {
 		switch strings.Split(name, "/")[0] {
-		case "BeefTV.exe", "cli", "agent-host", "plugin-packages":
+		case "LuckyTV.exe", "cli", "agent-host", "plugin-packages":
 		default:
 			t.Fatalf("released updater rejects root entry %s", name)
 		}
@@ -259,7 +259,7 @@ func writeFakeDarwinApp(t *testing.T, app string) string {
 	if err := os.MkdirAll(plugins, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	execPath := filepath.Join(macOS, "BeefTV")
+	execPath := filepath.Join(macOS, "LuckyTV")
 	if err := os.WriteFile(execPath, []byte("binary"), 0o755); err != nil {
 		t.Fatal(err)
 	}
@@ -269,11 +269,11 @@ func writeFakeDarwinApp(t *testing.T, app string) string {
 	if err := os.WriteFile(filepath.Join(app, "Contents", "Info.plist"), []byte("<plist></plist>"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(plugins, "core.beeftv-plugin"), []byte("plugin"), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(plugins, "core.luckytv-plugin"), []byte("plugin"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	writeFakeAgentHost(t, filepath.Join(app, "Contents", "Resources", "agent-host"), "runtime/bin/node")
-	writeFakeCLI(t, filepath.Join(macOS, "cli", "beeftv"))
+	writeFakeCLI(t, filepath.Join(macOS, "cli", "luckytv"))
 	return app
 }
 
@@ -282,14 +282,14 @@ func writeFakeWindowsBin(t *testing.T, dir string) string {
 	if err := os.MkdirAll(filepath.Join(dir, "plugin-packages"), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(dir, "BeefTV.exe"), []byte("exe"), 0o755); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "LuckyTV.exe"), []byte("exe"), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(dir, "plugin-packages", "core.beeftv-plugin"), []byte("plugin"), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "plugin-packages", "core.luckytv-plugin"), []byte("plugin"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	writeFakeAgentHost(t, filepath.Join(dir, "agent-host"), "runtime/node.exe")
-	writeFakeCLI(t, filepath.Join(dir, "cli", "beeftv.exe"))
+	writeFakeCLI(t, filepath.Join(dir, "cli", "luckytv.exe"))
 	return dir
 }
 
@@ -317,10 +317,10 @@ func TestPackageRejectsInvalidCLI(t *testing.T) {
 				var cli string
 				if platform == platformWindowsAMD64 {
 					writeFakeWindowsBin(t, root)
-					cli = filepath.Join(root, "cli", "beeftv.exe")
+					cli = filepath.Join(root, "cli", "luckytv.exe")
 				} else {
-					root = writeFakeDarwinApp(t, filepath.Join(root, "BeefTV.app"))
-					cli = filepath.Join(root, "Contents", "MacOS", "cli", "beeftv")
+					root = writeFakeDarwinApp(t, filepath.Join(root, "LuckyTV.app"))
+					cli = filepath.Join(root, "Contents", "MacOS", "cli", "luckytv")
 				}
 				if err := os.Remove(cli); err != nil {
 					t.Fatal(err)
@@ -376,7 +376,7 @@ func TestPackageRejectsMissingAgentRuntime(t *testing.T) {
 
 func TestPackageWindowsAcceptsBundledPluginsInAgentHostAndRejectsSubdirInPluginPackages(t *testing.T) {
 	bin := writeFakeWindowsBin(t, t.TempDir())
-	for _, dirName := range []string{"beeftv-plugin-market", "beeftv-plugin-ll2"} {
+	for _, dirName := range []string{"luckytv-plugin-market", "luckytv-plugin-ll2"} {
 		pkgFile := filepath.Join(bin, "agent-host", "bundled-plugins", dirName, "package.json")
 		if err := os.MkdirAll(filepath.Dir(pkgFile), 0o755); err != nil {
 			t.Fatal(err)
@@ -390,18 +390,18 @@ func TestPackageWindowsAcceptsBundledPluginsInAgentHostAndRejectsSubdirInPluginP
 		t.Fatalf("packageBundle with agent-host/bundled-plugins failed: %v", err)
 	}
 	entries := zipNames(t, out)
-	for _, dirName := range []string{"beeftv-plugin-market", "beeftv-plugin-ll2"} {
+	for _, dirName := range []string{"luckytv-plugin-market", "luckytv-plugin-ll2"} {
 		want := "agent-host/bundled-plugins/" + dirName + "/package.json"
 		if !entries[want] {
 			t.Fatalf("missing %s in packaged Windows zip", want)
 		}
 	}
 
-	badSubdirFile := filepath.Join(bin, "plugin-packages", "beeftv-plugin-market", "package.json")
+	badSubdirFile := filepath.Join(bin, "plugin-packages", "luckytv-plugin-market", "package.json")
 	if err := os.MkdirAll(filepath.Dir(badSubdirFile), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(badSubdirFile, []byte(`{"name":"beeftv-plugin-market"}`), 0o644); err != nil {
+	if err := os.WriteFile(badSubdirFile, []byte(`{"name":"luckytv-plugin-market"}`), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	if err := packageBundle(platformWindowsAMD64, bin, filepath.Join(t.TempDir(), "bad.zip")); err == nil || !strings.Contains(err.Error(), "plugin-packages") {

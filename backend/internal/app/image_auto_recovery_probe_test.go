@@ -19,16 +19,16 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 // Manual-only browser fixture. No generation worker or real provider is started.
-// BEEFTV_IMAGE_RECOVERY_PROBE=1 go test ./internal/app -run '^TestManualImageRecoveryProbe$' -count=1 -v -timeout=20m
+// LUCKYTV_IMAGE_RECOVERY_PROBE=1 go test ./internal/app -run '^TestManualImageRecoveryProbe$' -count=1 -v -timeout=20m
 func TestManualImageRecoveryProbe(t *testing.T) {
-	if os.Getenv("BEEFTV_IMAGE_RECOVERY_PROBE") != "1" {
-		t.Skip("set BEEFTV_IMAGE_RECOVERY_PROBE=1 for the local browser probe")
+	if os.Getenv("LUCKYTV_IMAGE_RECOVERY_PROBE") != "1" {
+		t.Skip("set LUCKYTV_IMAGE_RECOVERY_PROBE=1 for the local browser probe")
 	}
-	addr := os.Getenv("BEEFTV_IMAGE_RECOVERY_PROBE_ADDR")
+	addr := os.Getenv("LUCKYTV_IMAGE_RECOVERY_PROBE_ADDR")
 	if addr == "" {
 		addr = "127.0.0.1:19105"
 	}

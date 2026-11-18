@@ -3,14 +3,14 @@ package agentconnect
 import (
 	"strings"
 
-	"infinite-canvas/backend/internal/agentops"
+	"luckytv/backend/internal/agentops"
 )
 
 // ServerName is the MCP server entry this product owns in an agent's config.
-const ServerName = "beeftv"
+const ServerName = "luckytv"
 
 // SkillName is the directory name used in every agent's user-level skills dir.
-const SkillName = "beeftv-canvas"
+const SkillName = "luckytv-canvas"
 
 // EnvVar keeps the generated command and config in a stable order.
 type EnvVar struct {
@@ -36,16 +36,16 @@ func (s LaunchSpec) EnvMap() map[string]string {
 }
 
 // Launch builds the MCP launch for a desktop one-click credential. The token
-// itself stays in a 0600 file under BeefTV's data directory; only its path is
+// itself stays in a 0600 file under LuckyTV's data directory; only its path is
 // passed to the agent so it never appears in process arguments.
 func Launch(cliPath, dataDir, tokenFile string, mode agentops.ClientMode, clientID string) LaunchSpec {
-	return launchSpec(cliPath, dataDir, mode, clientID, "BEEFTV_CLIENT_TOKEN_FILE", tokenFile)
+	return launchSpec(cliPath, dataDir, mode, clientID, "LUCKYTV_CLIENT_TOKEN_FILE", tokenFile)
 }
 
 // ManualLaunch keeps the pasteable manual setup unchanged: the token is part
 // of the command the user copies into their own terminal.
 func ManualLaunch(cliPath, dataDir string, mode agentops.ClientMode, clientID, token string) LaunchSpec {
-	return launchSpec(cliPath, dataDir, mode, clientID, "BEEFTV_CLIENT_TOKEN", token)
+	return launchSpec(cliPath, dataDir, mode, clientID, "LUCKYTV_CLIENT_TOKEN", token)
 }
 
 func launchSpec(cliPath, dataDir string, mode agentops.ClientMode, clientID, tokenKey, tokenValue string) LaunchSpec {
@@ -57,8 +57,8 @@ func launchSpec(cliPath, dataDir string, mode agentops.ClientMode, clientID, tok
 		Command: cliPath,
 		Args:    args,
 		Env: []EnvVar{
-			{Key: "BEEFTV_DATA_DIR", Value: dataDir},
-			{Key: "BEEFTV_CLIENT_ID", Value: clientID},
+			{Key: "LUCKYTV_DATA_DIR", Value: dataDir},
+			{Key: "LUCKYTV_CLIENT_ID", Value: clientID},
 			{Key: tokenKey, Value: tokenValue},
 		},
 	}

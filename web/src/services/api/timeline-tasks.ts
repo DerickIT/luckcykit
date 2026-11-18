@@ -3,7 +3,7 @@ import { ApiError, getTransportFailureKind, http, type HttpRequestConfig } from 
 import type { GenerationTask } from "@/services/api/task-center";
 import type { TimelineProject } from "@/types/timeline";
 import type { ChannelModelCatalogItem } from "@/lib/channel-model-catalog";
-import { BeefTVConnectionChangedError, getBeefTVConnectionEpoch } from "@/services/api/beeftv-connection";
+import { LuckyTVConnectionChangedError, getLuckyTVConnectionEpoch } from "@/services/api/luckytv-connection";
 
 // The local backend may spend 30 seconds fetching the managed catalog before
 // admitting a cloud task. Keep a response margin without retrying submissions.
@@ -16,15 +16,15 @@ function transcriptionTransportError(error: unknown, submitting: boolean): unkno
     const timedOut = kind === "timeout";
     return new ApiError(submitting
         ? (timedOut ? "转写提交等待超时，任务可能已创建。请先到任务中心确认状态。" : "转写提交连接中断，任务状态尚未确认。请先到任务中心查看。")
-        : (timedOut ? "读取转写模型超时，请检查 BeefTV 连接后重试。" : "无法连接转写模型服务，请检查 BeefTV 连接后重试。"),
+        : (timedOut ? "读取转写模型超时，请检查 LuckyTV 连接后重试。" : "无法连接转写模型服务，请检查 LuckyTV 连接后重试。"),
         { cause, status: error instanceof ApiError ? error.status : undefined });
 }
 
 export async function getTranscriptionModels(config?: HttpRequestConfig) {
-    const connectionEpoch = getBeefTVConnectionEpoch();
+    const connectionEpoch = getLuckyTVConnectionEpoch();
     try {
-        const result = await http.post<{ models: ChannelModelCatalogItem[] }>("/beeftv/connection/models", {}, { timeout: TRANSCRIPTION_ADMISSION_TIMEOUT_MS, ...config });
-        if (connectionEpoch !== getBeefTVConnectionEpoch()) throw new BeefTVConnectionChangedError();
+        const result = await http.post<{ models: ChannelModelCatalogItem[] }>("/luckytv/connection/models", {}, { timeout: TRANSCRIPTION_ADMISSION_TIMEOUT_MS, ...config });
+        if (connectionEpoch !== getLuckyTVConnectionEpoch()) throw new LuckyTVConnectionChangedError();
         return result.models.filter(item => item.supportedEndpointTypes?.includes("audio.transcriptions"));
     } catch (error) { throw transcriptionTransportError(error, false); }
 }

@@ -19,7 +19,7 @@ beforeAll(async () => {
     const executablePath = [process.env.CHROME_PATH, "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"].find((path): path is string => Boolean(path && existsSync(path)));
     browser = await chromium.launch({ headless: true, executablePath });
     page = await browser.newPage({ viewport: { width: 900, height: 650 } });
-    await page.route("https://beeftv-viewport.test/**", route => {
+    await page.route("https://luckytv-viewport.test/**", route => {
         const url = new URL(route.request().url());
         return route.fulfill(url.pathname === "/app.js" ? { contentType: "text/javascript", body: script } : { contentType: "text/html", body: `<style>
             ${url.searchParams.has("unregistered") ? "" : registration} ${worldRules}
@@ -33,7 +33,7 @@ beforeAll(async () => {
 afterAll(async () => { await browser?.close(); });
 
 async function mount(query = "") {
-    await page.goto("https://beeftv-viewport.test/?" + query);
+    await page.goto("https://luckytv-viewport.test/?" + query);
     await page.locator('[data-node-id="0"]').waitFor();
 }
 

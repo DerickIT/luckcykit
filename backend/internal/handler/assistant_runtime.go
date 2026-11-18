@@ -3,8 +3,8 @@ package handler
 import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/operations"
 	"io"
 	"net/http"
 )

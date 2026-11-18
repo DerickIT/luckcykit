@@ -7,11 +7,11 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/conversation"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/operations"
-	"infinite-canvas/backend/internal/repository"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/conversation"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/operations"
+	"luckytv/backend/internal/repository"
+	localtask "luckytv/backend/internal/task"
 
 	"gorm.io/gorm"
 )

@@ -5,10 +5,10 @@ import (
 	"errors"
 	"testing"
 
-	"infinite-canvas/backend/internal/assistantturns"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/operations"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/assistantturns"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/operations"
+	localtask "luckytv/backend/internal/task"
 )
 
 func productionProgressFixture(t *testing.T) (*Service, string, string) {

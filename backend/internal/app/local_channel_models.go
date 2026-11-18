@@ -1,8 +1,8 @@
 package app
 
 import (
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/modelcatalog"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/modelcatalog"
 )
 
 type localChannelModel = modelcatalog.LocalChannelModel
@@ -28,7 +28,7 @@ func (s *Service) localChannelModel(channelID, modelKey string) (localChannelMod
 }
 
 func (s *Service) localChannelModelListItems(intent *ModelRequestIntent) []map[string]any {
-	return modelcatalog.LocalChannelModelListItems(s.localChannelModels(), intent, beeftv.ChannelID, managedBeefTVRef)
+	return modelcatalog.LocalChannelModelListItems(s.localChannelModels(), intent, luckytv.ChannelID, managedLuckyTVRef)
 }
 
 func catalogModelName(raw any) string                 { return modelcatalog.CatalogModelName(raw) }

@@ -1,6 +1,6 @@
 import localforage from "localforage";
 
-export const BUN_MEMORY_DRIVER = "beeftvBunMemoryStorage";
+export const BUN_MEMORY_DRIVER = "luckytvBunMemoryStorage";
 
 type Store = Map<string, unknown>;
 type Callback<T> = (error: unknown, value?: T) => void;

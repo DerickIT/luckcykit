@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"golang.org/x/net/dns/dnsmessage"
-	"infinite-canvas/backend/internal/outbound"
+	"luckytv/backend/internal/outbound"
 )
 
 func controlledResolver(t *testing.T, code func() dnsmessage.RCode) {

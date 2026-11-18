@@ -5,19 +5,19 @@ if ($env:OS -ne "Windows_NT") { throw "Native Windows acceptance required" }
 $Runtime = (Resolve-Path -LiteralPath $Runtime).Path
 $root = Split-Path -Parent $PSScriptRoot
 $unicodeFixture = [string]([char]0x4e2d) + [char]0x6587
-$scratch = Join-Path ([IO.Path]::GetTempPath()) ("beeftv-media-" + $unicodeFixture + " fixture-" + [guid]::NewGuid().ToString("N"))
+$scratch = Join-Path ([IO.Path]::GetTempPath()) ("luckytv-media-" + $unicodeFixture + " fixture-" + [guid]::NewGuid().ToString("N"))
 $previousPath = $env:PATH
 $previousFFmpeg = $env:CANVAS_FFMPEG_PATH
 $previousFFprobe = $env:CANVAS_FFPROBE_PATH
-$previousTest = $env:BEEFTV_TEST_BUNDLED_MEDIA
+$previousTest = $env:LUCKYTV_TEST_BUNDLED_MEDIA
 try {
     New-Item -ItemType Directory -Path (Join-Path $scratch "agent-host"), (Join-Path $scratch "cli") -Force | Out-Null
     Copy-Item -LiteralPath $Runtime -Destination (Join-Path $scratch "agent-host\media-runtime") -Recurse
     Push-Location (Join-Path $root "backend")
     try {
-        & go test -c ./internal/playback -o (Join-Path $scratch "BeefTV.exe")
+        & go test -c ./internal/playback -o (Join-Path $scratch "LuckyTV.exe")
         if ($LASTEXITCODE -ne 0) { throw "Playback acceptance build failed" }
-        & go test -c ./internal/asset -o (Join-Path $scratch "cli\beeftv.exe")
+        & go test -c ./internal/asset -o (Join-Path $scratch "cli\luckytv.exe")
         if ($LASTEXITCODE -ne 0) { throw "Asset acceptance build failed" }
         & go test -c ./internal/mediatools -o (Join-Path $scratch "MediaProbe.exe")
         if ($LASTEXITCODE -ne 0) { throw "Probe acceptance build failed" }
@@ -25,10 +25,10 @@ try {
     $env:PATH = "$env:SystemRoot\system32;$env:SystemRoot"
     $env:CANVAS_FFMPEG_PATH = $null
     $env:CANVAS_FFPROBE_PATH = $null
-    $env:BEEFTV_TEST_BUNDLED_MEDIA = "1"
-    & (Join-Path $scratch "BeefTV.exe") '-test.run=^TestBundledWindowsHEVCWithoutSystemFFmpeg$' '-test.v'
+    $env:LUCKYTV_TEST_BUNDLED_MEDIA = "1"
+    & (Join-Path $scratch "LuckyTV.exe") '-test.run=^TestBundledWindowsHEVCWithoutSystemFFmpeg$' '-test.v'
     if ($LASTEXITCODE -ne 0) { throw "Bundled Windows video acceptance failed" }
-    & (Join-Path $scratch "cli\beeftv.exe") '-test.run=^TestBundledMediaMetadataWithoutSystemFFprobe$' '-test.v'
+    & (Join-Path $scratch "cli\luckytv.exe") '-test.run=^TestBundledMediaMetadataWithoutSystemFFprobe$' '-test.v'
     if ($LASTEXITCODE -ne 0) { throw "Bundled Windows audio acceptance failed" }
     & (Join-Path $scratch "MediaProbe.exe") '-test.run=^TestProbeLocalDoesNotFetchPlaylistURLs$' '-test.v'
     if ($LASTEXITCODE -ne 0) { throw "Bundled Windows probe network isolation failed" }
@@ -36,6 +36,6 @@ try {
     $env:PATH = $previousPath
     $env:CANVAS_FFMPEG_PATH = $previousFFmpeg
     $env:CANVAS_FFPROBE_PATH = $previousFFprobe
-    $env:BEEFTV_TEST_BUNDLED_MEDIA = $previousTest
+    $env:LUCKYTV_TEST_BUNDLED_MEDIA = $previousTest
     if (Test-Path -LiteralPath $scratch) { Remove-Item -LiteralPath $scratch -Recurse -Force }
 }

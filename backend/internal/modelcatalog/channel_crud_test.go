@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func testIDGen(prefix string) (string, error) {

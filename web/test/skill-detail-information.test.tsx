@@ -52,7 +52,7 @@ test("installed skill about section retains version, author, market source and c
             skill={{
                 description: "漫剧拆分与参考图设定",
                 version: "2.1.0",
-                effectiveUser: { name: "BeefTV 官方", avatarUrl: "", uid: "official" },
+                effectiveUser: { name: "LuckyTV 官方", avatarUrl: "", uid: "official" },
                 sourceType: "market",
                 tag: "drama",
                 updatedAt: "2026-11-06T00:00:00Z",
@@ -60,7 +60,7 @@ test("installed skill about section retains version, author, market source and c
             categories={[]}
         />,
     );
-    for (const value of ["技能介绍", "漫剧拆分与参考图设定", "2.1.0", "BeefTV 官方", "技能市场", "短剧影视"]) {
+    for (const value of ["技能介绍", "漫剧拆分与参考图设定", "2.1.0", "LuckyTV 官方", "技能市场", "短剧影视"]) {
         expect(html).toContain(value);
     }
 });

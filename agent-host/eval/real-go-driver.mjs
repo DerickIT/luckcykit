@@ -1,7 +1,7 @@
 // 真实宿主 + 真实 Go 后端（由 backend/internal/handler/assistant_real_baseline_test.go 起隔离环境）的效率测量。
 // 模型请求经过本进程的计量代理转发到上游：逐请求记录 token、缓存命中、耗时和工具调用。
 // 不使用模拟器；画布写入、权限、方案登记都走真实 Go 业务层。付费生成只登记方案，不会真正提交。
-// 上游密钥只从环境变量 BEEFTV_REAL_BASELINE_KEY 读取，不写入任何文件。
+// 上游密钥只从环境变量 LUCKYTV_REAL_BASELINE_KEY 读取，不写入任何文件。
 import fs from 'node:fs';
 import path from 'node:path';
 import { createServer } from 'node:http';
@@ -12,7 +12,7 @@ import { extractUsage, parseTurnEnd } from './usage.mjs';
 
 const config = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
 const upstream = config.provider; // { baseUrl, model, api } 或 { fake: true }
-const upstreamKey = process.env.BEEFTV_REAL_BASELINE_KEY || '';
+const upstreamKey = process.env.LUCKYTV_REAL_BASELINE_KEY || '';
 const maxRequests = Number(config.maxRequests || 120);
 const records = []; // 每个模型请求一条
 const results = []; // 每个回合一条
@@ -89,10 +89,10 @@ async function main() {
   const modelPort = await listen(proxy);
   const reservation = createServer(); const port = await listen(reservation); await new Promise((r) => reservation.close(r));
   const base = `http://127.0.0.1:${port}`;
-  const env = { ...process.env, BEEFTV_AGENT_DATA_DIR: config.directory, BEEFTV_AGENT_PORT: String(port), BEEFTV_AGENT_HOST_TOKEN: config.hostToken,
-    BEEFTV_OPS_URL: config.backend, BEEFTV_AGENT_API_KEY: 'via-local-meter', BEEFTV_AGENT_API: upstream.api || 'openai-completions',
-    BEEFTV_AGENT_MODEL: upstream.model || 'synthetic', BEEFTV_AGENT_BASE_URL: `http://127.0.0.1:${modelPort}/v1`, BEEFTV_AGENT_TOTAL_REQUEST_BUDGET: '0' };
-  delete env.BEEFTV_REAL_BASELINE_KEY; // 宿主只需要本地计量代理，不需要上游密钥
+  const env = { ...process.env, LUCKYTV_AGENT_DATA_DIR: config.directory, LUCKYTV_AGENT_PORT: String(port), LUCKYTV_AGENT_HOST_TOKEN: config.hostToken,
+    LUCKYTV_OPS_URL: config.backend, LUCKYTV_AGENT_API_KEY: 'via-local-meter', LUCKYTV_AGENT_API: upstream.api || 'openai-completions',
+    LUCKYTV_AGENT_MODEL: upstream.model || 'synthetic', LUCKYTV_AGENT_BASE_URL: `http://127.0.0.1:${modelPort}/v1`, LUCKYTV_AGENT_TOTAL_REQUEST_BUDGET: '0' };
+  delete env.LUCKYTV_REAL_BASELINE_KEY; // 宿主只需要本地计量代理，不需要上游密钥
   child = spawn(process.execPath, [path.join(config.root, 'agent-host/server.mjs')], { cwd: config.root, env, stdio: ['ignore', 'pipe', 'pipe'] });
   child.stdout.on('data', (c) => { hostLog += c; }); child.stderr.on('data', (c) => { hostLog += c; });
   const deadline = Date.now() + 20000;
@@ -101,7 +101,7 @@ async function main() {
     if (Date.now() > deadline || child.exitCode !== null) throw new Error('host did not start: ' + hostLog.slice(-800));
     await delay(100);
   }
-  const hostHeaders = { 'content-type': 'application/json', 'X-Beeftv-Agent-Token': config.hostToken };
+  const hostHeaders = { 'content-type': 'application/json', 'X-Luckytv-Agent-Token': config.hostToken };
   for (const scenario of config.scenarios) {
     for (const [index, message] of scenario.messages.entries()) {
       if (capped) return;

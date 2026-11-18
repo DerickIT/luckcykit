@@ -2,7 +2,7 @@
 """Check GitHub's rendered video sources, not just Markdown links or local files.
 
 Requires an authenticated GitHub CLI. Optionally check the anonymous live page:
-  python3 scripts/verify-readme-videos.py --live https://github.com/glanderness/BeefTV
+  python3 scripts/verify-readme-videos.py --live https://github.com/glanderness/LuckyTV
 """
 
 import argparse
@@ -63,7 +63,7 @@ def main():
         if not expected:
             raise ValueError(f"{name}: no video players found")
         counts[name] = expected
-        payload = json.dumps({"text": markdown, "mode": "gfm", "context": "glanderness/BeefTV"})
+        payload = json.dumps({"text": markdown, "mode": "gfm", "context": "glanderness/LuckyTV"})
         result = subprocess.run(
             ["gh", "api", "markdown", "--input", "-"], input=payload,
             text=True, capture_output=True, check=True, timeout=30,

@@ -14,7 +14,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"infinite-canvas/backend/internal/skillhub"
+	"luckytv/backend/internal/skillhub"
 )
 
 type bundle struct {

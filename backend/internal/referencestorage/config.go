@@ -9,8 +9,8 @@ import (
 	"regexp"
 	"strings"
 
-	"infinite-canvas/backend/internal/localcrypto"
-	"infinite-canvas/backend/internal/outbound"
+	"luckytv/backend/internal/localcrypto"
+	"luckytv/backend/internal/outbound"
 )
 
 type Config struct {

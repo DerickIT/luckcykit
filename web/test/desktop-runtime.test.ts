@@ -39,19 +39,19 @@ test("embedded bootstrap uses the same-origin Host API without desktop credentia
     let bindingRead = false;
     Object.assign(globalThis, {
         window: {
-            location: { origin: "http://127.0.0.1:3901" },
-            __BEEFTV_HARNESS__: { embedded: true, basePath: "/beeftv/app/session-1", apiBase: "/beeftv/app/session-1/api" },
+            location: { protocol: "http:", origin: "http://127.0.0.1:3901" },
+            __LUCKYTV_HARNESS__: { embedded: true, basePath: "/luckytv/app/session-1", apiBase: "/luckytv/app/session-1/api" },
             go: { main: { DesktopApp: { StartupState: async () => { bindingRead = true; throw new Error("unexpected desktop bootstrap"); } } } },
         },
     });
     apiClient.defaults.headers.common["X-Desktop-Token"] = "old-desktop-token";
-    apiClient.defaults.headers.common["X-Beeftv-UI-Bootstrap"] = "old-bootstrap-token";
+    apiClient.defaults.headers.common["X-Luckytv-UI-Bootstrap"] = "old-bootstrap-token";
 
     expect(await bootstrapDesktopRuntime()).toBe(true);
     expect(bindingRead).toBe(false);
-    expect(apiBaseURL).toBe("/beeftv/app/session-1/api");
+    expect(apiBaseURL).toBe("/luckytv/app/session-1/api");
     expect(apiClient.defaults.headers.common["X-Desktop-Token"]).toBeUndefined();
-    expect(apiClient.defaults.headers.common["X-Beeftv-UI-Bootstrap"]).toBeUndefined();
+    expect(apiClient.defaults.headers.common["X-Luckytv-UI-Bootstrap"]).toBeUndefined();
 });
 
 test("desktop runtime configures axios and same-runtime fetches without persisting the token", async () => {
@@ -66,17 +66,18 @@ test("desktop runtime configures axios and same-runtime fetches without persisti
     expect(apiBaseURL).toBe("http://127.0.0.1:43123/api");
     expect(apiClient.defaults.baseURL).toBe("http://127.0.0.1:43123/api");
     expect(apiClient.defaults.headers.common["X-Desktop-Token"]).toBe("ephemeral-token");
-    expect(apiClient.defaults.headers.common["X-Beeftv-UI-Bootstrap"]).toBe("ui-only-token");
+    expect(apiClient.defaults.headers.common["X-Luckytv-UI-Bootstrap"]).toBe("ui-only-token");
 
     await fetch("http://127.0.0.1:43123/api/tasks", { headers: { Accept: "application/json" } });
     expect(captured?.headers.get("X-Desktop-Token")).toBe("ephemeral-token");
     expect(captured?.headers.get("Accept")).toBe("application/json");
-    expect(captured?.headers.get("X-Beeftv-UI-Bootstrap")).toBeNull();
+    expect(captured?.headers.get("X-Luckytv-UI-Bootstrap")).toBeNull();
 });
 
 test("desktop bootstrap obtains ephemeral runtime configuration from the Wails binding", async () => {
     Object.assign(globalThis, {
         window: {
+            location: { protocol: "wails:" },
             go: {
                 main: {
                     DesktopApp: {
@@ -89,6 +90,19 @@ test("desktop bootstrap obtains ephemeral runtime configuration from the Wails b
 
     expect(await bootstrapDesktopRuntime()).toBe(true);
     expect(apiBaseURL).toBe("http://127.0.0.1:43124/api");
+});
+
+test("ordinary browser pages ignore an exposed Wails binding", async () => {
+    let bindingRead = false;
+    Object.assign(globalThis, {
+        window: {
+            location: { protocol: "https:", hostname: "app.example.test", host: "app.example.test" },
+            go: { main: { DesktopApp: { StartupState: async () => { bindingRead = true; return { state: "ready" as const, baseURL: "http://127.0.0.1:43124/api", launchToken: "unexpected" }; } } } },
+        },
+    });
+
+    expect(await bootstrapDesktopRuntime()).toBe(false);
+    expect(bindingRead).toBe(false);
 });
 
 test("desktop bootstrap falls back to the Wails asset handler when binding startup races", async () => {
@@ -190,9 +204,9 @@ test("desktop bootstrap throws structured DesktopStartupError when backend boot 
                             state: "failed" as const,
                             phase: "lock",
                             reason: "workspace_locked",
-                            error: "当前数据目录正被另一个 BeefTV 窗口占用，请先关闭其他窗口或结束残留进程后重试。",
-                            dataDir: "D:\\BeefTV-Workspace",
-                            diagnosticPath: "D:\\BeefTV-Workspace\\diagnostics\\beeftv-startup-diagnostics.zip",
+                            error: "当前数据目录正被另一个 LuckyTV 窗口占用，请先关闭其他窗口或结束残留进程后重试。",
+                            dataDir: "D:\\LuckyTV-Workspace",
+                            diagnosticPath: "D:\\LuckyTV-Workspace\\diagnostics\\luckytv-startup-diagnostics.zip",
                         }),
                     },
                 },
@@ -211,8 +225,8 @@ test("desktop bootstrap throws structured DesktopStartupError when backend boot 
         stage: "desktop_boot",
         phase: "lock",
         reason: "workspace_locked",
-        dataDir: "D:\\BeefTV-Workspace",
-        diagnosticPath: "D:\\BeefTV-Workspace\\diagnostics\\beeftv-startup-diagnostics.zip",
+        dataDir: "D:\\LuckyTV-Workspace",
+        diagnosticPath: "D:\\LuckyTV-Workspace\\diagnostics\\luckytv-startup-diagnostics.zip",
     });
 });
 
@@ -236,7 +250,7 @@ test("Windows WebView2 falls back to same-origin /api when loopback port is bloc
         },
     });
     apiClient.defaults.headers.common["X-Desktop-Token"] = "stale-token";
-    apiClient.defaults.headers.common["X-Beeftv-UI-Bootstrap"] = "stale-ui-token";
+    apiClient.defaults.headers.common["X-Luckytv-UI-Bootstrap"] = "stale-ui-token";
 
     globalThis.fetch = (async (input: RequestInfo | URL) => {
         const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
@@ -255,7 +269,7 @@ test("Windows WebView2 falls back to same-origin /api when loopback port is bloc
     expect(await bootstrapDesktopRuntime({ loopbackProbeTimeoutMs: 50, loopbackRetryDelaysMs: [5, 5], upgradeProbeIntervalMs: 0 })).toBe(true);
     expect(apiBaseURL).toBe("/api");
     expect(apiClient.defaults.headers.common["X-Desktop-Token"]).toBe("blocked-loopback-token");
-    expect(apiClient.defaults.headers.common["X-Beeftv-UI-Bootstrap"]).toBe("blocked-ui-token");
+    expect(apiClient.defaults.headers.common["X-Luckytv-UI-Bootstrap"]).toBe("blocked-ui-token");
     expect(getDesktopBootSnapshot().transportMode).toBe("same-origin-fallback");
     expect(getDesktopBootSnapshot().streamAvailable).toBe(false);
     expect(desktopTransportChecks()[0]).toMatchObject({ id: "desktop-loopback", status: "warning" });
@@ -385,7 +399,7 @@ test("same-origin fallback disables buffered SSE streams and detaches assistant 
     let chatObserverHeader: string | null = null;
     globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
         const req = new Request(input instanceof URL ? input.toString() : typeof input === "string" ? `http://wails.localhost${input}` : input, init);
-        chatObserverHeader = req.headers.get("X-Beeftv-Observer-Mode");
+        chatObserverHeader = req.headers.get("X-Luckytv-Observer-Mode");
         return new Response('{"type":"observer_error","reason":"buffered_transport"}\n', {
             status: 200,
             headers: { "Content-Type": "application/x-ndjson" },

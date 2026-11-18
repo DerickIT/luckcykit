@@ -1,9 +1,9 @@
 package app
 
 import (
-	"infinite-canvas/backend/internal/admin"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/admin"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
 )
 
 type (

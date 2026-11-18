@@ -2,7 +2,7 @@ package editing
 
 import (
 	"fmt"
-	"infinite-canvas/backend/internal/mediatools"
+	"luckytv/backend/internal/mediatools"
 	"math"
 	"strings"
 )

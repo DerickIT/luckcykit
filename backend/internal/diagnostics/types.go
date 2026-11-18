@@ -1,9 +1,9 @@
 package diagnostics
 
 import (
-	"infinite-canvas/backend/internal/environment"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/supporttrace"
+	"luckytv/backend/internal/environment"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/supporttrace"
 	"time"
 )
 

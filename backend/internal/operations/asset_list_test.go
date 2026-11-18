@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"testing"
 
-	"infinite-canvas/backend/internal/canvas"
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
-	"infinite-canvas/backend/internal/taskbinding"
+	"luckytv/backend/internal/canvas"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
+	"luckytv/backend/internal/taskbinding"
 )
 
 type unusedDomain struct{}

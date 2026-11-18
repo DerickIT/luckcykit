@@ -7,11 +7,11 @@ import (
 	"strings"
 
 	"gorm.io/gorm"
-	"infinite-canvas/backend/internal/assistantturns"
-	"infinite-canvas/backend/internal/canvas"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/operations"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/assistantturns"
+	"luckytv/backend/internal/canvas"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/operations"
+	localtask "luckytv/backend/internal/task"
 )
 
 type AssistantProductionConfirmation struct {

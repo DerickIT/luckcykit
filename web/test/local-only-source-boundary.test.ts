@@ -91,23 +91,23 @@ describe("local-only source boundary", () => {
 		expect(offenders).toEqual([]);
 	});
 
-	test("frontend source files do not display BeefAPI brand in user-facing string literals", () => {
+	test("frontend source files do not display LuckyAPI brand in user-facing string literals", () => {
 		const offenders: string[] = [];
 		for (const file of walkSourceFiles(srcRoot)) {
 			const literals = readFileSync(file, "utf8").match(/"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`/g) ?? [];
-			if (literals.some((lit) => /BeefAPI/.test(lit.replace(/\$\{[^}]*\}/g, "")))) {
+			if (literals.some((lit) => /LuckyAPI/.test(lit.replace(/\$\{[^}]*\}/g, "")))) {
 				offenders.push(relative(srcRoot, file));
 			}
 		}
 		expect(offenders).toEqual([]);
 	});
 
-	test("frontend source files do not contain beefapi in filenames or file content", () => {
+	test("frontend source files do not contain luckyapi in filenames or file content", () => {
 		const offenders: string[] = [];
 		for (const file of walkSourceFiles(srcRoot)) {
 			const rel = relative(srcRoot, file);
 			const source = readFileSync(file, "utf8");
-			if (/beefapi/i.test(rel) || /beefapi/i.test(source)) {
+			if (/luckyapi/i.test(rel) || /luckyapi/i.test(source)) {
 				offenders.push(rel);
 			}
 		}

@@ -87,12 +87,12 @@ describe("native hash routing detection", () => {
 
 describe("route URL contract", () => {
     test("embedded routes retain the temporary basename in URLs and expose app-relative paths", () => {
-        const runtime = { ...browser("/beeftv/app/session-1/canvas/abc", "?view=grid"), basePath: "/beeftv/app/session-1" };
+        const runtime = { ...browser("/luckytv/app/session-1/canvas/abc", "?view=grid"), basePath: "/luckytv/app/session-1" };
         expect(workspaceRouterHistoryKind(runtime)).toBe("browser");
         expect(appPathname(runtime)).toBe("/canvas/abc");
         expect(appSearch(runtime)).toBe("?view=grid");
-        expect(appHref("/settings?section=channels", runtime)).toBe("https://app.example/beeftv/app/session-1/settings?section=channels");
-        expect(appPathnameFrom("https://app.example/beeftv/app/session-1/canvas/abc", runtime)).toBe("/canvas/abc");
+        expect(appHref("/settings?section=channels", runtime)).toBe("https://app.example/luckytv/app/session-1/settings?section=channels");
+        expect(appPathnameFrom("https://app.example/luckytv/app/session-1/canvas/abc", runtime)).toBe("/canvas/abc");
         expect(appPathnameFrom("/canvas/abc", runtime)).toBe("/canvas/abc");
         expect(appPathname({ ...runtime, location: { ...runtime.location, pathname: runtime.basePath } })).toBe("/");
         expect(appPathname({ ...runtime, location: { ...runtime.location, pathname: `${runtime.basePath}-other/canvas/abc` } })).toBe(`${runtime.basePath}-other/canvas/abc`);

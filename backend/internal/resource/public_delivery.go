@@ -20,13 +20,13 @@ import (
 	"strings"
 	"time"
 
-	localasset "infinite-canvas/backend/internal/asset"
-	"infinite-canvas/backend/internal/assets"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/outbound"
-	"infinite-canvas/backend/internal/platform"
-	"infinite-canvas/backend/internal/repository"
+	localasset "luckytv/backend/internal/asset"
+	"luckytv/backend/internal/assets"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/outbound"
+	"luckytv/backend/internal/platform"
+	"luckytv/backend/internal/repository"
 )
 
 const imageHeaderDecodeLimit = 2 << 20

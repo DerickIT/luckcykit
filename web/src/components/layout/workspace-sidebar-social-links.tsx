@@ -36,19 +36,19 @@ export function WorkspaceSidebarSocialLinks({ collapsed, onExpand }: { collapsed
 
     const close = () => setExpanded(false);
     const openGitHub = async (event: React.MouseEvent<HTMLAnchorElement>) => {
-        const openInBrowser = getDesktopAppBinding()?.OpenBeefTVGitHub;
+        const openInBrowser = getDesktopAppBinding()?.OpenLuckyTVGitHub;
         if (!openInBrowser) return;
         event.preventDefault();
         await openInBrowser();
     };
     const openWebsite = async (event: React.MouseEvent<HTMLAnchorElement>) => {
-        const openInBrowser = getDesktopAppBinding()?.OpenBeefTVWebsite;
+        const openInBrowser = getDesktopAppBinding()?.OpenLuckyTVWebsite;
         if (!openInBrowser) return;
         event.preventDefault();
         await openInBrowser();
     };
     const openX = async (event: React.MouseEvent<HTMLAnchorElement>) => {
-        const openInBrowser = getDesktopAppBinding()?.OpenBeefTVX;
+        const openInBrowser = getDesktopAppBinding()?.OpenLuckyTVX;
         if (!openInBrowser) return;
         event.preventDefault();
         await openInBrowser();
@@ -97,7 +97,7 @@ export function WorkspaceSidebarSocialLinks({ collapsed, onExpand }: { collapsed
                 <button ref={backRef} type="button" className="app-workspace-social-action" aria-label="收起联系方式" title="收起联系方式" onClick={close}>
                     <ArrowLeft aria-hidden="true" strokeWidth={1.8} />
                 </button>
-                <a className="app-workspace-social-action" href="https://beeftv.app/" target="_blank" rel="noopener noreferrer" aria-label="打开 BeefTV 官网" title="BeefTV 官网" onClick={openWebsite}>
+                <a className="app-workspace-social-action" href="https://luckytv.app/" target="_blank" rel="noopener noreferrer" aria-label="打开 LuckyTV 官网" title="LuckyTV 官网" onClick={openWebsite}>
                     <Globe aria-hidden="true" />
                 </a>
                 <Tooltip
@@ -108,7 +108,7 @@ export function WorkspaceSidebarSocialLinks({ collapsed, onExpand }: { collapsed
                     rootClassName="app-workspace-github-tooltip"
                     title={<span className="app-workspace-github-hint">点点 star <Star aria-hidden="true" /></span>}
                 >
-                    <a className="app-workspace-social-action" href="https://github.com/glanderness/BeefTV" target="_blank" rel="noopener noreferrer" aria-label="打开 BeefTV GitHub 仓库" onClick={openGitHub}>
+                    <a className="app-workspace-social-action" href="https://github.com/glanderness/LuckyTV" target="_blank" rel="noopener noreferrer" aria-label="打开 LuckyTV GitHub 仓库" onClick={openGitHub}>
                         <Github aria-hidden="true" />
                     </a>
                 </Tooltip>
@@ -121,13 +121,13 @@ export function WorkspaceSidebarSocialLinks({ collapsed, onExpand }: { collapsed
                     mouseEnterDelay={0}
                     mouseLeaveDelay={0}
                     rootClassName="app-workspace-wechat-popover"
-                    content={<img src={resolveEmbeddedAssetUrl("/beeftv-wechat-qr.png")} width={180} height={180} alt="个人微信二维码" />}
+                    content={<img src={resolveEmbeddedAssetUrl("/luckytv-wechat-qr.png")} width={180} height={180} alt="个人微信二维码" />}
                 >
                     <button type="button" className="app-workspace-social-action" aria-label="查看微信二维码" onClick={() => setWechatOpen(true)}>
                         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={WECHAT_ICON_PATH} /></svg>
                     </button>
                 </Popover>
-                <a className="app-workspace-social-action" href="https://x.com/beefnoode" target="_blank" rel="noopener noreferrer" aria-label="打开 X 主页" title="X" onClick={openX}>
+                <a className="app-workspace-social-action" href="https://x.com/luckynoode" target="_blank" rel="noopener noreferrer" aria-label="打开 X 主页" title="X" onClick={openX}>
                     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={X_ICON_PATH} /></svg>
                 </a>
             </motion.div>

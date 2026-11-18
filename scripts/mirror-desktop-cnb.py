@@ -13,8 +13,8 @@ import urllib.error
 import urllib.request
 from urllib.parse import urlsplit
 
-REPO = "beeftv-downloads/desktop"
-GITHUB = "https://api.github.com/repos/glanderness/BeefTV/releases/tags/"
+REPO = "luckytv-downloads/desktop"
+GITHUB = "https://api.github.com/repos/glanderness/LuckyTV/releases/tags/"
 START = f"https://api.cnb.cool/{REPO}/-/build/start"
 PUBLIC = f"https://cnb.cool/{REPO}/-/releases/download/"
 PLATFORMS = {
@@ -51,7 +51,7 @@ class TriggerUncertain(RuntimeError):
 
 
 def request_json(url, payload=None, token=None):
-    headers = {"Accept": "application/json", "User-Agent": "BeefTV-Release-Mirror"}
+    headers = {"Accept": "application/json", "User-Agent": "LuckyTV-Release-Mirror"}
     if token:
         if url != START:
             raise RuntimeError("Refusing to send the trigger credential to another endpoint")
@@ -83,20 +83,20 @@ def request_json(url, payload=None, token=None):
 
 
 def _expected_release_asset(release, version, platform, suffix, kind):
-    name = f"BeefTV-{version}-{platform}{suffix}"
+    name = f"LuckyTV-{version}-{platform}{suffix}"
     matches = [asset for asset in release.get("assets", []) if asset.get("name") == name]
     if len(matches) != 1:
         raise RuntimeError(f"Missing or duplicate official {kind}: {platform}")
     asset = matches[0]
     if (asset.get("state") != "uploaded" or type(asset.get("size")) is not int or not 1 < asset["size"] <= 2 * 1024 ** 3
             or not re.fullmatch(r"sha256:[a-f0-9]{64}", asset.get("digest") or "")
-            or asset.get("browser_download_url") != f"https://github.com/glanderness/BeefTV/releases/download/{version}/{name}"):
+            or asset.get("browser_download_url") != f"https://github.com/glanderness/LuckyTV/releases/download/{version}/{name}"):
         raise RuntimeError(f"Invalid official {kind} metadata: {platform}")
     return {"platform": platform, "name": name, "size": asset["size"], "sha256": asset["digest"][7:]}
 
 
 def expected_installers(release, version):
-    source = f"https://github.com/glanderness/BeefTV/releases/tag/{version}"
+    source = f"https://github.com/glanderness/LuckyTV/releases/tag/{version}"
     if not release or release.get("tag_name") != version or release.get("draft") or release.get("prerelease") or release.get("html_url") != source:
         raise RuntimeError("Expected a published official release")
     return [_expected_release_asset(release, version, platform, suffix, "installer")
@@ -104,7 +104,7 @@ def expected_installers(release, version):
 
 
 def expected_zips(release, version):
-    source = f"https://github.com/glanderness/BeefTV/releases/tag/{version}"
+    source = f"https://github.com/glanderness/LuckyTV/releases/tag/{version}"
     if not release or release.get("tag_name") != version or release.get("draft") or release.get("prerelease") or release.get("html_url") != source:
         raise RuntimeError("Expected a published official release")
     return [_expected_release_asset(release, version, platform, ".zip", "updater zip")
@@ -112,10 +112,10 @@ def expected_zips(release, version):
 
 
 def expected_deltas(release, version):
-    source = f"https://github.com/glanderness/BeefTV/releases/tag/{version}"
+    source = f"https://github.com/glanderness/LuckyTV/releases/tag/{version}"
     if not release or release.get("tag_name") != version or release.get("draft") or release.get("prerelease") or release.get("html_url") != source:
         raise RuntimeError("Expected a published official release")
-    pattern = re.compile(rf"^BeefTV-{re.escape(version)}-({'|'.join(map(re.escape, PLATFORMS))})-from-(v\d+\.\d+\.\d+)\.delta\.zip$")
+    pattern = re.compile(rf"^LuckyTV-{re.escape(version)}-({'|'.join(map(re.escape, PLATFORMS))})-from-(v\d+\.\d+\.\d+)\.delta\.zip$")
     from_versions = sorted({
         m.group(2) for asset in release.get("assets", [])
         if isinstance(asset, dict) and (m := pattern.match(asset.get("name") or ""))
@@ -150,7 +150,7 @@ def _verify_cnb_zip(version, item, opener=None):
         (f"bytes={prefix}-", f"bytes {prefix}-{total - 1}/{total}", total - prefix),
     ]:
         req = urllib.request.Request(url, headers={
-            "User-Agent": f"BeefTV-Desktop-Updater/{version}",
+            "User-Agent": f"LuckyTV-Desktop-Updater/{version}",
             "Range": range_header,
             "Cache-Control": "no-cache",
         })
@@ -204,13 +204,13 @@ def mirror(version, token, fetch=request_json, sleep=time.sleep, now=time.monoto
     if vtuple < (2, 0, 3):
         raise RuntimeError("Expected a version at or after v2.0.3")
     if not token:
-        raise RuntimeError("Missing repository secret BEEFTV_CNB_TRIGGER_TOKEN")
+        raise RuntimeError("Missing repository secret BEEFTV_CNB_TRIGGER_TOKEN (exposed to the process as LUCKYTV_CNB_TRIGGER_TOKEN)")
     release = fetch(GITHUB + version)
     expected = expected_assets(release, version)
     zips = (expected_zips(release, version) + expected_deltas(release, version)) if vtuple >= (2, 1, 0) else []
     # Issue one POST only. An uncertain response may already have started the job.
     try:
-        started = fetch(START, {"branch": "main", "event": "api_trigger_release", "env": {"BEEFTV_MIRROR_VERSION": version}}, token)
+        started = fetch(START, {"branch": "main", "event": "api_trigger_release", "env": {"LUCKYTV_MIRROR_VERSION": version}}, token)
         if not isinstance(started, dict) or started.get("success") is not True:
             raise RuntimeError("CNB did not accept the mirror trigger")
     except TriggerUncertain:
@@ -218,7 +218,7 @@ def mirror(version, token, fetch=request_json, sleep=time.sleep, now=time.monoto
     deadline = now() + timeout
     while now() < deadline:
         try:
-            record = fetch(PUBLIC + version + "/beeftv-mirror.json")
+            record = fetch(PUBLIC + version + "/luckytv-mirror.json")
             if record_matches(record, release, expected):
                 if zips:
                     verify_zips(version, zips)
@@ -238,7 +238,7 @@ if __name__ == "__main__":
     parser.add_argument("--version", required=True)
     args = parser.parse_args()
     try:
-        mirror(args.version, os.environ.get("BEEFTV_CNB_TRIGGER_TOKEN"))
+        mirror(args.version, os.environ.get("LUCKYTV_CNB_TRIGGER_TOKEN"))
     except RuntimeError as error:
         print(str(error), file=sys.stderr)
         sys.exit(1)

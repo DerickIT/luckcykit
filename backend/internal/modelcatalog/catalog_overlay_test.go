@@ -19,7 +19,7 @@ func officialCatalogVideo(t *testing.T) json.RawMessage {
 	}`)
 }
 
-func TestOverlayCatalogVideoCapabilitiesMatchesOfficialBeefTVContract(t *testing.T) {
+func TestOverlayCatalogVideoCapabilitiesMatchesOfficialLuckyTVContract(t *testing.T) {
 	raw := officialCatalogVideo(t)
 	version := " 1 "
 	items := OverlayCatalogVideoCapabilities([]ChannelModelCatalogItem{{
@@ -69,9 +69,9 @@ func TestMergeCatalogExtrasEnrichesAndAppends(t *testing.T) {
 	}
 }
 
-func TestLoadChannelModelCatalogCustomGeminiAndBeefTV(t *testing.T) {
+func TestLoadChannelModelCatalogCustomGeminiAndLuckyTV(t *testing.T) {
 	raw := officialCatalogVideo(t)
-	beefTVBody, err := json.Marshal(map[string]any{
+	luckyTVBody, err := json.Marshal(map[string]any{
 		"data": []map[string]any{{
 			"id": "doubao-seedance-2-0", "display_name": "Seedance 2.0", "model_type": "video",
 			"video_capabilities": json.RawMessage(raw), "video_capabilities_version": "gateway-1",
@@ -109,22 +109,22 @@ func TestLoadChannelModelCatalogCustomGeminiAndBeefTV(t *testing.T) {
 		t.Fatalf("custom catalog = %#v %v extras=%v", custom, err, extrasCalled)
 	}
 
-	beef, err := LoadChannelModelCatalog(context.Background(), func(context.Context, string, string, string, []ChannelHeader) ([]byte, error) {
-		return beefTVBody, nil
-	}, "https://beeftv.app/v1", "openai", "k", nil, nil)
-	if err != nil || len(beef) != 1 || beef[0].ID != "doubao-seedance-2-0" || beef[0].VideoCapabilitiesVersion == nil || *beef[0].VideoCapabilitiesVersion != "gateway-1" {
-		t.Fatalf("beeftv catalog = %#v %v", beef, err)
+	lucky, err := LoadChannelModelCatalog(context.Background(), func(context.Context, string, string, string, []ChannelHeader) ([]byte, error) {
+		return luckyTVBody, nil
+	}, "https://luckytv.app/v1", "openai", "k", nil, nil)
+	if err != nil || len(lucky) != 1 || lucky[0].ID != "doubao-seedance-2-0" || lucky[0].VideoCapabilitiesVersion == nil || *lucky[0].VideoCapabilitiesVersion != "gateway-1" {
+		t.Fatalf("luckytv catalog = %#v %v", lucky, err)
 	}
 	want, ok := NormalizeCatalogVideoCapability(raw)
 	if !ok {
-		t.Fatal("official contract rejected BeefTV fixture")
+		t.Fatal("official contract rejected LuckyTV fixture")
 	}
 	wantRaw, err := json.Marshal(want)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.Equal(beef[0].VideoCapabilities, wantRaw) {
-		t.Fatalf("BeefTV/WhatsToken overlay drifted: got %s", beef[0].VideoCapabilities)
+	if !bytes.Equal(lucky[0].VideoCapabilities, wantRaw) {
+		t.Fatalf("LuckyTV/WhatsToken overlay drifted: got %s", lucky[0].VideoCapabilities)
 	}
 }
 

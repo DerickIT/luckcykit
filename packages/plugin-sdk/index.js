@@ -1,4 +1,4 @@
-export const BEEFTV_SLOTS = Object.freeze([
+export const LUCKYTV_SLOTS = Object.freeze([
   "canvas.node",
   "canvas.addNodeMenu",
   "canvas.toolbar.main",
@@ -28,7 +28,7 @@ export const BEEFTV_SLOTS = Object.freeze([
   "assistant.toolCard",
 ]);
 
-export const BEEFTV_EVENTS = Object.freeze([
+export const LUCKYTV_EVENTS = Object.freeze([
   "generation.submitted",
   "generation.completed",
   "generation.failed",
@@ -37,8 +37,8 @@ export const BEEFTV_EVENTS = Object.freeze([
 ]);
 
 /**
- * 定义 BeefTV 客户端插件入口函数。
- * @param {(host: import("./index.d.ts").BeefTVPluginHost) => void | (() => void) | Promise<void | (() => void)>} activate
+ * 定义 LuckyTV 客户端插件入口函数。
+ * @param {(host: import("./index.d.ts").LuckyTVPluginHost) => void | (() => void) | Promise<void | (() => void)>} activate
  */
 export function definePlugin(activate) {
   return activate;

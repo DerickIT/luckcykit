@@ -12,73 +12,73 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/playback"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/playback"
 )
 
 const (
-	beefTVSeedanceJSONOverheadBytes = int64(64 << 10)
-	beefTVSeedanceImageMaxBytes     = int64(30 << 20)
-	beefTVSeedanceVideoMaxBytes     = int64(200 << 20)
-	beefTVSeedanceAudioMaxBytes     = int64(15 << 20)
-	beefTVSeedanceUploadTimeout     = 15 * time.Minute
+	luckyTVSeedanceJSONOverheadBytes = int64(64 << 10)
+	luckyTVSeedanceImageMaxBytes     = int64(30 << 20)
+	luckyTVSeedanceVideoMaxBytes     = int64(200 << 20)
+	luckyTVSeedanceAudioMaxBytes     = int64(15 << 20)
+	luckyTVSeedanceUploadTimeout     = 15 * time.Minute
 )
 
 var (
-	errBeefTVSeedanceUploadRedirect    = beeftv.ErrUploadRedirect
-	errBeefTVSeedanceUploadUnavailable = errors.New("暂时无法接收参考素材")
-	errBeefTVSeedanceUploadIncomplete  = beeftv.ErrUploadIncomplete
-	errBeefTVSeedanceUploadFormat      = errors.New("无法识别文件。图片用 PNG、JPEG、WebP、GIF、BMP 或 TIFF。视频用 MP4 或 MOV。音频用 MP3 或 WAV。")
-	errBeefTVSeedanceUploadEmpty       = errors.New("参考素材为空，请重新导入")
+	errLuckyTVSeedanceUploadRedirect    = luckytv.ErrUploadRedirect
+	errLuckyTVSeedanceUploadUnavailable = errors.New("暂时无法接收参考素材")
+	errLuckyTVSeedanceUploadIncomplete  = luckytv.ErrUploadIncomplete
+	errLuckyTVSeedanceUploadFormat      = errors.New("无法识别文件。图片用 PNG、JPEG、WebP、GIF、BMP 或 TIFF。视频用 MP4 或 MOV。音频用 MP3 或 WAV。")
+	errLuckyTVSeedanceUploadEmpty       = errors.New("参考素材为空，请重新导入")
 )
 
 const (
-	BeefTVSeedanceImageMaxBytes = beefTVSeedanceImageMaxBytes
-	BeefTVSeedanceVideoMaxBytes = beefTVSeedanceVideoMaxBytes
-	BeefTVSeedanceUploadTimeout = beefTVSeedanceUploadTimeout
+	LuckyTVSeedanceImageMaxBytes = luckyTVSeedanceImageMaxBytes
+	LuckyTVSeedanceVideoMaxBytes = luckyTVSeedanceVideoMaxBytes
+	LuckyTVSeedanceUploadTimeout = luckyTVSeedanceUploadTimeout
 )
 
 var (
-	ErrBeefTVSeedanceUploadUnavailable = errBeefTVSeedanceUploadUnavailable
-	ErrBeefTVSeedanceUploadIncomplete  = errBeefTVSeedanceUploadIncomplete
+	ErrLuckyTVSeedanceUploadUnavailable = errLuckyTVSeedanceUploadUnavailable
+	ErrLuckyTVSeedanceUploadIncomplete  = errLuckyTVSeedanceUploadIncomplete
 )
 
-type BeefTVSeedanceMediaReader func(kind string, media Media) (data []byte, mime string, skip bool, err error)
+type LuckyTVSeedanceMediaReader func(kind string, media Media) (data []byte, mime string, skip bool, err error)
 
-type BeefTVSeedanceUploadSession = beeftv.UploadSession
-type BeefTVSeedanceUploadComplete = beeftv.UploadedMedia
-type BeefTVSeedanceUploadRequest = beeftv.UploadRequest
-type BeefTVSeedanceMultipartPlan = beeftv.UploadPlan
-type BeefTVSeedanceUploadPart = beeftv.UploadPart
+type LuckyTVSeedanceUploadSession = luckytv.UploadSession
+type LuckyTVSeedanceUploadComplete = luckytv.UploadedMedia
+type LuckyTVSeedanceUploadRequest = luckytv.UploadRequest
+type LuckyTVSeedanceMultipartPlan = luckytv.UploadPlan
+type LuckyTVSeedanceUploadPart = luckytv.UploadPart
 
-// PrepareBeefTVVideoReferences uploads built-in BeefTV local/inline
+// PrepareLuckyTVVideoReferences uploads built-in LuckyTV local/inline
 // references through the same generation key, then rewrites each item to the
 // completed HTTPS URL. PUT uses only the returned headers and known length.
 // Managed uploads must finish before dispatch. Storage failures never send the
 // same large bytes back through the gateway as an inline generation request.
-func PrepareBeefTVVideoReferences(ctx context.Context, config Config, input *Input, read BeefTVSeedanceMediaReader) error {
-	if input == nil || (input.Mode != "" && input.Mode != "video" && input.Upscale == nil) || (!managedConnection(config) && !IsBeefTVVideoConfig(ctx, config)) {
+func PrepareLuckyTVVideoReferences(ctx context.Context, config Config, input *Input, read LuckyTVSeedanceMediaReader) error {
+	if input == nil || (input.Mode != "" && input.Mode != "video" && input.Upscale == nil) || (!managedConnection(config) && !IsLuckyTVVideoConfig(ctx, config)) {
 		return nil
 	}
 	runtime, _ := RuntimeFromContext(ctx)
 	if read == nil {
-		read = ReadBeefTVSeedanceInlineMedia
+		read = ReadLuckyTVSeedanceInlineMedia
 	}
-	for _, group := range BeefTVSeedanceMediaGroups(input) {
+	for _, group := range LuckyTVSeedanceMediaGroups(input) {
 		for index := range group.items {
 			media := &group.items[index]
 			if strings.HasPrefix(media.URL, "asset://") {
-				if managedConnection(config) || requiresBeefTVHTTPReferences(ctx, config) {
+				if managedConnection(config) || requiresLuckyTVHTTPReferences(ctx, config) {
 					return RequestPreparationError{Cause: errors.New("当前模型需要可访问的参考素材链接，请重新导入。本次尚未开始生成")}
 				}
 				continue
 			}
 			uploadCtx := withReferenceUpload(ctx, ReferenceUploadMeta{Kind: group.kind, Index: index + 1})
 			client := managedMediaClient(uploadCtx, config)
-			client.ReferenceUploaded = func(_ beeftv.LocalMediaReference, uploaded beeftv.UploadedMedia) {
+			client.ReferenceUploaded = func(_ luckytv.LocalMediaReference, uploaded luckytv.UploadedMedia) {
 				media.Bytes, media.MimeType = uploaded.Bytes, uploaded.Mime
 			}
-			client.InspectReference = func(_ context.Context, ref beeftv.LocalMediaReference, source io.ReaderAt, size int64, _ string) error {
+			client.InspectReference = func(_ context.Context, ref luckytv.LocalMediaReference, source io.ReaderAt, size int64, _ string) error {
 				media.Bytes = size
 				if group.kind == "image" && (media.Width <= 0 || media.Height <= 0) {
 					if w, h, err := imageHeaderDimensions(io.NewSectionReader(source, 0, size)); err == nil {
@@ -108,7 +108,7 @@ func PrepareBeefTVVideoReferences(ctx context.Context, config Config, input *Inp
 					return io.NopCloser(bytes.NewReader(data)), mime, int64(len(data)), nil
 				}
 			}
-			ref := beeftv.LocalMediaReference{MediaReference: beeftv.MediaReference{Kind: group.kind, Role: referenceMediaLabel(group.kind, index), URL: media.URL}, StorageKey: media.StorageKey, DataURL: media.DataURL, MIME: media.MimeType, Bytes: media.Bytes}
+			ref := luckytv.LocalMediaReference{MediaReference: luckytv.MediaReference{Kind: group.kind, Role: referenceMediaLabel(group.kind, index), URL: media.URL}, StorageKey: media.StorageKey, DataURL: media.DataURL, MIME: media.MimeType, Bytes: media.Bytes}
 			if runtime.Resources == nil && read != nil && !IsPublicMediaURL(ref.URL) && !strings.HasPrefix(firstNonEmpty(ref.DataURL, ref.URL), "data:") {
 				ref.StorageKey = "legacy-reader"
 			}
@@ -131,7 +131,7 @@ func PrepareBeefTVVideoReferences(ctx context.Context, config Config, input *Inp
 			link, err := client.UploadReference(uploadCtx, ref)
 			if err != nil {
 				upload := referenceMediaUploadError(uploadCtx, err)
-				if BeefTVSeedancePreuploadUnavailable(upload) {
+				if LuckyTVSeedancePreuploadUnavailable(upload) {
 					upload.Detail = "参考素材上传暂不可用，本次尚未开始生成。请稍后重试或使用可访问的图片链接"
 				}
 				return RequestPreparationError{Cause: upload}
@@ -144,20 +144,20 @@ func PrepareBeefTVVideoReferences(ctx context.Context, config Config, input *Inp
 	return nil
 }
 
-type BeefTVSeedanceMediaGroup struct {
+type LuckyTVSeedanceMediaGroup struct {
 	kind  string
 	items []Media
 }
 
-func BeefTVSeedanceMediaGroups(input *Input) []BeefTVSeedanceMediaGroup {
-	return []BeefTVSeedanceMediaGroup{
+func LuckyTVSeedanceMediaGroups(input *Input) []LuckyTVSeedanceMediaGroup {
+	return []LuckyTVSeedanceMediaGroup{
 		{"image", input.ReferenceImages},
 		{"video", input.ReferenceVideos},
 		{"audio", input.ReferenceAudios},
 	}
 }
 
-func SkipBeefTVSeedanceMedia(media Media) bool {
+func SkipLuckyTVSeedanceMedia(media Media) bool {
 	value := strings.TrimSpace(media.URL)
 	if strings.HasPrefix(value, "asset://") {
 		return true
@@ -165,8 +165,8 @@ func SkipBeefTVSeedanceMedia(media Media) bool {
 	return IsPublicMediaURL(value)
 }
 
-func ReadBeefTVSeedanceInlineMedia(_ string, media Media) ([]byte, string, bool, error) {
-	if SkipBeefTVSeedanceMedia(media) {
+func ReadLuckyTVSeedanceInlineMedia(_ string, media Media) ([]byte, string, bool, error) {
+	if SkipLuckyTVSeedanceMedia(media) {
 		return nil, "", true, nil
 	}
 	if raw := firstNonEmpty(media.DataURL, media.URL); strings.HasPrefix(strings.TrimSpace(raw), "data:") {
@@ -182,19 +182,19 @@ func ReadBeefTVSeedanceInlineMedia(_ string, media Media) ([]byte, string, bool,
 	return nil, "", true, nil
 }
 
-func ownedSeedanceMediaReader(ctx context.Context, userID string) BeefTVSeedanceMediaReader {
+func ownedSeedanceMediaReader(ctx context.Context, userID string) LuckyTVSeedanceMediaReader {
 	return func(kind string, media Media) ([]byte, string, bool, error) {
-		if SkipBeefTVSeedanceMedia(media) {
+		if SkipLuckyTVSeedanceMedia(media) {
 			return nil, "", true, nil
 		}
 		if raw := firstNonEmpty(media.DataURL, media.URL); strings.HasPrefix(strings.TrimSpace(raw), "data:") {
-			return ReadBeefTVSeedanceInlineMedia(kind, media)
+			return ReadLuckyTVSeedanceInlineMedia(kind, media)
 		}
 		if !strings.HasPrefix(media.StorageKey, "resource:") {
 			return nil, "", true, nil
 		}
 		if media.Bytes > 0 {
-			if err := ValidateBeefTVSeedanceMediaSize(kind, media.Bytes); err != nil {
+			if err := ValidateLuckyTVSeedanceMediaSize(kind, media.Bytes); err != nil {
 				return nil, "", false, err
 			}
 		}
@@ -208,7 +208,7 @@ func ownedSeedanceMediaReader(ctx context.Context, userID string) BeefTVSeedance
 			return nil, "", false, fmt.Errorf("读取任务参考资源失败：%w", err)
 		}
 		defer body.Close()
-		max := BeefTVSeedanceKindMaxBytes(kind)
+		max := LuckyTVSeedanceKindMaxBytes(kind)
 		data, err := io.ReadAll(io.LimitReader(body, max+1))
 		if err != nil {
 			return nil, "", false, fmt.Errorf("读取任务参考资源失败：%w", err)
@@ -232,7 +232,7 @@ func validateSeedanceReferenceCapability(input *Input, kind string, index int, m
 	return nil
 }
 
-func CreateBeefTVSeedanceUpload(ctx context.Context, config Config, request BeefTVSeedanceUploadRequest) (BeefTVSeedanceUploadSession, error) {
+func CreateLuckyTVSeedanceUpload(ctx context.Context, config Config, request LuckyTVSeedanceUploadRequest) (LuckyTVSeedanceUploadSession, error) {
 	session, err := managedMediaClient(ctx, config).CreateUpload(referenceUploadStage(ctx, "create"), request)
 	if err != nil {
 		return session, referenceMediaUploadError(referenceUploadStage(ctx, "create"), err)
@@ -240,7 +240,7 @@ func CreateBeefTVSeedanceUpload(ctx context.Context, config Config, request Beef
 	return session, nil
 }
 
-func CompleteBeefTVSeedanceUpload(ctx context.Context, config Config, session BeefTVSeedanceUploadSession, data []byte) (BeefTVSeedanceUploadComplete, error) {
+func CompleteLuckyTVSeedanceUpload(ctx context.Context, config Config, session LuckyTVSeedanceUploadSession, data []byte) (LuckyTVSeedanceUploadComplete, error) {
 	uploaded, err := managedMediaClient(ctx, config).CompleteUpload(ctx, session, data, "参考素材")
 	if err != nil {
 		return uploaded, referenceMediaUploadError(ctx, err)
@@ -248,8 +248,8 @@ func CompleteBeefTVSeedanceUpload(ctx context.Context, config Config, session Be
 	return uploaded, nil
 }
 
-func BeefTVSeedancePutTimeout(ctx context.Context) time.Duration {
-	timeout := beefTVSeedanceUploadTimeout
+func LuckyTVSeedancePutTimeout(ctx context.Context) time.Duration {
+	timeout := luckyTVSeedanceUploadTimeout
 	if deadline, ok := ctx.Deadline(); ok {
 		if remaining := time.Until(deadline); remaining > 0 && remaining < timeout {
 			return remaining
@@ -258,12 +258,12 @@ func BeefTVSeedancePutTimeout(ctx context.Context) time.Duration {
 	return timeout
 }
 
-func PutBeefTVSeedanceBytes(ctx context.Context, session BeefTVSeedanceUploadSession, data []byte) error {
+func PutLuckyTVSeedanceBytes(ctx context.Context, session LuckyTVSeedanceUploadSession, data []byte) error {
 	client := managedMediaClient(ctx, Config{})
 	var dispatched bool
 	var phase string
 	observe := client.StorageObserve
-	client.StorageObserve = func(value beeftv.UploadObservation) {
+	client.StorageObserve = func(value luckytv.UploadObservation) {
 		dispatched, phase = value.Dispatched, value.Phase
 		if observe != nil {
 			observe(value)
@@ -278,21 +278,21 @@ func PutBeefTVSeedanceBytes(ctx context.Context, session BeefTVSeedanceUploadSes
 	return nil
 }
 
-func ValidateBeefTVSeedanceSession(ctx context.Context, session BeefTVSeedanceUploadSession) error {
+func ValidateLuckyTVSeedanceSession(ctx context.Context, session LuckyTVSeedanceUploadSession) error {
 	runtime, _ := RuntimeFromContext(ctx)
-	return (&beeftv.MediaClient{AllowHTTPTest: runtime.Endpoints.BeefTVVideoBaseURL != ""}).ValidateUploadSession(ctx, session, 0)
+	return (&luckytv.MediaClient{AllowHTTPTest: runtime.Endpoints.LuckyTVVideoBaseURL != ""}).ValidateUploadSession(ctx, session, 0)
 }
 
-func ValidateBeefTVSeedanceSecureURL(ctx context.Context, raw string) error {
+func ValidateLuckyTVSeedanceSecureURL(ctx context.Context, raw string) error {
 	runtime, _ := RuntimeFromContext(ctx)
-	return (&beeftv.MediaClient{AllowHTTPTest: runtime.Endpoints.BeefTVVideoBaseURL != ""}).ValidateUploadURL(ctx, raw)
+	return (&luckytv.MediaClient{AllowHTTPTest: runtime.Endpoints.LuckyTVVideoBaseURL != ""}).ValidateUploadURL(ctx, raw)
 }
 
-func BeefTVSeedanceAllowInsecureTestURL(ctx context.Context, parsed *url.URL) bool {
-	return parsed != nil && parsed.Scheme == "http" && beefTVTestBaseURL(ctx) != ""
+func LuckyTVSeedanceAllowInsecureTestURL(ctx context.Context, parsed *url.URL) bool {
+	return parsed != nil && parsed.Scheme == "http" && luckyTVTestBaseURL(ctx) != ""
 }
 
-func SkipBeefTVSeedancePutHeader(name string) bool {
+func SkipLuckyTVSeedancePutHeader(name string) bool {
 	switch strings.ToLower(strings.TrimSpace(name)) {
 	case "authorization", "proxy-authorization", "cookie", "set-cookie", "host", "content-length", "connection", "transfer-encoding", "te", "trailer", "upgrade", "x-api-key", "x-goog-api-key":
 		return true
@@ -301,7 +301,7 @@ func SkipBeefTVSeedancePutHeader(name string) bool {
 	}
 }
 
-func BeefTVSeedancePreuploadUnavailable(err error) bool {
+func LuckyTVSeedancePreuploadUnavailable(err error) bool {
 	var httpErr HTTPError
 	if !errors.As(err, &httpErr) {
 		return false
@@ -309,7 +309,7 @@ func BeefTVSeedancePreuploadUnavailable(err error) bool {
 	return httpErr.StatusCode == http.StatusNotFound || httpErr.StatusCode == http.StatusNotImplemented
 }
 
-func MapBeefTVSeedanceUploadError(err error, completing bool) error {
+func MapLuckyTVSeedanceUploadError(err error, completing bool) error {
 	if err == nil {
 		return nil
 	}
@@ -320,8 +320,8 @@ func MapBeefTVSeedanceUploadError(err error, completing bool) error {
 	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
 		return err
 	}
-	if errors.Is(err, errBeefTVSeedanceUploadRedirect) {
-		return errBeefTVSeedanceUploadUnavailable
+	if errors.Is(err, errLuckyTVSeedanceUploadRedirect) {
+		return errLuckyTVSeedanceUploadUnavailable
 	}
 	var httpErr HTTPError
 	if errors.As(err, &httpErr) {
@@ -329,24 +329,24 @@ func MapBeefTVSeedanceUploadError(err error, completing bool) error {
 		case http.StatusUnauthorized, http.StatusForbidden:
 			return err
 		case http.StatusServiceUnavailable, http.StatusBadGateway, http.StatusGatewayTimeout:
-			return errBeefTVSeedanceUploadUnavailable
+			return errLuckyTVSeedanceUploadUnavailable
 		case http.StatusBadRequest:
-			if message := BeefTVSeedanceUserErrorMessage(httpErr.Body); message != "" {
+			if message := LuckyTVSeedanceUserErrorMessage(httpErr.Body); message != "" {
 				return errors.New(message)
 			}
 			if completing {
-				return errBeefTVSeedanceUploadIncomplete
+				return errLuckyTVSeedanceUploadIncomplete
 			}
 			return errors.New("请检查文件类型、大小后再提交")
 		}
 	}
 	if completing {
-		return errBeefTVSeedanceUploadIncomplete
+		return errLuckyTVSeedanceUploadIncomplete
 	}
-	return errBeefTVSeedanceUploadUnavailable
+	return errLuckyTVSeedanceUploadUnavailable
 }
 
-func BeefTVSeedanceUserErrorMessage(body string) string {
+func LuckyTVSeedanceUserErrorMessage(body string) string {
 	var payload struct {
 		Error struct {
 			Message string `json:"message"`
@@ -366,26 +366,26 @@ func BeefTVSeedanceUserErrorMessage(body string) string {
 	return message
 }
 
-func BeefTVSeedanceKindMaxBytes(kind string) int64 {
+func LuckyTVSeedanceKindMaxBytes(kind string) int64 {
 	switch strings.ToLower(strings.TrimSpace(kind)) {
 	case "image":
-		return beefTVSeedanceImageMaxBytes
+		return luckyTVSeedanceImageMaxBytes
 	case "video":
-		return beefTVSeedanceVideoMaxBytes
+		return luckyTVSeedanceVideoMaxBytes
 	case "audio":
-		return beefTVSeedanceAudioMaxBytes
+		return luckyTVSeedanceAudioMaxBytes
 	default:
 		return 0
 	}
 }
 
-func ValidateBeefTVSeedanceMediaSize(kind string, size int64) error {
+func ValidateLuckyTVSeedanceMediaSize(kind string, size int64) error {
 	if size <= 0 {
-		return errBeefTVSeedanceUploadEmpty
+		return errLuckyTVSeedanceUploadEmpty
 	}
-	max := BeefTVSeedanceKindMaxBytes(kind)
+	max := LuckyTVSeedanceKindMaxBytes(kind)
 	if max <= 0 {
-		return errBeefTVSeedanceUploadFormat
+		return errLuckyTVSeedanceUploadFormat
 	}
 	if size > max {
 		switch kind {
@@ -396,23 +396,23 @@ func ValidateBeefTVSeedanceMediaSize(kind string, size int64) error {
 		case "audio":
 			return errors.New("参考音频不能超过 15MB")
 		default:
-			return errBeefTVSeedanceUploadFormat
+			return errLuckyTVSeedanceUploadFormat
 		}
 	}
 	return nil
 }
 
-func CanonicalBeefTVSeedanceMime(kind string, declared string, data []byte) (string, error) {
+func CanonicalLuckyTVSeedanceMime(kind string, declared string, data []byte) (string, error) {
 	detected := detectSeedanceMediaContentType(data)
-	if mime, ok := CanonicalBeefTVSeedanceDeclaredMime(kind, detected); ok {
+	if mime, ok := CanonicalLuckyTVSeedanceDeclaredMime(kind, detected); ok {
 		return mime, nil
 	}
 	if detected != "image/avif" && detected != "image/heic" {
-		if mime, ok := CanonicalBeefTVSeedanceDeclaredMime(kind, declared); ok {
+		if mime, ok := CanonicalLuckyTVSeedanceDeclaredMime(kind, declared); ok {
 			return mime, nil
 		}
 	}
-	return "", errBeefTVSeedanceUploadFormat
+	return "", errLuckyTVSeedanceUploadFormat
 }
 
 func detectSeedanceMediaContentType(data []byte) string {
@@ -432,7 +432,7 @@ func detectSeedanceMediaContentType(data []byte) string {
 	return strings.ToLower(strings.TrimSpace(strings.Split(http.DetectContentType(data), ";")[0]))
 }
 
-func CanonicalBeefTVSeedanceDeclaredMime(kind, raw string) (string, bool) {
+func CanonicalLuckyTVSeedanceDeclaredMime(kind, raw string) (string, bool) {
 	mime := strings.ToLower(strings.TrimSpace(raw))
 	if slash := strings.IndexByte(mime, ';'); slash >= 0 {
 		mime = strings.TrimSpace(mime[:slash])

@@ -3,9 +3,9 @@ package handler
 import (
 	"encoding/json"
 
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/operations"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/operations"
+	"luckytv/backend/internal/skills"
 )
 
 // Always replace the host field, including cancelled/error terminals. A model

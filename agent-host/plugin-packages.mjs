@@ -1,4 +1,4 @@
-// BeefTV 插件包运行时装配：单包隔离解析与 pi 扩展工具桥接。
+// LuckyTV 插件包运行时装配：单包隔离解析与 pi 扩展工具桥接。
 // 严格只从 Go 明确启用的插件包目录加载扩展，不扫描 ~/.agents/skills，不读取全局 settings.json。
 // 下载与安装由 Go 负责；读写权限由 Durable 宿主按 Go 的操作描述把关，这里不再重复判断。
 import fs from 'node:fs';
@@ -134,10 +134,10 @@ export async function loadPluginExtensionsFromPackages({
     }
 
     // With no agent resources declared, pi falls back to scanning the whole
-    // package as an extension directory, which would run a BeefTV plugin's web
-    // client here. A BeefTV plugin's agent side is only what it declares.
+    // package as an extension directory, which would run a LuckyTV plugin's web
+    // client here. A LuckyTV plugin's agent side is only what it declares.
     const extensionPaths = extractEnabledResourcePaths(resolved?.extensions)
-      .filter((entry) => !(packageJson.beeftv && path.resolve(entry) === packageDir));
+      .filter((entry) => !(packageJson.luckytv && path.resolve(entry) === packageDir));
     const skillPaths = extractEnabledResourcePaths(resolved?.skills);
 
     let loaded;
@@ -270,7 +270,7 @@ export async function loadPluginExtensionsFromPackages({
             };
           };
           const reportProgress = (progress) => (typeof api?.details === 'function'
-            ? api.details({ beeftvProgress: progress }, context)
+            ? api.details({ luckytvProgress: progress }, context)
             : undefined);
           const ctx = {
             cwd: packageDir,
@@ -296,7 +296,7 @@ export async function loadPluginExtensionsFromPackages({
     if (packageTools.length > 0) {
       const sanitizedId = pluginId.replace(/[^a-zA-Z0-9._-]/g, '_');
       const ext = defineExtension({
-        name: `beeftv.plugin.${sanitizedId}`,
+        name: `luckytv.plugin.${sanitizedId}`,
         tools: packageTools,
       });
       durableExtensions.push(ext);

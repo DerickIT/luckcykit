@@ -13,7 +13,7 @@ func TestCreationDomainDoesNotDependOnApplicationService(t *testing.T) {
 		t.Fatalf("list creation dependencies: %v", err)
 	}
 	for _, dependency := range strings.Fields(string(output)) {
-		if dependency == "infinite-canvas/backend/internal/app" {
+		if dependency == "luckytv/backend/internal/app" {
 			t.Fatal("creation domain still depends on the application service kernel")
 		}
 	}

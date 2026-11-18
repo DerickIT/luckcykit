@@ -5,7 +5,7 @@ import (
 	"errors"
 	"sort"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"

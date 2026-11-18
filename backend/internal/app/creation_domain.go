@@ -3,9 +3,9 @@ package app
 import (
 	"encoding/json"
 
-	"infinite-canvas/backend/internal/canvas"
-	"infinite-canvas/backend/internal/creation"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/canvas"
+	"luckytv/backend/internal/creation"
+	"luckytv/backend/internal/repository"
 )
 
 func (s *Service) Creation() *creation.Service { return s.creationDomain() }

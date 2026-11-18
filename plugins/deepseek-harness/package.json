@@ -1,7 +1,7 @@
 {
-  "name": "dsh-beeftv",
+  "name": "dsh-luckytv",
   "version": "0.1.1",
-  "description": "AI 驱动的视频创作工作台，连接 BeefTV 画布、素材与创作生态。",
+  "description": "AI 驱动的视频创作工作台，连接 LuckyTV 画布、素材与创作生态。",
   "type": "module",
   "main": "host.js",
   "exports": {
@@ -49,9 +49,9 @@
     "dsh-plugin",
     "video",
     "canvas",
-    "beeftv"
+    "luckytv"
   ],
-  "repository": "https://github.com/glanderness/BeefTV",
+  "repository": "https://github.com/glanderness/LuckyTV",
   "scripts": {
     "test": "node --test runtime.test.js await-machine.test.js"
   }

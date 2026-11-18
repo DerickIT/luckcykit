@@ -2,8 +2,8 @@ package operations
 
 import (
 	"encoding/json"
-	"infinite-canvas/backend/internal/assets"
-	"infinite-canvas/backend/internal/editing"
+	"luckytv/backend/internal/assets"
+	"luckytv/backend/internal/editing"
 	"strings"
 )
 

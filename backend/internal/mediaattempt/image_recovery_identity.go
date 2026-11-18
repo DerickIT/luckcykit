@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"gorm.io/gorm"
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/outbound"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/outbound"
 	"net/http"
 	"strings"
 )
@@ -50,7 +50,7 @@ func (s *Service) resolveFrozenChannelID(task model.Task, attempt *model.RouteAt
 		return id
 	}
 	if ManagedTaskConnection(task) {
-		return beeftv.ChannelID
+		return luckytv.ChannelID
 	}
 	channels, err := s.readLocalConfiguredChannels()
 	if err != nil {
@@ -59,7 +59,7 @@ func (s *Service) resolveFrozenChannelID(task model.Task, attempt *model.RouteAt
 	probe := WireRequest{URL: rawURL, Header: header}
 	for _, channel := range channels {
 		id := strings.TrimSpace(channel.ID)
-		if id == "" || id == beeftv.ChannelID || (channel.Enabled != nil && !*channel.Enabled) {
+		if id == "" || id == luckytv.ChannelID || (channel.Enabled != nil && !*channel.Enabled) {
 			continue
 		}
 		if sameFrozenImageIdentity(probe, channel.BaseURL, channel.APIKey, channel.Headers) {
@@ -95,7 +95,7 @@ func (s *Service) ImageRecoveryChannelAvailable(attempt *model.RouteAttempt, wir
 
 	channelID := wire.ChannelID
 	// 只对可明确识别的托管渠道核对原 Bearer 身份。
-	if channelID == beeftv.ChannelID && s.connections.HasManagedCredential() {
+	if channelID == luckytv.ChannelID && s.connections.HasManagedCredential() {
 		key, base, _, _, err := s.connections.LookupManagedCredential()
 		if err != nil {
 			var appErr *kernel.AppError
@@ -107,7 +107,7 @@ func (s *Service) ImageRecoveryChannelAvailable(attempt *model.RouteAttempt, wir
 		if sameFrozenImageIdentity(wire, base, key, nil) {
 			return true, nil
 		}
-		if channelID == beeftv.ChannelID {
+		if channelID == luckytv.ChannelID {
 			return false, nil
 		}
 	}

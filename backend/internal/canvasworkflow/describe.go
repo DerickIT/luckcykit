@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"strings"
 
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/modelcatalog"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/modelcatalog"
 )
 
 const describePrompt = "请根据参考图片反推一段适合用于 AI 生图的提示词。只输出提示词正文，不要解释。覆盖主体、构图、风格、光线、色彩、材质、镜头和氛围。"
@@ -51,8 +51,8 @@ func DescribeRequest(host CompileHost, n Node, resource, operation string) (Reci
 		config := map[string]any{"model": candidate.Model, "interfaceType": candidate.Protocol, "baseUrl": candidate.BaseURL, "capabilityConfig": candidate.CapabilityConfig}
 		input := map[string]any{"mode": "text", "config": config}
 		channelID := candidate.ChannelID
-		if beeftv.IsManagedChannel(candidate.ChannelID, "", candidate.BaseURL) {
-			channelID = "@beeftv"
+		if luckytv.IsManagedChannel(candidate.ChannelID, "", candidate.BaseURL) {
+			channelID = "@luckytv"
 		}
 		if err := RefreshCredentials(host, input, channelID); err != nil {
 			return RecipeRequest{}, err

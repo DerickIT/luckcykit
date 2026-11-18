@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/protocol"
 )
 
 func TestImageMaskPreflightDoesNotRequireReferenceURL(t *testing.T) {

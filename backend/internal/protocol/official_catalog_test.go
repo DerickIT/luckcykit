@@ -12,13 +12,13 @@ import (
 )
 
 const (
-	manifestContractStart            = "<!-- BEEFTV_PLUGIN_MANIFEST_START -->"
-	manifestContractEnd              = "<!-- BEEFTV_PLUGIN_MANIFEST_END -->"
+	manifestContractStart            = "<!-- LUCKYTV_PLUGIN_MANIFEST_START -->"
+	manifestContractEnd              = "<!-- LUCKYTV_PLUGIN_MANIFEST_END -->"
 	manifestDocumentationPlaceholder = "<当前插件的完整 documentation，由 README.md 与 docs/interface.md 拼接而成；为避免 JSON 递归，此处不重复展开正文。>"
 )
 
 func TestOfficialProtocolPackagesAreSelfContainedDeclarativePlugins(t *testing.T) {
-	paths, err := filepath.Glob(filepath.Join("..", "..", "..", "plugin-packages", "*.beeftv-plugin"))
+	paths, err := filepath.Glob(filepath.Join("..", "..", "..", "plugin-packages", "*.luckytv-plugin"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -38,7 +38,7 @@ func TestOfficialProtocolPackagesAreSelfContainedDeclarativePlugins(t *testing.T
 		if err != nil {
 			t.Fatalf("parse %s: %v", filepath.Base(path), err)
 		}
-		if pkg.Manifest.APIVersion != "beeftv.plugin/v2" && pkg.Manifest.APIVersion != "beeftv.plugin/v3" {
+		if pkg.Manifest.APIVersion != "luckytv.plugin/v2" && pkg.Manifest.APIVersion != "luckytv.plugin/v3" {
 			t.Fatalf("%s apiVersion = %q", filepath.Base(path), pkg.Manifest.APIVersion)
 		}
 		if len(pkg.Files["README.md"]) == 0 || len(pkg.Files["docs/interface.md"]) == 0 {
@@ -85,7 +85,7 @@ func TestOfficialProtocolPackagesAreSelfContainedDeclarativePlugins(t *testing.T
 // 各家 OpenAI 兼容服务共用一个接口；旧的服务商专属 ID 仍要解析到它，旧配置里放在旧命名空间下的
 // 参数也要照样发出去，否则合并会悄悄改掉已保存连接的请求。
 func TestOpenAICompatibleChatServesRetiredVendorIDs(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("..", "..", "..", "plugin-packages", "openai-chat-completions.beeftv-plugin"))
+	data, err := os.ReadFile(filepath.Join("..", "..", "..", "plugin-packages", "openai-chat-completions.luckytv-plugin"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -148,7 +148,7 @@ func TestOpenAICompatibleChatServesRetiredVendorIDs(t *testing.T) {
 }
 
 func TestManifestRejectsLegacyAliasThatCollides(t *testing.T) {
-	manifest := Manifest{APIVersion: "beeftv.plugin/v2"}
+	manifest := Manifest{APIVersion: "luckytv.plugin/v2"}
 	manifest.Metadata.ID, manifest.Metadata.Name, manifest.Metadata.Version = "dup", "Dup", "1.0.0"
 	manifest.Contributes.Providers = []ManifestProvider{{
 		ID: "chat-a", Label: "A", LegacyAliases: []string{"chat-a"},
@@ -207,19 +207,19 @@ func TestOfficialAgentProfilesMapToolRequestsAndResponses(t *testing.T) {
 		name, packageName, providerID, marker, wantPath, response, wantID, wantSignature string
 	}{
 		{
-			name: "openai-chat", packageName: "openai-chat-completions.beeftv-plugin", providerID: "chat-completion", marker: "chat", wantPath: "/chat/completions", wantID: "call-chat",
+			name: "openai-chat", packageName: "openai-chat-completions.luckytv-plugin", providerID: "chat-completion", marker: "chat", wantPath: "/chat/completions", wantID: "call-chat",
 			response: `{"choices":[{"message":{"content":"chat answer","tool_calls":[{"id":"call-chat","function":{"name":"canvas_get_state","arguments":"{\"scope\":\"all\"}"}}]}}]}`,
 		},
 		{
-			name: "openai-responses", packageName: "openai-responses.beeftv-plugin", providerID: "openai-response", marker: "responses", wantPath: "/responses", wantID: "call-responses",
+			name: "openai-responses", packageName: "openai-responses.luckytv-plugin", providerID: "openai-response", marker: "responses", wantPath: "/responses", wantID: "call-responses",
 			response: `{"output_text":"responses answer","output":[{"type":"message"},{"type":"function_call","call_id":"call-responses","name":"canvas_get_state","arguments":"{\"scope\":\"all\"}"}]}`,
 		},
 		{
-			name: "anthropic", packageName: "anthropic-messages.beeftv-plugin", providerID: "claude-api", marker: "claude", wantPath: "/v1/messages", wantID: "call-claude",
+			name: "anthropic", packageName: "anthropic-messages.luckytv-plugin", providerID: "claude-api", marker: "claude", wantPath: "/v1/messages", wantID: "call-claude",
 			response: `{"content":[{"type":"text","text":"claude answer"},{"type":"tool_use","id":"call-claude","name":"canvas_get_state","input":{"scope":"all"}}]}`,
 		},
 		{
-			name: "gemini", packageName: "google-gemini-generate-content.beeftv-plugin", providerID: "gemini-generate-content", marker: "gemini", wantPath: "/v1beta/models/gemini-test:generateContent", wantSignature: "signature-1",
+			name: "gemini", packageName: "google-gemini-generate-content.luckytv-plugin", providerID: "gemini-generate-content", marker: "gemini", wantPath: "/v1beta/models/gemini-test:generateContent", wantSignature: "signature-1",
 			response: `{"candidates":[{"content":{"parts":[{"text":"gemini answer"},{"functionCall":{"name":"canvas_get_state","args":{"scope":"all"}},"thoughtSignature":"signature-1"}]}}]}`,
 		},
 	}
@@ -277,7 +277,7 @@ func TestOfficialVideoProfilesPreserveExplicitMediaRoles(t *testing.T) {
 		assert      func(t *testing.T, spec RequestSpec)
 	}{
 		{
-			packageName: "minimax-hailuo-video-v2.beeftv-plugin", providerID: "minimax-video", model: "MiniMax-H3", resolution: "1080P",
+			packageName: "minimax-hailuo-video-v2.luckytv-plugin", providerID: "minimax-video", model: "MiniMax-H3", resolution: "1080P",
 			assert: func(t *testing.T, spec RequestSpec) {
 				body := manifestTestBody(t, spec)
 				content, _ := body["content"].([]any)
@@ -292,7 +292,7 @@ func TestOfficialVideoProfilesPreserveExplicitMediaRoles(t *testing.T) {
 			},
 		},
 		{
-			packageName: "newapi-media-task-v1.beeftv-plugin", providerID: "newapi-channel-1", model: "minimax-h3", resolution: "720P",
+			packageName: "newapi-media-task-v1.luckytv-plugin", providerID: "newapi-channel-1", model: "minimax-h3", resolution: "720P",
 			assert: func(t *testing.T, spec RequestSpec) {
 				body := manifestTestBody(t, spec)
 				input, _ := body["input"].(map[string]any)
@@ -305,7 +305,7 @@ func TestOfficialVideoProfilesPreserveExplicitMediaRoles(t *testing.T) {
 			},
 		},
 		{
-			packageName: "agnes-video-25.beeftv-plugin", providerID: "agnes-video", model: "agnes-video-2.5", resolution: "720P",
+			packageName: "agnes-video-25.luckytv-plugin", providerID: "agnes-video", model: "agnes-video-2.5", resolution: "720P",
 			assert: func(t *testing.T, spec RequestSpec) {
 				body := manifestTestBody(t, spec)
 				if body["mode"] != "keyframe" || body["first_frame"] != "https://cdn.example/first.png" || body["last_frame"] != "https://cdn.example/last.png" {
@@ -314,7 +314,7 @@ func TestOfficialVideoProfilesPreserveExplicitMediaRoles(t *testing.T) {
 			},
 		},
 		{
-			packageName: "dashscope-wan-video.beeftv-plugin", providerID: "dashscope-wan-video", model: "wan2.2-kf2v-flash", resolution: "720P",
+			packageName: "dashscope-wan-video.luckytv-plugin", providerID: "dashscope-wan-video", model: "wan2.2-kf2v-flash", resolution: "720P",
 			assert: func(t *testing.T, spec RequestSpec) {
 				body := manifestTestBody(t, spec)
 				input, _ := body["input"].(map[string]any)
@@ -347,7 +347,7 @@ func TestOfficialVideoProfilesPreserveExplicitMediaRoles(t *testing.T) {
 
 func TestOfficialVideoProfilesPassThroughCustomDuration(t *testing.T) {
 	t.Run("minimax-video", func(t *testing.T) {
-		adapter := officialPackageAdapter(t, "minimax-hailuo-video-v2.beeftv-plugin", "minimax-video")
+		adapter := officialPackageAdapter(t, "minimax-hailuo-video-v2.luckytv-plugin", "minimax-video")
 		spec, err := adapter.BuildCreate(context.Background(), RequestContext{Request: GenerationRequest{
 			Model: "MiniMax-H3", Prompt: "custom duration clip", Duration: 30, AspectRatio: "16:9", Resolution: "768P",
 		}})
@@ -360,7 +360,7 @@ func TestOfficialVideoProfilesPassThroughCustomDuration(t *testing.T) {
 		}
 	})
 	t.Run("agnes-video", func(t *testing.T) {
-		adapter := officialPackageAdapter(t, "agnes-video-25.beeftv-plugin", "agnes-video")
+		adapter := officialPackageAdapter(t, "agnes-video-25.luckytv-plugin", "agnes-video")
 		spec, err := adapter.BuildCreate(context.Background(), RequestContext{Request: GenerationRequest{
 			Model: "agnes-video-2.5", Prompt: "custom duration clip", Duration: 30, AspectRatio: "16:9", Resolution: "720P",
 		}})
@@ -375,7 +375,7 @@ func TestOfficialVideoProfilesPassThroughCustomDuration(t *testing.T) {
 }
 
 func TestNewAPIChannel1AddsSeedanceContentAliasAndParsesDataURL(t *testing.T) {
-	adapter := officialPackageAdapter(t, "newapi-media-task-v1.beeftv-plugin", "newapi-channel-1")
+	adapter := officialPackageAdapter(t, "newapi-media-task-v1.luckytv-plugin", "newapi-channel-1")
 	spec, err := adapter.BuildCreate(context.Background(), RequestContext{Request: GenerationRequest{
 		Capability: CapabilityVideo, Model: "seedance-2-0-fast", Prompt: "a red glass cube", Duration: 6,
 		AspectRatio: "9:16", Resolution: "480p",
@@ -410,7 +410,7 @@ func TestNewAPIChannel1AddsSeedanceContentAliasAndParsesDataURL(t *testing.T) {
 }
 
 func TestOfficialWanProfilesUseMutuallyExclusiveReferenceFields(t *testing.T) {
-	video := officialPackageAdapter(t, "dashscope-wan-video.beeftv-plugin", "dashscope-wan-video")
+	video := officialPackageAdapter(t, "dashscope-wan-video.luckytv-plugin", "dashscope-wan-video")
 	videoSpec, err := video.BuildCreate(context.Background(), RequestContext{Request: GenerationRequest{
 		Model: "wan2.6-r2v", Prompt: "保持角色一致", Operation: "reference_to_video",
 		Images: []MediaReference{
@@ -431,7 +431,7 @@ func TestOfficialWanProfilesUseMutuallyExclusiveReferenceFields(t *testing.T) {
 		t.Fatalf("Wan reference_images = %#v", references)
 	}
 
-	image := officialPackageAdapter(t, "dashscope-wanx-image.beeftv-plugin", "dashscope-wanx-image")
+	image := officialPackageAdapter(t, "dashscope-wanx-image.luckytv-plugin", "dashscope-wanx-image")
 	for _, test := range []struct {
 		name   string
 		images []MediaReference
@@ -457,7 +457,7 @@ func TestOfficialWanProfilesUseMutuallyExclusiveReferenceFields(t *testing.T) {
 }
 
 func TestOfficialRollDekWanVideoUsesVideosLifecycle(t *testing.T) {
-	adapter := officialPackageAdapter(t, "rolldek-wan-video.beeftv-plugin", "rolldek-wan-video")
+	adapter := officialPackageAdapter(t, "rolldek-wan-video.luckytv-plugin", "rolldek-wan-video")
 	request := GenerationRequest{
 		Model: "wan3.0-video-prime-1080p", Prompt: "保持角色一致", Duration: 11, AspectRatio: "16:9", Resolution: "1080p",
 		Images: []MediaReference{{URL: "https://cdn.example/character.png", Role: "reference_image"}},
@@ -520,7 +520,7 @@ func TestOfficialRollDekWanVideoUsesVideosLifecycle(t *testing.T) {
 }
 
 func TestNewAPIVideoGenerationsParsesNestedTaskIDs(t *testing.T) {
-	adapter := officialPackageAdapter(t, "newapi-video-generations-v1.beeftv-plugin", "newapi-channel-2")
+	adapter := officialPackageAdapter(t, "newapi-video-generations-v1.luckytv-plugin", "newapi-channel-2")
 	tests := []struct {
 		name    string
 		payload string
@@ -544,7 +544,7 @@ func TestNewAPIVideoGenerationsParsesNestedTaskIDs(t *testing.T) {
 }
 
 func TestNewAPIVideoGenerationsParsesNestedVideoResults(t *testing.T) {
-	adapter := officialPackageAdapter(t, "newapi-video-generations-v1.beeftv-plugin", "newapi-channel-2")
+	adapter := officialPackageAdapter(t, "newapi-video-generations-v1.luckytv-plugin", "newapi-channel-2")
 	tests := []struct {
 		name    string
 		payload string
@@ -569,7 +569,7 @@ func TestNewAPIVideoGenerationsParsesNestedVideoResults(t *testing.T) {
 }
 
 func TestOfficialOpenAIVideosDeclaresAuthenticatedResultDownload(t *testing.T) {
-	adapter := officialPackageAdapter(t, "openai-videos.beeftv-plugin", "newapi")
+	adapter := officialPackageAdapter(t, "openai-videos.luckytv-plugin", "newapi")
 	capability, ok := adapter.(ResultCapability)
 	if !ok || !capability.ResultAvailable() {
 		t.Fatal("OpenAI Videos result operation is unavailable")
@@ -593,10 +593,10 @@ func TestOfficialTextProtocolsDeliverInstructions(t *testing.T) {
 	tests := []struct {
 		name, packageName, providerID, messagesField, instructionField string
 	}{
-		{name: "openai-chat", packageName: "openai-chat-completions.beeftv-plugin", providerID: "chat-completion", messagesField: "messages"},
-		{name: "openai-responses", packageName: "openai-responses.beeftv-plugin", providerID: "openai-response", messagesField: "input", instructionField: "instructions"},
-		{name: "anthropic", packageName: "anthropic-messages.beeftv-plugin", providerID: "claude-api", messagesField: "messages", instructionField: "system"},
-		{name: "gemini", packageName: "google-gemini-generate-content.beeftv-plugin", providerID: "gemini-generate-content", messagesField: "contents", instructionField: "systemInstruction"},
+		{name: "openai-chat", packageName: "openai-chat-completions.luckytv-plugin", providerID: "chat-completion", messagesField: "messages"},
+		{name: "openai-responses", packageName: "openai-responses.luckytv-plugin", providerID: "openai-response", messagesField: "input", instructionField: "instructions"},
+		{name: "anthropic", packageName: "anthropic-messages.luckytv-plugin", providerID: "claude-api", messagesField: "messages", instructionField: "system"},
+		{name: "gemini", packageName: "google-gemini-generate-content.luckytv-plugin", providerID: "gemini-generate-content", messagesField: "contents", instructionField: "systemInstruction"},
 	}
 	const instructions = "只输出一个 JSON 对象"
 	for _, test := range tests {
@@ -671,7 +671,7 @@ func manifestTestBody(t *testing.T, spec RequestSpec) map[string]any {
 }
 
 func TestOfficialArkOlderModelsKeepOriginalSizeMapping(t *testing.T) {
-	adapter := officialPackageAdapter(t, "volcengine-ark-seedream.beeftv-plugin", "volcengine-ark-image")
+	adapter := officialPackageAdapter(t, "volcengine-ark-seedream.luckytv-plugin", "volcengine-ark-image")
 	tests := []struct {
 		name, aspectRatio, wantSize string
 	}{
@@ -705,7 +705,7 @@ func TestOfficialArkOlderModelsKeepOriginalSizeMapping(t *testing.T) {
 }
 
 func TestOfficialArkAgentPlanPluginsUsePlanPaths(t *testing.T) {
-	image := officialPackageAdapter(t, "volcengine-ark-agent-plan-seedream.beeftv-plugin", "volcengine-ark-agent-plan-image")
+	image := officialPackageAdapter(t, "volcengine-ark-agent-plan-seedream.luckytv-plugin", "volcengine-ark-agent-plan-image")
 	imageCreate, err := image.BuildCreate(context.Background(), RequestContext{Request: GenerationRequest{Model: "doubao-seedream-5-0-260128", Prompt: "circle", AspectRatio: "1:1"}})
 	if err != nil {
 		t.Fatal(err)
@@ -717,7 +717,7 @@ func TestOfficialArkAgentPlanPluginsUsePlanPaths(t *testing.T) {
 		t.Fatalf("agent plan image size = %#v", body["size"])
 	}
 
-	video := officialPackageAdapter(t, "volcengine-ark-agent-plan-seedance.beeftv-plugin", "volcengine-ark-agent-plan-video")
+	video := officialPackageAdapter(t, "volcengine-ark-agent-plan-seedance.luckytv-plugin", "volcengine-ark-agent-plan-video")
 	videoCreate, err := video.BuildCreate(context.Background(), RequestContext{Request: GenerationRequest{Model: "doubao-seedance-2-0-260128", Prompt: "walk", AspectRatio: "16:9", Resolution: "720p", Duration: 5}})
 	if err != nil {
 		t.Fatal(err)
@@ -735,7 +735,7 @@ func TestOfficialArkAgentPlanPluginsUsePlanPaths(t *testing.T) {
 }
 
 func TestOfficialGeminiImageMapsQualityToImageSize(t *testing.T) {
-	adapter := officialPackageAdapter(t, "google-gemini-image.beeftv-plugin", "gemini-image")
+	adapter := officialPackageAdapter(t, "google-gemini-image.luckytv-plugin", "gemini-image")
 	tests := []struct {
 		name, quality, wantSize string
 		wantOmitted             bool
@@ -781,7 +781,7 @@ func TestOfficialGeminiImageMapsQualityToImageSize(t *testing.T) {
 }
 
 func TestOfficialGeminiImagePrefersQualityOverVideoResolution(t *testing.T) {
-	adapter := officialPackageAdapter(t, "google-gemini-image.beeftv-plugin", "gemini-image")
+	adapter := officialPackageAdapter(t, "google-gemini-image.luckytv-plugin", "gemini-image")
 	tests := []struct {
 		name, quality, resolution, wantSize string
 		wantOmitted                         bool
@@ -815,7 +815,7 @@ func TestOfficialGeminiImagePrefersQualityOverVideoResolution(t *testing.T) {
 }
 
 func TestOfficialGrokImageMapsAspectAndResolution(t *testing.T) {
-	adapter := officialPackageAdapter(t, "xai-grok-images.beeftv-plugin", "grok-image")
+	adapter := officialPackageAdapter(t, "xai-grok-images.luckytv-plugin", "grok-image")
 	create, err := adapter.BuildCreate(context.Background(), RequestContext{Request: GenerationRequest{
 		Model: "grok-imagine-image", Prompt: "a cat", AspectRatio: "1280x720", Quality: "high",
 	}})
@@ -835,7 +835,7 @@ func TestOfficialGrokImageMapsAspectAndResolution(t *testing.T) {
 }
 
 func TestOfficialJimengImageSplitsPixelSize(t *testing.T) {
-	adapter := officialPackageAdapter(t, "volcengine-jimeng-image.beeftv-plugin", "volcengine-jimeng-image")
+	adapter := officialPackageAdapter(t, "volcengine-jimeng-image.luckytv-plugin", "volcengine-jimeng-image")
 	create, err := adapter.BuildCreate(context.Background(), RequestContext{Request: GenerationRequest{
 		Model: "jimeng_t2i_v40", Prompt: "still", AspectRatio: "1024x768",
 		Images: []MediaReference{{DataURL: "data:image/png;base64,aGVsbG8="}},
@@ -854,7 +854,7 @@ func TestOfficialJimengImageSplitsPixelSize(t *testing.T) {
 }
 
 func TestOfficialJimengVideoUsesOfficialFramesAspectAndQueryConfig(t *testing.T) {
-	adapter := officialPackageAdapter(t, "volcengine-jimeng-video.beeftv-plugin", "volcengine-jimeng-video")
+	adapter := officialPackageAdapter(t, "volcengine-jimeng-video.luckytv-plugin", "volcengine-jimeng-video")
 	for _, test := range []struct {
 		duration int
 		frames   float64
@@ -891,7 +891,7 @@ func TestOfficialJimengVideoUsesOfficialFramesAspectAndQueryConfig(t *testing.T)
 }
 
 func TestOfficialJimengVideoSendsReqJSONOnQueryOnly(t *testing.T) {
-	adapter := officialPackageAdapter(t, "volcengine-jimeng-video.beeftv-plugin", "volcengine-jimeng-video")
+	adapter := officialPackageAdapter(t, "volcengine-jimeng-video.luckytv-plugin", "volcengine-jimeng-video")
 	request := GenerationRequest{
 		Model: "jimeng_t2v_v30", Prompt: "镜头推进", Duration: 5,
 		ProviderOptions: map[string]map[string]any{"volcengine-jimeng-video": {"req_json": `{"return_url":true}`}},
@@ -926,7 +926,7 @@ func TestOfficialJimengVideoSendsReqJSONOnQueryOnly(t *testing.T) {
 }
 
 func TestOfficialJimengVideoTreatsCode10000AsSuccess(t *testing.T) {
-	adapter := officialPackageAdapter(t, "volcengine-jimeng-video.beeftv-plugin", "volcengine-jimeng-video")
+	adapter := officialPackageAdapter(t, "volcengine-jimeng-video.luckytv-plugin", "volcengine-jimeng-video")
 	done, err := adapter.ParsePoll(context.Background(), PollContext{TaskID: "task-1"}, []byte(`{"code":10000,"data":{"status":"done","video_url":"https://cdn.example/clip.mp4"}}`))
 	if err != nil {
 		t.Fatal(err)
@@ -952,7 +952,7 @@ func TestOfficialJimengVideoTreatsCode10000AsSuccess(t *testing.T) {
 
 func TestDeclarativeSuccessCodesOnlyApplyToProtocolsThatDeclareThem(t *testing.T) {
 	body := `{"code":10000,"data":{"status":"done","video_url":"https://cdn.example/clip.mp4"}}`
-	base := `{"apiVersion":"beeftv.plugin/v1","id":"success-code-test","version":"1.0.0","name":"Success Code Test","author":"Test","documentation":"# Success Code Test","contributes":{"providers":[{"id":"success-code-test","label":"Success Code Test","capabilities":["video"],"scopes":["canvas"],"create":{"method":"POST","path":"/tasks"},"response":{"statusPaths":["data.status"],"videos":["data.video_url"],"errorPaths":["code"],"messagePaths":["message"]%s}}]}}`
+	base := `{"apiVersion":"luckytv.plugin/v1","id":"success-code-test","version":"1.0.0","name":"Success Code Test","author":"Test","documentation":"# Success Code Test","contributes":{"providers":[{"id":"success-code-test","label":"Success Code Test","capabilities":["video"],"scopes":["canvas"],"create":{"method":"POST","path":"/tasks"},"response":{"statusPaths":["data.status"],"videos":["data.video_url"],"errorPaths":["code"],"messagePaths":["message"]%s}}]}}`
 	for name, test := range map[string]struct {
 		response string
 		want     Status
@@ -978,7 +978,7 @@ func TestDeclarativeSuccessCodesOnlyApplyToProtocolsThatDeclareThem(t *testing.T
 }
 
 func TestOfficialOpenAIAudioUsesBinaryPayload(t *testing.T) {
-	adapter := officialPackageAdapter(t, "openai-audio.beeftv-plugin", "openai-audio")
+	adapter := officialPackageAdapter(t, "openai-audio.luckytv-plugin", "openai-audio")
 	result, err := adapter.ParseCreate(context.Background(), []byte("ID3fake-mp3"))
 	if err != nil {
 		t.Fatal(err)
@@ -989,7 +989,7 @@ func TestOfficialOpenAIAudioUsesBinaryPayload(t *testing.T) {
 }
 
 func TestOfficialOpenAIAudioSpeedDefaultsInvalidAndZeroValues(t *testing.T) {
-	adapter := officialPackageAdapter(t, "openai-audio.beeftv-plugin", "openai-audio")
+	adapter := officialPackageAdapter(t, "openai-audio.luckytv-plugin", "openai-audio")
 	for _, test := range []struct {
 		name  string
 		value any
@@ -1018,8 +1018,8 @@ func TestOfficialArkSeedreamParsesB64JSONAsDataURL(t *testing.T) {
 	for _, tc := range []struct {
 		packageName, providerID string
 	}{
-		{"volcengine-ark-seedream.beeftv-plugin", "volcengine-ark-image"},
-		{"volcengine-ark-agent-plan-seedream.beeftv-plugin", "volcengine-ark-agent-plan-image"},
+		{"volcengine-ark-seedream.luckytv-plugin", "volcengine-ark-image"},
+		{"volcengine-ark-agent-plan-seedream.luckytv-plugin", "volcengine-ark-agent-plan-image"},
 	} {
 		t.Run(tc.providerID, func(t *testing.T) {
 			adapter := officialPackageAdapter(t, tc.packageName, tc.providerID)
@@ -1040,7 +1040,7 @@ func TestOfficialArkSeedreamParsesB64JSONAsDataURL(t *testing.T) {
 }
 
 func TestOfficialKlingVideoAndImageFollowOfficialContract(t *testing.T) {
-	videoAdapter := officialPackageAdapter(t, "kling-video.beeftv-plugin", "kling-video")
+	videoAdapter := officialPackageAdapter(t, "kling-video.luckytv-plugin", "kling-video")
 	t2v, err := videoAdapter.BuildCreate(context.Background(), RequestContext{Request: GenerationRequest{
 		Model: "kling-v2-master", Prompt: "镜头推进", Duration: 5, AspectRatio: "16:9",
 	}})
@@ -1073,7 +1073,7 @@ func TestOfficialKlingVideoAndImageFollowOfficialContract(t *testing.T) {
 		t.Fatalf("Kling video poll result = %#v", pollResult)
 	}
 
-	imageAdapter := officialPackageAdapter(t, "kling-image.beeftv-plugin", "kling-image")
+	imageAdapter := officialPackageAdapter(t, "kling-image.luckytv-plugin", "kling-image")
 	imgCreate, err := imageAdapter.BuildCreate(context.Background(), RequestContext{Request: GenerationRequest{
 		Model: "kling-v2", Prompt: "电影感海报", ImageCount: 2, AspectRatio: "16:9",
 	}})
@@ -1101,8 +1101,8 @@ func TestAgnesVideoPluginsAllowLocalReferenceMediaAndMapUnassignedImage(t *testi
 	for _, pkg := range []struct {
 		file, id string
 	}{
-		{"agnes-video-25.beeftv-plugin", "agnes-video"},
-		{"agnes-video-v20.beeftv-plugin", "agnes-video-v20"},
+		{"agnes-video-25.luckytv-plugin", "agnes-video"},
+		{"agnes-video-v20.luckytv-plugin", "agnes-video-v20"},
 	} {
 		adapter := officialPackageAdapter(t, pkg.file, pkg.id)
 		meta := adapter.Metadata()
@@ -1110,7 +1110,7 @@ func TestAgnesVideoPluginsAllowLocalReferenceMediaAndMapUnassignedImage(t *testi
 			t.Fatalf("%s media metadata = %#v, want requiresPublicMediaUrls=true and inline image transport", pkg.file, meta)
 		}
 	}
-	v20 := officialPackageAdapter(t, "agnes-video-v20.beeftv-plugin", "agnes-video-v20")
+	v20 := officialPackageAdapter(t, "agnes-video-v20.luckytv-plugin", "agnes-video-v20")
 	spec, err := v20.BuildCreate(context.Background(), RequestContext{Request: GenerationRequest{
 		Model: "agnes-video-v2.0", Prompt: "角色转身", Duration: 5, AspectRatio: "16:9", Resolution: "720p",
 		Images: []MediaReference{{DataURL: "data:image/png;base64,Zm9v"}},
@@ -1125,7 +1125,7 @@ func TestAgnesVideoPluginsAllowLocalReferenceMediaAndMapUnassignedImage(t *testi
 }
 
 func TestNewAPIVideoGenerationsIncludesSingularAndArrayImageFields(t *testing.T) {
-	adapter := officialPackageAdapter(t, "newapi-video-generations-v1.beeftv-plugin", "newapi-channel-2")
+	adapter := officialPackageAdapter(t, "newapi-video-generations-v1.luckytv-plugin", "newapi-channel-2")
 	spec, err := adapter.BuildCreate(context.Background(), RequestContext{Request: GenerationRequest{
 		Model: "wan3.0-video", Prompt: "镜头拉远", Duration: 5, AspectRatio: "16:9", Resolution: "720p",
 		Images: []MediaReference{{URL: "https://cdn.example/frame1.png", Role: "first_frame"}},
@@ -1144,7 +1144,7 @@ func TestNewAPIVideoGenerationsIncludesSingularAndArrayImageFields(t *testing.T)
 }
 
 func TestMiniMaxHailuoVideoParsesNestedTaskErrorsAndDataFields(t *testing.T) {
-	adapter := officialPackageAdapter(t, "minimax-hailuo-video-v2.beeftv-plugin", "minimax-video")
+	adapter := officialPackageAdapter(t, "minimax-hailuo-video-v2.luckytv-plugin", "minimax-video")
 	created, err := adapter.ParseCreate(context.Background(), []byte(`{"data":{"task_id":"mm-task-1","status":"Preparing"}}`))
 	if err != nil || created.TaskID != "mm-task-1" || created.Status != StatusPending {
 		t.Fatalf("minimax nested data create = %#v, err = %v", created, err)

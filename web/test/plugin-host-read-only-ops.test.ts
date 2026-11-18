@@ -13,11 +13,11 @@ mock.module("@/services/local-workspace-repository", () => ({
     refreshLocalCanvasProjectIfChanged: async () => {},
 }));
 
-const { createBeefTVPluginHost } = await import("../src/lib/plugins/plugin-host-runtime");
+const { createLuckyTVPluginHost } = await import("../src/lib/plugins/plugin-host-runtime");
 
 test("plugin host treats canvas.nodes.get as read-only and still gives batch configure an op id", async () => {
     calls.length = 0;
-    const host = createBeefTVPluginHost("probe-plugin");
+    const host = createLuckyTVPluginHost("probe-plugin");
     const read = await host.ops.call<{ canvasId: string }>("canvas.nodes.get", { canvasId: "canvas-a", nodeIds: ["n1"] });
     expect(read.canvasId).toBe("canvas-a");
     expect(calls[0].op).toBe("canvas.nodes.get");

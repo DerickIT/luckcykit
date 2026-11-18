@@ -9,8 +9,8 @@ import (
 	"net/url"
 	"strings"
 
-	"infinite-canvas/backend/internal/outbound"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/outbound"
+	"luckytv/backend/internal/protocol"
 )
 
 const defaultProtocolMediaUploadMaxBytes = int64(20 << 20)
@@ -50,7 +50,7 @@ func prepareProtocolMediaUploads(ctx context.Context, userID string, input *Inpu
 		prepared.Mask = &maskCopy
 	}
 
-	for _, group := range BeefTVSeedanceMediaGroups(&prepared) {
+	for _, group := range LuckyTVSeedanceMediaGroups(&prepared) {
 		for index := range group.items {
 			if err := uploadOneProtocolMedia(ctx, userID, input.Config, meta, upload, auth, group.kind, index, &group.items[index]); err != nil {
 				return err

@@ -6,8 +6,8 @@ import (
 	"os"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 )
 
 // BlobStore is the crash-safe byte owner for local resources. FileStore is the

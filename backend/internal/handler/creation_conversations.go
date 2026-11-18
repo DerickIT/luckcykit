@@ -10,8 +10,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/conversation"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/conversation"
 )
 
 const creationConversationMaxBody = conversation.MaxDocumentBytes + (1 << 20)

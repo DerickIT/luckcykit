@@ -84,7 +84,7 @@ func Validate(source, target string) (string, error) {
 	if err := os.MkdirAll(target, 0700); err != nil {
 		return "", fmt.Errorf("新目录无法写入: %w", err)
 	}
-	probe, err := os.CreateTemp(target, ".beeftv-write-check-*")
+	probe, err := os.CreateTemp(target, ".luckytv-write-check-*")
 	if err != nil {
 		return "", fmt.Errorf("新目录无法写入: %w", err)
 	}
@@ -147,7 +147,7 @@ func CopyClosedWorkspace(ctx context.Context, source, target string, observers .
 			return err
 		}
 	}
-	stage, err := os.MkdirTemp(filepath.Dir(target), ".beeftv-migrate-*")
+	stage, err := os.MkdirTemp(filepath.Dir(target), ".luckytv-migrate-*")
 	if err != nil {
 		return err
 	}

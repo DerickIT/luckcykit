@@ -3,7 +3,7 @@ package canvas
 import (
 	"encoding/json"
 
-	"infinite-canvas/backend/internal/asset"
+	"luckytv/backend/internal/asset"
 )
 
 func validateUserAssetDocument(raw json.RawMessage) error {

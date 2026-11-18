@@ -84,7 +84,7 @@ func TestSignVerifyRoundTripAndTamper(t *testing.T) {
 		t.Fatalf("notes %q", body.Notes)
 	}
 	asset := body.Platforms[platformDarwinARM64]
-	if asset.URL != "https://updates.beefapi.com/beeftv/v1.6.0/BeefTV-v1.6.0-darwin-arm64.zip" {
+	if asset.URL != "https://updates.luckyapi.com/luckytv/v1.6.0/LuckyTV-v1.6.0-darwin-arm64.zip" {
 		t.Fatalf("url %q", asset.URL)
 	}
 	if asset.Size <= 0 || len(asset.SHA256) != 64 {
@@ -177,14 +177,14 @@ func TestPrintLdflags(t *testing.T) {
 		t.Fatal(err)
 	}
 	got := strings.TrimSpace(stdout.String())
-	if !strings.Contains(got, "infinite-canvas/backend/internal/desktopupdate.FeedURL="+defaultFeedURL) {
+	if !strings.Contains(got, "luckytv/backend/internal/desktopupdate.FeedURL="+defaultFeedURL) {
 		t.Fatalf("missing feed ldflag: %s", got)
 	}
-	if !strings.Contains(got, "infinite-canvas/backend/internal/desktopupdate.PublicKey="+public) {
+	if !strings.Contains(got, "luckytv/backend/internal/desktopupdate.PublicKey="+public) {
 		t.Fatalf("missing public key ldflag: %s", got)
 	}
 	t.Setenv(publicKeyEnv, public)
-	t.Setenv("BEEFTV_UPDATER_FEED_URL", "https://example.com/desktop-update.json")
+	t.Setenv("LUCKYTV_UPDATER_FEED_URL", "https://example.com/desktop-update.json")
 	stdout.Reset()
 	if err := run([]string{"print-ldflags"}, &stdout, ioDiscard{}); err != nil {
 		t.Fatal(err)
@@ -269,8 +269,8 @@ func TestSignSchema2AndFromEnvelopeWithDomesticMirror(t *testing.T) {
 		t.Fatal(err)
 	}
 	wantURLs := []string{
-		"https://cnb.cool/beeftv-downloads/desktop/-/releases/download/v2.1.0/BeefTV-v2.1.0-darwin-arm64.zip",
-		"https://updates.beefapi.com/beeftv/v2.1.0/BeefTV-v2.1.0-darwin-arm64.zip",
+		"https://cnb.cool/luckytv-downloads/desktop/-/releases/download/v2.1.0/LuckyTV-v2.1.0-darwin-arm64.zip",
+		"https://updates.luckyapi.com/luckytv/v2.1.0/LuckyTV-v2.1.0-darwin-arm64.zip",
 	}
 	gotURLs := domBody.Platforms[platformDarwinARM64].URLs
 	if len(gotURLs) != 2 || gotURLs[0] != wantURLs[0] || gotURLs[1] != wantURLs[1] {
@@ -282,7 +282,7 @@ func TestSignSchema2AndFromEnvelopeWithDomesticMirror(t *testing.T) {
 		"sign",
 		"--schema", "2",
 		"--from-envelope", v1Path,
-		"--domestic-download-base", "https://evil.example.com/beeftv",
+		"--domestic-download-base", "https://evil.example.com/luckytv",
 		"--private-key", privatePath,
 		"--output", filepath.Join(dir, "bad.json"),
 	}, ioDiscard{}, ioDiscard{}); err == nil {
@@ -361,8 +361,8 @@ func TestSignSchema2AndFromEnvelopeWithDomesticMirror(t *testing.T) {
 	}
 	gotDeltaURLs := deltaDomBody.Platforms[platformDarwinARM64].Deltas["v2.0.6"].URLs
 	wantDeltaURLs := []string{
-		"https://cnb.cool/beeftv-downloads/desktop/-/releases/download/v2.1.0/BeefTV-v2.1.0-darwin-arm64-from-v2.0.6.delta.zip",
-		"https://updates.beefapi.com/beeftv/v2.1.0/BeefTV-v2.1.0-darwin-arm64-from-v2.0.6.delta.zip",
+		"https://cnb.cool/luckytv-downloads/desktop/-/releases/download/v2.1.0/LuckyTV-v2.1.0-darwin-arm64-from-v2.0.6.delta.zip",
+		"https://updates.luckyapi.com/luckytv/v2.1.0/LuckyTV-v2.1.0-darwin-arm64-from-v2.0.6.delta.zip",
 	}
 	if len(gotDeltaURLs) != 2 || gotDeltaURLs[0] != wantDeltaURLs[0] || gotDeltaURLs[1] != wantDeltaURLs[1] {
 		t.Fatalf("got delta URLs %v, want %v", gotDeltaURLs, wantDeltaURLs)
@@ -381,17 +381,17 @@ func packageNamed(t *testing.T, dir, platform, version string) string {
 		}
 		writer := zip.NewWriter(file)
 		for name, body := range map[string]string{
-			"BeefTV.app/Contents/MacOS/BeefTV":                                                                   "binary-" + version,
-			"BeefTV.app/Contents/MacOS/cli/beeftv":                                                               "cli",
-			"BeefTV.app/Contents/Info.plist":                                                                     "<plist>" + version + "</plist>",
-			"BeefTV.app/Contents/Resources/plugin-packages/core.beeftv-plugin":                                   "plugin",
-			"BeefTV.app/Contents/Resources/agent-host/server.mjs":                                                "host",
-			"BeefTV.app/Contents/Resources/agent-host/session-identity.mjs":                                      "identity",
-			"BeefTV.app/Contents/Resources/agent-host/canvas-turn.mjs":                                           "turn",
-			"BeefTV.app/Contents/Resources/agent-host/request-budget.mjs":                                        "budget",
-			"BeefTV.app/Contents/Resources/agent-host/package.json":                                              "{}",
-			"BeefTV.app/Contents/Resources/agent-host/runtime/bin/node":                                          "node",
-			"BeefTV.app/Contents/Resources/agent-host/node_modules/@earendil-works/pi-coding-agent/package.json": "{}",
+			"LuckyTV.app/Contents/MacOS/LuckyTV":                                                                   "binary-" + version,
+			"LuckyTV.app/Contents/MacOS/cli/luckytv":                                                               "cli",
+			"LuckyTV.app/Contents/Info.plist":                                                                     "<plist>" + version + "</plist>",
+			"LuckyTV.app/Contents/Resources/plugin-packages/core.luckytv-plugin":                                   "plugin",
+			"LuckyTV.app/Contents/Resources/agent-host/server.mjs":                                                "host",
+			"LuckyTV.app/Contents/Resources/agent-host/session-identity.mjs":                                      "identity",
+			"LuckyTV.app/Contents/Resources/agent-host/canvas-turn.mjs":                                           "turn",
+			"LuckyTV.app/Contents/Resources/agent-host/request-budget.mjs":                                        "budget",
+			"LuckyTV.app/Contents/Resources/agent-host/package.json":                                              "{}",
+			"LuckyTV.app/Contents/Resources/agent-host/runtime/bin/node":                                          "node",
+			"LuckyTV.app/Contents/Resources/agent-host/node_modules/@earendil-works/pi-coding-agent/package.json": "{}",
 		} {
 			header := &zip.FileHeader{Name: name, Method: zip.Deflate}
 			header.SetMode(0o755)
@@ -417,7 +417,7 @@ func packageNamed(t *testing.T, dir, platform, version string) string {
 	}
 	switch platform {
 	case platformDarwinARM64, platformDarwinAMD64:
-		writeFakeDarwinApp(t, filepath.Join(input, "BeefTV.app"))
+		writeFakeDarwinApp(t, filepath.Join(input, "LuckyTV.app"))
 	case platformWindowsAMD64:
 		writeFakeWindowsBin(t, input)
 	}

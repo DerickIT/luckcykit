@@ -5,8 +5,8 @@ import (
 	"reflect"
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/operations"
 )
 
 func externalGenerationFixture(t *testing.T) (*Service, *operations.Registry, string, int64) {

@@ -22,13 +22,13 @@ const ownerToken = process.env.VITE_OWNER_TOKEN?.trim();
 const apiProxyHeaders = desktopLaunchToken ? { "X-Desktop-Token": desktopLaunchToken } : {};
 const opsProxyHeaders = {
     ...apiProxyHeaders,
-    ...(ownerToken ? { "X-Beeftv-Owner": ownerToken } : {}),
+    ...(ownerToken ? { "X-Luckytv-Owner": ownerToken } : {}),
 };
-const heavyMediaEnabled = resolveHeavyMediaEnabled(process.env.BEEFTV_FULL_MEDIA_RESOURCES);
+const heavyMediaEnabled = resolveHeavyMediaEnabled(process.env.LUCKYTV_FULL_MEDIA_RESOURCES);
 
 function pruneOptionalMediaPlugin() {
     return {
-        name: "beeftv-prune-optional-media",
+        name: "luckytv-prune-optional-media",
         closeBundle() {
             const dist = resolve(webDir, "dist");
             // The retired public welcome site is never part of the application.
@@ -47,9 +47,9 @@ function pruneOptionalMediaPlugin() {
 }
 
 function licenseNoticesPlugin(): Plugin {
-    const notices = () => distributionNotices({ version: appVersion, heavyMedia: heavyMediaEnabled, platform: process.env.BEEFTV_DIST_PLATFORM || "web" });
+    const notices = () => distributionNotices({ version: appVersion, heavyMedia: heavyMediaEnabled, platform: process.env.LUCKYTV_DIST_PLATFORM || "web" });
     return {
-        name: "beeftv-license-notices",
+        name: "luckytv-license-notices",
         configureServer(server) {
             server.middlewares.use((request, response, next) => {
                 const name = request.url?.split("?")[0]?.replace(/^\/licenses\//, "");
@@ -77,7 +77,7 @@ export default defineConfig({
     plugins: [react(), pruneOptionalMediaPlugin(), licenseNoticesPlugin()],
     define: {
         __APP_VERSION__: JSON.stringify(appVersion),
-        __BEEFTV_HEAVY_MEDIA_ENABLED__: JSON.stringify(heavyMediaEnabled),
+        __LUCKYTV_HEAVY_MEDIA_ENABLED__: JSON.stringify(heavyMediaEnabled),
         "import.meta.env.VITE_APP_VERSION": JSON.stringify(appVersion),
         "import.meta.env.VITE_BUILD_COMMIT": JSON.stringify(buildCommit),
     },

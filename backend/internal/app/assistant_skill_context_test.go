@@ -10,10 +10,10 @@ import (
 
 	"gorm.io/gorm"
 
-	"infinite-canvas/backend/internal/assistantturns"
-	"infinite-canvas/backend/internal/database"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/assistantturns"
+	"luckytv/backend/internal/database"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/skills"
 )
 
 func TestAssistantSkillContextReceiptSurvivesSkillRemoval(t *testing.T) {

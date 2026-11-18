@@ -3,7 +3,7 @@ package assets
 import (
 	"io"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 type ResourceStream struct {

@@ -8,14 +8,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"infinite-canvas/backend/internal/desktopstorage"
-	"infinite-canvas/backend/internal/desktopupdate"
+	"luckytv/backend/internal/desktopstorage"
+	"luckytv/backend/internal/desktopupdate"
 
-	"github.com/wailsapp/wails/v2"
-	"github.com/wailsapp/wails/v2/pkg/options"
-	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
-	"github.com/wailsapp/wails/v2/pkg/options/mac"
-	"github.com/wailsapp/wails/v2/pkg/options/windows"
+	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
 func main() {
@@ -43,12 +39,11 @@ func main() {
 	}
 	app := newDesktopApp(dataDir)
 	for _, arg := range os.Args[1:] {
-		if strings.HasPrefix(arg, "beeftv:") {
+		if strings.HasPrefix(arg, "luckytv:") {
 			app.queueSkillLink(arg)
 		}
 	}
-	err = runDesktopApp(app, wails.Run)
-	if err != nil {
+	if err := runDesktopApp(app); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -62,59 +57,77 @@ func systemTempDir() string {
 	return os.TempDir()
 }
 
-func runDesktopApp(app *DesktopApp, run func(*options.App) error) error {
+func runDesktopApp(app *DesktopApp) error {
 	if err := configureDesktopTemp(app.dataDir); err != nil {
 		log.Printf("配置数据目录临时文件夹失败，继续使用系统默认临时目录: %v", err)
 	}
-	// Wails must forward a second launch before the primary instance's workspace
-	// lock is acquired. Only OnStartup (or its asset-server fallback) opens it.
-	return run(desktopAppOptions(app))
+	wailsApp := application.New(desktopAppOptions(app))
+	// Register the desktop service so its exported methods are callable from the
+	// frontend. Asset routing is configured via Assets.Handler below.
+	wailsApp.RegisterService(application.NewService(app))
+	configureStartupWindow(wailsApp)
+	window := wailsApp.Window.NewWithOptions(desktopWindowOptions())
+	configureWindowStartup(wailsApp, window)
+	wailsApp.OnShutdown(func() { app.shutdown() })
+	return wailsApp.Run()
 }
 
-func desktopAppOptions(app *DesktopApp) *options.App {
-	opts := &options.App{
-		Title:            "BeefTV",
+func desktopWindowOptions() application.WebviewWindowOptions {
+	darkTitle := application.NewRGBPtr(13, 15, 18)
+	return application.WebviewWindowOptions{
+		Name:             mainWindowName,
+		Title:            "LuckyTV",
 		Width:            1440,
 		Height:           960,
-		BackgroundColour: &options.RGBA{R: 13, G: 15, B: 18, A: 255},
-		Mac: &mac.Options{
-			OnUrlOpen: app.queueSkillLink,
-			// WKWebView disables element fullscreen by default, including the
-			// video player's fullscreen control.
-			Preferences: &mac.Preferences{FullscreenEnabled: mac.Enabled},
-		},
-		Windows: &windows.Options{
-			Theme: windows.Dark,
-			CustomTheme: &windows.ThemeSettings{
-				DarkModeTitleBar:          windows.RGB(13, 15, 18),
-				DarkModeTitleBarInactive:  windows.RGB(13, 15, 18),
-				DarkModeTitleText:         windows.RGB(244, 244, 245),
-				DarkModeTitleTextInactive: windows.RGB(161, 161, 170),
-				DarkModeBorder:            windows.RGB(39, 39, 42),
-				DarkModeBorderInactive:    windows.RGB(39, 39, 42),
+		BackgroundColour: application.NewRGB(13, 15, 18),
+		URL:              "/",
+		Hidden:           true,
+		Windows: application.WindowsWindow{
+			Theme: application.Dark,
+			CustomTheme: application.ThemeSettings{
+				DarkModeActive: &application.WindowTheme{
+					TitleBarColour:  darkTitle,
+					TitleTextColour: application.NewRGBPtr(244, 244, 245),
+					BorderColour:    application.NewRGBPtr(39, 39, 42),
+				},
+				DarkModeInactive: &application.WindowTheme{
+					TitleBarColour:  darkTitle,
+					TitleTextColour: application.NewRGBPtr(161, 161, 170),
+					BorderColour:    application.NewRGBPtr(39, 39, 42),
+				},
 			},
 		},
-		AssetServer: &assetserver.Options{
-			Assets:  assets,
-			Handler: desktopAssetHandler{app: app},
+	}
+}
+
+func desktopAppOptions(app *DesktopApp) application.Options {
+	return application.Options{
+		Name:        "LuckyTV",
+		Description: "LuckyTV 本地工作台",
+		Assets: application.AssetOptions{
+			Handler: desktopAssetRouter{
+				api:    desktopAssetHandler{app: app},
+				assets: application.BundledAssetFileServer(assets),
+			},
 		},
-		OnStartup: app.startup,
-		SingleInstanceLock: &options.SingleInstanceLock{
-			UniqueId: skillInstanceID(app.dataDir),
-			OnSecondInstanceLaunch: func(data options.SecondInstanceData) {
+		Mac: application.MacOptions{
+			ApplicationShouldTerminateAfterLastWindowClosed: true,
+		},
+		Windows: application.WindowsOptions{
+			WndClass: startupWindowClass(),
+		},
+		SingleInstance: &application.SingleInstanceOptions{
+			UniqueID: skillInstanceID(app.dataDir),
+			OnSecondInstanceLaunch: func(data application.SecondInstanceData) {
 				for _, arg := range data.Args {
-					if strings.HasPrefix(arg, "beeftv:") {
+					if strings.HasPrefix(arg, "luckytv:") {
 						app.queueSkillLink(arg)
 					}
 				}
 				app.revealWindow()
 			},
 		},
-		OnShutdown: app.shutdown,
-		Bind:       []interface{}{app},
 	}
-	configureStartupWindow(opts)
-	return opts
 }
 
 func prepareDesktopApp(app *DesktopApp) error {

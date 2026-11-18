@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/skills"
 )
 
 type assistantSkillLabelService interface {

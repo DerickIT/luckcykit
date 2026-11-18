@@ -6,8 +6,8 @@ import (
 	"os"
 	"testing"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
 )
 
 // The shared fixture is also consumed by the frontend classifier test, so the

@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/protocol"
 )
 
 // Official packages are immutable inputs shipped with the application. Cache

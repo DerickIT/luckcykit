@@ -75,8 +75,8 @@ export function createOperationBridge({
       method,
       headers: {
         'Content-Type': 'application/json',
-        'X-Beeftv-Agent-Token': hostToken,
-        ...(turnId ? { 'X-Beeftv-Agent-Turn': turnId } : {}),
+        'X-Luckytv-Agent-Token': hostToken,
+        ...(turnId ? { 'X-Luckytv-Agent-Turn': turnId } : {}),
         ...(desktopToken ? { 'X-Desktop-Token': desktopToken } : {}),
       },
       body: body === undefined ? undefined : JSON.stringify(body),

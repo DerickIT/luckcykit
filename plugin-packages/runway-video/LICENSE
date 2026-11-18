@@ -12,10 +12,10 @@ directory:
   `tests/unit/llms/runwayml/videos/test_runway_video_transformation.py`,
   `litellm/constants.py` (the default `X-Runway-Version` value)
 
-They were re-expressed as BeefTV declarative manifest templates and Go tests.
+They were re-expressed as LuckyTV declarative manifest templates and Go tests.
 No Python runtime or Python source is shipped. The derived material is
 distributed under LiteLLM's MIT license, reproduced in full below. Everything
-else in this package is part of BeefTV and uses BeefTV's own license.
+else in this package is part of LuckyTV and uses LuckyTV's own license.
 
 MIT License
 -----------

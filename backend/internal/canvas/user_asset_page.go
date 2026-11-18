@@ -1,6 +1,6 @@
 package canvas
 
-import "infinite-canvas/backend/internal/asset"
+import "luckytv/backend/internal/asset"
 
 type UserAssetPage = asset.UserAssetPage
 type UserAssetPageFilter = asset.UserAssetPageFilter

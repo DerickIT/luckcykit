@@ -5,8 +5,8 @@ import (
 	"errors"
 	"strings"
 
-	"infinite-canvas/backend/internal/assets"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/assets"
+	"luckytv/backend/internal/model"
 )
 
 func (s *Service) RegisterTaskOutputFromTask(task model.Task, decryptedInputJSON string) error {

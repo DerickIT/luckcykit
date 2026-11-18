@@ -1,8 +1,8 @@
 package app
 
 import (
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/modelcatalog"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/modelcatalog"
 )
 
 // AppError 是 service 层对外公开的结构化错误；实现已迁到 kernel。

@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 )
 
 func TestNativeSessionFailureRecordsAreReportedWithoutGuessingBusinessTurn(t *testing.T) {
@@ -37,7 +37,7 @@ func TestNativeSessionFailureRecordsAreReportedWithoutGuessingBusinessTurn(t *te
 				turns[0].SessionID = "different-session"
 			}
 			c := &collection{AssistantTurns: turns, AssistantEvidence: records, Collectors: map[string]CollectorCoverage{"assistantTurns": {Status: "complete"}, "assistantRuntime": {Status: "partial", Reason: "runtime_history_partial"}}}
-			data, err := buildZIP("BeefTV", "DIAG_NATIVE", manifest{SchemaVersion: 3, Collectors: c.Collectors}, c)
+			data, err := buildZIP("LuckyTV", "DIAG_NATIVE", manifest{SchemaVersion: 3, Collectors: c.Collectors}, c)
 			if err != nil {
 				t.Fatal(err)
 			}

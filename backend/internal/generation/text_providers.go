@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"strings"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/protocol"
 )
 
 func RunDeclarativeAgentTask(ctx context.Context, input Input, adapter protocol.AgentAdapter) (map[string]interface{}, error) {

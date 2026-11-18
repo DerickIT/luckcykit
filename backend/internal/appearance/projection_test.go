@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func jsonMarshalSetting(value Setting) (string, error) {

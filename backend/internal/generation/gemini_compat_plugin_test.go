@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/protocol"
 )
 
 // Gemini 的 OpenAI 兼容接口在 /v1beta/openai 下，而共用拼址只会补 /v1；

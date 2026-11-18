@@ -8,7 +8,7 @@ import (
 	"io"
 	"os"
 
-	"infinite-canvas/backend/internal/depthruntime"
+	"luckytv/backend/internal/depthruntime"
 )
 
 func cmdDepthManifest(command string, args []string, stdout, stderr io.Writer) error {

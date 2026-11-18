@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func publicSetting(setting *model.SystemSetting, value Setting) *PublicSetting {

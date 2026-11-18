@@ -17,13 +17,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/assistantruntime"
-	"infinite-canvas/backend/internal/assistantturns"
-	"infinite-canvas/backend/internal/operations"
-	"infinite-canvas/backend/internal/skills"
-	httptransport "infinite-canvas/backend/internal/transport/http"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/assistantruntime"
+	"luckytv/backend/internal/assistantturns"
+	"luckytv/backend/internal/operations"
+	"luckytv/backend/internal/skills"
+	httptransport "luckytv/backend/internal/transport/http"
 )
 
 // agentProxyMaxBody 限制转发体积；解析失败或超限都按真实失败返回。
@@ -462,11 +462,11 @@ func RegisterAgentProxyRoutes(r gin.IRouter, svc *app.Service, clients *agentops
 	})
 
 	r.POST("/assistant/turns/:turnId/proposals/:proposalId/production", func(c *gin.Context) {
-		if strings.TrimSpace(c.GetHeader("X-Beeftv-Client")) != "" || isAssistantHostRequest(c, svc) {
+		if strings.TrimSpace(c.GetHeader("X-Luckytv-Client")) != "" || isAssistantHostRequest(c, svc) {
 			c.JSON(http.StatusForbidden, gin.H{
 				"code":   http.StatusForbidden,
 				"reason": "agent_token_cannot_approve",
-				"msg":    "Agent 自身的凭据不能批准生成单，请使用工作区 owner 凭据或在 BeefTV 界面确认",
+				"msg":    "Agent 自身的凭据不能批准生成单，请使用工作区 owner 凭据或在 LuckyTV 界面确认",
 			})
 			return
 		}
@@ -512,11 +512,11 @@ func RegisterAgentProxyRoutes(r gin.IRouter, svc *app.Service, clients *agentops
 	})
 
 	r.POST("/assistant/generation-orders/:proposalId/approve", func(c *gin.Context) {
-		if strings.TrimSpace(c.GetHeader("X-Beeftv-Client")) != "" || isAssistantHostRequest(c, svc) {
+		if strings.TrimSpace(c.GetHeader("X-Luckytv-Client")) != "" || isAssistantHostRequest(c, svc) {
 			c.JSON(http.StatusForbidden, gin.H{
 				"code":   http.StatusForbidden,
 				"reason": "agent_token_cannot_approve",
-				"msg":    "Agent 自身的凭据不能批准生成单，请使用工作区 owner 凭据或在 BeefTV 界面确认",
+				"msg":    "Agent 自身的凭据不能批准生成单，请使用工作区 owner 凭据或在 LuckyTV 界面确认",
 			})
 			return
 		}
@@ -537,7 +537,7 @@ func RegisterAgentProxyRoutes(r gin.IRouter, svc *app.Service, clients *agentops
 
 	r.POST("/assistant/chat", func(c *gin.Context) {
 		// Only failures before BeginAssistantTurn prove no business turn was admitted.
-		c.Header("X-Beeftv-Turn-Admission", "rejected")
+		c.Header("X-Luckytv-Turn-Admission", "rejected")
 		if !guard(c, true) {
 			return
 		}
@@ -638,16 +638,16 @@ func RegisterAgentProxyRoutes(r gin.IRouter, svc *app.Service, clients *agentops
 		input := assistantTurnInput(payload.SelectedNodeIDs, references)
 		input.PermissionMode = assistantturns.Mode(payload.PermissionMode)
 		input.SkillPins = pins
-		c.Header("X-Beeftv-Turn-Admission", "unknown")
+		c.Header("X-Luckytv-Turn-Admission", "unknown")
 		revisionBefore, snapshotErr := svc.BeginAssistantTurn(c.GetString("agentUserId"), payload.CanvasID, turnID, input)
 		if snapshotErr != nil {
 			// No request has reached the host, even if saving the turn snapshot
 			// failed ambiguously. There can be no model or operation to recover.
-			c.Header("X-Beeftv-Turn-Admission", "rejected")
+			c.Header("X-Luckytv-Turn-Admission", "rejected")
 			failService(c, snapshotErr)
 			return
 		}
-		c.Header("X-Beeftv-Turn-Admission", "admitted")
+		c.Header("X-Luckytv-Turn-Admission", "admitted")
 		// 回合状态由自己的回执结算，和浏览器流是两件事：无论下面走哪条返回路径
 		// （宿主不可达、宿主拒绝、浏览器中途断开、正常结束），都已经落地的操作都要可追溯。
 		settle := false
@@ -705,7 +705,7 @@ func RegisterAgentProxyRoutes(r gin.IRouter, svc *app.Service, clients *agentops
 			// The host can prove it rejected the body before reading a turn or
 			// executing any operation. Preserve uncertainty for other failures.
 			if resp.StatusCode == http.StatusRequestEntityTooLarge && reason == "body_too_large" {
-				c.Header("X-Beeftv-Turn-Admission", "rejected")
+				c.Header("X-Luckytv-Turn-Admission", "rejected")
 			}
 			if reason == "" {
 				reason = "host_unreachable"
@@ -715,7 +715,7 @@ func RegisterAgentProxyRoutes(r gin.IRouter, svc *app.Service, clients *agentops
 		}
 		userID := c.GetString("agentUserId")
 		canvasID := payload.CanvasID
-		if strings.EqualFold(strings.TrimSpace(c.GetHeader("X-Beeftv-Observer-Mode")), "detach") {
+		if strings.EqualFold(strings.TrimSpace(c.GetHeader("X-Luckytv-Observer-Mode")), "detach") {
 			// Windows Wails WebView2 asset proxies buffer full HTTP bodies until
 			// ServeHTTP returns. Detaching immediately lets the UI poll durable
 			// /assistant/history progress while the background drainer settles outputs.

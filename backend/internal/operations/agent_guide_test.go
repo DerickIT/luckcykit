@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"infinite-canvas/backend/internal/agentguide"
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/agentguide"
+	"luckytv/backend/internal/operations"
 )
 
 func TestAgentGuideReturnsSharedSkillText(t *testing.T) {

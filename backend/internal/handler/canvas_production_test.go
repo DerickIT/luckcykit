@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/model"
 )
 
 func TestCanvasProductionHTTPReadsWithoutMutationAndRegistersOnlyExactReadyOutput(t *testing.T) {

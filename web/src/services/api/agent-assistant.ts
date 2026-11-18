@@ -398,7 +398,7 @@ export async function getAgentHostStatus(): Promise<AgentHostStatus> {
 /** UI 会话头由页面内存里的凭据提供；助手的每条路由都走同一套认证。 */
 async function uiSessionConfig() {
     const token = await ensureAgentUiSession();
-    return { headers: { "X-Beeftv-Ui-Session": token } };
+    return { headers: { "X-Luckytv-Ui-Session": token } };
 }
 
 /** 重新拉起助手运行环境。失败必须抛出，界面才不会把「没启动」显示成「已就绪」。 */
@@ -660,9 +660,9 @@ export async function streamAgentChat(
     if (requestId) body.requestId = requestId;
     if (attachments.length) body.attachments = attachments.map(attachmentRequestValue);
     if (skills.length) body.skills = skills.map(({ skillId, versionId, contentHash }) => ({ skillId, versionId, contentHash }));
-    const headers: Record<string, string> = { "Content-Type": "application/json", "X-Beeftv-Ui-Session": token };
+    const headers: Record<string, string> = { "Content-Type": "application/json", "X-Luckytv-Ui-Session": token };
     if (!isDesktopStreamingAvailable()) {
-        headers["X-Beeftv-Observer-Mode"] = "detach";
+        headers["X-Luckytv-Observer-Mode"] = "detach";
     }
     const response = await fetch(`${apiBaseURL}/assistant/chat`, {
         method: "POST",
@@ -676,7 +676,7 @@ export async function streamAgentChat(
         try { reason = JSON.parse(text)?.reason || reason; } catch { /* 非 JSON */ }
         if (response.status === 403 && uiSession?.token === token) resetAgentUiSession();
         const message = agentAssistantFailureText(reason);
-        if (response.headers.get("X-Beeftv-Turn-Admission") === "rejected") {
+        if (response.headers.get("X-Luckytv-Turn-Admission") === "rejected") {
             throw new AgentChatNotAdmittedError(message);
         }
         throw new Error(message);
@@ -797,7 +797,7 @@ export async function cancelAgentChat(canvasId: string, target?: { sessionId: st
     const token = await ensureAgentUiSession();
     const response = await fetch(`${apiBaseURL}/assistant/cancel`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Beeftv-Ui-Session": token },
+        headers: { "Content-Type": "application/json", "X-Luckytv-Ui-Session": token },
         body: JSON.stringify(target ? { canvasId, sessionId: target.sessionId, requestId: target.requestId } : { canvasId }),
     });
     const text = await response.text().catch(() => "");
@@ -817,7 +817,7 @@ export async function steerAgentChat(canvasId: string, sessionId: string, messag
     const token = await ensureAgentUiSession();
     const response = await fetch(`${apiBaseURL}/assistant/steer`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Beeftv-Ui-Session": token },
+        headers: { "Content-Type": "application/json", "X-Luckytv-Ui-Session": token },
         body: JSON.stringify({ canvasId, sessionId, message, ...(input.references?.length ? { references: input.references } : {}), ...(input.attachments?.length ? { attachments: input.attachments.map(attachmentRequestValue) } : {}), ...(input.skills?.length ? { skills: input.skills.map(({ skillId, versionId, contentHash }) => ({ skillId, versionId, contentHash })) } : {}) }),
     });
     let payload: { code?: number; reason?: string; data?: { accepted?: boolean } } | null = null;

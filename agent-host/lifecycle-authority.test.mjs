@@ -76,34 +76,34 @@ async function waitPidExit(pid, ms) {
 function syntheticHostEnv(directory, extra = {}) {
   return {
     ...process.env,
-    BEEFTV_AGENT_DATA_DIR: directory,
-    BEEFTV_AGENT_HOST_TOKEN: extra.hostToken || 'lifecycle-host-token',
-    BEEFTV_AGENT_PORT: String(extra.port),
-    BEEFTV_AGENT_INSTANCE_NONCE: extra.nonce || '',
-    BEEFTV_AGENT_LIFETIME_STDIN: extra.lifetime === false ? '' : '1',
-    BEEFTV_OPS_URL: extra.opsURL,
-    BEEFTV_AGENT_API: 'openai-completions',
-    BEEFTV_AGENT_MODEL: 'synthetic',
-    BEEFTV_AGENT_API_KEY: 'synthetic-only',
-    BEEFTV_AGENT_BASE_URL: extra.modelURL,
-    BEEFTV_AGENT_TOTAL_REQUEST_BUDGET: '0',
+    LUCKYTV_AGENT_DATA_DIR: directory,
+    LUCKYTV_AGENT_HOST_TOKEN: extra.hostToken || 'lifecycle-host-token',
+    LUCKYTV_AGENT_PORT: String(extra.port),
+    LUCKYTV_AGENT_INSTANCE_NONCE: extra.nonce || '',
+    LUCKYTV_AGENT_LIFETIME_STDIN: extra.lifetime === false ? '' : '1',
+    LUCKYTV_OPS_URL: extra.opsURL,
+    LUCKYTV_AGENT_API: 'openai-completions',
+    LUCKYTV_AGENT_MODEL: 'synthetic',
+    LUCKYTV_AGENT_API_KEY: 'synthetic-only',
+    LUCKYTV_AGENT_BASE_URL: extra.modelURL,
+    LUCKYTV_AGENT_TOTAL_REQUEST_BUDGET: '0',
   };
 }
 
 test('server exits when PORT and LISTEN_FD are missing', async () => {
   const { child } = spawnHost({
     ...process.env,
-    BEEFTV_AGENT_PORT: '',
-    BEEFTV_AGENT_LISTEN_FD: '',
-    BEEFTV_AGENT_HOST_TOKEN: 't',
-    BEEFTV_AGENT_DATA_DIR: mkdtempSync(path.join(tmpdir(), 'beeftv lifecycle missing port ')),
+    LUCKYTV_AGENT_PORT: '',
+    LUCKYTV_AGENT_LISTEN_FD: '',
+    LUCKYTV_AGENT_HOST_TOKEN: 't',
+    LUCKYTV_AGENT_DATA_DIR: mkdtempSync(path.join(tmpdir(), 'luckytv lifecycle missing port ')),
   });
   const result = await waitExit(child, 15000);
   expect(result.code).toBe(2);
 },20000);
 
 test('health requires instance nonce and omits the secret; stdin EOF shuts down', async () => {
-  const directory = mkdtempSync(path.join(tmpdir(), 'beeftv lifecycle authority '));
+  const directory = mkdtempSync(path.join(tmpdir(), 'luckytv lifecycle authority '));
   const nonce = 'lifecycle-authority-nonce-value';
   const hostToken = 'lifecycle-host-token';
   const ops = createServer((_req, res) => {
@@ -120,17 +120,17 @@ test('health requires instance nonce and omits the secret; stdin EOF shuts down'
     const port = await reservePort();
     const env = {
       ...process.env,
-      BEEFTV_AGENT_DATA_DIR: directory,
-      BEEFTV_AGENT_HOST_TOKEN: hostToken,
-      BEEFTV_AGENT_PORT: String(port),
-      BEEFTV_AGENT_INSTANCE_NONCE: nonce,
-      BEEFTV_AGENT_LIFETIME_STDIN: '1',
-      BEEFTV_OPS_URL: `http://127.0.0.1:${opsPort}/api`,
-      BEEFTV_AGENT_API: 'openai-completions',
-      BEEFTV_AGENT_MODEL: 'synthetic',
-      BEEFTV_AGENT_API_KEY: 'synthetic-only',
-      BEEFTV_AGENT_BASE_URL: `http://127.0.0.1:${modelPort}/v1`,
-      BEEFTV_AGENT_TOTAL_REQUEST_BUDGET: '0',
+      LUCKYTV_AGENT_DATA_DIR: directory,
+      LUCKYTV_AGENT_HOST_TOKEN: hostToken,
+      LUCKYTV_AGENT_PORT: String(port),
+      LUCKYTV_AGENT_INSTANCE_NONCE: nonce,
+      LUCKYTV_AGENT_LIFETIME_STDIN: '1',
+      LUCKYTV_OPS_URL: `http://127.0.0.1:${opsPort}/api`,
+      LUCKYTV_AGENT_API: 'openai-completions',
+      LUCKYTV_AGENT_MODEL: 'synthetic',
+      LUCKYTV_AGENT_API_KEY: 'synthetic-only',
+      LUCKYTV_AGENT_BASE_URL: `http://127.0.0.1:${modelPort}/v1`,
+      LUCKYTV_AGENT_TOTAL_REQUEST_BUDGET: '0',
     };
     const spawned = spawnHost(env, ['pipe', 'pipe', 'pipe']);
     child = spawned.child;
@@ -143,7 +143,7 @@ test('health requires instance nonce and omits the secret; stdin EOF shuts down'
         const denied = await fetch(base + '/health', { signal: AbortSignal.timeout(500) });
         expect(denied.status).toBe(403);
         const ok = await fetch(base + '/health', {
-          headers: { 'X-Beeftv-Instance-Nonce': nonce, 'X-Beeftv-Agent-Token': hostToken },
+          headers: { 'X-Luckytv-Instance-Nonce': nonce, 'X-Luckytv-Agent-Token': hostToken },
           signal: AbortSignal.timeout(500),
         });
         if (ok.ok) {
@@ -162,18 +162,18 @@ test('health requires instance nonce and omits the secret; stdin EOF shuts down'
     expect(malformed.length).toBe(nonce.length);
     expect(Buffer.from(malformed).length).not.toBe(Buffer.from(nonce).length);
     const badNonce = await fetch(base + '/health', {
-      headers: { 'X-Beeftv-Instance-Nonce': malformed },
+      headers: { 'X-Luckytv-Instance-Nonce': malformed },
       signal: AbortSignal.timeout(2000),
     });
     expect(badNonce.status).toBe(403);
     const malformedToken = hostToken.slice(0, -1) + '\u00ff';
     const badToken = await fetch(base + '/sessions?canvasId=x', {
-      headers: { 'X-Beeftv-Instance-Nonce': nonce, 'X-Beeftv-Agent-Token': malformedToken },
+      headers: { 'X-Luckytv-Instance-Nonce': nonce, 'X-Luckytv-Agent-Token': malformedToken },
       signal: AbortSignal.timeout(2000),
     });
     expect(badToken.status).toBe(403);
     const stillOk = await fetch(base + '/health', {
-      headers: { 'X-Beeftv-Instance-Nonce': nonce, 'X-Beeftv-Agent-Token': hostToken },
+      headers: { 'X-Luckytv-Instance-Nonce': nonce, 'X-Luckytv-Agent-Token': hostToken },
       signal: AbortSignal.timeout(2000),
     });
     expect(stillOk.ok).toBe(true);
@@ -199,7 +199,7 @@ test('health requires instance nonce and omits the secret; stdin EOF shuts down'
 }, 25000);
 
 test('stdio ignore without lifetime flag does not exit immediately', async () => {
-  const directory = mkdtempSync(path.join(tmpdir(), 'beeftv lifecycle ignore '));
+  const directory = mkdtempSync(path.join(tmpdir(), 'luckytv lifecycle ignore '));
   const ops = createServer((_req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({ code: 0, data: { ops: [] } }));
@@ -212,14 +212,14 @@ test('stdio ignore without lifetime flag does not exit immediately', async () =>
     const port = await reservePort();
     const spawned = spawnHost({
       ...process.env,
-      BEEFTV_AGENT_DATA_DIR: directory,
-      BEEFTV_AGENT_HOST_TOKEN: 'lifecycle-host-token',
-      BEEFTV_AGENT_PORT: String(port),
-      BEEFTV_OPS_URL: `http://127.0.0.1:${opsPort}/api`,
-      BEEFTV_AGENT_API: 'openai-completions',
-      BEEFTV_AGENT_MODEL: 'synthetic',
-      BEEFTV_AGENT_API_KEY: 'synthetic-only',
-      BEEFTV_AGENT_BASE_URL: `http://127.0.0.1:${modelPort}/v1`,
+      LUCKYTV_AGENT_DATA_DIR: directory,
+      LUCKYTV_AGENT_HOST_TOKEN: 'lifecycle-host-token',
+      LUCKYTV_AGENT_PORT: String(port),
+      LUCKYTV_OPS_URL: `http://127.0.0.1:${opsPort}/api`,
+      LUCKYTV_AGENT_API: 'openai-completions',
+      LUCKYTV_AGENT_MODEL: 'synthetic',
+      LUCKYTV_AGENT_API_KEY: 'synthetic-only',
+      LUCKYTV_AGENT_BASE_URL: `http://127.0.0.1:${modelPort}/v1`,
     }, ['ignore', 'pipe', 'pipe']);
     child = spawned.child;
     const deadline = Date.now() + 15000;
@@ -248,7 +248,7 @@ test('stdio ignore without lifetime flag does not exit immediately', async () =>
 }, 25000);
 
 test('parent SIGKILL during pending capability discovery shuts the child down promptly', async () => {
-  const directory = mkdtempSync(path.join(tmpdir(), 'beeftv lifecycle discovery '));
+  const directory = mkdtempSync(path.join(tmpdir(), 'luckytv lifecycle discovery '));
   const pidPath = path.join(directory, 'host.pid');
   const opsRef = { server: null };
   let sawOps = false;
@@ -320,7 +320,7 @@ test('parent SIGKILL during pending capability discovery shuts the child down pr
 }, 25000);
 
 test('stdin EOF with an idle HTTP keepalive socket still shuts down promptly', async () => {
-  const directory = mkdtempSync(path.join(tmpdir(), 'beeftv lifecycle keepalive '));
+  const directory = mkdtempSync(path.join(tmpdir(), 'luckytv lifecycle keepalive '));
   const nonce = 'keepalive-nonce-value';
   const hostToken = 'lifecycle-host-token';
   const ops = createServer((_req, res) => {
@@ -348,7 +348,7 @@ test('stdin EOF with an idle HTTP keepalive socket still shuts down promptly', a
       if (child.exitCode !== null) throw new Error('host exited: ' + spawned.getLog());
       try {
         const response = await fetch(`http://127.0.0.1:${port}/health`, {
-          headers: { 'X-Beeftv-Instance-Nonce': nonce, 'X-Beeftv-Agent-Token': hostToken },
+          headers: { 'X-Luckytv-Instance-Nonce': nonce, 'X-Luckytv-Agent-Token': hostToken },
           signal: AbortSignal.timeout(500),
         });
         if (response.ok) { healthy = true; break; }
@@ -362,8 +362,8 @@ test('stdin EOF with an idle HTTP keepalive socket still shuts down promptly', a
         port,
         path: '/health',
         headers: {
-          'X-Beeftv-Instance-Nonce': nonce,
-          'X-Beeftv-Agent-Token': hostToken,
+          'X-Luckytv-Instance-Nonce': nonce,
+          'X-Luckytv-Agent-Token': hostToken,
           Connection: 'keep-alive',
         },
         agent,

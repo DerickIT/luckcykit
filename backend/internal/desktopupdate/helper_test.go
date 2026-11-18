@@ -14,7 +14,7 @@ import (
 func TestMain(m *testing.M) {
 	// A copied test executable is a real PE launch target for the Windows
 	// replacement test, without recursively running this test suite.
-	if os.Getenv("BEEFTV_UPDATER_TEST_LAUNCH") == "1" && len(os.Args) == 1 {
+	if os.Getenv("LUCKYTV_UPDATER_TEST_LAUNCH") == "1" && len(os.Args) == 1 {
 		os.Exit(0)
 	}
 	if done, err := HandleHelperCommand(os.Args); done {
@@ -28,14 +28,14 @@ func TestMain(m *testing.M) {
 }
 
 func TestHandleHelperCommandIgnoresNormalArgs(t *testing.T) {
-	done, err := HandleHelperCommand([]string{"BeefTV"})
+	done, err := HandleHelperCommand([]string{"LuckyTV"})
 	if done || err != nil {
 		t.Fatalf("done=%v err=%v", done, err)
 	}
 }
 
 func TestHandleHelperCommandRequiresRequestPath(t *testing.T) {
-	done, err := HandleHelperCommand([]string{"BeefTV", helperFlag})
+	done, err := HandleHelperCommand([]string{"LuckyTV", helperFlag})
 	if !done || err == nil {
 		t.Fatalf("done=%v err=%v", done, err)
 	}
@@ -47,7 +47,7 @@ func TestSpawnedHelperReplacesInstall(t *testing.T) {
 	if err := WriteDarwinLayout(oldDir, "OLD"); err != nil {
 		t.Fatal(err)
 	}
-	work, err := os.MkdirTemp(oldDir, ".beeftv-update-")
+	work, err := os.MkdirTemp(oldDir, ".luckytv-update-")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -89,7 +89,7 @@ func TestSpawnedHelperReplacesInstall(t *testing.T) {
 		}
 		req.Platform = "windows-amd64"
 		req.TargetPath = filepath.Join(oldDir, windowsExeName)
-		t.Setenv("BEEFTV_UPDATER_TEST_LAUNCH", "1")
+		t.Setenv("LUCKYTV_UPDATER_TEST_LAUNCH", "1")
 	}
 	encoded, err := json.Marshal(req)
 	if err != nil {
@@ -103,7 +103,7 @@ func TestSpawnedHelperReplacesInstall(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	helperPath := filepath.Join(work, "BeefTV-update-helper")
+	helperPath := filepath.Join(work, "LuckyTV-update-helper")
 	if runtime.GOOS == "windows" {
 		helperPath += ".exe"
 	}
@@ -119,9 +119,9 @@ func TestSpawnedHelperReplacesInstall(t *testing.T) {
 	if err != nil {
 		t.Fatalf("helper: %v\n%s", err, out)
 	}
-	installed := filepath.Join(req.TargetPath, "Contents", "MacOS", "BeefTV")
+	installed := filepath.Join(req.TargetPath, "Contents", "MacOS", "LuckyTV")
 	if runtime.GOOS == "windows" {
-		installed = filepath.Join(oldDir, pluginDirName, "official.beeftv-plugin")
+		installed = filepath.Join(oldDir, pluginDirName, "official.luckytv-plugin")
 	}
 	got, err := os.ReadFile(installed)
 	if err != nil {
@@ -136,7 +136,7 @@ func TestSpawnedHelperReplacesInstall(t *testing.T) {
 	if err := cleanupCompletedUpdates(Target{Path: req.TargetPath, Platform: req.Platform}, ""); err != nil {
 		t.Fatal(err)
 	}
-	if pathExists(work) || (runtime.GOOS == "windows" && pathExists(filepath.Join(oldDir, ".BeefTV.update.lock"))) {
+	if pathExists(work) || (runtime.GOOS == "windows" && pathExists(filepath.Join(oldDir, ".LuckyTV.update.lock"))) {
 		t.Fatal("confirmed startup retained update files")
 	}
 }

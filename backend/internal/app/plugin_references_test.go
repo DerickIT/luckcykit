@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"infinite-canvas/backend/internal/workspace"
+	"luckytv/backend/internal/workspace"
 )
 
 type fakeReferenceStore struct {

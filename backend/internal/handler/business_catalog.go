@@ -126,7 +126,7 @@ func RegisterBusinessDiscovery(api *gin.RouterGroup, catalog *BusinessCatalog, o
 	api.GET("/business/tools", func(c *gin.Context) {
 		principal, authorized := externalBusiness(c)
 		if !authorized {
-			if c.GetHeader("X-Beeftv-Client") != "" || !requireOwner(c, owners) {
+			if c.GetHeader("X-Luckytv-Client") != "" || !requireOwner(c, owners) {
 				return
 			}
 		}

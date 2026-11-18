@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func TestCanvasHistoryContentContract(t *testing.T) {

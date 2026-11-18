@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"time"
 
-	"infinite-canvas/backend/internal/canvas"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/canvas"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
 
 	"github.com/gin-gonic/gin"
 )

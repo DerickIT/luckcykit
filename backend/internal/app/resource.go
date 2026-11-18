@@ -6,11 +6,11 @@ import (
 	"mime/multipart"
 	"time"
 
-	localasset "infinite-canvas/backend/internal/asset"
-	"infinite-canvas/backend/internal/assets"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/resource"
+	localasset "luckytv/backend/internal/asset"
+	"luckytv/backend/internal/assets"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/resource"
 )
 
 const directResourceURLTTL = 5 * time.Minute

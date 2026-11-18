@@ -10,8 +10,8 @@ func IsPendingMediaUsage(state string) bool {
 }
 
 func (task Task) MediaSettlementPending() bool {
-	return (task.BeefUsageState != nil && IsPendingMediaUsage(*task.BeefUsageState)) ||
-		(task.BeefBillingState != nil && mediaStateIn(*task.BeefBillingState, PendingMediaBillingStates()))
+	return (task.LuckyUsageState != nil && IsPendingMediaUsage(*task.LuckyUsageState)) ||
+		(task.LuckyBillingState != nil && mediaStateIn(*task.LuckyBillingState, PendingMediaBillingStates()))
 }
 
 func mediaStateIn(state string, values []string) bool {

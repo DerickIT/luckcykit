@@ -1,6 +1,6 @@
 package app
 
-import "infinite-canvas/backend/internal/eagle"
+import "luckytv/backend/internal/eagle"
 
 type EagleFolder = eagle.Folder
 type EagleLibrary = eagle.Library

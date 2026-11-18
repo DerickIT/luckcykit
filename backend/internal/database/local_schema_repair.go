@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"gorm.io/gorm"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 type sqliteIndexContract struct {

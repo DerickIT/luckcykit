@@ -12,7 +12,7 @@ import (
 
 	"gorm.io/gorm"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 const canvasWriteOpName = "canvas.external.write"

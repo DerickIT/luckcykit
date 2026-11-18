@@ -62,7 +62,7 @@ export function createEmbeddedCanvasNoticeGate(intervalMs = EMBEDDED_CANVAS_NOTI
  */
 export function createEmbeddedWorkspaceSyncHandler(options: EmbeddedWorkspaceSyncOptions): (event: MessageEvent) => void {
     return (event) => {
-        if (event.data?.type !== "beeftv:workspace-sync" || !isTrustedEmbeddedParent(event)) return;
+        if (event.data?.type !== "luckytv:workspace-sync" || !isTrustedEmbeddedParent(event)) return;
         const activity = event.data.activity as EmbeddedWorkspaceActivity | undefined;
         const kind = typeof activity?.kind === "string" ? activity.kind : "";
         const canvasId = typeof activity?.canvasId === "string" ? activity.canvasId.trim() : "";

@@ -12,7 +12,7 @@ import (
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
-	"infinite-canvas/backend/internal/diagnostics"
+	"luckytv/backend/internal/diagnostics"
 )
 
 func readSession(file string, session ownedSession, from, to time.Time, out *diagnostics.AssistantEvidenceSnapshot) error {

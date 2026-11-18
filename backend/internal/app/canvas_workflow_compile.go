@@ -3,10 +3,10 @@ package app
 import (
 	"encoding/json"
 
-	cw "infinite-canvas/backend/internal/canvasworkflow"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	localtask "infinite-canvas/backend/internal/task"
+	cw "luckytv/backend/internal/canvasworkflow"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	localtask "luckytv/backend/internal/task"
 )
 
 type (
@@ -17,10 +17,10 @@ type (
 
 func (s *Service) compileHost() cw.CompileHost {
 	return cw.NewCompileHost(cw.CompileHostConfig{
-		Repo: s.repo, DataDir: s.dataDir, LocalMode: s.IsLocalMode(), ManagedCredRef: managedBeefTVRef,
+		Repo: s.repo, DataDir: s.dataDir, LocalMode: s.IsLocalMode(), ManagedCredRef: managedLuckyTVRef,
 		DecryptSetting: s.decryptSettingSecret, EncryptSetting: s.encryptSettingSecret,
 		DecryptTaskInput: s.decryptTaskInputJSON, ProtectTaskSecrets: s.protectTaskSecrets,
-		ManagedCredential:  func() (string, string, error) { k, b, _, _, err := s.lookupBeefTVCredential(); return k, b, err },
+		ManagedCredential:  func() (string, string, error) { k, b, _, _, err := s.lookupLuckyTVCredential(); return k, b, err },
 		UpscaleAvailable:   func(name string) error { _, err := s.upscaleConfig(name); return err },
 		ValidateCapability: s.ValidateTaskCapability, ModelLookup: s.channelModelLookup(),
 		DecodeShape:        func(raw []byte) (modelcatalog.TaskInput, error) { var t canvasGenerationInput; err := json.Unmarshal(raw, &t); return taskInputFromCanvas(t), err },

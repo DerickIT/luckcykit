@@ -2,10 +2,10 @@ package app
 
 import (
 	"encoding/json"
-	"infinite-canvas/backend/internal/assets"
-	"infinite-canvas/backend/internal/canvas"
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/assets"
+	"luckytv/backend/internal/canvas"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
 	"sort"
 	"strings"
 )

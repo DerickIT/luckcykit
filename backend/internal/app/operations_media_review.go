@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/operations"
 )
 
 func (s *operationSession) ReviewMedia(ctx context.Context, part operations.MediaPart, question string) (operations.MediaReviewObservation, error) {

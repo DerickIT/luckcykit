@@ -13,8 +13,8 @@ import (
 
 	"gorm.io/gorm"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/skills"
 )
 
 const (

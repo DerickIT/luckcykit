@@ -3,7 +3,7 @@ package handler
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	cw "infinite-canvas/backend/internal/canvasworkflow"
+	cw "luckytv/backend/internal/canvasworkflow"
 	"net/http"
 	"strconv"
 	"time"

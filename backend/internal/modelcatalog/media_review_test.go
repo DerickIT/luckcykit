@@ -3,10 +3,10 @@ package modelcatalog
 import "testing"
 
 func TestMediaReviewSelectionUsesItsOwnRoleAndSelectedCredential(t *testing.T) {
-	channel := AssistantChannel{ID: "beeftv", Pinned: true, Enabled: true, CredentialRef: "beeftv",
+	channel := AssistantChannel{ID: "luckytv", Pinned: true, Enabled: true, CredentialRef: "luckytv",
 		BaseURL: "https://example.test", Models: []string{MediaReviewModel},
 		ModelProfiles: []AssistantModelProfile{{Model: MediaReviewModel, Capability: "text", Protocol: "chat-completion"}}}
-	snapshot := AssistantConfigSnapshot{MediaReviewModel: "beeftv::" + MediaReviewModel, Channels: []AssistantChannel{channel}}
+	snapshot := AssistantConfigSnapshot{MediaReviewModel: "luckytv::" + MediaReviewModel, Channels: []AssistantChannel{channel}}
 	lookups := 0
 	lookup := func(id, ref, url string) (string, string, bool) {
 		lookups++
@@ -30,7 +30,7 @@ func TestMediaReviewSelectionUsesItsOwnRoleAndSelectedCredential(t *testing.T) {
 		func(s *AssistantConfigSnapshot) {
 			s.Channels[0].ModelProfiles = []AssistantModelProfile{{Model: MediaReviewModel, Capability: "text", Protocol: "responses"}}
 		},
-		func(s *AssistantConfigSnapshot) { s.MediaReviewModel = "beeftv::gpt-6-astra" },
+		func(s *AssistantConfigSnapshot) { s.MediaReviewModel = "luckytv::gpt-6-astra" },
 	} {
 		s := snapshot
 		s.Channels = []AssistantChannel{channel}

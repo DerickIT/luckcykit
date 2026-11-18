@@ -85,7 +85,7 @@ func TestRunVideoTaskReadsRunwayTaskOutput(t *testing.T) {
 
 func TestRunVideoTaskReadsLumaGenerationAssets(t *testing.T) {
 	t.Setenv("CANVAS_ALLOW_PRIVATE_UPSTREAMS", "true")
-	t.Setenv("BEEFTV_PUBLIC_ASSET_ORIGIN", "")
+	t.Setenv("LUCKYTV_PUBLIC_ASSET_ORIGIN", "")
 	paths := make([]string, 0, 3)
 	var server *httptest.Server
 	server = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

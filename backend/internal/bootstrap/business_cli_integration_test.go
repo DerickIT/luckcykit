@@ -15,8 +15,8 @@ import (
 	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/editing"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/editing"
 )
 
 func TestExternalCLIAndMCPRealBusinessUpload(t *testing.T) {
@@ -31,13 +31,13 @@ func TestExternalCLIAndMCPRealBusinessUpload(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
 	defer cancel()
 	dir := t.TempDir()
-	bin := filepath.Join(dir, "beeftv")
-	build := exec.CommandContext(ctx, "go", "build", "-o", bin, "./cmd/beeftv")
+	bin := filepath.Join(dir, "luckytv")
+	build := exec.CommandContext(ctx, "go", "build", "-o", bin, "./cmd/luckytv")
 	build.Dir = filepath.Join("..", "..")
 	if out, err := build.CombinedOutput(); err != nil {
 		t.Fatal(err, string(out))
 	}
-	env := append(os.Environ(), "BEEFTV_BASE_URL="+server.URL+"/api", "BEEFTV_CLIENT_ID="+reg.ID, "BEEFTV_CLIENT_TOKEN="+token, "BEEFTV_CLIENT_TOKEN_FILE=", "BEEFTV_OWNER_TOKEN=", "BEEFTV_DESKTOP_TOKEN=")
+	env := append(os.Environ(), "LUCKYTV_BASE_URL="+server.URL+"/api", "LUCKYTV_CLIENT_ID="+reg.ID, "LUCKYTV_CLIENT_TOKEN="+token, "LUCKYTV_CLIENT_TOKEN_FILE=", "LUCKYTV_OWNER_TOKEN=", "LUCKYTV_DESKTOP_TOKEN=")
 	run := func(args ...string) []byte {
 		command := exec.CommandContext(ctx, bin, args...)
 		command.Env = env

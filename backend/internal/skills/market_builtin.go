@@ -10,8 +10,8 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/skillhub"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/skillhub"
 )
 
 func (s *Service) builtinMarketReleases() ([]skillhub.Release, map[string]*model.SkillVersion) {
@@ -60,7 +60,7 @@ func (s *Service) builtinMarketReleases() ([]skillhub.Release, map[string]*model
 		releaseID := skill.ID + "-" + versionLabel
 		author := strings.TrimSpace(skill.AuthorName)
 		if author == "" {
-			author = "BeefTV 官方"
+			author = "LuckyTV 官方"
 		}
 		publishedAt := skill.UpdatedAt.UTC().Format(time.RFC3339)
 		rel := skillhub.Release{
@@ -69,7 +69,7 @@ func (s *Service) builtinMarketReleases() ([]skillhub.Release, map[string]*model
 				Name:         skill.Name,
 				Description:  skill.Description,
 				License:      "CC0-1.0",
-				SourceURL:    "https://beeftv.app",
+				SourceURL:    "https://luckytv.app",
 				VersionLabel: versionLabel,
 				Requirements: []string{},
 				Showcase:     []skillhub.Showcase{},

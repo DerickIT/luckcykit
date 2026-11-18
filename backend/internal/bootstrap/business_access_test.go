@@ -11,9 +11,9 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/editing"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/editing"
+	"luckytv/backend/internal/model"
 )
 
 func TestExternalBusinessRealUploadRenderAndIsolation(t *testing.T) {
@@ -34,10 +34,10 @@ func TestExternalBusinessRealUploadRenderAndIsolation(t *testing.T) {
 			t.Error("public market query changed scope or received credentials", r.Method, r.URL.Path)
 		}
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"success":true,"data":{"items":[],"total":0,"page":1,"pageSize":20,"target":"beeftv"}}`))
+		_, _ = w.Write([]byte(`{"success":true,"data":{"items":[],"total":0,"page":1,"pageSize":20,"target":"luckytv"}}`))
 	}))
 	defer market.Close()
-	t.Setenv("BEEFTV_SKILLHUB_URL", market.URL)
+	t.Setenv("LUCKYTV_SKILLHUB_URL", market.URL)
 	if response := call("GET", "/skills/market/search?q=storyboard", ""); response.Code != 200 {
 		t.Fatal("public market read rejected", response.Code, response.Body.String())
 	}
@@ -70,7 +70,7 @@ func TestExternalBusinessRealUploadRenderAndIsolation(t *testing.T) {
 	r := httptest.NewRequest("POST", "http://127.0.0.1:54321/api/resources", &body)
 	r.RemoteAddr = "127.0.0.1:9999"
 	r.Header.Set("Content-Type", writer.FormDataContentType())
-	r.Header.Set("X-Beeftv-Client", reg.ID)
+	r.Header.Set("X-Luckytv-Client", reg.ID)
 	r.Header.Set("Authorization", "Bearer "+token)
 	upload := httptest.NewRecorder()
 	h.rt.Handler().ServeHTTP(upload, r)
@@ -132,7 +132,7 @@ func TestExternalBusinessRealUploadRenderAndIsolation(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, endpoint := range []string{"/timeline/renders", "/ai/models"} {
-		denied := h.call(requestOptions{method: "POST", path: endpoint, body: `{"credentialRef":"beeftv","baseUrl":"https://attacker.example/v1"}`, clientID: ro.ID, clientToken: roToken})
+		denied := h.call(requestOptions{method: "POST", path: endpoint, body: `{"credentialRef":"luckytv","baseUrl":"https://attacker.example/v1"}`, clientID: ro.ID, clientToken: roToken})
 		if _, reason := decodeEnvelope(t, denied); denied.Code != 403 || reason != "read_only_client" {
 			t.Fatal("legacy token silently elevated", endpoint, denied.Code, denied.Body.String())
 		}

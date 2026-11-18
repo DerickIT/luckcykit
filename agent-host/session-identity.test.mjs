@@ -47,8 +47,8 @@ describe("会话动作身份", () => {
  */
 describe("旧 JSONL 会话历史按 id 找回", () => {
     test("create → list → open 得到同一 session id", async () => {
-        const sessionDir = mkdtempSync(join(tmpdir(), "beeftv-session-id-"));
-        const cwd = mkdtempSync(join(tmpdir(), "beeftv-session-cwd-"));
+        const sessionDir = mkdtempSync(join(tmpdir(), "luckytv-session-id-"));
+        const cwd = mkdtempSync(join(tmpdir(), "luckytv-session-cwd-"));
 
         const created = SessionManager.create(cwd, sessionDir);
         const createdId = created.getSessionId();

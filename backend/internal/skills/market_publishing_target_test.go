@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/skillhub"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/skillhub"
 )
 
 func TestPublicationTargetRejectsLocalCloudConfusionAndPreservesLegacyDraft(t *testing.T) {
@@ -54,7 +54,7 @@ func TestPublicationTargetRejectsLocalCloudConfusionAndPreservesLegacyDraft(t *t
 	calls := 0
 	server := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) { calls++ }))
 	defer server.Close()
-	t.Setenv("BEEFTV_SKILLHUB_URL", server.URL)
+	t.Setenv("LUCKYTV_SKILLHUB_URL", server.URL)
 	if _, err := s.PublishUpload(context.Background(), "owner", old.ID, old.ArchiveSHA256); err == nil || calls != 0 {
 		t.Fatal("legacy ambiguous target reached cloud", err)
 	}

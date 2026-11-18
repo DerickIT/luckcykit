@@ -98,7 +98,7 @@ export async function startCustomerScenarioServer(options: { port?: number } = {
 }
 
 if (import.meta.main) {
-    const runtime = await startCustomerScenarioServer({ port: Number(process.env.BEEFTV_SCENARIO_PORT || "4089") });
+    const runtime = await startCustomerScenarioServer({ port: Number(process.env.LUCKYTV_SCENARIO_PORT || "4089") });
     for (const scenario of ["five-images", "video-image", "missing-audio-duration", "character"] as const) {
         const entry = runtime.create(scenario);
         console.log(JSON.stringify({ scenario, url: entry.url }));

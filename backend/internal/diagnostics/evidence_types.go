@@ -3,7 +3,7 @@ package diagnostics
 import (
 	"time"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 // CollectorCoverage describes what was actually read, not what was expected to

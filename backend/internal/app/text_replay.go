@@ -5,8 +5,8 @@ import (
 	"log"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/textreplay"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/textreplay"
 )
 
 type TextReplayResult = textreplay.Result

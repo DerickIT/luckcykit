@@ -10,7 +10,7 @@ const failure = reason => Object.assign(new Error(reason), { reason });
 const deferred = () => { let resolve; const promise = new Promise(done => { resolve = done; }); return {promise,resolve}; };
 
 test('automatic continuation keeps one official request across duplicate observers and restart', {timeout:30000}, async () => {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-auto-dedupe-'));
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-auto-dedupe-'));
   let fixture;
   const entered=deferred(), release=deferred();
   try {
@@ -41,7 +41,7 @@ test('automatic continuation keeps one official request across duplicate observe
 });
 
 test('manual text with an automatic-looking prefix stays manual after recovery', {timeout:30000}, async () => {
-  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'beeftv-auto-display-'));let fixture;
+  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'luckytv-auto-display-'));let fixture;
   try {
     fixture=await modelFixture(directory,'fixture',['fixture'],()=>{});
     const entry=await fixture.store.createSession('canvas');
@@ -57,7 +57,7 @@ test('manual text with an automatic-looking prefix stays manual after recovery',
 });
 
 test('automatic restore and submit never activate an old session, including after restart', {timeout:30000}, async()=>{
-  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'beeftv-auto-session-'));let fixture;
+  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'luckytv-auto-session-'));let fixture;
   try {
     fixture=await modelFixture(directory,'fixture',['fixture'],()=>{},{authorizeContinuation:async()=>{}});
     const old=await fixture.store.createSession('canvas');
@@ -73,7 +73,7 @@ test('automatic restore and submit never activate an old session, including afte
 });
 
 for(const reason of ['continuation_cancelled','continuation_scope_changed']) test(`Go ${reason} during final admission settles without model dispatch`,{timeout:30000},async()=>{
-  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'beeftv-auto-revoked-'));let fixture;
+  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'luckytv-auto-revoked-'));let fixture;
   try {
     fixture=await modelFixture(directory,'fixture',['fixture'],()=>{},{authorizeContinuation:async()=>{throw failure(reason);}});
     const entry=await fixture.store.createSession('canvas');
@@ -87,7 +87,7 @@ for(const reason of ['continuation_cancelled','continuation_scope_changed']) tes
 });
 
 test('recovery of a Go-revoked prepared turn acknowledges Stop and releases the active owner',{timeout:30000},async()=>{
-  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'beeftv-auto-closed-'));let fixture;
+  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'luckytv-auto-closed-'));let fixture;
   try{
     fixture=await modelFixture(directory,'fixture',['fixture'],()=>{},{authorizeContinuation:async()=>{throw failure('temporary_database_error');}});
     let entry=await fixture.store.createSession('canvas');const session=entry.sessionId;
@@ -105,7 +105,7 @@ test('recovery of a Go-revoked prepared turn acknowledges Stop and releases the 
 });
 
 test('transient final validation failure retains the fixed pair for recovery; Stop wins before official admission',{timeout:30000},async()=>{
-  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'beeftv-auto-recover-'));let fixture;
+  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'luckytv-auto-recover-'));let fixture;
   try{
     fixture=await modelFixture(directory,'fixture',['fixture'],()=>{},{authorizeContinuation:async()=>{throw failure('temporary_database_error');}});
     let entry=await fixture.store.createSession('canvas');const session=entry.sessionId;

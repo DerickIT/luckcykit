@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"strings"
 
-	"infinite-canvas/backend/internal/assets"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/repository"
-	"infinite-canvas/backend/internal/writechange"
+	"luckytv/backend/internal/assets"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/repository"
+	"luckytv/backend/internal/writechange"
 )
 
 const bindRevisionAttempts = 4

@@ -3,7 +3,7 @@ package app
 import (
 	"testing"
 
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/operations"
 )
 
 func TestAssistantProductionSeedreamSingleImageConfig(t *testing.T) {

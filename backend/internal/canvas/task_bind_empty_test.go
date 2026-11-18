@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/writechange"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/writechange"
 )
 
 func TestEmptyRenderBindingRequiresTrustedFlagAndEmptyVideo(t *testing.T) {

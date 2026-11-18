@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/canvas/capability"
-	"infinite-canvas/backend/internal/kernel"
+	"luckytv/backend/internal/canvas/capability"
+	"luckytv/backend/internal/kernel"
 )
 
 // 内置 Agent 与外部入口（CLI/MCP）的写入统一走这里：

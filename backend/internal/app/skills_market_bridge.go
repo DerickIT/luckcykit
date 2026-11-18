@@ -2,8 +2,8 @@ package app
 
 import (
 	"context"
-	"infinite-canvas/backend/internal/skillhub"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/skillhub"
+	"luckytv/backend/internal/skills"
 	"time"
 )
 

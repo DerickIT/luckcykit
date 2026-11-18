@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"strings"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
 )
 
 type providerAnalyticsKey = generation.AnalyticsKey

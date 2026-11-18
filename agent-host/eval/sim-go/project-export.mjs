@@ -8,7 +8,7 @@ const EXPORT_PLACEHOLDER_SIZE = 1024;
 
 function sanitizeFileName(title) {
   const cleaned = String(title || '').replace(/[/\\:*?"<>|]/g, '_').replace(/[\u0000-\u001f]/g, '_').trim();
-  return cleaned || 'BeefTV工程';
+  return cleaned || 'LuckyTV工程';
 }
 
 export const PROJECT_EXPORT_OPS = {

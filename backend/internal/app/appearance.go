@@ -3,8 +3,8 @@ package app
 import (
 	"mime/multipart"
 
-	"infinite-canvas/backend/internal/appearance"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/appearance"
+	"luckytv/backend/internal/model"
 )
 
 const (

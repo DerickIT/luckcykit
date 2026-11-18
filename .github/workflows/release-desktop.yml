@@ -22,14 +22,14 @@ permissions:
 
 env:
   GOTOOLCHAIN: local
-  BEEFTV_UPDATER_FEED_URL: https://updates.beefapi.com/beeftv/desktop-update-v2.json
-  UPDATER_DOWNLOAD_BASE: https://updates.beefapi.com/beeftv
+  LUCKYTV_UPDATER_FEED_URL: https://updates.luckyapi.com/luckytv/desktop-update-v2.json
+  UPDATER_DOWNLOAD_BASE: https://updates.luckyapi.com/luckytv
   RELEASE_ENDPOINT: ${{ vars.BEEFTV_R2_ENDPOINT }}
   RELEASE_REGION: auto
-  RELEASE_BUCKET: beeftv-releases
+  RELEASE_BUCKET: luckytv-releases
   LEGACY_COS_ENDPOINT: https://cos.ap-guangzhou.myqcloud.com
   LEGACY_COS_REGION: ap-guangzhou
-  LEGACY_COS_BUCKET: beeftv-components-1481187348
+  LEGACY_COS_BUCKET: luckytv-components-1481187348
 
 jobs:
   preflight:
@@ -52,8 +52,8 @@ jobs:
             echo "Desktop updater releases can only be dispatched from main. Current ref: ${{ github.ref }}"
             exit 1
           fi
-          if [[ "${{ github.repository }}" != "glanderness/BeefTV" ]]; then
-            echo "This workflow publishes production updater assets for glanderness/BeefTV only."
+          if [[ "${{ github.repository }}" != "glanderness/LuckyTV" ]]; then
+            echo "This workflow publishes production updater assets for glanderness/LuckyTV only."
             exit 1
           fi
 
@@ -73,14 +73,14 @@ jobs:
 
       - name: Require updater keys
         env:
-          BEEFTV_CNB_TRIGGER_TOKEN: ${{ secrets.BEEFTV_CNB_TRIGGER_TOKEN }}
-          BEEFTV_UPDATER_PRIVATE_KEY: ${{ secrets.BEEFTV_UPDATER_PRIVATE_KEY }}
-          BEEFTV_UPDATER_PUBLIC_KEY: ${{ vars.BEEFTV_UPDATER_PUBLIC_KEY }}
+          LUCKYTV_CNB_TRIGGER_TOKEN: ${{ secrets.BEEFTV_CNB_TRIGGER_TOKEN }}
+          LUCKYTV_UPDATER_PRIVATE_KEY: ${{ secrets.BEEFTV_UPDATER_PRIVATE_KEY }}
+          LUCKYTV_UPDATER_PUBLIC_KEY: ${{ vars.BEEFTV_UPDATER_PUBLIC_KEY }}
           AWS_ACCESS_KEY_ID: ${{ secrets.BEEFTV_R2_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.BEEFTV_R2_SECRET_ACCESS_KEY }}
         run: |
           set -euo pipefail
-          if [[ -z "${BEEFTV_CNB_TRIGGER_TOKEN:-}" ]]; then
+          if [[ -z "${LUCKYTV_CNB_TRIGGER_TOKEN:-}" ]]; then
             echo "Missing GitHub Actions secret BEEFTV_CNB_TRIGGER_TOKEN for the default CNB mirror step."
             exit 1
           fi
@@ -91,16 +91,16 @@ jobs:
           python3 scripts/publish-desktop-r2.py check-store --provider r2 \
             --endpoint-url "$RELEASE_ENDPOINT" --region "$RELEASE_REGION" \
             --bucket "$RELEASE_BUCKET" --public-base "$UPDATER_DOWNLOAD_BASE"
-          if [[ -z "${BEEFTV_UPDATER_PRIVATE_KEY:-}" ]]; then
+          if [[ -z "${LUCKYTV_UPDATER_PRIVATE_KEY:-}" ]]; then
             echo "Missing GitHub Actions secret BEEFTV_UPDATER_PRIVATE_KEY."
             echo "It must be standard base64 of a 64-byte Ed25519 private key."
             echo "Generate a keypair locally with:"
-            echo "  cd backend && go run ./cmd/update-release gen-key --private-key /path/to/beeftv-updater.private --public-key /path/to/beeftv-updater.public"
+            echo "  cd backend && go run ./cmd/update-release gen-key --private-key /path/to/luckytv-updater.private --public-key /path/to/luckytv-updater.public"
             echo "Put the private file contents in the repository secret. Do not commit that file."
             echo "Unsigned automatic updates are not published."
             exit 1
           fi
-          if [[ -z "${BEEFTV_UPDATER_PUBLIC_KEY:-}" ]]; then
+          if [[ -z "${LUCKYTV_UPDATER_PUBLIC_KEY:-}" ]]; then
             echo "Missing GitHub Actions variable BEEFTV_UPDATER_PUBLIC_KEY."
             echo "It must be standard base64 of the matching 32-byte Ed25519 public key."
             echo "Unsigned automatic updates are not published."
@@ -119,8 +119,8 @@ jobs:
       - name: Validate version, changelog, keys, and uniqueness
         id: meta
         env:
-          BEEFTV_UPDATER_PRIVATE_KEY: ${{ secrets.BEEFTV_UPDATER_PRIVATE_KEY }}
-          BEEFTV_UPDATER_PUBLIC_KEY: ${{ vars.BEEFTV_UPDATER_PUBLIC_KEY }}
+          LUCKYTV_UPDATER_PRIVATE_KEY: ${{ secrets.BEEFTV_UPDATER_PRIVATE_KEY }}
+          LUCKYTV_UPDATER_PUBLIC_KEY: ${{ vars.BEEFTV_UPDATER_PUBLIC_KEY }}
           CONFIRM_VERSION: ${{ inputs.confirm_version }}
           REUSE_BUILD_RUN_ID: ${{ inputs.reuse_build_run_id }}
         working-directory: backend
@@ -133,14 +133,14 @@ jobs:
               echo "Invalid reuse_build_run_id: $REUSE_BUILD_RUN_ID"
               exit 1
             fi
-            run_meta="$(gh api "repos/glanderness/BeefTV/actions/runs/$REUSE_BUILD_RUN_ID")"
+            run_meta="$(gh api "repos/glanderness/LuckyTV/actions/runs/$REUSE_BUILD_RUN_ID")"
             run_branch="$(jq -r '.head_branch' <<< "$run_meta")"
             run_commit="$(jq -r '.head_sha' <<< "$run_meta")"
             if [[ "$run_branch" != "main" || -z "$run_commit" || "$run_commit" == "null" ]]; then
               echo "Reused build run $REUSE_BUILD_RUN_ID must come from main."
               exit 1
             fi
-            jobs_meta="$(gh api "repos/glanderness/BeefTV/actions/runs/$REUSE_BUILD_RUN_ID/jobs?per_page=100")"
+            jobs_meta="$(gh api "repos/glanderness/LuckyTV/actions/runs/$REUSE_BUILD_RUN_ID/jobs?per_page=100")"
             for required_job in "Validate and open draft" "Build darwin-arm64" "Build darwin-amd64" "Build windows-amd64" "Build linux-amd64"; do
               job_conclusion="$(jq -r --arg name "$required_job" '[.jobs[] | select(.name == $name)][0].conclusion // ""' <<< "$jobs_meta")"
               if [[ "$job_conclusion" != "success" ]]; then
@@ -153,7 +153,7 @@ jobs:
           go test ./cmd/update-release
 
           curl --fail --location --retry 3 --max-time 60 \
-            https://github.com/glanderness/BeefTV/releases/download/depth-runtime-mirrors-v1/depth-runtime-manifest.v2.json \
+            https://github.com/glanderness/LuckyTV/releases/download/depth-runtime-mirrors-v1/depth-runtime-manifest.v2.json \
             --output "$RUNNER_TEMP/depth-manifest.json"
           go run ./cmd/update-release verify-depth --input "$RUNNER_TEMP/depth-manifest.json"
 
@@ -180,7 +180,7 @@ jobs:
           go run ./cmd/update-release print-ldflags >/dev/null
 
           derived="$(go run ./cmd/update-release public-key | tr -d '\r\n')"
-          expected="$(printf '%s' "$BEEFTV_UPDATER_PUBLIC_KEY" | tr -d '\r\n')"
+          expected="$(printf '%s' "$LUCKYTV_UPDATER_PUBLIC_KEY" | tr -d '\r\n')"
           if [[ "$derived" != "$expected" ]]; then
             echo "Private key does not derive GitHub variable BEEFTV_UPDATER_PUBLIC_KEY."
             echo "Release binaries and the signed feed must use the same public key."
@@ -222,7 +222,7 @@ jobs:
 
       - name: Local release contract gate
         if: inputs.reuse_build_run_id == ''
-        run: ./scripts/verify-beeftv-local-release.sh
+        run: ./scripts/verify-luckytv-local-release.sh
 
       - name: Package corresponding WASM source
         if: inputs.reuse_build_run_id == ''
@@ -235,7 +235,7 @@ jobs:
         if: inputs.reuse_build_run_id == ''
         with:
           name: media-wasm-source
-          path: dist/BeefTV-${{ steps.meta.outputs.version }}-ffmpeg-wasm-sources.tar.gz
+          path: dist/LuckyTV-${{ steps.meta.outputs.version }}-ffmpeg-wasm-sources.tar.gz
           if-no-files-found: error
           compression-level: 0
 
@@ -247,7 +247,7 @@ jobs:
           set -euo pipefail
           gh release create "$VERSION" \
             --draft \
-            --title "BeefTV $VERSION" \
+            --title "LuckyTV $VERSION" \
             --notes-file "$RUNNER_TEMP/release-notes.md" \
             --target "${{ steps.meta.outputs.commit }}"
 
@@ -298,7 +298,7 @@ jobs:
       - name: Select bundled Node runtime
         shell: bash
         run: |
-          node -e 'const fs=require("fs"),p=require("path"); const bin=p.dirname(process.execPath); fs.appendFileSync(process.env.GITHUB_ENV, `BEEFTV_NODE_RUNTIME=${process.platform==="win32"?bin:p.dirname(bin)}\n`);'
+          node -e 'const fs=require("fs"),p=require("path"); const bin=p.dirname(process.execPath); fs.appendFileSync(process.env.GITHUB_ENV, `LUCKYTV_NODE_RUNTIME=${process.platform==="win32"?bin:p.dirname(bin)}\n`);'
 
       - name: Verify agent host packaging contract
         if: runner.os == 'Linux'
@@ -337,20 +337,20 @@ jobs:
       - name: Build macOS or Linux desktop
         if: runner.os != 'Windows'
         env:
-          BEEFTV_SKIP_LOCAL_VERIFY: "1"
-          BEEFTV_WAILS_PLATFORM: ${{ matrix.wails_platform }}
-          BEEFTV_UPDATER_PUBLIC_KEY: ${{ vars.BEEFTV_UPDATER_PUBLIC_KEY }}
-        run: ./scripts/build-beeftv-release.sh
+          LUCKYTV_SKIP_LOCAL_VERIFY: "1"
+          LUCKYTV_WAILS_PLATFORM: ${{ matrix.wails_platform }}
+          LUCKYTV_UPDATER_PUBLIC_KEY: ${{ vars.BEEFTV_UPDATER_PUBLIC_KEY }}
+        run: ./scripts/build-luckytv-release.sh
 
       - name: Build Windows desktop
         if: runner.os == 'Windows'
         env:
-          BEEFTV_UPDATER_PUBLIC_KEY: ${{ vars.BEEFTV_UPDATER_PUBLIC_KEY }}
-          BEEFTV_EXTRA_LDFLAGS: -X infinite-canvas/backend/internal/app.depthWindowsManifestPublicKeyBase64=${{ vars.BEEFTV_UPDATER_PUBLIC_KEY }}
+          LUCKYTV_UPDATER_PUBLIC_KEY: ${{ vars.BEEFTV_UPDATER_PUBLIC_KEY }}
+          LUCKYTV_EXTRA_LDFLAGS: -X luckytv/backend/internal/app.depthWindowsManifestPublicKeyBase64=${{ vars.BEEFTV_UPDATER_PUBLIC_KEY }}
           CGO_ENABLED: "1"
         shell: pwsh
         run: |
-          powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-beeftv-windows-release.ps1
+          powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-luckytv-windows-release.ps1
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           foreach ($p in @('backend\cmd\desktop\build\bin\agent-host\runtime\node.exe', 'backend\cmd\desktop\build\bin\agent-host\runtime\npm.cmd', 'backend\cmd\desktop\build\bin\agent-host\runtime\node_modules\npm\bin\npm-cli.js')) {
             if (!(Test-Path -LiteralPath $p -PathType Leaf)) { throw "Missing bundled Windows agent-host file: $p" }
@@ -363,7 +363,7 @@ jobs:
           CGO_ENABLED: "1"
         shell: pwsh
         run: |
-          go test ./internal/app -run 'TestWindowsVideoConnectionResetRecovery|TestVideoRecoverySocketResetNeverResubmits|TestVideoRecoveryLostReceiptNeverResubmits|TestVideoRecoveryBeefAPIQueryUsesOnlyGet' -count=1 -timeout=120s
+          go test ./internal/app -run 'TestWindowsVideoConnectionResetRecovery|TestVideoRecoverySocketResetNeverResubmits|TestVideoRecoveryLostReceiptNeverResubmits|TestVideoRecoveryLuckyTVQueryUsesOnlyGet' -count=1 -timeout=120s
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - uses: actions/setup-python@v5
@@ -382,7 +382,7 @@ jobs:
           VERSION: ${{ needs.preflight.outputs.version }}
           PREVIOUS_VERSION: ${{ needs.preflight.outputs.previous_version }}
           PLATFORM: ${{ matrix.platform }}
-          BEEFTV_UPDATER_PUBLIC_KEY: ${{ vars.BEEFTV_UPDATER_PUBLIC_KEY }}
+          LUCKYTV_UPDATER_PUBLIC_KEY: ${{ vars.BEEFTV_UPDATER_PUBLIC_KEY }}
         shell: bash
         run: |
           set -euo pipefail
@@ -392,31 +392,31 @@ jobs:
           trap 'kill "$installer_pid" 2>/dev/null || true' EXIT
           input="cmd/desktop/build/bin"
           if [[ "$PLATFORM" == darwin-* ]]; then
-            input="$input/BeefTV.app"
+            input="$input/LuckyTV.app"
           elif [[ "$PLATFORM" == linux-amd64 ]]; then
-            input="$input/BeefTV-linux"
+            input="$input/LuckyTV-linux"
           fi
           go run ./cmd/update-release package \
             --platform "$PLATFORM" \
             --input "$input" \
-            --output "../dist/BeefTV-${VERSION}-${PLATFORM}.zip"
+            --output "../dist/LuckyTV-${VERSION}-${PLATFORM}.zip"
           if [[ -n "${PREVIOUS_VERSION:-}" ]] && python -c 'import os, re, sys; m = re.match(r"^v(\d+)\.(\d+)\.(\d+)$", os.environ["VERSION"]); sys.exit(0 if m and (int(m[1]), int(m[2]), int(m[3])) >= (2, 1, 0) else 1)'; then
             if curl --fail --silent --show-error --location --retry 3 --max-time 60 \
               "${UPDATER_DOWNLOAD_BASE}/${PREVIOUS_VERSION}/desktop-update.json" \
               -o "$RUNNER_TEMP/prev-desktop-update.json" && \
               go run ./cmd/update-release verify \
                 --envelope "$RUNNER_TEMP/prev-desktop-update.json" \
-                --public-key-text "$BEEFTV_UPDATER_PUBLIC_KEY" && \
+                --public-key-text "$LUCKYTV_UPDATER_PUBLIC_KEY" && \
               curl --fail --silent --show-error --location --retry 3 --max-time 600 \
-                "${UPDATER_DOWNLOAD_BASE}/${PREVIOUS_VERSION}/BeefTV-${PREVIOUS_VERSION}-${PLATFORM}.zip" \
-                -o "$RUNNER_TEMP/BeefTV-${PREVIOUS_VERSION}-${PLATFORM}.zip"; then
+                "${UPDATER_DOWNLOAD_BASE}/${PREVIOUS_VERSION}/LuckyTV-${PREVIOUS_VERSION}-${PLATFORM}.zip" \
+                -o "$RUNNER_TEMP/LuckyTV-${PREVIOUS_VERSION}-${PLATFORM}.zip"; then
               go run ./cmd/update-release build-delta \
                 --platform "$PLATFORM" \
                 --from-version "$PREVIOUS_VERSION" \
                 --to-version "$VERSION" \
-                --from-zip "$RUNNER_TEMP/BeefTV-${PREVIOUS_VERSION}-${PLATFORM}.zip" \
-                --to-zip "../dist/BeefTV-${VERSION}-${PLATFORM}.zip" \
-                --output "../dist/BeefTV-${VERSION}-${PLATFORM}-from-${PREVIOUS_VERSION}.delta.zip"
+                --from-zip "$RUNNER_TEMP/LuckyTV-${PREVIOUS_VERSION}-${PLATFORM}.zip" \
+                --to-zip "../dist/LuckyTV-${VERSION}-${PLATFORM}.zip" \
+                --output "../dist/LuckyTV-${VERSION}-${PLATFORM}-from-${PREVIOUS_VERSION}.delta.zip"
             else
               echo "::warning::Previous release ${PREVIOUS_VERSION} ${PLATFORM} zip unavailable; skipping delta archive."
             fi
@@ -427,7 +427,7 @@ jobs:
           fi
           trap - EXIT
           python ../scripts/smoke-packaged-cli_test.py
-          python ../scripts/smoke-packaged-cli.py --archive "../dist/BeefTV-${VERSION}-${PLATFORM}.zip" --platform "$PLATFORM"
+          python ../scripts/smoke-packaged-cli.py --archive "../dist/LuckyTV-${VERSION}-${PLATFORM}.zip" --platform "$PLATFORM"
 
       - name: Verify native installer lifecycle
         shell: bash
@@ -438,19 +438,19 @@ jobs:
           set -euo pipefail
           payload='backend/cmd/desktop/build/bin'
           suffix='-setup.exe'
-          if [[ "$PLATFORM" == darwin-* ]]; then payload="$payload/BeefTV.app"; suffix='.dmg'; fi
-          if [[ "$PLATFORM" == linux-* ]]; then payload="$payload/BeefTV-linux"; suffix='.deb'; fi
-          command=(python scripts/smoke-desktop-installer.py --platform "$PLATFORM" --installer "dist/BeefTV-${VERSION}-${PLATFORM}${suffix}" --payload "$payload")
+          if [[ "$PLATFORM" == darwin-* ]]; then payload="$payload/LuckyTV.app"; suffix='.dmg'; fi
+          if [[ "$PLATFORM" == linux-* ]]; then payload="$payload/LuckyTV-linux"; suffix='.deb'; fi
+          command=(python scripts/smoke-desktop-installer.py --platform "$PLATFORM" --installer "dist/LuckyTV-${VERSION}-${PLATFORM}${suffix}" --payload "$payload")
           if [[ "$PLATFORM" == linux-* ]]; then xvfb-run -a dbus-run-session -- "${command[@]}"; else "${command[@]}"; fi
 
       - name: Verify upgrades from released Windows clients
         if: runner.os == 'Windows'
         shell: pwsh
-        run: python scripts/test-windows-published-upgrade.py --archive "dist/BeefTV-${{ needs.preflight.outputs.version }}-windows-amd64.zip" --version "${{ needs.preflight.outputs.version }}" --output dist/windows-upgrade-evidence.json
+        run: python scripts/test-windows-published-upgrade.py --archive "dist/LuckyTV-${{ needs.preflight.outputs.version }}-windows-amd64.zip" --version "${{ needs.preflight.outputs.version }}" --output dist/windows-upgrade-evidence.json
 
       - name: Verify Linux desktop window from final archive
         if: runner.os == 'Linux'
-        run: xvfb-run -a dbus-run-session -- python3 scripts/smoke-linux-desktop.py --archive "dist/BeefTV-${{ needs.preflight.outputs.version }}-linux-amd64.zip"
+        run: xvfb-run -a dbus-run-session -- python3 scripts/smoke-linux-desktop.py --archive "dist/LuckyTV-${{ needs.preflight.outputs.version }}-linux-amd64.zip"
 
       - name: Preserve Windows upgrade acceptance
         if: always() && runner.os == 'Windows'
@@ -464,8 +464,8 @@ jobs:
         with:
           name: desktop-${{ matrix.platform }}
           path: |
-            dist/BeefTV-${{ needs.preflight.outputs.version }}-${{ matrix.platform }}*
-            dist/BeefTV-${{ needs.preflight.outputs.version }}-ffprobe-${{ matrix.platform }}-sources.tar.gz
+            dist/LuckyTV-${{ needs.preflight.outputs.version }}-${{ matrix.platform }}*
+            dist/LuckyTV-${{ needs.preflight.outputs.version }}-ffprobe-${{ matrix.platform }}-sources.tar.gz
           retention-days: 7
           if-no-files-found: error
 
@@ -484,8 +484,8 @@ jobs:
       VERSION: ${{ needs.preflight.outputs.version }}
       PREVIOUS_VERSION: ${{ needs.preflight.outputs.previous_version }}
       COMMIT: ${{ needs.preflight.outputs.commit }}
-      BEEFTV_UPDATER_PRIVATE_KEY: ${{ secrets.BEEFTV_UPDATER_PRIVATE_KEY }}
-      BEEFTV_UPDATER_PUBLIC_KEY: ${{ vars.BEEFTV_UPDATER_PUBLIC_KEY }}
+      LUCKYTV_UPDATER_PRIVATE_KEY: ${{ secrets.BEEFTV_UPDATER_PRIVATE_KEY }}
+      LUCKYTV_UPDATER_PUBLIC_KEY: ${{ vars.BEEFTV_UPDATER_PUBLIC_KEY }}
       AWS_ACCESS_KEY_ID: ${{ secrets.BEEFTV_R2_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.BEEFTV_R2_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: auto
@@ -528,25 +528,25 @@ jobs:
       - name: Check complete platform set
         run: |
           set -euo pipefail
-          mapfile -t zips < <(find dist -maxdepth 1 -name "BeefTV-${VERSION}-*.zip" ! -name "*.delta.zip" | LC_ALL=C sort)
+          mapfile -t zips < <(find dist -maxdepth 1 -name "LuckyTV-${VERSION}-*.zip" ! -name "*.delta.zip" | LC_ALL=C sort)
           if [[ "${#zips[@]}" -ne 4 ]]; then
             echo "Expected 4 platform zips on draft $VERSION before signing desktop-update.json, found ${#zips[@]}."
             printf '%s\n' "${zips[@]}"
             exit 1
           fi
           for name in "darwin-arm64.dmg" "darwin-amd64.dmg" "windows-amd64-setup.exe" "linux-amd64.deb"; do
-            test -s "dist/BeefTV-${VERSION}-${name}"
+            test -s "dist/LuckyTV-${VERSION}-${name}"
           done
           if [[ -n "${PREVIOUS_VERSION:-}" ]]; then
             delta_count=0
             for platform in darwin-arm64 darwin-amd64 windows-amd64 linux-amd64; do
-              if [[ -s "dist/BeefTV-${VERSION}-${platform}-from-${PREVIOUS_VERSION}.delta.zip" ]]; then
+              if [[ -s "dist/LuckyTV-${VERSION}-${platform}-from-${PREVIOUS_VERSION}.delta.zip" ]]; then
                 delta_count=$((delta_count + 1))
               fi
             done
             if [[ "$delta_count" -ne 4 ]]; then
               echo "::warning::Found ${delta_count}/4 delta archives from ${PREVIOUS_VERSION}; omitting incomplete delta set."
-              rm -f dist/BeefTV-"${VERSION}"-*-from-"${PREVIOUS_VERSION}".delta.zip
+              rm -f dist/LuckyTV-"${VERSION}"-*-from-"${PREVIOUS_VERSION}".delta.zip
             fi
           fi
 
@@ -559,21 +559,21 @@ jobs:
             --commit "$COMMIT" \
             --changelog ../CHANGELOG.md \
             --download-base "$UPDATER_DOWNLOAD_BASE" \
-            --expect-public-key "$BEEFTV_UPDATER_PUBLIC_KEY" \
+            --expect-public-key "$LUCKYTV_UPDATER_PUBLIC_KEY" \
             --require-platforms darwin-arm64,darwin-amd64,windows-amd64,linux-amd64 \
-            --asset "darwin-arm64=../dist/BeefTV-${VERSION}-darwin-arm64.zip" \
-            --asset "darwin-amd64=../dist/BeefTV-${VERSION}-darwin-amd64.zip" \
-            --asset "windows-amd64=../dist/BeefTV-${VERSION}-windows-amd64.zip" \
-            --asset "linux-amd64=../dist/BeefTV-${VERSION}-linux-amd64.zip" \
+            --asset "darwin-arm64=../dist/LuckyTV-${VERSION}-darwin-arm64.zip" \
+            --asset "darwin-amd64=../dist/LuckyTV-${VERSION}-darwin-amd64.zip" \
+            --asset "windows-amd64=../dist/LuckyTV-${VERSION}-windows-amd64.zip" \
+            --asset "linux-amd64=../dist/LuckyTV-${VERSION}-linux-amd64.zip" \
             --output "../dist/desktop-update.json"
           go run ./cmd/update-release verify \
             --envelope "../dist/desktop-update.json" \
-            --public-key-text "$BEEFTV_UPDATER_PUBLIC_KEY"
+            --public-key-text "$LUCKYTV_UPDATER_PUBLIC_KEY"
           if python3 -c 'import os, re, sys; m = re.match(r"^v(\d+)\.(\d+)\.(\d+)$", os.environ["VERSION"]); sys.exit(0 if m and (int(m[1]), int(m[2]), int(m[3])) >= (2, 1, 0) else 1)'; then
             delta_args=()
-            if [[ -n "${PREVIOUS_VERSION:-}" ]] && [[ -s "../dist/BeefTV-${VERSION}-darwin-arm64-from-${PREVIOUS_VERSION}.delta.zip" ]]; then
+            if [[ -n "${PREVIOUS_VERSION:-}" ]] && [[ -s "../dist/LuckyTV-${VERSION}-darwin-arm64-from-${PREVIOUS_VERSION}.delta.zip" ]]; then
               for platform in darwin-arm64 darwin-amd64 windows-amd64 linux-amd64; do
-                delta_args+=(--delta "${platform}=${PREVIOUS_VERSION}=../dist/BeefTV-${VERSION}-${platform}-from-${PREVIOUS_VERSION}.delta.zip")
+                delta_args+=(--delta "${platform}=${PREVIOUS_VERSION}=../dist/LuckyTV-${VERSION}-${platform}-from-${PREVIOUS_VERSION}.delta.zip")
               done
             fi
             go run ./cmd/update-release sign \
@@ -581,12 +581,12 @@ jobs:
               --version "$VERSION" \
               --from-envelope "../dist/desktop-update.json" \
               --download-base "$UPDATER_DOWNLOAD_BASE" \
-              --expect-public-key "$BEEFTV_UPDATER_PUBLIC_KEY" \
+              --expect-public-key "$LUCKYTV_UPDATER_PUBLIC_KEY" \
               "${delta_args[@]}" \
               --output "../dist/desktop-update-v2-r2.json"
             go run ./cmd/update-release verify \
               --envelope "../dist/desktop-update-v2-r2.json" \
-              --public-key-text "$BEEFTV_UPDATER_PUBLIC_KEY"
+              --public-key-text "$LUCKYTV_UPDATER_PUBLIC_KEY"
           fi
 
       - name: Stage and verify immutable R2 assets
@@ -607,7 +607,7 @@ jobs:
       - name: Publish signed GitHub release
         run: |
           set -euo pipefail
-          gh release upload "$VERSION" --clobber "dist/desktop-update.json" dist/BeefTV-"$VERSION"-*.zip dist/BeefTV-"$VERSION"-*.dmg dist/BeefTV-"$VERSION"-*-setup.exe dist/BeefTV-"$VERSION"-*.deb dist/BeefTV-"$VERSION"-ffprobe-darwin-*-sources.tar.gz dist/BeefTV-"$VERSION"-ffmpeg-wasm-sources.tar.gz
+          gh release upload "$VERSION" --clobber "dist/desktop-update.json" dist/LuckyTV-"$VERSION"-*.zip dist/LuckyTV-"$VERSION"-*.dmg dist/LuckyTV-"$VERSION"-*-setup.exe dist/LuckyTV-"$VERSION"-*.deb dist/LuckyTV-"$VERSION"-ffprobe-darwin-*-sources.tar.gz dist/LuckyTV-"$VERSION"-ffmpeg-wasm-sources.tar.gz
           gh release edit "$VERSION" --draft=false --latest
 
       - name: Activate verified R2 update feed
@@ -631,7 +631,7 @@ jobs:
               --endpoint-url "$RELEASE_ENDPOINT" --region "$RELEASE_REGION" \
               --bucket "$RELEASE_BUCKET" --public-base "$UPDATER_DOWNLOAD_BASE"
           fi
-          echo "Published $VERSION at $BEEFTV_UPDATER_FEED_URL."
+          echo "Published $VERSION at $LUCKYTV_UPDATER_FEED_URL."
 
       - name: Bridge activated feed for existing COS clients
         env:
@@ -652,6 +652,6 @@ jobs:
       version: ${{ needs.preflight.outputs.version }}
     secrets:
       BEEFTV_CNB_TRIGGER_TOKEN: ${{ secrets.BEEFTV_CNB_TRIGGER_TOKEN }}
-      BEEFTV_UPDATER_PRIVATE_KEY: ${{ secrets.BEEFTV_UPDATER_PRIVATE_KEY }}
+      LUCKYTV_UPDATER_PRIVATE_KEY: ${{ secrets.BEEFTV_UPDATER_PRIVATE_KEY }}
       BEEFTV_R2_ACCESS_KEY_ID: ${{ secrets.BEEFTV_R2_ACCESS_KEY_ID }}
       BEEFTV_R2_SECRET_ACCESS_KEY: ${{ secrets.BEEFTV_R2_SECRET_ACCESS_KEY }}

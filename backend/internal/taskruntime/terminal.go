@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 	"time"
 )
 

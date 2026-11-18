@@ -1,6 +1,6 @@
 package repository
 
-import "infinite-canvas/backend/internal/model"
+import "luckytv/backend/internal/model"
 
 func (r *Repository) PlaybackCopiesForUser(userID string) ([]model.Resource, error) {
 	var rows []model.Resource

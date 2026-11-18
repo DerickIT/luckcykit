@@ -3,7 +3,7 @@ package modelcatalog
 import (
 	"strings"
 
-	"infinite-canvas/backend/internal/kernel"
+	"luckytv/backend/internal/kernel"
 )
 
 // ValidateConfiguredTask applies stored channel capability to a task. Workflow

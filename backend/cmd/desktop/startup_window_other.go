@@ -2,6 +2,10 @@
 
 package main
 
-import "github.com/wailsapp/wails/v2/pkg/options"
+import "github.com/wailsapp/wails/v3/pkg/application"
 
-func configureStartupWindow(*options.App) {}
+func configureStartupWindow(*application.App) {}
+
+func configureWindowStartup(_ *application.App, window application.Window) {
+	window.Show()
+}

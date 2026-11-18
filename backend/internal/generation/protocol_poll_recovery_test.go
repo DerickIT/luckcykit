@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/protocol"
 )
 
 func TestImageProtocolPollRecoveryNeverResubmits(t *testing.T) {
@@ -52,7 +52,7 @@ func TestImageProtocolPollRecoveryNeverResubmits(t *testing.T) {
 				fmt.Fprint(w, `{"id":"original","status":"succeeded","images":[{"url":"https://93.184.216.34/result.png"}]}`)
 			}))
 			defer server.Close()
-			adapters, err := protocol.LoadInstalledProviders([]byte(`{"apiVersion":"beeftv.plugin/v2","id":"poll-fixture","name":"Fixture","version":"1.0.0","contributes":{"providers":[{"id":"poll-fixture","label":"Fixture","capabilities":["image"],"scopes":["canvas"],"auth":{"type":"bearer","field":"apiKey"},"create":{"method":"POST","path":"/tasks"},"poll":{"method":"GET","path":"/tasks/{{taskId}}"},"response":{"taskId":{"$ref":"response.id"},"status":{"$ref":"response.status"},"images":{"$ref":"response.images"}}}]}}`))
+			adapters, err := protocol.LoadInstalledProviders([]byte(`{"apiVersion":"luckytv.plugin/v2","id":"poll-fixture","name":"Fixture","version":"1.0.0","contributes":{"providers":[{"id":"poll-fixture","label":"Fixture","capabilities":["image"],"scopes":["canvas"],"auth":{"type":"bearer","field":"apiKey"},"create":{"method":"POST","path":"/tasks"},"poll":{"method":"GET","path":"/tasks/{{taskId}}"},"response":{"taskId":{"$ref":"response.id"},"status":{"$ref":"response.status"},"images":{"$ref":"response.images"}}}]}}`))
 			if err != nil {
 				t.Fatal(err)
 			}

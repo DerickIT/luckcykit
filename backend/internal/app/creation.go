@@ -3,8 +3,8 @@ package app
 import (
 	"encoding/json"
 
-	"infinite-canvas/backend/internal/creation"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/creation"
+	"luckytv/backend/internal/model"
 )
 
 type (

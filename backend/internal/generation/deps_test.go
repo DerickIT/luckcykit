@@ -8,14 +8,14 @@ import (
 
 func TestGenerationDomainDoesNotImportApp(t *testing.T) {
 	assertGenerationForbiddenDeps(t, map[string]string{
-		"infinite-canvas/backend/internal/app": "internal/app",
+		"luckytv/backend/internal/app": "internal/app",
 	})
 }
 
 func TestGenerationDomainDoesNotDependOnCreationOrCanvas(t *testing.T) {
 	assertGenerationForbiddenDeps(t, map[string]string{
-		"infinite-canvas/backend/internal/creation": "creation",
-		"infinite-canvas/backend/internal/canvas":   "canvas document writes",
+		"luckytv/backend/internal/creation": "creation",
+		"luckytv/backend/internal/canvas":   "canvas document writes",
 	})
 }
 

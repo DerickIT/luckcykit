@@ -3,7 +3,7 @@ package modelcatalog
 import (
 	"strings"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 // AudioGenerationOptions describes choices exposed by the current speech path.

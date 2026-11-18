@@ -4,14 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/outbound"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/outbound"
 	"os"
 	"path/filepath"
 	"strconv"
 	"time"
 
-	"infinite-canvas/backend/internal/referencestorage"
+	"luckytv/backend/internal/referencestorage"
 )
 
 func (a *DesktopApp) ReferenceStorageSettings() (referencestorage.PublicConfig, error) {

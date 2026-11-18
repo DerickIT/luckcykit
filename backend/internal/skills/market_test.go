@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/skillhub"
+	"luckytv/backend/internal/skillhub"
 )
 
 func testMarketRelease(t *testing.T, version, body string) (skillhub.Release, []byte) {
@@ -43,7 +43,7 @@ func TestMarketInstallUpdateRollbackAndHashFailurePreservePins(t *testing.T) {
 		json.NewEncoder(w).Encode(map[string]any{"success": true, "data": current})
 	}))
 	defer server.Close()
-	t.Setenv("BEEFTV_SKILLHUB_URL", server.URL)
+	t.Setenv("LUCKYTV_SKILLHUB_URL", server.URL)
 	first, e := s.InstallMarket(context.Background(), "owner", r1.SkillID, r1.ReleaseID)
 	if e != nil {
 		t.Fatal(e)
@@ -143,7 +143,7 @@ func TestPublicationRequiresTwoSpecificUserConfirmations(t *testing.T) {
 		json.NewEncoder(w).Encode(map[string]any{"success": true, "data": data})
 	}))
 	defer server.Close()
-	t.Setenv("BEEFTV_SKILLHUB_URL", server.URL)
+	t.Setenv("LUCKYTV_SKILLHUB_URL", server.URL)
 	if e := writeMarketJSON(filepath.Join(s.marketUserDir("owner"), "authorization.json"), marketAuth{Endpoint: server.URL, AccessToken: "btvpub_test_fixture_only", ExpiresAt: time.Now().Add(time.Hour)}); e != nil {
 		t.Fatal(e)
 	}
@@ -219,7 +219,7 @@ func TestPrivateForkKeepsReferencesWhenEdited(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	original, e := s.createSkillFromArchive("owner", a, SkillInstallRequest{IsPrivate: true}, "market", "https://beeftv.app/skills/original", "original", "", "release", false)
+	original, e := s.createSkillFromArchive("owner", a, SkillInstallRequest{IsPrivate: true}, "market", "https://luckytv.app/skills/original", "original", "", "release", false)
 	if e != nil {
 		t.Fatal(e)
 	}

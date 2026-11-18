@@ -2,8 +2,8 @@ package app
 
 import (
 	"context"
-	"infinite-canvas/backend/internal/mediaattempt"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/mediaattempt"
+	"luckytv/backend/internal/model"
 	"net/http"
 )
 

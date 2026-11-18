@@ -12,12 +12,12 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/outbound"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/outbound"
 )
 
-// In-generation result downloads report under the executing BeefTV task, so one
+// In-generation result downloads report under the executing LuckyTV task, so one
 // projection covers both phases.
 func TestTaskDeliveryPortRecordsUnderTaskIdentityAndClears(t *testing.T) {
 	svc := &Service{}
@@ -92,7 +92,7 @@ func TestVideoDeliveryStreamIsVisibleOnWorkspaceTask(t *testing.T) {
 		}
 	}))
 	defer server.Close()
-	ctx := generation.WithEndpoints(context.Background(), generation.Endpoints{BeefTVVideoBaseURL: server.URL})
+	ctx := generation.WithEndpoints(context.Background(), generation.Endpoints{LuckyTVVideoBaseURL: server.URL})
 	ctx = generation.WithRuntime(ctx, generation.Runtime{Delivery: appTaskDeliveryPort{service: svc, taskID: taskID}, Stages: appTaskStagePort{service: svc, task: task}})
 	policy := generation.DefaultVideoPollPolicy()
 	sawWaiting := false
@@ -187,21 +187,21 @@ func TestVideoDeliveryStreamIsVisibleOnWorkspaceTask(t *testing.T) {
 }
 
 // Video downloads pass the provider's task id to the generation layer. Progress
-// must still land on the BeefTV task the user sees, never the provider id.
-func TestVideoDownloadProgressUsesBeefTVTaskIDNotProviderID(t *testing.T) {
-	const beefTaskID = "beeftv-task-1"
+// must still land on the LuckyTV task the user sees, never the provider id.
+func TestVideoDownloadProgressUsesLuckyTVTaskIDNotProviderID(t *testing.T) {
+	const luckyTaskID = "luckytv-task-1"
 	const providerTaskID = "task_WvIGYZ_provider"
 	svc := &Service{}
 	ctx := generation.WithRuntime(context.Background(), generation.Runtime{
-		Delivery: appTaskDeliveryPort{service: svc, taskID: beefTaskID},
+		Delivery: appTaskDeliveryPort{service: svc, taskID: luckyTaskID},
 	})
 	policy := generation.DefaultVideoPollPolicy()
 	policy.MaxDownloadTries = 1
 
 	data, mimeType, err := generation.RunVideoDownload(ctx, providerTaskID, policy, func(context.Context) ([]byte, string, error) {
-		progress := svc.deliveryProgressRegistry().forTask(beefTaskID)
+		progress := svc.deliveryProgressRegistry().forTask(luckyTaskID)
 		if progress == nil || len(progress.Outputs) != 1 || progress.Outputs[0].State != "downloading" {
-			t.Fatalf("progress not visible on the BeefTV task while downloading: %+v", progress)
+			t.Fatalf("progress not visible on the LuckyTV task while downloading: %+v", progress)
 		}
 		if leaked := svc.deliveryProgressRegistry().forTask(providerTaskID); leaked != nil {
 			t.Fatalf("progress keyed by provider id: %+v", leaked)
@@ -211,7 +211,7 @@ func TestVideoDownloadProgressUsesBeefTVTaskIDNotProviderID(t *testing.T) {
 	if err != nil || string(data) != "video" || mimeType != "video/mp4" {
 		t.Fatalf("download = %q %q %v", data, mimeType, err)
 	}
-	if after := svc.deliveryProgressRegistry().forTask(beefTaskID); after != nil {
+	if after := svc.deliveryProgressRegistry().forTask(luckyTaskID); after != nil {
 		t.Fatalf("progress not cleared after download: %+v", after)
 	}
 }

@@ -3,7 +3,7 @@ package app
 import (
 	"testing"
 
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/operations"
 )
 
 // 节点上确认过的视频参数必须原样进入生成配置：分辨率不能丢，显式 false 的声音也不能变成空值。

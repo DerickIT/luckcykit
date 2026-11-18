@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 // Store is the durable text-replay ledger. Every read and write carries the

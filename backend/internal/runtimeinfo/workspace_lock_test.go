@@ -12,18 +12,18 @@ import (
 )
 
 func TestWorkspaceLockRejectsLiveLegacyProcess(t *testing.T) {
-	if os.Getenv("BEEFTV_LOCK_TEST_CHILD") == "1" {
+	if os.Getenv("LUCKYTV_LOCK_TEST_CHILD") == "1" {
 		time.Sleep(time.Minute)
 		return
 	}
 	child := exec.Command(os.Args[0], "-test.run=^TestWorkspaceLockRejectsLiveLegacyProcess$")
-	child.Env = append(os.Environ(), "BEEFTV_LOCK_TEST_CHILD=1")
+	child.Env = append(os.Environ(), "LUCKYTV_LOCK_TEST_CHILD=1")
 	if err := child.Start(); err != nil {
 		t.Fatal(err)
 	}
 	defer func() { _ = child.Process.Kill(); _ = child.Wait() }()
 	// A default Windows workspace has exactly the same protection as another drive.
-	dir := filepath.Join(t.TempDir(), "AppData", "Roaming", "BeefTV")
+	dir := filepath.Join(t.TempDir(), "AppData", "Roaming", "LuckyTV")
 	if err := os.MkdirAll(dir, 0700); err != nil {
 		t.Fatal(err)
 	}
@@ -42,7 +42,7 @@ func TestWorkspaceLockRejectsLiveLegacyProcess(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer lock.Close()
-	if runtime.GOOS == "windows" && !strings.Contains(lock.Name(), string(os.PathSeparator)+".beeftv"+string(os.PathSeparator)+"runtime"+string(os.PathSeparator)) {
+	if runtime.GOOS == "windows" && !strings.Contains(lock.Name(), string(os.PathSeparator)+".luckytv"+string(os.PathSeparator)+"runtime"+string(os.PathSeparator)) {
 		t.Fatal("lock remained inside AppData")
 	}
 	if duplicate, err := LockWorkspace(dir); err == nil {
@@ -52,18 +52,18 @@ func TestWorkspaceLockRejectsLiveLegacyProcess(t *testing.T) {
 }
 
 func TestWorkspaceLockRecoversStaleCrashedDescriptorAfterPIDReuse(t *testing.T) {
-	if os.Getenv("BEEFTV_LOCK_REUSE_CHILD") == "1" {
+	if os.Getenv("LUCKYTV_LOCK_REUSE_CHILD") == "1" {
 		time.Sleep(time.Minute)
 		return
 	}
 	child := exec.Command(os.Args[0], "-test.run=^TestWorkspaceLockRecoversStaleCrashedDescriptorAfterPIDReuse$")
-	child.Env = append(os.Environ(), "BEEFTV_LOCK_REUSE_CHILD=1")
+	child.Env = append(os.Environ(), "LUCKYTV_LOCK_REUSE_CHILD=1")
 	if err := child.Start(); err != nil {
 		t.Fatal(err)
 	}
 	defer func() { _ = child.Process.Kill(); _ = child.Wait() }()
 
-	dir := filepath.Join(t.TempDir(), "BeefTV")
+	dir := filepath.Join(t.TempDir(), "LuckyTV")
 	if err := os.MkdirAll(dir, 0700); err != nil {
 		t.Fatal(err)
 	}

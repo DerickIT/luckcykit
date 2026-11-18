@@ -1,6 +1,6 @@
 package app
 
-import localtask "infinite-canvas/backend/internal/task"
+import localtask "luckytv/backend/internal/task"
 
 const (
 	taskTextStreamFlushBytes    = localtask.TextStreamFlushBytes

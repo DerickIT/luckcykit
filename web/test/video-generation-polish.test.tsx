@@ -35,13 +35,13 @@ const edgesTo = (targetId: string, sourceIds: string[]) =>
     sourceIds.map((fromNodeId, idx) => ({ id: `e-${targetId}-${idx}`, fromNodeId, toNodeId: targetId }));
 
 function createFixtureConfigs() {
-    const beeftvChannel = createModelChannel({
-        id: "beeftv",
-        name: "BeefTV",
+    const luckytvChannel = createModelChannel({
+        id: "luckytv",
+        name: "LuckyTV",
         scope: "system",
         pinned: true,
-        credentialRef: "beeftv",
-        baseUrl: "https://beeftv.app/v1",
+        credentialRef: "luckytv",
+        baseUrl: "https://luckytv.app/v1",
         models: ["minimax-h3-max", "wan3.0-video", "single-frame-video", "single-ref-image", "text-only-image", "multi-ref-image"],
     });
     const singleFrameOnlyItem = {
@@ -81,7 +81,7 @@ function createFixtureConfigs() {
         imageCapabilitiesVersion: "2026-04-01",
         imageCapabilities: { ...baseImgCap, references: { ...baseImgCap.references, maxImages: 4 } },
     };
-    beeftvChannel.modelProfiles = mergeFetchedChannelModelProfiles(beeftvChannel, [
+    luckytvChannel.modelProfiles = mergeFetchedChannelModelProfiles(luckytvChannel, [
         managedVideoCatalogItem("minimax-h3-max"),
         managedVideoCatalogItem("wan3.0-video"),
         singleFrameOnlyItem,
@@ -91,22 +91,22 @@ function createFixtureConfigs() {
     ]);
     return {
         h3Config: normalizeConfigSnapshot({
-            config: { ...defaultConfig, channels: [beeftvChannel], model: "beeftv::minimax-h3-max", videoModel: "beeftv::minimax-h3-max" },
+            config: { ...defaultConfig, channels: [luckytvChannel], model: "luckytv::minimax-h3-max", videoModel: "luckytv::minimax-h3-max" },
         }).config,
         wanConfig: normalizeConfigSnapshot({
-            config: { ...defaultConfig, channels: [beeftvChannel], model: "beeftv::wan3.0-video", videoModel: "beeftv::wan3.0-video" },
+            config: { ...defaultConfig, channels: [luckytvChannel], model: "luckytv::wan3.0-video", videoModel: "luckytv::wan3.0-video" },
         }).config,
         singleFrameConfig: normalizeConfigSnapshot({
-            config: { ...defaultConfig, channels: [beeftvChannel], model: "beeftv::single-frame-video", videoModel: "beeftv::single-frame-video" },
+            config: { ...defaultConfig, channels: [luckytvChannel], model: "luckytv::single-frame-video", videoModel: "luckytv::single-frame-video" },
         }).config,
         singleRefImageConfig: normalizeConfigSnapshot({
-            config: { ...defaultConfig, channels: [beeftvChannel], model: "beeftv::single-ref-image", imageModel: "beeftv::single-ref-image" },
+            config: { ...defaultConfig, channels: [luckytvChannel], model: "luckytv::single-ref-image", imageModel: "luckytv::single-ref-image" },
         }).config,
         textOnlyImageConfig: normalizeConfigSnapshot({
-            config: { ...defaultConfig, channels: [beeftvChannel], model: "beeftv::text-only-image", imageModel: "beeftv::text-only-image" },
+            config: { ...defaultConfig, channels: [luckytvChannel], model: "luckytv::text-only-image", imageModel: "luckytv::text-only-image" },
         }).config,
         multiRefImageConfig: normalizeConfigSnapshot({
-            config: { ...defaultConfig, channels: [beeftvChannel], model: "beeftv::multi-ref-image", imageModel: "beeftv::multi-ref-image" },
+            config: { ...defaultConfig, channels: [luckytvChannel], model: "luckytv::multi-ref-image", imageModel: "luckytv::multi-ref-image" },
         }).config,
     };
 }
@@ -129,7 +129,7 @@ describe("Video & Canvas generation polish regressions", () => {
                 position: { x: 0, y: 100 },
                 width: 100,
                 height: 100,
-                metadata: { model: "beeftv::minimax-h3-max" },
+                metadata: { model: "luckytv::minimax-h3-max" },
             },
             {
                 referenceImages: twoImageNodes,
@@ -189,7 +189,7 @@ describe("Video & Canvas generation polish regressions", () => {
             position: { x: 0, y: 0 },
             width: 320,
             height: 180,
-            metadata: { model: "beeftv::single-frame-video", prompt: "测试镜头" },
+            metadata: { model: "luckytv::single-frame-video", prompt: "测试镜头" },
         };
         const twoRefs = makeImageRefs(2);
         const incompatiblePanelHtml = renderToStaticMarkup(
@@ -217,7 +217,7 @@ describe("Video & Canvas generation polish regressions", () => {
             position: { x: 0, y: 120 },
             width: 320,
             height: 180,
-            metadata: { model: "beeftv::minimax-h3-max", prompt: "@[node:img-1] @[node:img-2] 推镜" },
+            metadata: { model: "luckytv::minimax-h3-max", prompt: "@[node:img-1] @[node:img-2] 推镜" },
         };
         const h3GraphNodes = [h3VideoTarget, ...fiveImageNodes];
         const h3GraphEdges = edgesTo("vid-h3-subset", fiveImageNodes.map((n) => n.id));
@@ -257,7 +257,7 @@ describe("Video & Canvas generation polish regressions", () => {
             position: { x: 0, y: 120 },
             width: 320,
             height: 180,
-            metadata: { model: "beeftv::single-frame-video", prompt: "@[node:txt-1] 按分镜生成" },
+            metadata: { model: "luckytv::single-frame-video", prompt: "@[node:txt-1] 按分镜生成" },
         };
         const videoTextNodes = [videoTextTarget, ...fiveImageNodes, textNode];
         const videoTextEdges = edgesTo("vid-text-only", [...fiveImageNodes.map((n) => n.id), "txt-1"]);
@@ -304,7 +304,7 @@ describe("Video & Canvas generation polish regressions", () => {
             position: { x: 0, y: 120 },
             width: 320,
             height: 180,
-            metadata: { model: "beeftv::single-ref-image", prompt: "@[node:img-1] 局部重绘" },
+            metadata: { model: "luckytv::single-ref-image", prompt: "@[node:img-1] 局部重绘" },
         };
         const imageSubsetNodes = [imageSubsetTarget, ...fiveImageNodes];
         const imageSubsetEdges = edgesTo("img-target-subset", fiveImageNodes.map((n) => n.id));
@@ -344,7 +344,7 @@ describe("Video & Canvas generation polish regressions", () => {
             position: { x: 0, y: 120 },
             width: 320,
             height: 180,
-            metadata: { model: "beeftv::text-only-image", prompt: "@[node:txt-nested-img] 生成概念图" },
+            metadata: { model: "luckytv::text-only-image", prompt: "@[node:txt-nested-img] 生成概念图" },
         };
         const imageNestedNodes = [imageNestedTarget, fiveImageNodes[0]!, nestedMediaTextNode];
         const imageNestedEdges = edgesTo("img-nested-target", ["img-1", "txt-nested-img"]);
@@ -381,7 +381,7 @@ describe("Video & Canvas generation polish regressions", () => {
                         position: { x: 0, y: 0 },
                         width: 320,
                         height: 180,
-                        metadata: { model: "beeftv::single-frame-video", prompt: "重新生成新镜头", content: "https://example.com/old.mp4" },
+                        metadata: { model: "luckytv::single-frame-video", prompt: "重新生成新镜头", content: "https://example.com/old.mp4" },
                     }}
                     config={singleFrameConfig}
                     projectId="proj-1"
@@ -422,7 +422,7 @@ describe("Video & Canvas generation polish regressions", () => {
                             position: { x: 0, y: 0 },
                             width: 320,
                             height: 180,
-                            metadata: { model: "beeftv::single-frame-video", prompt: "@[asset:asset-1] @[asset:asset-2] 双图运动" },
+                            metadata: { model: "luckytv::single-frame-video", prompt: "@[asset:asset-1] @[asset:asset-2] 双图运动" },
                         }}
                         config={singleFrameConfig}
                         projectId="proj-1"
@@ -469,7 +469,7 @@ describe("Video & Canvas generation polish regressions", () => {
             position: { x: 320, y: 0 },
             width: 320,
             height: 180,
-            metadata: { model: "beeftv::minimax-h3-max", prompt: "按线稿运动" },
+            metadata: { model: "luckytv::minimax-h3-max", prompt: "按线稿运动" },
         };
         const convNodes = [videoTarget, imgSrc, pendingConversion];
         const convEdges = [
@@ -514,7 +514,7 @@ describe("Video & Canvas generation polish regressions", () => {
             position: { x: 0, y: 120 },
             width: 320,
             height: 180,
-            metadata: { model: "beeftv::multi-ref-image", prompt: "| IMAGE 1 | @镜头2 |\n合成海报" },
+            metadata: { model: "luckytv::multi-ref-image", prompt: "| IMAGE 1 | @镜头2 |\n合成海报" },
         };
         const badTableNodes = [badTableTarget, ...twoImgs];
         const badTableEdges = edgesTo("img-bad-table", ["img-1", "img-2"]);
@@ -565,7 +565,7 @@ describe("Video & Canvas generation polish regressions", () => {
             position: { x: 0, y: 120 },
             width: 320,
             height: 180,
-            metadata: { model: "beeftv::minimax-h3-max", prompt: "| IMAGE 1 | @镜头2 |\n推镜" },
+            metadata: { model: "luckytv::minimax-h3-max", prompt: "| IMAGE 1 | @镜头2 |\n推镜" },
         };
         const videoBadTableHtml = renderToStaticMarkup(
             <QueryClientProvider client={new QueryClient()}>
@@ -602,7 +602,7 @@ describe("Video & Canvas generation polish regressions", () => {
             position: { x: 0, y: 120 },
             width: 320,
             height: 180,
-            metadata: { model: "beeftv::wan3.0-video", prompt: "@[node:img-2] 主角出场\n| IMAGE 1 | @镜头1 |" },
+            metadata: { model: "luckytv::wan3.0-video", prompt: "@[node:img-2] 主角出场\n| IMAGE 1 | @镜头1 |" },
         };
         const omniNodes = [omniReorderTarget, ...threeImgs];
         const omniEdges = edgesTo("vid-omni-table", ["img-1", "img-2", "img-3"]);
@@ -635,7 +635,7 @@ describe("Video & Canvas generation polish regressions", () => {
         const pickerWarningHtml = renderToStaticMarkup(
             <ModelPicker
                 config={singleFrameConfig}
-                value="beeftv::single-frame-video"
+                value="luckytv::single-frame-video"
                 capability="video"
                 requirements={{ capability: "video", input: { textCount: 1, imageCount: 2, videoCount: 0, audioCount: 0, characterCount: 0 } }}
                 onChange={() => {}}

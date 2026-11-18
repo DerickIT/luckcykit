@@ -53,7 +53,7 @@ func newMultiSourceFixture(t *testing.T, cfg multiSourceConfig) *multiSourceFixt
 	files, execFiles := DarwinZipFiles("NEW-V2")
 	padding := make([]byte, 256*1024)
 	rand.New(rand.NewSource(42)).Read(padding)
-	files["BeefTV.app/Contents/Resources/padding.bin"] = padding
+	files["LuckyTV.app/Contents/Resources/padding.bin"] = padding
 	zipPath := filepath.Join(t.TempDir(), "app.zip")
 	if err := WriteZip(zipPath, files, execFiles); err != nil {
 		t.Fatal(err)
@@ -71,9 +71,9 @@ func newMultiSourceFixture(t *testing.T, cfg multiSourceConfig) *multiSourceFixt
 	}
 
 	const (
-		cnbZipURL = "https://cnb.cool/beeftv-downloads/desktop/-/releases/download/v2.1.0/BeefTV-v2.1.0-darwin-arm64.zip"
-		r2ZipURL  = "https://updates.beefapi.com/beeftv/v2.1.0/BeefTV-v2.1.0-darwin-arm64.zip"
-		feedURL   = "https://updates.beefapi.com/beeftv/desktop-update-v2.json"
+		cnbZipURL = "https://cnb.cool/luckytv-downloads/desktop/-/releases/download/v2.1.0/LuckyTV-v2.1.0-darwin-arm64.zip"
+		r2ZipURL  = "https://updates.luckyapi.com/luckytv/v2.1.0/LuckyTV-v2.1.0-darwin-arm64.zip"
+		feedURL   = "https://updates.luckyapi.com/luckytv/desktop-update-v2.json"
 	)
 
 	var cnbCalls, assetCalls, r2Calls int
@@ -109,7 +109,7 @@ func newMultiSourceFixture(t *testing.T, cfg multiSourceConfig) *multiSourceFixt
 	t.Cleanup(cnbServer.Close)
 
 	r2Server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/beeftv/desktop-update-v2.json" {
+		if r.URL.Path == "/luckytv/desktop-update-v2.json" {
 			payload := Payload{
 				Schema:  payloadSchemaV2,
 				Version: "v2.1.0",
@@ -136,7 +136,7 @@ func newMultiSourceFixture(t *testing.T, cfg multiSourceConfig) *multiSourceFixt
 		r2Calls++
 		call := r2Calls
 		f.r2Ranges = append(f.r2Ranges, r.Header.Get("Range"))
-		f.requestOrder = append(f.requestOrder, "updates.beefapi.com")
+		f.requestOrder = append(f.requestOrder, "updates.luckyapi.com")
 		f.mu.Unlock()
 		if cfg.serveR2 != nil {
 			cfg.serveR2(w, r, zipBytes, call)
@@ -154,7 +154,7 @@ func newMultiSourceFixture(t *testing.T, cfg multiSourceConfig) *multiSourceFixt
 	hostAddrs := map[string]string{
 		"cnb.cool":            cnbServer.Listener.Addr().String(),
 		"asset.cnb.cool":      assetServer.Listener.Addr().String(),
-		"updates.beefapi.com": r2Server.Listener.Addr().String(),
+		"updates.luckyapi.com": r2Server.Listener.Addr().String(),
 	}
 	dialer := &net.Dialer{Timeout: 5 * time.Second}
 	transport := &http.Transport{
@@ -446,7 +446,7 @@ func TestRedirectedRangeResumeAndExpiredTemporaryLinkRecovery(t *testing.T) {
 			locale:   "zh-CN",
 			timezone: "Asia/Shanghai",
 			serveCNB: func(w http.ResponseWriter, r *http.Request, zip []byte, call int) {
-				http.Redirect(w, r, "https://evil.example.com/BeefTV.zip", http.StatusFound)
+				http.Redirect(w, r, "https://evil.example.com/LuckyTV.zip", http.StatusFound)
 			},
 		})
 		state, err := f.engine.DownloadUpdate(context.Background())

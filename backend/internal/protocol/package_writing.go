@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// npm 插件的 beeftv 清单只认一种写法。别名和放错位置的字段以前会被悄悄忽略，
+// npm 插件的 luckytv 清单只认一种写法。别名和放错位置的字段以前会被悄悄忽略，
 // 开发者照着写却不生效；安装和更新时逐项指出该怎么改。已经装好的插件不在启动时
 // 重新检查，旧写法照旧加载，更新到新版本时才要求改。
 var (
@@ -19,14 +19,14 @@ var (
 		"version":       "版本取自 package.json 的 version，删掉这一项",
 		"description":   "说明写在 package.json 的 description",
 		"author":        "作者写在 package.json 的 author",
-		"displayName":   "显示名写在 beeftv.name",
+		"displayName":   "显示名写在 luckytv.name",
 		"apiVersion":    "不用写，npm 插件总按最新的清单规则读取",
 		"schemaVersion": "不用写，删掉这一项",
-		"trusted":       "不用写，只有 BeefTV 自带的插件算内置",
-		"renderer":      "写在 beeftv.contributes.canvasNodes[].renderer",
-		"canvasNodes":   "写在 beeftv.contributes.canvasNodes",
-		"providers":     "写在 beeftv.contributes.providers",
-		"workflows":     "写在 beeftv.contributes.workflows",
+		"trusted":       "不用写，只有 LuckyTV 自带的插件算内置",
+		"renderer":      "写在 luckytv.contributes.canvasNodes[].renderer",
+		"canvasNodes":   "写在 luckytv.contributes.canvasNodes",
+		"providers":     "写在 luckytv.contributes.providers",
+		"workflows":     "写在 luckytv.contributes.workflows",
 	}
 	packageContributionKeys = map[string]string{
 		"providers": "", "workflows": "", "canvasNodes": "",
@@ -51,45 +51,45 @@ var (
 	}
 )
 
-// CheckPackageManifestWriting 检查 npm 插件包 package.json 里 beeftv 的写法，一次列出全部问题。
+// CheckPackageManifestWriting 检查 npm 插件包 package.json 里 luckytv 的写法，一次列出全部问题。
 func CheckPackageManifestWriting(root string) error {
 	raw, err := os.ReadFile(filepath.Join(root, "package.json"))
 	if err != nil {
 		return fmt.Errorf("read package.json: %w", err)
 	}
 	var pkg struct {
-		BeefTV json.RawMessage `json:"beeftv"`
+		LuckyTV json.RawMessage `json:"luckytv"`
 	}
 	if err := json.Unmarshal(raw, &pkg); err != nil {
 		return fmt.Errorf("decode package.json: %w", err)
 	}
 	var manifest map[string]json.RawMessage
-	if len(pkg.BeefTV) == 0 || string(pkg.BeefTV) == "null" || json.Unmarshal(pkg.BeefTV, &manifest) != nil {
-		// 没有 beeftv 的纯 pi 包合法；不是对象的 beeftv 由 ParsePluginPackageDir 报错。
+	if len(pkg.LuckyTV) == 0 || string(pkg.LuckyTV) == "null" || json.Unmarshal(pkg.LuckyTV, &manifest) != nil {
+		// 没有 luckytv 的纯 pi 包合法；不是对象的 luckytv 由 ParsePluginPackageDir 报错。
 		return nil
 	}
 	var problems []string
-	problems = append(problems, unknownKeys("beeftv", manifest, packageManifestKeys)...)
+	problems = append(problems, unknownKeys("luckytv", manifest, packageManifestKeys)...)
 	var configuration struct {
 		Fields []map[string]json.RawMessage `json:"fields"`
 	}
 	if rawConfiguration, ok := manifest["configuration"]; ok && json.Unmarshal(rawConfiguration, &configuration) == nil {
-		problems = append(problems, fieldProblems("beeftv.configuration.fields", configuration.Fields)...)
+		problems = append(problems, fieldProblems("luckytv.configuration.fields", configuration.Fields)...)
 	}
 	var contributes map[string]json.RawMessage
 	if rawContributes, ok := manifest["contributes"]; ok && json.Unmarshal(rawContributes, &contributes) == nil {
-		problems = append(problems, unknownKeys("beeftv.contributes", contributes, packageContributionKeys)...)
+		problems = append(problems, unknownKeys("luckytv.contributes", contributes, packageContributionKeys)...)
 		var nodes []map[string]json.RawMessage
 		if rawNodes, ok := contributes["canvasNodes"]; ok && json.Unmarshal(rawNodes, &nodes) == nil {
 			for index, node := range nodes {
-				problems = append(problems, unknownKeys(fmt.Sprintf("beeftv.contributes.canvasNodes[%d]", index), node, packageCanvasNodeKeys)...)
+				problems = append(problems, unknownKeys(fmt.Sprintf("luckytv.contributes.canvasNodes[%d]", index), node, packageCanvasNodeKeys)...)
 			}
 		}
 	}
 	if len(problems) == 0 {
 		return nil
 	}
-	return fmt.Errorf("package.json 的 beeftv 写法需要修改：\n%s", strings.Join(problems, "\n"))
+	return fmt.Errorf("package.json 的 luckytv 写法需要修改：\n%s", strings.Join(problems, "\n"))
 }
 
 func fieldProblems(prefix string, fields []map[string]json.RawMessage) []string {
@@ -111,7 +111,7 @@ func unknownKeys(prefix string, object map[string]json.RawMessage, allowed map[s
 		hint, known := allowed[key]
 		switch {
 		case !known:
-			problems = append(problems, fmt.Sprintf("- %s.%s：BeefTV 不认识这一项", prefix, key))
+			problems = append(problems, fmt.Sprintf("- %s.%s：LuckyTV 不认识这一项", prefix, key))
 		case hint != "":
 			problems = append(problems, fmt.Sprintf("- %s.%s：%s", prefix, key, hint))
 		}

@@ -22,5 +22,5 @@ export async function compileAppStyles(extraCss: string[] = []) {
     const webRoot = import.meta.dir + "/../..";
     const globalsPath = webRoot + "/src/styles/globals.css";
     const compiled = (await postcss([tailwind({ base: webRoot })]).process(readFileSync(globalsPath, "utf8"), { from: globalsPath })).css;
-    return [compiled, readFileSync(webRoot + "/src/styles/beeftv-local-overrides.css", "utf8"), readFileSync(webRoot + "/src/styles/workspace-product.css", "utf8"), ...extraCss].join("\n");
+    return [compiled, readFileSync(webRoot + "/src/styles/luckytv-local-overrides.css", "utf8"), readFileSync(webRoot + "/src/styles/workspace-product.css", "utf8"), ...extraCss].join("\n");
 }

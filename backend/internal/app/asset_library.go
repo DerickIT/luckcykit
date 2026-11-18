@@ -1,7 +1,7 @@
 package app
 
 import (
-	"infinite-canvas/backend/internal/asset"
+	"luckytv/backend/internal/asset"
 )
 
 type CreateAssetFolderRequest = asset.CreateAssetFolderRequest

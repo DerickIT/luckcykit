@@ -1,8 +1,8 @@
 package app
 
 import (
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/provider"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/provider"
 )
 
 func initModelCatalogPlugins() { modelcatalog.InitModelCatalogPlugins() }

@@ -19,7 +19,7 @@ beforeAll(async () => {
     const executablePath = [process.env.CHROME_PATH, "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"].find((path): path is string => Boolean(path && existsSync(path)));
     browser = await chromium.launch({ headless: true, executablePath });
     page = await browser.newPage();
-    await page.route("https://beeftv-drag.test/**", route => route.fulfill(new URL(route.request().url()).pathname === "/app.js"
+    await page.route("https://luckytv-drag.test/**", route => route.fulfill(new URL(route.request().url()).pathname === "/app.js"
         ? { contentType: "text/javascript", body: script }
         : { contentType: "text/html", body: '<div id="root"></div><script type="module">import { mountConnectionDragHarness } from "/app.js"; mountConnectionDragHarness(document.getElementById("root"));</script>' }));
 }, 30_000);
@@ -27,7 +27,7 @@ beforeAll(async () => {
 afterAll(async () => { await browser?.close(); });
 
 async function mount() {
-    await page.goto("https://beeftv-drag.test/");
+    await page.goto("https://luckytv-drag.test/");
     await page.locator('g[data-canvas-connection-id="main"]').waitFor();
 }
 

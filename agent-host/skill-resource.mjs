@@ -317,7 +317,7 @@ export function formatSkillCatalog(items,{total=items?.length || 0}={}) {
 // the leading system header, while cache.items still refreshes for skill_load.
 export function createSkillCatalogSection({ readCatalog, cache = {} }) {
   if (typeof readCatalog !== 'function') throw fail('skill_service_unavailable');
-  return section('beeftv_skill_catalog', async (_input, context) => {
+  return section('luckytv_skill_catalog', async (_input, context) => {
     try {
       const catalog=await readCatalog(context?.signal);
       cache.items = normalizeSkillCatalog(catalog);

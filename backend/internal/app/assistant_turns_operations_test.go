@@ -10,11 +10,11 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/database"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/database"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 )
 
 // External test package exercises the real operation store without an app ->

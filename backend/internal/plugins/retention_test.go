@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/protocol"
 )
 
 type staticReferences map[string]ReferenceUsage
@@ -27,7 +27,7 @@ func (failingReferences) ReferencedProviders() (map[string]ReferenceUsage, error
 // package ID, the shape saved configuration actually stores (`openai-videos`
 // contributes `newapi`).
 func retentionManifest(pluginID, providerID, version string) []byte {
-	return []byte(fmt.Sprintf(`{"apiVersion":"beeftv.plugin/v1","id":%q,"version":%q,"name":%q,"author":"Test","documentation":"# %s","contributes":{"providers":[{"id":%q,"label":%q,"capabilities":["video"],"scopes":["canvas","user.custom-channel"],"create":{"method":"POST","path":"/tasks","fields":{"prompt":"request.prompt"}},"response":{"statusPaths":["status"]}}]}}`, pluginID, version, pluginID, pluginID, providerID, providerID))
+	return []byte(fmt.Sprintf(`{"apiVersion":"luckytv.plugin/v1","id":%q,"version":%q,"name":%q,"author":"Test","documentation":"# %s","contributes":{"providers":[{"id":%q,"label":%q,"capabilities":["video"],"scopes":["canvas","user.custom-channel"],"create":{"method":"POST","path":"/tasks","fields":{"prompt":"request.prompt"}},"response":{"statusPaths":["status"]}}]}}`, pluginID, version, pluginID, pluginID, providerID, providerID))
 }
 
 // shipPackage writes one release archive into dir and returns its manifest ID.
@@ -429,7 +429,7 @@ func TestRetentionSurvivesUnrelatedPluginChanges(t *testing.T) {
 		}
 	}
 	assertRetired("startup")
-	if _, err := runtime.Install(testPluginPackage(t, testManifest("unrelated-app", "1.0.0")), "unrelated-app.beeftv-plugin"); err != nil {
+	if _, err := runtime.Install(testPluginPackage(t, testManifest("unrelated-app", "1.0.0")), "unrelated-app.luckytv-plugin"); err != nil {
 		t.Fatal(err)
 	}
 	assertRetired("after install")
@@ -450,7 +450,7 @@ func TestRetentionSurvivesUnrelatedPluginChanges(t *testing.T) {
 // retentionManifestWithPoll is retentionManifest with an explicit poll path, so a
 // test can make an upgrade change what the runtime queries.
 func retentionManifestWithPoll(pluginID, providerID, version, pollPath string) []byte {
-	return []byte(fmt.Sprintf(`{"apiVersion":"beeftv.plugin/v1","id":%q,"version":%q,"name":%q,"author":"Test","documentation":"# %s","contributes":{"providers":[{"id":%q,"label":%q,"capabilities":["video"],"scopes":["canvas","user.custom-channel"],"create":{"method":"POST","path":"/tasks","fields":{"prompt":"request.prompt"}},"poll":{"method":"GET","path":%q},"response":{"statusPaths":["status"]}}]}}`, pluginID, version, pluginID, pluginID, providerID, providerID, pollPath))
+	return []byte(fmt.Sprintf(`{"apiVersion":"luckytv.plugin/v1","id":%q,"version":%q,"name":%q,"author":"Test","documentation":"# %s","contributes":{"providers":[{"id":%q,"label":%q,"capabilities":["video"],"scopes":["canvas","user.custom-channel"],"create":{"method":"POST","path":"/tasks","fields":{"prompt":"request.prompt"}},"poll":{"method":"GET","path":%q},"response":{"statusPaths":["status"]}}]}}`, pluginID, version, pluginID, pluginID, providerID, providerID, pollPath))
 }
 
 // 删除旧 ID 且盘点失败时仍保留；正常维护更新由另一个用例覆盖。
@@ -670,7 +670,7 @@ func TestUpgradeDroppingAnAliasOnlyReferenceIsDeferred(t *testing.T) {
 func TestRemovedPackageMergedByAliasIsDroppedNotRetained(t *testing.T) {
 	release := t.TempDir()
 	t.Setenv("CANVAS_OFFICIAL_PLUGIN_DIR", release)
-	shipPackage(t, release, []byte(`{"apiVersion":"beeftv.plugin/v1","id":"openai-chat-completions","version":"2.0.0","name":"Chat","author":"Test","documentation":"# chat","contributes":{"providers":[{"id":"chat-completion","label":"Chat","legacyAliases":["deepseek-chat"],"capabilities":["text"],"scopes":["user.custom-channel"],"create":{"method":"POST","path":"/v1/chat/completions"},"response":{"statusPaths":["status"]}}]}}`))
+	shipPackage(t, release, []byte(`{"apiVersion":"luckytv.plugin/v1","id":"openai-chat-completions","version":"2.0.0","name":"Chat","author":"Test","documentation":"# chat","contributes":{"providers":[{"id":"chat-completion","label":"Chat","legacyAliases":["deepseek-chat"],"capabilities":["text"],"scopes":["user.custom-channel"],"create":{"method":"POST","path":"/v1/chat/completions"},"response":{"statusPaths":["status"]}}]}}`))
 	merged := storedOfficialRecord(t, retentionManifest("deepseek-chat", "deepseek-chat", "2.0.0"), true)
 	unmerged := storedOfficialRecord(t, retentionManifest("old-video", "old-video", "1.0.0"), true)
 	runtime, err := NewRuntimeWithReferences(t.TempDir(), retentionStore(merged, unmerged), staticReferences{"deepseek-chat": {Configured: 3}, "old-video": {Configured: 1}})
@@ -694,7 +694,7 @@ func TestRemovedPackageMergedByAliasIsDroppedNotRetained(t *testing.T) {
 func TestMergedEnabledCopyEnablesTheMergedInterface(t *testing.T) {
 	release := t.TempDir()
 	t.Setenv("CANVAS_OFFICIAL_PLUGIN_DIR", release)
-	chat := []byte(`{"apiVersion":"beeftv.plugin/v1","id":"openai-chat-completions","version":"2.0.0","name":"Chat","author":"Test","documentation":"# chat","contributes":{"providers":[{"id":"chat-completion","label":"Chat","legacyAliases":["deepseek-chat"],"capabilities":["text"],"scopes":["user.custom-channel"],"create":{"method":"POST","path":"/v1/chat/completions"},"response":{"statusPaths":["status"]}}]}}`)
+	chat := []byte(`{"apiVersion":"luckytv.plugin/v1","id":"openai-chat-completions","version":"2.0.0","name":"Chat","author":"Test","documentation":"# chat","contributes":{"providers":[{"id":"chat-completion","label":"Chat","legacyAliases":["deepseek-chat"],"capabilities":["text"],"scopes":["user.custom-channel"],"create":{"method":"POST","path":"/v1/chat/completions"},"response":{"statusPaths":["status"]}}]}}`)
 	shipPackage(t, release, chat)
 	disabledChat := storedOfficialRecord(t, chat, false)
 	enabledCopy := storedOfficialRecord(t, retentionManifest("deepseek-chat", "deepseek-chat", "2.0.0"), true)

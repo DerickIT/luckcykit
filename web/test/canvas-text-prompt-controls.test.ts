@@ -9,21 +9,21 @@ import { CanvasNodeType } from "../src/types/canvas";
 
 function fixtureConfig() {
     const channel = createModelChannel({
-        id: "beeftv",
-        name: "BeefTV",
+        id: "luckytv",
+        name: "LuckyTV",
         scope: "system",
         pinned: true,
-        credentialRef: "beeftv",
-        baseUrl: "https://beeftv.app/v1",
+        credentialRef: "luckytv",
+        baseUrl: "https://luckytv.app/v1",
         models: ["wan3.0-video", "gpt-image-1"],
     });
     return normalizeConfigSnapshot({
         config: {
             ...defaultConfig,
             channels: [channel],
-            model: "beeftv::wan3.0-video",
-            videoModel: "beeftv::wan3.0-video",
-            imageModel: "beeftv::gpt-image-1",
+            model: "luckytv::wan3.0-video",
+            videoModel: "luckytv::wan3.0-video",
+            imageModel: "luckytv::gpt-image-1",
         },
     }).config;
 }
@@ -53,7 +53,7 @@ test("all canvas prompt footers omit the preset trigger", () => {
         createElement(CanvasConfigComposer, {
             config,
             generationMode: "video",
-            model: "beeftv::wan3.0-video",
+            model: "luckytv::wan3.0-video",
             value: "镜头",
             inputs: [],
             onChange: () => {},

@@ -10,14 +10,14 @@ import (
 	"sync"
 	"testing"
 
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/database"
-	"infinite-canvas/backend/internal/editing"
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
-	localtask "infinite-canvas/backend/internal/task"
-	"infinite-canvas/backend/internal/workspace"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/database"
+	"luckytv/backend/internal/editing"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
+	localtask "luckytv/backend/internal/task"
+	"luckytv/backend/internal/workspace"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/sqlite"
@@ -236,16 +236,16 @@ func TestVideoSubtitleEraseRoutesCapabilitiesContractAndModeGuard(t *testing.T) 
 		t.Fatalf("unexpected flat capability payload: %+v", capEnvelope.Data)
 	}
 
-	untrustedReq := httptest.NewRequest(http.MethodPost, "/api/video-subtitle-erase/tasks", bytes.NewReader([]byte(`{"resourceId":"res-1","channelId":"beeftv","eraseType":"subtitle","clientOperationId":"op-untrusted"}`)))
+	untrustedReq := httptest.NewRequest(http.MethodPost, "/api/video-subtitle-erase/tasks", bytes.NewReader([]byte(`{"resourceId":"res-1","channelId":"luckytv","eraseType":"subtitle","clientOperationId":"op-untrusted"}`)))
 	untrustedReq.Header.Set("Content-Type", "application/json")
-	untrustedReq.Header.Set("X-Beeftv-Client", "external-cli")
+	untrustedReq.Header.Set("X-Luckytv-Client", "external-cli")
 	untrustedRec := httptest.NewRecorder()
 	router.ServeHTTP(untrustedRec, untrustedReq)
 	if untrustedRec.Code != http.StatusForbidden {
 		t.Fatalf("expected external client header to fail with 403, got %d body=%s", untrustedRec.Code, untrustedRec.Body.String())
 	}
 
-	blockedReq := httptest.NewRequest(http.MethodPost, "/api/video-subtitle-erase/tasks", bytes.NewReader([]byte(`{"resourceId":"res-1","channelId":"beeftv","eraseType":"watermark","clientOperationId":"op-wm"}`)))
+	blockedReq := httptest.NewRequest(http.MethodPost, "/api/video-subtitle-erase/tasks", bytes.NewReader([]byte(`{"resourceId":"res-1","channelId":"luckytv","eraseType":"watermark","clientOperationId":"op-wm"}`)))
 	blockedReq.Header.Set("Content-Type", "application/json")
 	blockedRec := httptest.NewRecorder()
 	router.ServeHTTP(blockedRec, blockedReq)
@@ -253,7 +253,7 @@ func TestVideoSubtitleEraseRoutesCapabilitiesContractAndModeGuard(t *testing.T) 
 		t.Fatalf("expected restricted watermark mode to fail with 400, got %d body=%s", blockedRec.Code, blockedRec.Body.String())
 	}
 
-	allowedReq := httptest.NewRequest(http.MethodPost, "/api/video-subtitle-erase/tasks", bytes.NewReader([]byte(`{"resourceId":"res-1","channelId":"beeftv","eraseType":"subtitle","subtitleModel":"standard","clientOperationId":"op-sub"}`)))
+	allowedReq := httptest.NewRequest(http.MethodPost, "/api/video-subtitle-erase/tasks", bytes.NewReader([]byte(`{"resourceId":"res-1","channelId":"luckytv","eraseType":"subtitle","subtitleModel":"standard","clientOperationId":"op-sub"}`)))
 	allowedReq.Header.Set("Content-Type", "application/json")
 	allowedRec := httptest.NewRecorder()
 	router.ServeHTTP(allowedRec, allowedReq)

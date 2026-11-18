@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"infinite-canvas/backend/internal/desktopupdate"
+	"luckytv/backend/internal/desktopupdate"
 )
 
 func cmdBuildDelta(args []string, stdout, stderr io.Writer) error {

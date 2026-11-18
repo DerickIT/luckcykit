@@ -5,7 +5,7 @@ description: 签名清单、打包布局、密钥、发布工作流、回滚和�
 
 # 桌面自动更新发布
 
-桌面自动更新只替换应用本身。项目、素材、设置、BeefTV 账号连接和自定义插件留在用户数据目录。新版本从广州 COS 读取签名清单和更新包，GitHub Release 保留同一份清单。已安装旧版仍可使用原更新地址，不经过业务云接口。
+桌面自动更新只替换应用本身。项目、素材、设置、LuckyTV 账号连接和自定义插件留在用户数据目录。新版本从广州 COS 读取签名清单和更新包，GitHub Release 保留同一份清单。已安装旧版仍可使用原更新地址，不经过业务云接口。
 
 `v1.5.2` 及以前的安装包没有更新器。给仓库补上清单，不会让已经装好的程序自己升级。用户需要先手动安装第一个带更新器的版本。
 
@@ -19,7 +19,7 @@ description: 签名清单、打包布局、密钥、发布工作流、回滚和�
 
 新安装可使用 Windows Setup、macOS DMG 或 Ubuntu 24.04 DEB，旧版本仍保留 ZIP 下载。详见仓库的 `docs/desktop-install.md`。Windows 安装器按当前用户安装，macOS 将应用拖到 Applications；两者沿用现有 ZIP 更新器。Linux DEB 通过安装新版 DEB 升级，应用内更新入口会提示使用安装包，避免替换包管理器维护的系统文件。
 
-下载时，侧栏显示目标版本、百分比、速度和预计剩余时间。下载不设总时长上限：60 秒内一个字节都没收到才算一次中断。中断后会按 1、2、4、8 秒退避自动重连，并用 HTTP Range 从已下载的位置继续；连续 5 次尝试都没有新进度时停止，侧栏显示「继续下载」。已下载的部分按包的 SHA-256 保存在缓存目录的 `BeefTV/updates/downloads/` 下，再次点击或重启应用后仍从断点继续；新版本发布后，旧版本的残留文件会被清掉。续传不降低校验强度：完整文件仍按签名清单核对大小和 SHA-256，续传的文件校验失败时，会自动从头重下一次。
+下载时，侧栏显示目标版本、百分比、速度和预计剩余时间。下载不设总时长上限：60 秒内一个字节都没收到才算一次中断。中断后会按 1、2、4、8 秒退避自动重连，并用 HTTP Range 从已下载的位置继续；连续 5 次尝试都没有新进度时停止，侧栏显示「继续下载」。已下载的部分按包的 SHA-256 保存在缓存目录的 `LuckyTV/updates/downloads/` 下，再次点击或重启应用后仍从断点继续；新版本发布后，旧版本的残留文件会被清掉。续传不降低校验强度：完整文件仍按签名清单核对大小和 SHA-256，续传的文件校验失败时，会自动从头重下一次。
 
 失败提示会区分代理连不上、网络不通、安全连接失败、服务器暂时不可用和网络不稳定。原始网络错误、每次重试，以及请求是直连还是经过哪个代理地址，都写入数据目录下的 `update.log`（超过 256 KB 时轮转为 `update.log.1`），不记录代理账号密码。
 
@@ -35,11 +35,11 @@ description: 签名清单、打包布局、密钥、发布工作流、回滚和�
 
 | 系统 | 更新包内容 | 数据目录（不会进包、不会被替换） |
 | --- | --- | --- |
-| macOS | `BeefTV.app` | `~/Library/Application Support/BeefTV` |
-| Windows | `BeefTV.exe`、官方插件、Agent 和 CLI | `%AppData%\BeefTV` |
-| Linux | `BeefTV-linux` 整个程序目录 | `~/.config/BeefTV`（遵循 `XDG_CONFIG_HOME`） |
+| macOS | `LuckyTV.app` | `~/Library/Application Support/LuckyTV` |
+| Windows | `LuckyTV.exe`、官方插件、Agent 和 CLI | `%AppData%\LuckyTV` |
+| Linux | `LuckyTV-linux` 整个程序目录 | `~/.config/LuckyTV`（遵循 `XDG_CONFIG_HOME`） |
 
-应用包身份和可执行文件名称保持稳定。Windows WebView2 默认缓存仍在 `%AppData%\BeefTV.exe`，不会因从解压目录移到安装目录而更名。安装、覆盖安装和卸载不会删除用户数据目录；自定义数据目录需要继续使用原配置。官方插件随应用包更新；装在数据目录里的自定义插件会留下来。ZIP 打包时遇到 `.env`、数据库或用户数据目录会失败。
+应用包身份和可执行文件名称保持稳定。Windows WebView2 默认缓存仍在 `%AppData%\LuckyTV.exe`，不会因从解压目录移到安装目录而更名。安装、覆盖安装和卸载不会删除用户数据目录；自定义数据目录需要继续使用原配置。官方插件随应用包更新；装在数据目录里的自定义插件会留下来。ZIP 打包时遇到 `.env`、数据库或用户数据目录会失败。
 
 ## 两种签名
 
@@ -64,7 +64,7 @@ description: 签名清单、打包布局、密钥、发布工作流、回滚和�
   "notes": "发行说明",
   "platforms": {
     "darwin-arm64": {
-      "url": "https://github.com/glanderness/BeefTV/releases/download/vX.Y.Z/BeefTV-vX.Y.Z-darwin-arm64.zip",
+      "url": "https://github.com/glanderness/LuckyTV/releases/download/vX.Y.Z/LuckyTV-vX.Y.Z-darwin-arm64.zip",
       "sha256": "hex",
       "size": 123
     }
@@ -74,7 +74,7 @@ description: 签名清单、打包布局、密钥、发布工作流、回滚和�
 
 平台键为 `darwin-arm64`、`darwin-amd64`、`windows-amd64`、`linux-amd64`。版本只接受稳定的 `vMAJOR.MINOR.PATCH`。应用会拒绝相同或更低的版本。
 
-`v2.0.6` 及更早版本读取 `desktop-update.json`（`schema: 1`）；`v2.1.0` 起读取 `desktop-update-v2.json`（`schema: 2`），每个平台支持多源 `urls`（国内 CNB 源与 R2 源按区域优先选择并支持跨源断点续传）以及可选的 `deltas[fromVersion]` 增量包。当存在匹配当前运行版本的 `deltas[currentVersion]` 时，客户端优先下载 `BeefTV-vX.Y.Z-<platform>-from-vA.B.C.delta.zip`，从本机安装目录复用未变文件并对主程序执行二进制差分补丁，逐文件校验 SHA-256；若本机文件缺失/被修改或增量包校验失败，会自动回退下载完整平台 `.zip`。
+`v2.0.6` 及更早版本读取 `desktop-update.json`（`schema: 1`）；`v2.1.0` 起读取 `desktop-update-v2.json`（`schema: 2`），每个平台支持多源 `urls`（国内 CNB 源与 R2 源按区域优先选择并支持跨源断点续传）以及可选的 `deltas[fromVersion]` 增量包。当存在匹配当前运行版本的 `deltas[currentVersion]` 时，客户端优先下载 `LuckyTV-vX.Y.Z-<platform>-from-vA.B.C.delta.zip`，从本机安装目录复用未变文件并对主程序执行二进制差分补丁，逐文件校验 SHA-256；若本机文件缺失/被修改或增量包校验失败，会自动回退下载完整平台 `.zip`。
 
 现有 macOS 发布脚本使用 ad hoc 签名，没有 Developer ID 身份或 Apple 公证。更新器可以独立验签，但这不保证首次下载的应用能通过 Gatekeeper。要让用户无需手动放行，需要 Developer ID Application 签名及 Apple 公证；此前用户可按 [Apple 的说明](https://support.apple.com/zh-cn/102445)，在确认应用来源后于「隐私与安全性」中选择「仍要打开」。不要关闭整个系统的安全检查。
 
@@ -89,14 +89,14 @@ Windows 构建需要支持 DWARF 5 的 UCRT64 GCC（binutils 2.37 或更新）�
 ```bash
 cd backend
 go run ./cmd/update-release gen-key \
-  --private-key /path/to/beeftv-updater.private \
-  --public-key /path/to/beeftv-updater.public
+  --private-key /path/to/luckytv-updater.private \
+  --public-key /path/to/luckytv-updater.public
 ```
 
 | GitHub 位置 | 名称 | 内容 |
 | --- | --- | --- |
-| Actions secret | `BEEFTV_UPDATER_PRIVATE_KEY` | 64 字节私钥的标准 Base64 |
-| Actions variable | `BEEFTV_UPDATER_PUBLIC_KEY` | 32 字节公钥的标准 Base64 |
+| Actions secret | `LUCKYTV_UPDATER_PRIVATE_KEY` | 64 字节私钥的标准 Base64 |
+| Actions variable | `LUCKYTV_UPDATER_PUBLIC_KEY` | 32 字节公钥的标准 Base64 |
 
 发布前会核对私钥推导出的公钥与变量一致。缺密钥或对不上都会失败，不会发布未签名更新源。
 
@@ -106,11 +106,11 @@ go run ./cmd/update-release gen-key \
 
 ## 发布流水线
 
-正式发版默认在 R2 更新源激活后调用 `mirror-desktop.yml`，立即触发 CNB `beeftv-downloads/desktop` 仓库的 `api_trigger_release`，并等待四个平台原安装包的公开验证记录。CNB 在每个安装包完成匿名断开续传、大小和完整 SHA-256 校验后才发布记录；官网服务按官方摘要接纳记录，下次页面刷新即可显示入口，服务端最多缓存 60 秒，不必等待每小时部署。定时任务只补偿遗漏或失败，所以发版最多等 75 分钟，足够覆盖一次定时重试。
+正式发版默认在 R2 更新源激活后调用 `mirror-desktop.yml`，立即触发 CNB `luckytv-downloads/desktop` 仓库的 `api_trigger_release`，并等待四个平台原安装包的公开验证记录。CNB 在每个安装包完成匿名断开续传、大小和完整 SHA-256 校验后才发布记录；官网服务按官方摘要接纳记录，下次页面刷新即可显示入口，服务端最多缓存 60 秒，不必等待每小时部署。定时任务只补偿遗漏或失败，所以发版最多等 75 分钟，足够覆盖一次定时重试。
 
-GitHub 仓库需配置 `BEEFTV_CNB_TRIGGER_TOKEN`，仅授权 `beeftv-downloads/desktop` 的 `repo-cnb-trigger:rw`，不要授予代码或 Release 写权限。发版预检会拒绝缺少该 Secret 的配置；令牌只用于触发固定仓库流水线，CNB 上传仍使用任务自己的临时令牌。镜像失败会使镜像任务报告失败，已发布的 R2/GitHub 安装包继续可用，官网不展示未验证入口。只重跑失败的镜像任务，或手动运行 `Mirror desktop installers to CNB` 并填写已发布版本；不要因此重跑整套发版。
+GitHub 仓库需配置 `LUCKYTV_CNB_TRIGGER_TOKEN`，仅授权 `luckytv-downloads/desktop` 的 `repo-cnb-trigger:rw`，不要授予代码或 Release 写权限。发版预检会拒绝缺少该 Secret 的配置；令牌只用于触发固定仓库流水线，CNB 上传仍使用任务自己的临时令牌。镜像失败会使镜像任务报告失败，已发布的 R2/GitHub 安装包继续可用，官网不展示未验证入口。只重跑失败的镜像任务，或手动运行 `Mirror desktop installers to CNB` 并填写已发布版本；不要因此重跑整套发版。
 
-在 `glanderness/BeefTV` 的 `main` 上手动运行 `Release desktop`。`confirm_version` 必须等于 `VERSION`。`CHANGELOG.md` 里对应的 `## vX.Y.Z` 会同时成为 GitHub Release 说明和清单 `notes`。
+在 `glanderness/LuckyTV` 的 `main` 上手动运行 `Release desktop`。`confirm_version` 必须等于 `VERSION`。`CHANGELOG.md` 里对应的 `## vX.Y.Z` 会同时成为 GitHub Release 说明和清单 `notes`。
 
 工作流默认只读；仅创建草稿和最终发布的任务申请 `contents: write`。构建任务不持有发布写权限或签名私钥。步骤：
 
@@ -124,9 +124,9 @@ GitHub 仓库需配置 `BEEFTV_CNB_TRIGGER_TOKEN`，仅授权 `beeftv-downloads/
 固定文件名：
 
 ```text
-BeefTV-vX.Y.Z-darwin-arm64.zip
-BeefTV-vX.Y.Z-darwin-amd64.zip
-BeefTV-vX.Y.Z-windows-amd64.zip
+LuckyTV-vX.Y.Z-darwin-arm64.zip
+LuckyTV-vX.Y.Z-darwin-amd64.zip
+LuckyTV-vX.Y.Z-windows-amd64.zip
 desktop-update.json
 ```
 
@@ -137,7 +137,7 @@ desktop-update.json
 ```bash
 cd backend
 go test ./cmd/update-release
-go run ./cmd/update-release package --platform windows-amd64 --input cmd/desktop/build/bin --output /tmp/BeefTV-vX.Y.Z-windows-amd64.zip
+go run ./cmd/update-release package --platform windows-amd64 --input cmd/desktop/build/bin --output /tmp/LuckyTV-vX.Y.Z-windows-amd64.zip
 ```
 
 ## 回滚
@@ -146,6 +146,6 @@ go run ./cmd/update-release package --platform windows-amd64 --input cmd/desktop
 
 流水线显式标记 latest，且拒绝非递增稳定版本。不要手动把旧版本标记为 latest。
 
-客户端在退出前重新验包，并在程序所在磁盘准备安装文件。数据目录和程序目录重叠时会拒绝安装，避免覆盖自定义插件。替换只使用同磁盘重命名，安装锁防止多个实例同时替换。安装或进程启动失败时尝试恢复旧程序；若应用未退出、安装程序已经停止，界面会恢复可重试状态。成功启动后仍保留程序旁 `.beeftv-update-*` 目录中的备份和恢复记录；确认新版本正常后可清理该次目录。
+客户端在退出前重新验包，并在程序所在磁盘准备安装文件。数据目录和程序目录重叠时会拒绝安装，避免覆盖自定义插件。替换只使用同磁盘重命名，安装锁防止多个实例同时替换。安装或进程启动失败时尝试恢复旧程序；若应用未退出、安装程序已经停止，界面会恢复可重试状态。成功启动后仍保留程序旁 `.luckytv-update-*` 目录中的备份和恢复记录；确认新版本正常后可清理该次目录。
 
 启动了进程不等于 SQLite 迁移或界面正常，因此不会在新进程启动后自动降级。恢复旧程序前需确认数据库兼容，必要时使用匹配的数据备份。此更新器不会复制或还原全部用户素材。

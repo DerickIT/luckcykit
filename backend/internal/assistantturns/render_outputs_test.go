@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"infinite-canvas/backend/internal/assistantturns"
+	"luckytv/backend/internal/assistantturns"
 )
 
 func TestRenderOutputReceiptsSurviveDatabaseCloseReopen(t *testing.T) {

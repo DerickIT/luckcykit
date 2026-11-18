@@ -13,10 +13,10 @@ import (
 	"strconv"
 	"strings"
 
-	"infinite-canvas/backend/internal/channelurl"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/providerpreset"
+	"luckytv/backend/internal/channelurl"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/providerpreset"
 )
 
 func RunImageTask(ctx context.Context, input Input) (map[string]interface{}, error) {

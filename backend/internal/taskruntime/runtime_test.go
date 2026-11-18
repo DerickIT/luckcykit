@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/platform"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/platform"
 )
 
 type staticPolicy struct {

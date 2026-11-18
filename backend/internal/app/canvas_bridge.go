@@ -6,12 +6,12 @@ import (
 
 	"gorm.io/gorm"
 
-	"infinite-canvas/backend/internal/canvas"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/operations"
-	"infinite-canvas/backend/internal/repository"
-	localtask "infinite-canvas/backend/internal/task"
-	"infinite-canvas/backend/internal/taskbinding"
+	"luckytv/backend/internal/canvas"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/operations"
+	"luckytv/backend/internal/repository"
+	localtask "luckytv/backend/internal/task"
+	"luckytv/backend/internal/taskbinding"
 )
 
 type (

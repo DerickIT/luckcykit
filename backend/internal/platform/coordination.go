@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"infinite-canvas/backend/internal/kernel"
+	"luckytv/backend/internal/kernel"
 	"math/rand/v2"
 	"os"
 	"strconv"

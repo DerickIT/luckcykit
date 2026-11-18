@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/protocol"
 )
 
 // View is the backend representation consumed by the single frontend plugin
@@ -122,7 +122,7 @@ func manifestView(raw []byte, metadata protocol.Metadata, source string) Manifes
 	}
 	apiVersion := manifest.APIVersion
 	if apiVersion == "" {
-		apiVersion = "beeftv.plugin/v1"
+		apiVersion = "luckytv.plugin/v1"
 	}
 	permissions := manifest.Permissions
 	if permissions == nil {

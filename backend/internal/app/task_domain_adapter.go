@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	localtask "luckytv/backend/internal/task"
 )
 
 func (s *Service) taskDomain() *localtask.Service {
@@ -86,7 +86,7 @@ func (taskCatalogAdapter) HasExecutableVideoConfig(input map[string]any) bool {
 type taskSecretsAdapter struct{ s *Service }
 
 func (a taskSecretsAdapter) ResolveManaged(input map[string]any) (map[string]any, error) {
-	return a.s.resolveManagedBeefTVSecrets(input)
+	return a.s.resolveManagedLuckyTVSecrets(input)
 }
 func (a taskSecretsAdapter) Protect(input map[string]any) error { return a.s.protectTaskSecrets(input) }
 func (a taskSecretsAdapter) DecryptInputJSON(raw string) (string, error) {

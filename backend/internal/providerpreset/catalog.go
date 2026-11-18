@@ -44,13 +44,13 @@ func BuiltinChannels() []ChannelPreset {
 	return result
 }
 
-func BeefTV() ChannelPreset {
+func LuckyTV() ChannelPreset {
 	for _, preset := range builtins {
-		if preset.ID == "beeftv" {
+		if preset.ID == "luckytv" {
 			return preset.Clone()
 		}
 	}
-	panic("BeefTV preset missing")
+	panic("LuckyTV preset missing")
 }
 
 func (preset ChannelPreset) Model(name string) (ModelProfile, bool) {

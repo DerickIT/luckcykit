@@ -463,8 +463,8 @@ describe("generation error classification", () => {
 
     test("http urls in transport summaries are stripped without mangling as local paths or dropping trailing causes", () => {
         for (const msg of [
-            '本次请求准备失败：Get "https://beeftv.app/v1/models": EOF',
-            'Post "https://beeftv.app/v1/media/tasks": connection reset by peer',
+            '本次请求准备失败：Get "https://luckytv.app/v1/models": EOF',
+            'Post "https://luckytv.app/v1/media/tasks": connection reset by peer',
             'Put "https://storage.example.com/media/uploads/part1?X-Amz-Signature=secret": unexpected EOF',
         ]) {
             const text = formatGenerationDiagnostics(explainGenerationError({ code: "request_not_sent" }), {
@@ -474,7 +474,7 @@ describe("generation error classification", () => {
                 },
             });
             expect(text).not.toContain("[路径已隐藏]");
-            expect(text).not.toContain("beeftv.app");
+            expect(text).not.toContain("luckytv.app");
             expect(text).not.toContain("secret");
             expect(text).toMatch(/EOF|connection reset by peer/);
         }
@@ -534,7 +534,7 @@ describe("generation error classification", () => {
 
     test("diagnostics use the failed task model and distinguish body size from transmission", () => {
         const text = formatGenerationDiagnostics(explainGenerationError({ code: "request_not_sent" }), {
-            model: "beeftv::seedance-2.0-fast",
+            model: "luckytv::seedance-2.0-fast",
             failureDiagnostics: {
                 source: "unknown",
                 input: { model: "minimax-h3", promptChars: 10, imageCount: 3, videoCount: 0, audioCount: 0 },

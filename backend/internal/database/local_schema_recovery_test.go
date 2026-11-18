@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func TestProductRecoverySameVersionMissingStructureFailsClosed(t *testing.T) {

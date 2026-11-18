@@ -3,7 +3,7 @@ package generation
 import (
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func TestEnrichAPICallLogPayloadNeverTreatsTraceRequestIDOrFailedCreateAsProviderJobID(t *testing.T) {

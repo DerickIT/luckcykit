@@ -52,8 +52,8 @@ func TestE2EGenerationDriverSettlesWhileConfirmInFlight(t *testing.T) {
 	if testing.Short() {
 		t.Skip("spawns the real agent host")
 	}
-	t.Setenv("BEEFTV_REAL_GEN_TEST_CONFIRM_DELAY_MS", "2000")
-	t.Setenv("BEEFTV_REAL_GEN_TEST_IMAGE_DELAY_MS", "3000")
+	t.Setenv("LUCKYTV_REAL_GEN_TEST_CONFIRM_DELAY_MS", "2000")
+	t.Setenv("LUCKYTV_REAL_GEN_TEST_IMAGE_DELAY_MS", "3000")
 	harness := newE2EGenerationHarness(t, true)
 	out := t.TempDir()
 	command, cancel, outDir, log := harness.prepareDriver(t, map[string]any{"outDir": out, "failCancel": true})

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strings"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func ExpandCanonicalAgentRequest(source *CanonicalAgentRequest, config Config, declarative bool) (*AgentToolRequests, error) {

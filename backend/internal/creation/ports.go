@@ -5,13 +5,13 @@ import (
 	"sync"
 	"time"
 
-	"infinite-canvas/backend/internal/canvas"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/platform"
-	"infinite-canvas/backend/internal/repository"
-	"infinite-canvas/backend/internal/resource"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/canvas"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/platform"
+	"luckytv/backend/internal/repository"
+	"luckytv/backend/internal/resource"
+	localtask "luckytv/backend/internal/task"
 )
 
 // Tasks is the typed task-admission seam. Creation never imports internal/app

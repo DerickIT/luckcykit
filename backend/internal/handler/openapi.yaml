@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: BeefTV HTTP API
+  title: LuckyTV HTTP API
   version: "1.0.0"
   description: |
     路径前缀是 `/api`。前后端一起发布，不按路径做 API 版本。
@@ -23,7 +23,7 @@ tags:
   - name: tasks
   - name: assets
   - name: admin
-  - name: beeftv
+  - name: luckytv
   - name: agent-ops
   - name: assistant
   - name: creation-conversations
@@ -33,7 +33,7 @@ paths:
       tags: [agent-ops]
       summary: Discover mounted business tools available to external clients
       description: |
-        A registered external client uses X-Beeftv-Client and its Bearer token.
+        A registered external client uses X-Luckytv-Client and its Bearer token.
         The response lists mounted business handlers and their method, path, query,
         body schemas, readOnly flag, and generation cost hints. External clients
         manage execution approval. Identity, ownership, balance, validation and
@@ -42,7 +42,7 @@ paths:
         FeatureUnavailable when its feature is disabled.
       parameters:
         - in: header
-          name: X-Beeftv-Client
+          name: X-Luckytv-Client
           required: true
           schema: { type: string }
         - in: header
@@ -135,10 +135,10 @@ paths:
       responses:
         "200":
           description: 墓碑已写入
-  /beeftv/connection:
+  /luckytv/connection:
     get:
-      tags: [beeftv]
-      summary: 读取内置 BeefTV 连接状态
+      tags: [luckytv]
+      summary: 读取内置 LuckyTV 连接状态
       description: 只返回账号和状态，不含密钥或 device_code；refresh=1 时向上游同步实时余额，上游失败时返回对应错误信封。
       parameters:
         - in: query
@@ -153,46 +153,46 @@ paths:
           $ref: "#/components/responses/Error"
         "503":
           $ref: "#/components/responses/Error"
-  /beeftv/connection/start:
+  /luckytv/connection/start:
     post:
-      tags: [beeftv]
+      tags: [luckytv]
       summary: 开始企业授权并打开系统浏览器确认页
       responses:
         "200":
           description: 进入 pending 或返回已连接状态
-  /beeftv/connection/models:
+  /luckytv/connection/models:
     post:
-      tags: [beeftv]
+      tags: [luckytv]
       summary: 使用当前企业连接刷新并保存模型目录
       description: 不接受客户端密钥或价格；读取上游目录并保存可信能力和报价。连接改变或读取失败时返回错误。
       responses:
         "200":
           description: 信封 data.models 为已保存的上游目录项
-  /beeftv/connection/cancel:
+  /luckytv/connection/cancel:
     post:
-      tags: [beeftv]
+      tags: [luckytv]
       summary: 取消尚未完成的授权
       responses:
         "200":
           description: 当前连接摘要
-  /beeftv/connection/disconnect:
+  /luckytv/connection/disconnect:
     post:
-      tags: [beeftv]
+      tags: [luckytv]
       summary: 断开当前连接并吊销本机这把密钥
       responses:
         "200":
           description: 当前连接摘要
-  /beeftv/connection/open-wallet:
+  /luckytv/connection/open-wallet:
     post:
-      tags: [beeftv]
+      tags: [luckytv]
       summary: 在系统浏览器打开企业充值页 /console/topup
       responses:
         "200":
           description: 已打开
-  /beeftv/connection/topup/info:
+  /luckytv/connection/topup/info:
     get:
-      tags: [beeftv]
-      summary: 读取内置 BeefTV 账户充值配置与实时余额
+      tags: [luckytv]
+      summary: 读取内置 LuckyTV 账户充值配置与实时余额
       responses:
         "200":
           description: 信封 data 为可用支付方式、充值限额与当前余额
@@ -202,10 +202,10 @@ paths:
           $ref: "#/components/responses/Error"
         "502":
           $ref: "#/components/responses/Error"
-  /beeftv/connection/topup/checkout:
+  /luckytv/connection/topup/checkout:
     post:
-      tags: [beeftv]
-      summary: 创建内置 BeefTV 账户充值订单并在系统浏览器打开收银台
+      tags: [luckytv]
+      summary: 创建内置 LuckyTV 账户充值订单并在系统浏览器打开收银台
       description: 订单已创建但本机未能自动拉起浏览器时仍返回 tradeNo，并带 opened=false 与 openError。
       responses:
         "200":
@@ -218,10 +218,10 @@ paths:
           $ref: "#/components/responses/Error"
         "502":
           $ref: "#/components/responses/Error"
-  /beeftv/connection/topup/reconcile:
+  /luckytv/connection/topup/reconcile:
     post:
-      tags: [beeftv]
-      summary: 查询内置 BeefTV 账户充值订单支付结果并同步本地余额摘要
+      tags: [luckytv]
+      summary: 查询内置 LuckyTV 账户充值订单支付结果并同步本地余额摘要
       responses:
         "200":
           description: 信封 data 为订单状态、入账确认标记（settled / credited）与刷新后的连接摘要
@@ -538,10 +538,10 @@ paths:
       tags: [assistant]
       summary: 流式对话（NDJSON）
       description: |
-        请求头 X-Beeftv-Ui-Session 由 /assistant/ui-session 签发。响应为 NDJSON：
+        请求头 X-Luckytv-Ui-Session 由 /assistant/ui-session 签发。响应为 NDJSON：
         若干 text_delta 增量，最后恰好一条 turn_end 结算（含 reply、toolCalls、error、cancelled）。
         宿主凭据与模型密钥由后端注入，浏览器不接触。
-        X-Beeftv-Turn-Admission 响应头为 rejected（尚未尝试创建业务轮次）、unknown（已尝试创建）或 admitted（已创建）。
+        X-Luckytv-Turn-Admission 响应头为 rejected（尚未尝试创建业务轮次）、unknown（已尝试创建）或 admitted（已创建）。
         只有 rejected 可以确认未接纳；缺少标记、网络故障或接纳后失败仍需读取回执。续签凭据不会重放消息。
         可选 requestId（[A-Za-z0-9_-]{1,128}）标识这次发送：停止可以指向它，同一会话里同一 requestId 重发不会再执行。
         它不代替后端生成的 turnId；格式不对返回 400（rejected）。
@@ -882,7 +882,7 @@ paths:
     post:
       tags: [tasks]
       summary: 创建本机字幕转写任务
-      description: 接收待转写素材编号和可选语言。只接受当前用户已上传完成的音视频。省略 model 使用本地 whisper.cpp，指定 model 使用已连接 BeefTV 账号目录中的 audio.transcriptions 模型，音轨提取后最多 25 MiB。可选 clientOperationId：同一确认重复提交回读原任务。
+      description: 接收待转写素材编号和可选语言。只接受当前用户已上传完成的音视频。省略 model 使用本地 whisper.cpp，指定 model 使用已连接 LuckyTV 账号目录中的 audio.transcriptions 模型，音轨提取后最多 25 MiB。可选 clientOperationId：同一确认重复提交回读原任务。
       responses:
         "200":
           $ref: "#/components/responses/Envelope"

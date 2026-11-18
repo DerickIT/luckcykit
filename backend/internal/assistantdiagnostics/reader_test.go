@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/diagnostics"
+	"luckytv/backend/internal/diagnostics"
 )
 
 func fixture(t *testing.T) (string, diagnostics.AssistantTurnEvidence, time.Time) {

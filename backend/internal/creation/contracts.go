@@ -3,8 +3,8 @@ package creation
 import (
 	"encoding/json"
 
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
 )
 
 // Guard is the page-held execution fence. Models cannot mint one.

@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/securefile"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/securefile"
 )
 
 // stateMu serializes the read-modify-write of the shared integrations file.
@@ -91,7 +91,7 @@ func writeTokenFile(path, token string) error {
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return err
 	}
-	tmp, err := os.CreateTemp(dir, ".beeftv-token-*")
+	tmp, err := os.CreateTemp(dir, ".luckytv-token-*")
 	if err != nil {
 		return err
 	}
@@ -214,7 +214,7 @@ func (m *Manager) SaveRecord(record IntegrationRecord) error {
 	return m.saveState(state)
 }
 
-// DeleteRecord removes BeefTV's auxiliary record. A corrupt file is reset so
+// DeleteRecord removes LuckyTV's auxiliary record. A corrupt file is reset so
 // disconnect can finish.
 func (m *Manager) DeleteRecord(kind agentops.ClientKind) error {
 	if !m.Available() {
@@ -241,7 +241,7 @@ func writeAtomicFile(path string, data []byte, perm os.FileMode) error {
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return err
 	}
-	tmp, err := os.CreateTemp(dir, ".beeftv-state-*")
+	tmp, err := os.CreateTemp(dir, ".luckytv-state-*")
 	if err != nil {
 		return err
 	}

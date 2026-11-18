@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/skillhub"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/skillhub"
 )
 
 func TestPublicationRequirementsRejectUnknownBeforeSavingOrUploading(t *testing.T) {
@@ -20,7 +20,7 @@ func TestPublicationRequirementsRejectUnknownBeforeSavingOrUploading(t *testing.
 	calls := 0
 	server := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) { calls++ }))
 	defer server.Close()
-	t.Setenv("BEEFTV_SKILLHUB_URL", server.URL)
+	t.Setenv("LUCKYTV_SKILLHUB_URL", server.URL)
 	for _, requirement := range []string{"text", "wand", "model.future", " model.audio"} {
 		_, err := s.PublishPrepareInCanvas("owner", pin.SkillID, "canvas", skillhub.Metadata{License: "MIT", Requirements: []string{requirement}}, PublicationTarget{})
 		var invalid *kernel.AppError

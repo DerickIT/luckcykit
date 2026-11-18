@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/providerpreset"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/providerpreset"
 )
 
 // GenerationTarget freezes the paid inputs confirmed by the user. Delivered
@@ -229,7 +229,7 @@ func admitGeneration(ctx *Context, raw json.RawMessage, mode generationAdmission
 				if hint == "" {
 					hint = "<proposalId>"
 				}
-				return nil, PermissionDenied("generation_approval_required", "当前凭据设为「每次问我」，请先在 BeefTV 界面确认或运行 beeftv approve "+hint+" 批准生成单；Agent 自身凭据不能自批")
+				return nil, PermissionDenied("generation_approval_required", "当前凭据设为「每次问我」，请先在 LuckyTV 界面确认或运行 luckytv approve "+hint+" 批准生成单；Agent 自身凭据不能自批")
 			}
 			// owner 批准的是整张生成单，不能借一次部分节点的重做扩大成整单付费。
 			if mode == generationRegenerate && !sameNodeIDSet(existingOrder.NodeIDs, args.NodeIDs) {
@@ -250,7 +250,7 @@ func admitGeneration(ctx *Context, raw json.RawMessage, mode generationAdmission
 			}
 			if existingOrder.Status == GenerationOrderPending && mode != generationRegenerate {
 				hint := existingOrder.ProposalID
-				return nil, PermissionDenied("generation_approval_required", "当前凭据设为「每次问我」，请先在 BeefTV 界面确认或运行 beeftv approve "+hint+" 批准生成单；Agent 自身凭据不能自批")
+				return nil, PermissionDenied("generation_approval_required", "当前凭据设为「每次问我」，请先在 LuckyTV 界面确认或运行 luckytv approve "+hint+" 批准生成单；Agent 自身凭据不能自批")
 			}
 			if mode == generationRegenerate && existingOrder.Status != GenerationOrderPending && !existingOrder.Regenerate {
 				return nil, PermissionDenied("generation_approval_required", "这张生成单不是用于原地重做的；请重新提出生成单并由 owner 批准")
@@ -331,10 +331,10 @@ func admitGeneration(ctx *Context, raw json.RawMessage, mode generationAdmission
 			"regenerate":       true,
 			"nodeIds":          existingOrder.NodeIDs,
 			"nextAction": map[string]any{
-				"operation":  "beeftv approve " + existingOrder.ProposalID,
+				"operation":  "luckytv approve " + existingOrder.ProposalID,
 				"approval":   "owner-required",
 				"proposalId": existingOrder.ProposalID,
-				"message":    "生成单已标记为原地重做，尚未生成或扣费。请由 owner 在 BeefTV 界面确认或运行 beeftv approve 批准；批准后请用新的 operationId 再调用 canvas.generation.regenerate 读取任务。",
+				"message":    "生成单已标记为原地重做，尚未生成或扣费。请由 owner 在 LuckyTV 界面确认或运行 luckytv approve 批准；批准后请用新的 operationId 再调用 canvas.generation.regenerate 读取任务。",
 			},
 		}, nil
 	}
@@ -588,15 +588,15 @@ func GenerationTargets(domain Domain, doc map[string]any, ids []string) ([]Gener
 	return targets, nil
 }
 
-func resolveVideoMiddleFrameSupport(modelID string, videoProfile *modelcatalog.VideoCapabilityConfig, declared bool, managedBeefTV bool) string {
+func resolveVideoMiddleFrameSupport(modelID string, videoProfile *modelcatalog.VideoCapabilityConfig, declared bool, managedLuckyTV bool) string {
 	if videoProfile != nil && videoProfile.MiddleFrame != nil {
 		if *videoProfile.MiddleFrame {
 			return "supported"
 		}
 		return "unsupported"
 	}
-	if managedBeefTV {
-		if contract, ok := providerpreset.BeefTVVideoContract(modelID); ok && contract.MiddleFrame {
+	if managedLuckyTV {
+		if contract, ok := providerpreset.LuckyTVVideoContract(modelID); ok && contract.MiddleFrame {
 			return "supported"
 		}
 	}
@@ -613,14 +613,14 @@ func reconcileCanvasVideoTarget(domain Domain, modelKey string, refs []string, g
 	var rawVideoProfile, videoProfile *modelcatalog.VideoCapabilityConfig
 	declared := false
 	chID, modelID := modelcatalog.SplitModelKey(modelKey)
-	managedBeefTV := strings.EqualFold(strings.TrimSpace(chID), "beeftv")
+	managedLuckyTV := strings.EqualFold(strings.TrimSpace(chID), "luckytv")
 	if reader, ok := domain.(ModelCatalogReader); ok && reader != nil {
 		if catalog, err := reader.AgentModelCatalog(); err == nil && catalog != nil {
 			if foundChID, foundModel, found := findEstimateModel(catalog, modelKey); found {
-				if foundModel.ManagedBeefTV != nil {
-					managedBeefTV = *foundModel.ManagedBeefTV
+				if foundModel.ManagedLuckyTV != nil {
+					managedLuckyTV = *foundModel.ManagedLuckyTV
 				} else {
-					managedBeefTV = strings.EqualFold(strings.TrimSpace(foundChID), "beeftv")
+					managedLuckyTV = strings.EqualFold(strings.TrimSpace(foundChID), "luckytv")
 				}
 				if capCfg := estimateCapability(foundModel.CapabilityConfig); capCfg != nil && capCfg.Video != nil {
 					rawVideoProfile = capCfg.Video
@@ -630,16 +630,16 @@ func reconcileCanvasVideoTarget(domain Domain, modelKey string, refs []string, g
 					}
 				}
 			} else if len(catalog.Channels) > 0 {
-				managedBeefTV = false
+				managedLuckyTV = false
 			}
 		}
 	}
 	var contract providerpreset.VideoContract
 	hasContract := false
-	if managedBeefTV {
-		contract, hasContract = providerpreset.BeefTVVideoContract(modelID)
+	if managedLuckyTV {
+		contract, hasContract = providerpreset.LuckyTVVideoContract(modelID)
 	}
-	middleFrameSupport := resolveVideoMiddleFrameSupport(modelID, rawVideoProfile, declared, managedBeefTV)
+	middleFrameSupport := resolveVideoMiddleFrameSupport(modelID, rawVideoProfile, declared, managedLuckyTV)
 	if middleFrameSupport == "unsupported" {
 		delete(parameters, "videoMiddleFrameNodeId")
 		delete(metadata, "videoMiddleFrameTime")

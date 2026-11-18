@@ -6,9 +6,9 @@ import (
 	"log"
 	"time"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/taskruntime"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/taskruntime"
 )
 
 type appWorkerHost struct{ service *Service }

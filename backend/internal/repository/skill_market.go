@@ -3,7 +3,7 @@ package repository
 import (
 	"errors"
 	"gorm.io/gorm"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func (r *Repository) MarketSkill(userID, remoteID string) (*model.Skill, error) {

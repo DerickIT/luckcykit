@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	localasset "infinite-canvas/backend/internal/asset"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	localasset "luckytv/backend/internal/asset"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 
 	"gorm.io/gorm"
 )

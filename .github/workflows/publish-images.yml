@@ -28,9 +28,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - image: beeftv-web
+          - image: luckytv-web
             dockerfile: Dockerfile
-          - image: beeftv-backend
+          - image: luckytv-backend
             dockerfile: backend/Dockerfile
 
     steps:

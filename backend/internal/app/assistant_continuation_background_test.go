@@ -9,10 +9,10 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/assistantturns"
-	"infinite-canvas/backend/internal/database"
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/assistantturns"
+	"luckytv/backend/internal/database"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
 )
 
 const backgroundContinuationSession = "durable:11111111-2222-3333-4444-555555555555"

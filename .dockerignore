@@ -24,7 +24,7 @@ backend/cmd/desktop/build
 artifacts
 test-evidence
 web/.playwright
-plugin-packages/*.beeftv-plugin
+plugin-packages/*.luckytv-plugin
 web/.next
 web/dist
 web/node_modules

@@ -1,7 +1,7 @@
 [
   {
     "id": "agent.guide",
-    "summary": "读取 BeefTV 外部 Agent 使用说明（与一键接入安装的技能同一份）",
+    "summary": "读取 LuckyTV 外部 Agent 使用说明（与一键接入安装的技能同一份）",
     "readOnly": true,
     "scope": "workspace_read",
     "params": {
@@ -2610,7 +2610,7 @@
               "description": "纯文字填[]，禁填text",
               "items": {
                 "enum": [
-                  "beeftv.canvas",
+                  "luckytv.canvas",
                   "model.image",
                   "model.video",
                   "model.audio"
@@ -2733,7 +2733,7 @@
           "type": "integer"
         },
         "useWorkspaceOutputDir": {
-          "description": "输出目录经 BEEFTV_OUTPUT_DIR 传入",
+          "description": "输出目录经 LUCKYTV_OUTPUT_DIR 传入",
           "type": "boolean"
         },
         "versionId": {

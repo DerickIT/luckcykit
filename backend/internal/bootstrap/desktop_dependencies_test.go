@@ -32,11 +32,11 @@ func TestDesktopDependencyBoundary(t *testing.T) {
 		"github.com/aws/aws-sdk-go/aws",
 		"github.com/qiniu/go-sdk/v7",
 		"github.com/tencentyun/cos-go-sdk-v5",
-		"infinite-canvas/backend/internal/payment",
-		"infinite-canvas/backend/payment-sdk",
-		"infinite-canvas/backend/internal/auth",
-		"infinite-canvas/backend/internal/hostupdate",
-		"infinite-canvas/backend/internal/updaterclient",
+		"luckytv/backend/internal/payment",
+		"luckytv/backend/payment-sdk",
+		"luckytv/backend/internal/auth",
+		"luckytv/backend/internal/hostupdate",
+		"luckytv/backend/internal/updaterclient",
 	} {
 		if strings.Contains(dependencies, "\n"+forbidden+"\n") {
 			t.Errorf("desktop dependency graph contains hosted infrastructure %q", forbidden)
@@ -50,7 +50,7 @@ func TestDesktopBinaryExcludesTaskBillingRuntime(t *testing.T) {
 		t.Fatal("cannot locate backend module")
 	}
 	moduleRoot := filepath.Clean(filepath.Join(filepath.Dir(currentFile), "..", ".."))
-	binaryPath := filepath.Join(t.TempDir(), "beeftv-desktop")
+	binaryPath := filepath.Join(t.TempDir(), "luckytv-desktop")
 	build := exec.Command("go", "build", "-o", binaryPath, "./cmd/desktop")
 	build.Dir = moduleRoot
 	if output, err := build.CombinedOutput(); err != nil {
@@ -78,7 +78,7 @@ func TestDesktopBinaryExcludesHostedStorageControlPlane(t *testing.T) {
 		t.Fatal("cannot locate backend module")
 	}
 	moduleRoot := filepath.Clean(filepath.Join(filepath.Dir(currentFile), "..", ".."))
-	binaryPath := filepath.Join(t.TempDir(), "beeftv-desktop")
+	binaryPath := filepath.Join(t.TempDir(), "luckytv-desktop")
 	build := exec.Command("go", "build", "-o", binaryPath, "./cmd/desktop")
 	build.Dir = moduleRoot
 	if output, err := build.CombinedOutput(); err != nil {
@@ -111,7 +111,7 @@ func TestDesktopBinaryExcludesHostedBillingControlPlane(t *testing.T) {
 		t.Fatal("cannot locate backend module")
 	}
 	moduleRoot := filepath.Clean(filepath.Join(filepath.Dir(currentFile), "..", ".."))
-	binaryPath := filepath.Join(t.TempDir(), "beeftv-desktop")
+	binaryPath := filepath.Join(t.TempDir(), "luckytv-desktop")
 	build := exec.Command("go", "build", "-o", binaryPath, "./cmd/desktop")
 	build.Dir = moduleRoot
 	if output, err := build.CombinedOutput(); err != nil {
@@ -141,7 +141,7 @@ func TestDesktopBinaryExcludesHostedAdminSurface(t *testing.T) {
 		t.Fatal("cannot locate backend module")
 	}
 	moduleRoot := filepath.Clean(filepath.Join(filepath.Dir(currentFile), "..", ".."))
-	binaryPath := filepath.Join(t.TempDir(), "beeftv-desktop")
+	binaryPath := filepath.Join(t.TempDir(), "luckytv-desktop")
 	build := exec.Command("go", "build", "-o", binaryPath, "./cmd/desktop")
 	build.Dir = moduleRoot
 	if output, err := build.CombinedOutput(); err != nil {

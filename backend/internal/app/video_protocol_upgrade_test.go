@@ -14,9 +14,9 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/plugins"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/plugins"
+	"luckytv/backend/internal/protocol"
 )
 
 // 由 #78 附录改成产品回归：真实 SQLite、NewLocal 启动和原任务取回，

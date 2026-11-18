@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func TestComputeOutcome(t *testing.T) {
@@ -83,67 +83,67 @@ func TestComputeOutcome(t *testing.T) {
 			t.ProviderRequestID = "upscale-req-1"
 			t.RecoveryOutcome = &unrecoverable
 		}), "", OutcomeFacts{}, want("failed", "confirm", "result_unrecoverable")},
-		{"BeefTV视频已结算失败允许直接重生成", with(func(t *model.Task) {
+		{"LuckyTV视频已结算失败允许直接重生成", with(func(t *model.Task) {
 			u := "failed"
 			t.Type = "canvas_video"
 			t.ProviderRequestID = "vid-failed"
 			t.RecoveryOutcome = &noResult
-			t.BeefUsageState = &u
+			t.LuckyUsageState = &u
 		}), "", OutcomeFacts{}, want("failed", "allowed", "no_result")},
-		{"BeefTV视频待结算阻塞重生成并透传截止时间", with(func(t *model.Task) {
+		{"LuckyTV视频待结算阻塞重生成并透传截止时间", with(func(t *model.Task) {
 			u := "pending"
 			dl := "2026-04-20T12:00:00Z"
 			t.Type = "canvas_video"
 			t.ProviderRequestID = "vid-pending"
 			t.RecoveryOutcome = &noResult
-			t.BeefUsageState = &u
-			t.BeefReconcileDeadline = &dl
+			t.LuckyUsageState = &u
+			t.LuckyReconcileDeadline = &dl
 		}), "", OutcomeFacts{}, Outcome{Phase: "failed", Regenerate: "blocked", Reason: "settlement_pending", ReconcileDeadline: "2026-04-20T12:00:00Z"}},
-		{"BeefTV视频已扣费可取回阶段阻塞重生成", with(func(t *model.Task) {
+		{"LuckyTV视频已扣费可取回阶段阻塞重生成", with(func(t *model.Task) {
 			u := "completed"
 			t.Type = "canvas_video"
 			t.ProviderRequestID = "vid-completed"
-			t.BeefUsageState = &u
+			t.LuckyUsageState = &u
 		}), "", OutcomeFacts{}, want("retrievable", "blocked", "provider_result_pending")},
-		{"BeefTV视频已扣费但结果无法取回需确认重生成", with(func(t *model.Task) {
+		{"LuckyTV视频已扣费但结果无法取回需确认重生成", with(func(t *model.Task) {
 			u := "completed"
 			t.Type = "canvas_video"
 			t.ProviderRequestID = "vid-completed"
 			t.RecoveryOutcome = &unrecoverable
-			t.BeefUsageState = &u
+			t.LuckyUsageState = &u
 		}), "", OutcomeFacts{}, want("failed", "confirm", "charged_result_unrecoverable")},
-		{"BeefTV图片已退款允许直接重生成", with(func(t *model.Task) {
+		{"LuckyTV图片已退款允许直接重生成", with(func(t *model.Task) {
 			b := "refunded"
 			t.ImageJobID = "img-job-1"
 			t.RecoveryOutcome = &noResult
-			t.BeefBillingState = &b
+			t.LuckyBillingState = &b
 		}), "", OutcomeFacts{DispatchState: "accepted"}, want("failed", "allowed", "no_result")},
-		{"BeefTV图片已扣费可取回阶段阻塞重生成", with(func(t *model.Task) {
+		{"LuckyTV图片已扣费可取回阶段阻塞重生成", with(func(t *model.Task) {
 			b := "settled"
 			t.ImageJobID = "img-job-2"
-			t.BeefBillingState = &b
+			t.LuckyBillingState = &b
 		}), "", OutcomeFacts{DispatchState: "accepted"}, want("retrievable", "blocked", "image_recovery_pending")},
-		{"BeefTV图片已扣费但结果无法取回需确认重生成", with(func(t *model.Task) {
+		{"LuckyTV图片已扣费但结果无法取回需确认重生成", with(func(t *model.Task) {
 			b := "settled"
 			t.ImageJobID = "img-job-2"
 			t.RecoveryOutcome = &noResult
-			t.BeefBillingState = &b
+			t.LuckyBillingState = &b
 		}), "", OutcomeFacts{DispatchState: "accepted"}, want("failed", "confirm", "charged_result_unrecoverable")},
-		{"BeefTV图片待结算空串阻塞重生成并透传截止时间", with(func(t *model.Task) {
+		{"LuckyTV图片待结算空串阻塞重生成并透传截止时间", with(func(t *model.Task) {
 			b := ""
 			dl := "2026-04-20T12:30:00Z"
 			t.ImageJobID = "img-job-3"
 			t.RecoveryOutcome = &noResult
-			t.BeefBillingState = &b
-			t.BeefReconcileDeadline = &dl
+			t.LuckyBillingState = &b
+			t.LuckyReconcileDeadline = &dl
 		}), "", OutcomeFacts{DispatchState: "accepted"}, Outcome{Phase: "failed", Regenerate: "blocked", Reason: "settlement_pending", ReconcileDeadline: "2026-04-20T12:30:00Z"}},
-		{"BeefTV图片缺失billing_state键按第三方兜底需确认", with(func(t *model.Task) {
+		{"LuckyTV图片缺失billing_state键按第三方兜底需确认", with(func(t *model.Task) {
 			t.ImageJobID = "img-job-no-billing-key"
 			t.RecoveryOutcome = &unrecoverable
-			t.BeefBillingState = nil
+			t.LuckyBillingState = nil
 		}), "", OutcomeFacts{DispatchState: "accepted"}, want("failed", "confirm", "result_unrecoverable")},
-		{"BeefTV图片无job_id且未发出按第三方兜底允许重生成", with(func(t *model.Task) {
-			t.BeefBillingState = nil
+		{"LuckyTV图片无job_id且未发出按第三方兜底允许重生成", with(func(t *model.Task) {
+			t.LuckyBillingState = nil
 		}), "", OutcomeFacts{DispatchState: "not_sent"}, want("failed", "allowed", "task_failed")},
 	}
 	for _, tc := range cases {

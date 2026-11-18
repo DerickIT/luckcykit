@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"strings"
 
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/modelcatalog"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/modelcatalog"
 )
 
 // Resolve a public model selection against current owned channel configuration;
@@ -27,8 +27,8 @@ func SelectModel(host CompileHost, n Node, recipe *Recipe) (bool, error) {
 		}
 		old, _ := recipe.Request.Input["config"].(map[string]any)
 		recipe.ChannelID = candidate.ChannelID
-		if beeftv.IsManagedChannel(candidate.ChannelID, "", candidate.BaseURL) {
-			recipe.ChannelID = "@beeftv"
+		if luckytv.IsManagedChannel(candidate.ChannelID, "", candidate.BaseURL) {
+			recipe.ChannelID = "@luckytv"
 		}
 		if stringValue(old["model"]) == candidate.Model && stringValue(old["interfaceType"]) == candidate.Protocol && strings.TrimRight(stringValue(old["baseUrl"]), "/") == strings.TrimRight(candidate.BaseURL, "/") {
 			return false, nil

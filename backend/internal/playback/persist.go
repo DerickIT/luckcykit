@@ -3,7 +3,7 @@ package playback
 import (
 	"log"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func withPersistRetry(op func() error) error {

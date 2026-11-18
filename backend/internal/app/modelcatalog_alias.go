@@ -1,6 +1,6 @@
 package app
 
-import "infinite-canvas/backend/internal/modelcatalog"
+import "luckytv/backend/internal/modelcatalog"
 
 type ModelCapabilityConfig = modelcatalog.ModelCapabilityConfig
 type TextCapabilityConfig = modelcatalog.TextCapabilityConfig

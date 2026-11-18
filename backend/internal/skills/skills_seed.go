@@ -8,7 +8,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 //go:embed seed/skills.json

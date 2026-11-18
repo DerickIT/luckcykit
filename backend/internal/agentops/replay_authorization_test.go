@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"infinite-canvas/backend/internal/agentops"
+	"luckytv/backend/internal/agentops"
 )
 
 func TestReplayStillRequiresWriteCapabilityAndMatchingOperation(t *testing.T) {

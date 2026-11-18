@@ -3,7 +3,7 @@ package generation
 import (
 	"encoding/json"
 
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/protocol"
 )
 
 // ResolveAgentResourcePlaceholders maps generation media onto the protocol

@@ -1,6 +1,6 @@
 package app
 
-import "infinite-canvas/backend/internal/generation"
+import "luckytv/backend/internal/generation"
 
 func classifyProviderHTTP(err providerHTTPError) generation.Failure {
 	return generation.ClassifyHTTP(err.StatusCode, err.Status, err.Body)

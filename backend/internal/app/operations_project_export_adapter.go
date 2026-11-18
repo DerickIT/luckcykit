@@ -9,11 +9,11 @@ import (
 	"path/filepath"
 	"time"
 
-	localasset "infinite-canvas/backend/internal/asset"
-	"infinite-canvas/backend/internal/canvas"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/operations"
-	"infinite-canvas/backend/internal/repository"
+	localasset "luckytv/backend/internal/asset"
+	"luckytv/backend/internal/canvas"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/operations"
+	"luckytv/backend/internal/repository"
 
 	"gorm.io/gorm"
 )
@@ -81,7 +81,7 @@ func (s *operationSession) ExportCanvasProjectArchive(ctx context.Context, userI
 		return nil, err
 	}
 	resources := localasset.NewService(localasset.Dependencies{Repository: localasset.NewRepository(s.repo), Blobs: localasset.NewFileStore(s.service.dataDir), LocalStorage: true})
-	resource, _, err := resources.Store(userID, "file", "BeefTV-project.zip", "application/zip", info.Size(), 0, 0, 0, file, &key)
+	resource, _, err := resources.Store(userID, "file", "LuckyTV-project.zip", "application/zip", info.Size(), 0, 0, 0, file, &key)
 	return resource, err
 }
 

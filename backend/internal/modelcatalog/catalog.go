@@ -6,9 +6,9 @@ import (
 	"log"
 	"strings"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/providerpreset"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/providerpreset"
 )
 
 func SanitizeChannelModel(cm *model.ChannelModel) (PublicChannelModel, error) {
@@ -92,7 +92,7 @@ func PublicSystemChannelCatalog(channels []model.ModelChannel, modelsForChannel 
 		if err != nil {
 			return nil, err
 		}
-		managedBeefTV := providerpreset.IsBeefTVEndpoint(channel.BaseURL) || (strings.TrimSpace(channel.BaseURL) == "" && strings.EqualFold(strings.TrimSpace(channel.ID), "beeftv"))
+		managedLuckyTV := providerpreset.IsLuckyTVEndpoint(channel.BaseURL) || (strings.TrimSpace(channel.BaseURL) == "" && strings.EqualFold(strings.TrimSpace(channel.ID), "luckytv"))
 		publicModels := make([]PublicChannelModel, 0, len(channelModels))
 		for _, cm := range channelModels {
 			if !cm.Enabled {
@@ -113,7 +113,7 @@ func PublicSystemChannelCatalog(channels []model.ModelChannel, modelsForChannel 
 				log.Printf("system channel model omitted from catalog id=%s: %v", cm.ID, sanitizeErr)
 				continue
 			}
-			publicModel.ManagedBeefTV = &managedBeefTV
+			publicModel.ManagedLuckyTV = &managedLuckyTV
 			publicModels = append(publicModels, publicModel)
 		}
 		if len(publicModels) > 0 {

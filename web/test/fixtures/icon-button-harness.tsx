@@ -4,7 +4,7 @@ import { App, ConfigProvider } from "antd";
 import zhCN from "antd/locale/zh_CN";
 import "antd/dist/reset.css";
 import "@/styles/globals.css";
-import "@/styles/beeftv-local-overrides.css";
+import "@/styles/luckytv-local-overrides.css";
 import "@/styles/workspace-product.css";
 
 import { getAntThemeConfig, getWorkspaceAntThemeConfig } from "@/lib/app-theme";

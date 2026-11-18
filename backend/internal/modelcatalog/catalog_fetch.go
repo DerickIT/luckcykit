@@ -7,8 +7,8 @@ import (
 	"sort"
 	"strings"
 
-	"infinite-canvas/backend/internal/channelurl"
-	"infinite-canvas/backend/internal/kernel"
+	"luckytv/backend/internal/channelurl"
+	"luckytv/backend/internal/kernel"
 )
 
 type CatalogJSONError struct{ Cause error }

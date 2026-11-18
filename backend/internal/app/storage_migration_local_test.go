@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/database"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/database"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 )
 
 func TestLocalStorageMigrationCreatesBackupAndPreservesTask(t *testing.T) {

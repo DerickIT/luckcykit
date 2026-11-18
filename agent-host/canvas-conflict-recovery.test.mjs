@@ -14,25 +14,25 @@ test('request overlay strips transient studio/plan from system sections, orders 
       content: 'instructions',
       toolsAdded: [{ name: 'canvas_get' }],
       sections: {
-        beeftv_skill_catalog: '<beeftv_skill_catalog>\ncatalog\n</beeftv_skill_catalog>',
+        luckytv_skill_catalog: '<luckytv_skill_catalog>\ncatalog\n</luckytv_skill_catalog>',
         instructions: '<instructions>\nrules\n</instructions>',
-        beeftv_plan: 'keep plan',
-        beeftv_studio: 'revision 22',
+        luckytv_plan: 'keep plan',
+        luckytv_studio: 'revision 22',
       },
     },
     { role: 'user', content: 'continue', timestamp: 1 },
   ];
   const messages = studio.withCurrentStudio(history, 'revision 23', { planText: 'keep plan' });
   const system = getCurrentSystemMessage(messages);
-  assert.deepEqual(Object.keys(system.sections), ['instructions', 'beeftv_skill_catalog']);
-  assert.equal(system.sections.beeftv_studio, undefined);
-  assert.equal(system.sections.beeftv_plan, undefined);
+  assert.deepEqual(Object.keys(system.sections), ['instructions', 'luckytv_skill_catalog']);
+  assert.equal(system.sections.luckytv_studio, undefined);
+  assert.equal(system.sections.luckytv_plan, undefined);
   assert.equal(system.toolsAdded[0].name, 'canvas_get');
-  assert.equal(history[0].sections.beeftv_studio, 'revision 22');
+  assert.equal(history[0].sections.luckytv_studio, 'revision 22');
   assert.equal(messages[1], history[1]);
   assert.equal(messages.at(-1).role, 'user');
-  assert.match(messages.at(-1).content[0].text, /<beeftv_plan>\nkeep plan\n<\/beeftv_plan>/);
-  assert.match(messages.at(-1).content[0].text, /<beeftv_studio>\nrevision 23\n<\/beeftv_studio>/);
+  assert.match(messages.at(-1).content[0].text, /<luckytv_plan>\nkeep plan\n<\/luckytv_plan>/);
+  assert.match(messages.at(-1).content[0].text, /<luckytv_studio>\nrevision 23\n<\/luckytv_studio>/);
   assert.doesNotMatch(JSON.stringify(messages), /revision 22/);
   const failedReadMessages = studio.withCurrentStudio(messages, '');
   assert.equal(failedReadMessages.length, messages.length);

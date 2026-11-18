@@ -4,7 +4,7 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 	"path/filepath"
 	"testing"
 )
@@ -54,7 +54,7 @@ func TestProductionAuthorizationMigrationPreservesV19HistoryAndRequiresColumn(t 
 	}
 	var after []localSchemaMigration
 	db.Order("version").Find(&after)
-	if len(after) != len(before)+10 || after[len(before)].Name != "assistant-production-authorization" || after[len(before)+1].Name != "skill-market-release-metadata" || after[len(before)+5].Name != "reconcile-preview-assistant-schema" || after[len(before)+6].Name != "task-recovery-outcome" || after[len(before)+7].Name != "task-beeftv-settlement" || after[len(before)+8].Name != "managed-media-query-identity" || after[len(before)+9].Name != "task-failure-category" {
+	if len(after) != len(before)+10 || after[len(before)].Name != "assistant-production-authorization" || after[len(before)+1].Name != "skill-market-release-metadata" || after[len(before)+5].Name != "reconcile-preview-assistant-schema" || after[len(before)+6].Name != "task-recovery-outcome" || after[len(before)+7].Name != "task-luckytv-settlement" || after[len(before)+8].Name != "managed-media-query-identity" || after[len(before)+9].Name != "task-failure-category" {
 		t.Fatal("migration identity changed")
 	}
 	for i, row := range before {

@@ -5,8 +5,8 @@ import (
 	"io"
 	"strings"
 
-	"infinite-canvas/backend/internal/asset"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/asset"
+	"luckytv/backend/internal/model"
 )
 
 type assetInlineStore struct {

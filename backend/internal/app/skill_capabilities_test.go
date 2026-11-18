@@ -6,12 +6,12 @@ import (
 	"reflect"
 	"testing"
 
-	"infinite-canvas/backend/internal/assistantturns"
-	"infinite-canvas/backend/internal/database"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/skillhub"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/assistantturns"
+	"luckytv/backend/internal/database"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/skillhub"
+	"luckytv/backend/internal/skills"
 )
 
 func TestSkillRequirementsRejectUnconfiguredMediaBeforeExecution(t *testing.T) {

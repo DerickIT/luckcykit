@@ -23,12 +23,12 @@ function fixtureFile(root: string, relativePath: string, contents = "fixture") {
 }
 
 function seedRequiredExportBaseline(source: string) {
-    fixtureFile(source, "README.md", "# BeefTV\n\nSee [docs](docs/index.md).\n");
+    fixtureFile(source, "README.md", "# LuckyTV\n\nSee [docs](docs/index.md).\n");
     fixtureFile(source, "LICENSE", "MIT\n");
     fixtureFile(source, "NOTICE", "Third-party notices\n");
     fixtureFile(source, "VERSION", "v2.1.0\n");
-    fixtureFile(source, "backend/go.mod", "module example.invalid/beeftv/backend\n");
-    fixtureFile(source, "web/package.json", '{"name":"beeftv"}\n');
+    fixtureFile(source, "backend/go.mod", "module example.invalid/luckytv/backend\n");
+    fixtureFile(source, "web/package.json", '{"name":"luckytv"}\n');
     fixtureFile(source, "docs/index.md", "# Docs\n");
     mkdirSync(join(source, "scripts"), { recursive: true });
     copyFileSync(docsAuditScript, join(source, "scripts/audit-public-docs.sh"));
@@ -42,13 +42,13 @@ afterEach(() => {
 
 describe("public release boundary", () => {
     test("exports source while excluding private state and generated artifacts", () => {
-        const source = temporaryDirectory("beeftv-public-source-");
-        const destinationParent = temporaryDirectory("beeftv-public-destination-");
+        const source = temporaryDirectory("luckytv-public-source-");
+        const destinationParent = temporaryDirectory("luckytv-public-destination-");
         const destination = join(destinationParent, "snapshot");
 
         seedRequiredExportBaseline(source);
         fixtureFile(source, "web/src/main.tsx", "export {};\n");
-        fixtureFile(source, "web/scripts/beeftv-local-network-audit.mjs", "export {};\n");
+        fixtureFile(source, "web/scripts/luckytv-local-network-audit.mjs", "export {};\n");
         fixtureFile(source, "web/scripts/private-audit.mjs", "export {};\n");
         fixtureFile(source, ".git/config");
         fixtureFile(source, ".worktrees/private/HEAD");
@@ -62,10 +62,10 @@ describe("public release boundary", () => {
         fixtureFile(source, "backend/desktop");
         fixtureFile(source, "backend/cmd/desktop/frontend/dist/.gitkeep", "");
         fixtureFile(source, "backend/cmd/desktop/frontend/dist/index.html", "generated");
-        fixtureFile(source, "backend/cmd/desktop/build/bin/BeefTV.app/Contents/MacOS/BeefTV");
+        fixtureFile(source, "backend/cmd/desktop/build/bin/LuckyTV.app/Contents/MacOS/LuckyTV");
         fixtureFile(source, "debug.log");
         fixtureFile(source, "release.dmg");
-        fixtureFile(source, "plugin-packages/example.beeftv-plugin");
+        fixtureFile(source, "plugin-packages/example.luckytv-plugin");
         fixtureFile(source, "docs/refactor/internal-notes.md", "# Internal\n");
         fixtureFile(source, "reviews/pr1.md", "# Review\n");
 
@@ -73,7 +73,7 @@ describe("public release boundary", () => {
 
         expect(result.status).toBe(0);
         expect(existsSync(join(destination, "web/src/main.tsx"))).toBe(true);
-        expect(existsSync(join(destination, "web/scripts/beeftv-local-network-audit.mjs"))).toBe(true);
+        expect(existsSync(join(destination, "web/scripts/luckytv-local-network-audit.mjs"))).toBe(true);
         expect(existsSync(join(destination, "web/scripts/private-audit.mjs"))).toBe(false);
         expect(existsSync(join(destination, ".git"))).toBe(false);
         expect(existsSync(join(destination, ".worktrees"))).toBe(false);
@@ -90,14 +90,14 @@ describe("public release boundary", () => {
         expect(existsSync(join(destination, "backend/cmd/desktop/frontend/dist/index.html"))).toBe(false);
         expect(existsSync(join(destination, "debug.log"))).toBe(false);
         expect(existsSync(join(destination, "release.dmg"))).toBe(false);
-        expect(existsSync(join(destination, "plugin-packages/example.beeftv-plugin"))).toBe(false);
+        expect(existsSync(join(destination, "plugin-packages/example.luckytv-plugin"))).toBe(false);
         expect(existsSync(join(destination, "docs/refactor"))).toBe(false);
         expect(existsSync(join(destination, "reviews"))).toBe(false);
     });
 
     test("audit rejects a forbidden artifact and accepts the clean export", () => {
-        const source = temporaryDirectory("beeftv-public-audit-source-");
-        const destinationParent = temporaryDirectory("beeftv-public-audit-destination-");
+        const source = temporaryDirectory("luckytv-public-audit-source-");
+        const destinationParent = temporaryDirectory("luckytv-public-audit-destination-");
         const destination = join(destinationParent, "snapshot");
 
         seedRequiredExportBaseline(source);
@@ -113,8 +113,8 @@ describe("public release boundary", () => {
         expect(rejected.status).not.toBe(0);
         expect(`${rejected.stdout}${rejected.stderr}`).toContain("data/private.db");
 
-        const leakedDocsSource = temporaryDirectory("beeftv-public-leaked-docs-source-");
-        const leakedDocsDest = join(temporaryDirectory("beeftv-public-leaked-docs-dest-"), "snapshot");
+        const leakedDocsSource = temporaryDirectory("luckytv-public-leaked-docs-source-");
+        const leakedDocsDest = join(temporaryDirectory("luckytv-public-leaked-docs-dest-"), "snapshot");
         seedRequiredExportBaseline(leakedDocsSource);
         fixtureFile(leakedDocsSource, "docs/index.md", `# Docs\n\nsess_${"12345678"}\n`);
         const leakedExport = spawnSync("sh", [exportScript, leakedDocsSource, leakedDocsDest], {
@@ -127,9 +127,9 @@ describe("public release boundary", () => {
     });
 
     test("export refuses to merge into an existing destination", () => {
-        const source = temporaryDirectory("beeftv-public-existing-source-");
-        const destination = temporaryDirectory("beeftv-public-existing-destination-");
-        fixtureFile(source, "README.md", "# BeefTV\n");
+        const source = temporaryDirectory("luckytv-public-existing-source-");
+        const destination = temporaryDirectory("luckytv-public-existing-destination-");
+        fixtureFile(source, "README.md", "# LuckyTV\n");
 
         const result = spawnSync("sh", [exportScript, source, destination], { encoding: "utf8" });
 

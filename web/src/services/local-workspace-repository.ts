@@ -8,6 +8,7 @@ import { notifyCanvasRefresh } from "@/services/local-workspace-sync";
 import { canvasBackendSubmitPaused, CanvasBackendSubmitPausedError, clearCanvasBackendSaveProgress, handleRejectedCanvasBackendSave, isCanvasRevisionConflict, isCanvasSubmitControlError, pauseCanvasBackendSubmit, preserveCanvasConflictDraft, resumeCanvasBackendSubmit, setCanvasBackendSaveProgress } from "@/services/canvas-revision-conflict";
 import { CanvasJournalError, clearCanvasOperationJournal, clearCanvasPendingProjection, loadCanvasOperationJournal, newCanvasCommitOperationId, peekCanvasOperationJournal, recordConfirmedCanvasCommit, updateCanvasOperationJournal } from "@/services/canvas-operation-journal";
 import { isLocalWorkspaceMode } from "@/services/workspace-mode";
+import { isBrowserLocalRuntime } from "@/lib/runtime-mode";
 import { getActiveUserScope } from "@/lib/user-scope";
 import { normalizeCanvasProjectGraph, sameCanvasDocument } from "@/lib/canvas/canvas-content";
 import { canvasUnconfirmedReason, canvasUnconfirmedDiagnostic, revertUnchangedCanvasDocumentPatch, type CanvasDocumentPersistPatch, type CanvasUnconfirmedState } from "@/lib/canvas/canvas-unconfirmed-edits";
@@ -428,15 +429,11 @@ export function beginLocalCanvasProject(title: string, projectId?: string, initi
     // The in-memory project is already usable. Do not make navigation depend
     // on an IndexedDB/localForage flush completing successfully; the store
     // keeps its pending write queue and will retry it on the next flush.
-    // Desktop restarts hydrate from the co-packaged Go repository. Creating a
-    // project only in IndexedDB leaves the runtime returning 404 and allows its
-    // detached-resource cleanup to delete media that the canvas still uses.
-    const saved = syncLocalCanvasProject(id);
-    // IndexedDB is an offline cache, not the desktop source of truth. A stuck
-    // WebKit storage transaction must never block navigation after the Go
-    // repository has durably accepted the project.
+    // Browser-local builds use IndexedDB as their durable store; the desktop
+    // writes through the co-packaged Go repository and mirrors into IndexedDB.
+    const saved = isBrowserLocalRuntime() ? Promise.resolve() : syncLocalCanvasProject(id);
     void flushCanvasStorePersistence().catch((error) => {
-        console.error("画布本地缓存写入失败，已保存到桌面数据库", { id, error });
+        console.error("画布本地缓存写入失败", { id, error });
     });
     return { id, saved };
 }
@@ -449,6 +446,7 @@ export async function createLocalCanvasProject(title: string, projectId?: string
 
 /** Serialize writes per canvas so optimistic revisions cannot race each other. */
 function syncLocalCanvasProject(id: string): Promise<void> {
+    if (isBrowserLocalRuntime()) return Promise.resolve();
     const scope = getActiveUserScope();
     const key = saveKey(scope, id);
     const existingTimer = backendSaveTimers.get(key);
@@ -663,7 +661,7 @@ function shouldKeepCanvasCommitIdentity(error: unknown) {
 }
 
 export function syncLocalCanvasProjectToBackend(id: string): Promise<void> {
-    return syncLocalCanvasProject(id);
+    return isBrowserLocalRuntime() ? Promise.resolve() : syncLocalCanvasProject(id);
 }
 
 /**
@@ -776,6 +774,10 @@ export async function adoptServerConfirmedGenerationPatch(rawProject: CanvasProj
 }
 
 export function scheduleLocalCanvasBackendSync(id: string) {
+    if (isBrowserLocalRuntime()) {
+        void flushCanvasStorePersistence().catch((error) => console.warn("本地画布缓存写入失败", { id, error }));
+        return;
+    }
     const scope = getActiveUserScope();
     const key = saveKey(scope, id);
     if (canvasDeleting.has(key)) return;
@@ -815,6 +817,7 @@ export function openLocalCanvasProject(id: string) {
  * fallback so a stopped backend never prevents the UI from opening.
  */
 export async function hydrateLocalCanvasProjectsFromBackend() {
+    if (isBrowserLocalRuntime()) return false;
     const scope = getActiveUserScope();
     const attempt=beginCanvasHydration();
     let failure="";
@@ -881,12 +884,18 @@ export async function hydrateLocalCanvasProjectsFromBackend() {
 
 /** Read the durable document without adopting it or hiding errors behind local state. */
 export async function readLocalCanvasProjectFromBackend(id: string): Promise<CanvasProject> {
+    if (isBrowserLocalRuntime()) {
+        const project = openLocalCanvasProject(id);
+        if (!project) throw new Error("画布不存在");
+        return project;
+    }
     const response = await http.get<{ project: CanvasProject }>(`/canvas-projects/${encodeURIComponent(id)}`);
     if (!response.project) throw new Error("画布读取失败，请重试");
     return normalizeCanvasProjectGraph(response.project);
 }
 
 export async function openLocalCanvasProjectFromBackend(id: string) {
+    if (isBrowserLocalRuntime()) return openLocalCanvasProject(id);
     const scope = getActiveUserScope();
     const existed = Boolean(openLocalCanvasProject(id));
     try {
@@ -996,6 +1005,7 @@ async function restoreLocalCanvasProjectFromHistoryUnlocked(
  * 用请求发出时的判断会漏掉这些新编辑。
  */
 export async function refreshLocalCanvasProjectIfChanged(id: string) {
+    if (isBrowserLocalRuntime()) return openLocalCanvasProject(id);
     const scope = getActiveUserScope();
     const existed = Boolean(openLocalCanvasProject(id));
     try {
@@ -1037,6 +1047,7 @@ export async function refreshLocalCanvasProjectIfChanged(id: string) {
  * 提交被拒但还没有候选时，先读一次服务端最新内容作为候选。
  */
 export async function acceptExternalCanvasRevision(id: string) {
+    if (isBrowserLocalRuntime()) throw new Error("浏览器本地工作区没有外部版本");
     return withCanvasProjection(getActiveUserScope(), id, () => acceptExternalCanvasRevisionUnlocked(id));
 }
 
@@ -1081,6 +1092,10 @@ export async function flushLocalWorkspace() {
 }
 
 export async function flushLocalCanvasBackendSaves(): Promise<void> {
+    if (isBrowserLocalRuntime()) {
+        await flushCanvasStorePersistence();
+        return;
+    }
     const scope = getActiveUserScope();
     const prefix = `${scope}\0`;
     for (const [key, timer] of [...backendSaveTimers.entries()]) {
@@ -1120,6 +1135,13 @@ async function waitForCanvasBackendIdle(id: string, scope: string) {
 }
 
 export async function deleteLocalCanvasProjects(ids: readonly string[]) {
+    if (isBrowserLocalRuntime()) {
+        const snapshots = ids.map((id) => useCanvasStore.getState().openProject(id)).filter((project): project is CanvasProject => Boolean(project));
+        useCanvasStore.getState().deleteProjects(snapshots.map((project) => project.id));
+        if (snapshots.length) useCanvasHistoryStore.getState().recordDeletedProjects(snapshots);
+        await flushCanvasStorePersistence();
+        return snapshots;
+    }
     const scope = getActiveUserScope();
     const selected = [...new Set(ids)];
     const snapshots = selected

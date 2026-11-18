@@ -82,7 +82,7 @@ export function PluginInstallConfirmModal({ open, initialRequest, loading = fals
                         <Input
                             value={sourceInput}
                             onChange={(e) => setSourceInput(e.target.value)}
-                            placeholder={installMode === "npm" ? "beeftv-plugin-example" : "/path/to/my-plugin"}
+                            placeholder={installMode === "npm" ? "luckytv-plugin-example" : "/path/to/my-plugin"}
                             aria-label={installMode === "npm" ? "npm 插件包名" : "本地插件目录路径"}
                         />
                         <p className="plugin-install-hint">{installMode === "npm" ? "支持包名、指定版本或仓库地址" : "填写包含 package.json 的目录完整路径"}</p>
@@ -108,10 +108,10 @@ export function PluginInstallConfirmModal({ open, initialRequest, loading = fals
                     <div className="flex flex-col gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs">
                         <div className="flex items-center gap-1.5 font-semibold text-amber-600 dark:text-amber-400">
                             <AlertTriangle className="size-4 shrink-0" />
-                            <span>这是第三方插件，BeefTV 没有审核过它的代码</span>
+                            <span>这是第三方插件，LuckyTV 没有审核过它的代码</span>
                         </div>
                         <p className="m-0 leading-relaxed text-foreground/85">
-                            {draftRequest.isUpdate ? "更新后" : "安装后"}，它能读取 BeefTV 里的数据，包括你在本机保存的 API Key，也能调用付费生成，费用从你的账户扣。请只{draftRequest.isUpdate ? "更新" : "安装"}你信任的插件。
+                            {draftRequest.isUpdate ? "更新后" : "安装后"}，它能读取 LuckyTV 里的数据，包括你在本机保存的 API Key，也能调用付费生成，费用从你的账户扣。请只{draftRequest.isUpdate ? "更新" : "安装"}你信任的插件。
                         </p>
                     </div>
 

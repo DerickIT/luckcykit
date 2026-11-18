@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 type CanvasProjectExporter interface {
@@ -55,7 +55,7 @@ func opCanvasProjectExport(ctx *Context, raw json.RawMessage) (any, error) {
 		return r
 	}, strings.TrimSpace(name))
 	if name == "" {
-		name = "BeefTV工程"
+		name = "LuckyTV工程"
 	}
 	return map[string]any{"canvasId": args.CanvasID, "sourceRevision": *args.ExpectedRevision, "resourceId": resource.ID, "storageKey": "resource:" + resource.ID, "fileName": name + ".zip", "mimeType": resource.MimeType, "bytes": resource.Size, "local": true, "charged": false, "editable": true}, nil
 }

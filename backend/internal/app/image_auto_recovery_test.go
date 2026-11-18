@@ -14,9 +14,9 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
 )
 
 func TestHistoricalImageAutoRecoveryDownloadsAndBindsLegacyCanvas(t *testing.T) {

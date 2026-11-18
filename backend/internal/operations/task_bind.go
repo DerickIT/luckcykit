@@ -5,11 +5,11 @@ import (
 	"errors"
 	"strings"
 
-	"infinite-canvas/backend/internal/canvas"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
-	"infinite-canvas/backend/internal/taskbinding"
+	"luckytv/backend/internal/canvas"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
+	"luckytv/backend/internal/taskbinding"
 )
 
 func opCanvasTaskBind(ctx *Context, params json.RawMessage) (any, error) {

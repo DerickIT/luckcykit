@@ -8,8 +8,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"infinite-canvas/backend/internal/privatefile"
-	"infinite-canvas/backend/internal/skillhub"
+	"luckytv/backend/internal/privatefile"
+	"luckytv/backend/internal/skillhub"
 )
 
 type publishingState struct {
@@ -83,7 +83,7 @@ func saveState(name string, state *publishingState) error {
 	if err := os.MkdirAll(filepath.Dir(name), 0700); err != nil {
 		return err
 	}
-	file, err := os.CreateTemp(filepath.Dir(name), ".beeftv-publish-")
+	file, err := os.CreateTemp(filepath.Dir(name), ".luckytv-publish-")
 	if err != nil {
 		return err
 	}

@@ -8,11 +8,11 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/protocol"
 )
 
 func TestCapabilityNormalizerProjectsPluginWorkflowCapabilities(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("..", "..", "..", "plugin-packages", "autodl-comfyui.beeftv-plugin"))
+	data, err := os.ReadFile(filepath.Join("..", "..", "..", "plugin-packages", "autodl-comfyui.luckytv-plugin"))
 	if err != nil {
 		t.Fatal(err)
 	}

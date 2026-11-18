@@ -61,7 +61,7 @@ test("failed canonical restore shows retry without exposing blank-credential gen
 
 test("fresh embedded scope hydrates canonical canvases after session selection and before exposing the workspace", async () => {
     const page = await browser.newPage();
-    await page.addInitScript(() => { (window as any).__BEEFTV_HARNESS__ = { embedded: true }; });
+    await page.addInitScript(() => { (window as any).__LUCKYTV_HARNESS__ = { embedded: true }; });
     await page.goto(server.url.toString());
     await page.waitForFunction(() => (window as any).sessionReady && (window as any).finishProjection);
     expect(await page.evaluate(() => (window as any).projectionScope)).toBe("canonical-workspace");
@@ -76,7 +76,7 @@ test("fresh embedded scope hydrates canonical canvases after session selection a
 
 test("embedded bootstrap failure cannot fall back to the shared local namespace", async () => {
     const page = await browser.newPage();
-    await page.addInitScript(() => { (window as any).__BEEFTV_HARNESS__ = { embedded: true }; });
+    await page.addInitScript(() => { (window as any).__LUCKYTV_HARNESS__ = { embedded: true }; });
     await page.goto(`${server.url}?fail-bootstrap`);
     await page.waitForFunction(() => Boolean((window as any).finishRestore));
     await page.evaluate(() => (window as any).finishRestore());

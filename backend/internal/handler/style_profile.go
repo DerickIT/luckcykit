@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"infinite-canvas/backend/internal/prompts"
+	"luckytv/backend/internal/prompts"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"

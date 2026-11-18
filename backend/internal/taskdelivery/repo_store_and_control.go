@@ -8,12 +8,12 @@ import (
 	"sync"
 	"time"
 
-	localasset "infinite-canvas/backend/internal/asset"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/playback"
-	"infinite-canvas/backend/internal/repository"
-	localtask "infinite-canvas/backend/internal/task"
+	localasset "luckytv/backend/internal/asset"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/playback"
+	"luckytv/backend/internal/repository"
+	localtask "luckytv/backend/internal/task"
 
 	"gorm.io/gorm"
 )

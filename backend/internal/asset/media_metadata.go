@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/mediatools"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/mediatools"
+	"luckytv/backend/internal/model"
 )
 
 func missingMediaMetadata(resource *model.Resource) bool {

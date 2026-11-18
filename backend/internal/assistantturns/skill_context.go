@@ -11,8 +11,8 @@ import (
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/skills"
 )
 
 type SkillContext struct {

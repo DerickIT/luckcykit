@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/skills"
 )
 
 const SkillPackageUploadMaxBytes = skills.SkillPackageUploadMaxBytes

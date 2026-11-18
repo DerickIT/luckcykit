@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/mediatools"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/mediatools"
+	"luckytv/backend/internal/model"
 )
 
 func (s *Service) Process(ctx context.Context, task *model.Task) error {
@@ -77,7 +77,7 @@ func (s *Service) Process(ctx context.Context, task *model.Task) error {
 	if err := s.progress(task, "准备视频", 8); err != nil {
 		return err
 	}
-	workDir, err := s.mkdirTemp("", "beeftv-depth-*")
+	workDir, err := s.mkdirTemp("", "luckytv-depth-*")
 	if err != nil {
 		return s.failUnlessCanceled(ctx, task, stageFailed, ErrTempDir.Error())
 	}

@@ -16,7 +16,7 @@ if (!process.argv.includes("--serve")) {
     if (variant === "before" && !baseRef) throw new Error("A before build requires --base <commit>");
     const changed = new Set(baseRef ? execFileSync("git", ["diff", "--name-only", baseRef, "--", "src"], { cwd: root, encoding: "utf8" }).trim().split("\n") : []);
     await build({ configFile: false, root, publicDir: false, base: `/${variant}/`, logLevel: "warn", resolve: { alias: { "@": resolve(root, "src") } },
-        define: { __BEEFTV_HEAVY_MEDIA_ENABLED__: "false", __APP_VERSION__: '"performance-fixture"' },
+        define: { __LUCKYTV_HEAVY_MEDIA_ENABLED__: "false", __APP_VERSION__: '"performance-fixture"' },
         plugins: [{ name: "canvas-performance-source", enforce: "pre", async load(id) {
             if (!/\.tsx?$/.test(id)) return;
             const path = "web/" + relative(root, id);

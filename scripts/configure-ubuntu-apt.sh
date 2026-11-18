@@ -10,4 +10,4 @@ for source in "$apt_root/sources.list" "$apt_root"/sources.list.d/*.sources "$ap
   sudo sed -i 's|https\{0,1\}://azure\.archive\.ubuntu\.com/|https://archive.ubuntu.com/|g' "$source"
 done
 printf '%s\n' 'Acquire::Retries "3";' 'Acquire::http::Timeout "30";' 'Acquire::https::Timeout "30";' \
-  | sudo tee "$apt_root/apt.conf.d/80beeftv-network" >/dev/null
+  | sudo tee "$apt_root/apt.conf.d/80luckytv-network" >/dev/null

@@ -9,7 +9,7 @@ import path from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { serveEmptyHostState } from './skill-context-fixture.mjs';
 const root = path.resolve(process.argv[2] || '.');
-const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-budget-'));
+const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-budget-'));
 const token = 'synthetic-budget-token';
 let calls = 0, hold = false, base, child, log = '';
 let turnSeq = 0;
@@ -45,11 +45,11 @@ async function start(dir, limit) {
   base = `http://127.0.0.1:${port}`;
   log = '';
   child = spawn(process.execPath, [path.join(root, 'agent-host/server.mjs')], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'], env: {
-    ...process.env, BEEFTV_AGENT_PORT: String(port), BEEFTV_AGENT_LISTEN_FD: '0', BEEFTV_AGENT_LIFETIME_STDIN: '0',
-    BEEFTV_AGENT_INSTANCE_NONCE: '', BEEFTV_AGENT_DATA_DIR: dir, BEEFTV_AGENT_HOST_TOKEN: token,
-    BEEFTV_AGENT_API_KEY: 'fake', BEEFTV_AGENT_MODEL: 'fake', BEEFTV_AGENT_API: 'openai-completions',
-    BEEFTV_AGENT_BASE_URL: `http://127.0.0.1:${provider.address().port}/v1`, BEEFTV_OPS_URL: `http://127.0.0.1:${ops.address().port}/api`,
-    BEEFTV_AGENT_TOTAL_REQUEST_BUDGET: String(limit), BEEFTV_AGENT_MAX_REQUESTS_PER_TURN: '1',
+    ...process.env, LUCKYTV_AGENT_PORT: String(port), LUCKYTV_AGENT_LISTEN_FD: '0', LUCKYTV_AGENT_LIFETIME_STDIN: '0',
+    LUCKYTV_AGENT_INSTANCE_NONCE: '', LUCKYTV_AGENT_DATA_DIR: dir, LUCKYTV_AGENT_HOST_TOKEN: token,
+    LUCKYTV_AGENT_API_KEY: 'fake', LUCKYTV_AGENT_MODEL: 'fake', LUCKYTV_AGENT_API: 'openai-completions',
+    LUCKYTV_AGENT_BASE_URL: `http://127.0.0.1:${provider.address().port}/v1`, LUCKYTV_OPS_URL: `http://127.0.0.1:${ops.address().port}/api`,
+    LUCKYTV_AGENT_TOTAL_REQUEST_BUDGET: String(limit), LUCKYTV_AGENT_MAX_REQUESTS_PER_TURN: '1',
   }});
   child.stdout.on('data', data => { log += data; }); child.stderr.on('data', data => { log += data; });
   // Match assistantruntime's production ready deadline, including SDK import time.
@@ -64,7 +64,7 @@ async function start(dir, limit) {
 async function chat(canvasId = 'test') {
   const turnId = `budget-${++turnSeq}`;
   turnCanvas.set(turnId, canvasId);
-  const res = await fetch(base + '/chat', { method: 'POST', headers: { 'content-type': 'application/json', 'X-Beeftv-Agent-Token': token }, body: JSON.stringify({ canvasId, message: 'Reply ok', turnId }), signal: AbortSignal.timeout(20000) });
+  const res = await fetch(base + '/chat', { method: 'POST', headers: { 'content-type': 'application/json', 'X-Luckytv-Agent-Token': token }, body: JSON.stringify({ canvasId, message: 'Reply ok', turnId }), signal: AbortSignal.timeout(20000) });
   const text = await res.text(); assert.equal(res.status, 200, text);
   const end = text.trim().split('\n').map(JSON.parse).find(event => event.type === 'turn_end');
   assert(end, text); return end;

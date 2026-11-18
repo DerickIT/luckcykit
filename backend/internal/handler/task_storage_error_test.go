@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 	"net/http"
 	"strings"
 	"testing"

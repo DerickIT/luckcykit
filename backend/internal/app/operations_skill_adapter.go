@@ -2,10 +2,10 @@ package app
 
 import (
 	"context"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/operations"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/operations"
+	"luckytv/backend/internal/skills"
 )
 
 func (s *Service) ValidateAgentSkills(userID string, pins []skills.Pin) ([]skills.Pin, error) {
@@ -42,7 +42,7 @@ func (s *Service) checkAgentSkillRequirements(domain *skills.Service, userID str
 	for _, capability := range required {
 		var message string
 		switch capability {
-		case "beeftv.canvas":
+		case "luckytv.canvas":
 			continue
 		case "model.audio", "model.video":
 			if snapshot, err := s.assistantConfig(); err == nil {

@@ -7,10 +7,10 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/platform"
-	"infinite-canvas/backend/internal/repository"
-	"infinite-canvas/backend/internal/taskruntime"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/platform"
+	"luckytv/backend/internal/repository"
+	"luckytv/backend/internal/taskruntime"
 )
 
 func TestWorkerExecutionTimeoutPreservesRuntimeProfile(t *testing.T) {

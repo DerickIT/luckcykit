@@ -4,29 +4,29 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"infinite-canvas/backend/internal/appearance"
-	localasset "infinite-canvas/backend/internal/asset"
-	"infinite-canvas/backend/internal/assistantturns"
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/canvas"
-	"infinite-canvas/backend/internal/depthcapture"
-	"infinite-canvas/backend/internal/diagnostics"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/mediaattempt"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/operations"
-	"infinite-canvas/backend/internal/platform"
-	"infinite-canvas/backend/internal/playback"
-	"infinite-canvas/backend/internal/plugins"
-	localproject "infinite-canvas/backend/internal/project"
-	"infinite-canvas/backend/internal/prompts"
-	"infinite-canvas/backend/internal/repository"
-	"infinite-canvas/backend/internal/skills"
-	"infinite-canvas/backend/internal/supporttrace"
-	localtask "infinite-canvas/backend/internal/task"
-	"infinite-canvas/backend/internal/taskdelivery"
-	"infinite-canvas/backend/internal/textreplay"
+	"luckytv/backend/internal/appearance"
+	localasset "luckytv/backend/internal/asset"
+	"luckytv/backend/internal/assistantturns"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/canvas"
+	"luckytv/backend/internal/depthcapture"
+	"luckytv/backend/internal/diagnostics"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/mediaattempt"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/operations"
+	"luckytv/backend/internal/platform"
+	"luckytv/backend/internal/playback"
+	"luckytv/backend/internal/plugins"
+	localproject "luckytv/backend/internal/project"
+	"luckytv/backend/internal/prompts"
+	"luckytv/backend/internal/repository"
+	"luckytv/backend/internal/skills"
+	"luckytv/backend/internal/supporttrace"
+	localtask "luckytv/backend/internal/task"
+	"luckytv/backend/internal/taskdelivery"
+	"luckytv/backend/internal/textreplay"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -90,7 +90,7 @@ type Service struct {
 	playbackOnce             sync.Once
 	depthCapture             *depthcapture.Service
 	depthCaptureOnce         sync.Once
-	beefTV                  *beeftv.Service
+	luckyTV                  *luckytv.Service
 	generationDeliveryMedia  taskdelivery.Media
 	generationDelivery       *taskdelivery.Deliverer
 	deliveryMu               sync.Mutex
@@ -286,14 +286,14 @@ func (s *Service) refreshTaskProviderState(task *model.Task) error {
 	if latest.ImageJobID != "" {
 		task.ImageJobID = latest.ImageJobID
 	}
-	if latest.BeefUsageState != nil {
-		task.BeefUsageState = latest.BeefUsageState
+	if latest.LuckyUsageState != nil {
+		task.LuckyUsageState = latest.LuckyUsageState
 	}
-	if latest.BeefBillingState != nil {
-		task.BeefBillingState = latest.BeefBillingState
+	if latest.LuckyBillingState != nil {
+		task.LuckyBillingState = latest.LuckyBillingState
 	}
-	if latest.BeefReconcileDeadline != nil {
-		task.BeefReconcileDeadline = latest.BeefReconcileDeadline
+	if latest.LuckyReconcileDeadline != nil {
+		task.LuckyReconcileDeadline = latest.LuckyReconcileDeadline
 	}
 	task.Stage, task.Progress = latest.Stage, latest.Progress
 	task.PollStage = latest.PollStage

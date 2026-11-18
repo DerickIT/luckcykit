@@ -2,11 +2,11 @@ package agentops
 
 import (
 	"encoding/json"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/skills"
 	"strings"
 
-	"infinite-canvas/backend/internal/assistantturns"
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/assistantturns"
+	"luckytv/backend/internal/operations"
 )
 
 // AssistantScope 是内置助手的可信范围：当前画布 + 后端验证过归属的额外引用，

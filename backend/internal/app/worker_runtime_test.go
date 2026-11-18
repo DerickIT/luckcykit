@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"infinite-canvas/backend/internal/platform"
+	"luckytv/backend/internal/platform"
 )
 
 func TestTaskWritesAreRejectedDuringDrain(t *testing.T) {

@@ -14,8 +14,8 @@ func TestE2EGenerationWritesNoSecrets(t *testing.T) {
 		t.Skip("spawns the real agent host")
 	}
 	const secret = "sk-local-test-secret-123456"
-	t.Setenv("BEEFTV_REAL_GEN_KEY", secret)
-	t.Setenv("BEEFTV_REAL_GEN_DUMP_REQUESTS", "1")
+	t.Setenv("LUCKYTV_REAL_GEN_KEY", secret)
+	t.Setenv("LUCKYTV_REAL_GEN_DUMP_REQUESTS", "1")
 	harness := newE2EGenerationHarness(t, true)
 	out := t.TempDir()
 	// 第 1 轮就失败，仍会写请求原文件、报告和画布快照，足以检查所有落盘路径。

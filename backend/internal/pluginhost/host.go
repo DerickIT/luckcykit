@@ -21,7 +21,7 @@ import (
 	"sync"
 	"time"
 
-	"infinite-canvas/backend/internal/assistantruntime"
+	"luckytv/backend/internal/assistantruntime"
 )
 
 const (

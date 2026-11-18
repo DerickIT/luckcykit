@@ -13,11 +13,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
-	"infinite-canvas/backend/internal/assistantruntime"
-	"infinite-canvas/backend/internal/assistantturns"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/operations"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/assistantruntime"
+	"luckytv/backend/internal/assistantturns"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/operations"
+	"luckytv/backend/internal/skills"
 )
 
 type assistantSkillScriptService interface {
@@ -35,11 +35,11 @@ func registerAssistantSkillScriptRoutes(
 	requireOwnedCanvas func(*gin.Context, string) (json.RawMessage, bool),
 ) {
 	r.POST("/assistant/turns/:turnId/script-proposals/:proposalId/run", func(c *gin.Context) {
-		if strings.TrimSpace(c.GetHeader("X-Beeftv-Client")) != "" || isAssistantHostRequest(c, svc) {
+		if strings.TrimSpace(c.GetHeader("X-Luckytv-Client")) != "" || isAssistantHostRequest(c, svc) {
 			c.JSON(http.StatusForbidden, gin.H{
 				"code":   http.StatusForbidden,
 				"reason": "agent_token_cannot_approve",
-				"msg":    "Agent 自身的凭据不能批准脚本运行，请在 BeefTV 界面确认",
+				"msg":    "Agent 自身的凭据不能批准脚本运行，请在 LuckyTV 界面确认",
 			})
 			return
 		}

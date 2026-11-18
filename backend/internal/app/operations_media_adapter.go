@@ -4,7 +4,7 @@ import (
 	"context"
 	"io"
 
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/operations"
 )
 
 func (s *operationSession) OpenMediaResource(ctx context.Context, userID, resourceID string) (io.ReadCloser, error) {

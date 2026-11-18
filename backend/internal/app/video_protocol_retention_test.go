@@ -12,9 +12,9 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/plugins"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/plugins"
+	"luckytv/backend/internal/protocol"
 )
 
 func TestVideoProtocolUpgradeRetainsRemovedTaskIDs(t *testing.T) {

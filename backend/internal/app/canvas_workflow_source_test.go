@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	cw "infinite-canvas/backend/internal/canvasworkflow"
-	"infinite-canvas/backend/internal/model"
+	cw "luckytv/backend/internal/canvasworkflow"
+	"luckytv/backend/internal/model"
 )
 
 func TestCanvasWorkflowSourceSurvivesCompletionAndDeliveryCleanup(t *testing.T) {
@@ -106,7 +106,7 @@ func TestCanvasWorkflowSourceSurvivesCompletionAndDeliveryCleanup(t *testing.T) 
 
 func TestCanvasWorkflowLegacyClearedSourceRequiresManualRerun(t *testing.T) {
 	svc, db, d := workflowFixture(t)
-	if err := db.Model(&model.Task{}).Where("id = ?", "original").Updates(map[string]any{"input_json": `{"mode":"video","metadata":{"nodeId":"historical"}}`, "model": "beeftv::gpt-image-2"}).Error; err != nil {
+	if err := db.Model(&model.Task{}).Where("id = ?", "original").Updates(map[string]any{"input_json": `{"mode":"video","metadata":{"nodeId":"historical"}}`, "model": "luckytv::gpt-image-2"}).Error; err != nil {
 		t.Fatal(err)
 	}
 	_, err := svc.workflowTemplates().Create("owner", cw.CreateRequest{Name: "Historical", Definition: d})

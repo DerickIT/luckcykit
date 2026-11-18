@@ -1,7 +1,7 @@
 # Third-party notices
 
 This file records direct dependencies and bundled third-party assets in the
-BeefTV public source snapshot. Transitive dependency notices remain available
+LuckyTV public source snapshot. Transitive dependency notices remain available
 in the dependency packages installed from `bun.lock` and `backend/go.sum`.
 
 Each component below remains subject to its own license. The new
@@ -76,7 +76,7 @@ Versions are locked by `backend/go.sum`.
 | --- | --- |
 | Apache-2.0 | `github.com/volcengine/volc-sdk-golang` |
 | BSD-3-Clause | `golang.org/x/net`, `golang.org/x/sync`, `golang.org/x/sys` |
-| MIT | `github.com/gin-gonic/gin`, `github.com/google/uuid`, `github.com/wailsapp/wails/v2`, `gorm.io/driver/sqlite`, `gorm.io/gorm` |
+| MIT | `github.com/gin-gonic/gin`, `github.com/google/uuid`, `github.com/wailsapp/wails/v3`, `gorm.io/driver/sqlite`, `gorm.io/gorm` |
 
 The SQLite driver includes the SQLite library, which is in the public domain,
 and cgo bindings distributed under their package license.
@@ -88,7 +88,7 @@ and cgo bindings distributed under their package license.
 | `web/public/mediapipe/wasm/*`, `web/public/canvas/models/blaze-face-full-range-sparse.tflite` | MediaPipe Tasks Vision distribution, Apache-2.0 |
 | `web/public/three/basis/*` | Basis Universal transcoder distributed with three.js; Apache-2.0 |
 | `web/public/canvas/models/facecap.glb` | three.js example face-cap model; distributed with the MIT-licensed three.js examples |
-| `web/public/canvas/models/director-repro-triangle.gltf` | BeefTV hand-authored offline test fixture; MIT |
+| `web/public/canvas/models/director-repro-triangle.gltf` | LuckyTV hand-authored offline test fixture; MIT |
 | `web/public/icons/*.svg` | Compatibility/service identifiers based on `@lobehub/icons` where applicable; package code is MIT, names and marks remain property of their owners |
 
 ## Images and demonstration media
@@ -98,20 +98,20 @@ The files under `web/public/welcome/spring`, `welcome/charge`, and
 are used under CC BY 4.0. Exact creators, source pages, modifications, and
 license links are preserved in `web/public/welcome/credits.html`.
 
-BeefTV logos, workspace screenshots, folder covers, lighting thumbnails, and
+LuckyTV logos, workspace screenshots, folder covers, lighting thumbnails, and
 short-drama style thumbnails in `web/public` are project-maintained interface
 assets previously distributed with BeefTV under the historical MIT terms
 preserved in Part B of LICENSE. They are not
 representations of output quality from any model provider.
 
-`docs/public/images/canvas-version-history.png` is a BeefTV documentation
+`docs/public/images/canvas-version-history.png` is a LuckyTV documentation
 screenshot previously distributed under the historical MIT terms preserved
 in Part B of LICENSE.
 
 ## Protocol packages and trademarks
 
-Directories under `plugin-packages/` are BeefTV protocol descriptions and
-adapters. Generated `.beeftv-plugin` archives are build artifacts and are not
+Directories under `plugin-packages/` are LuckyTV protocol descriptions and
+adapters. Generated `.luckytv-plugin` archives are build artifacts and are not
 committed to the public source snapshot. Provider names identify compatible
 APIs only. No affiliation or endorsement is implied.
 
@@ -128,11 +128,11 @@ provider code outside its `enterprise/` directory:
   `litellm/llms/gemini/videos/transformation.py`,
   `litellm/constants.py` (the default `X-Runway-Version` value)
 
-They were re-expressed as BeefTV declarative manifest templates and Go tests;
+They were re-expressed as LuckyTV declarative manifest templates and Go tests;
 no Python runtime or Python source is shipped.
 The same notice ships inside the plugin package as
 `plugin-packages/runway-video/LICENSE`, so a downloaded
-`runway-video.beeftv-plugin` carries it without the repository root. LiteLLM's MIT permission
+`runway-video.luckytv-plugin` carries it without the repository root. LiteLLM's MIT permission
 notice applies to that derived material:
 
 > MIT License

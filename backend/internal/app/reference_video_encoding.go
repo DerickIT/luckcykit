@@ -1,6 +1,6 @@
 package app
 
-import "infinite-canvas/backend/internal/generation"
+import "luckytv/backend/internal/generation"
 
 func referenceVideoEncoding(data []byte) (string, float64) {
 	return generation.ReferenceVideoEncoding(data)

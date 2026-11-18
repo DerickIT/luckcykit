@@ -21,7 +21,7 @@ func TestTaskSettlementMigrationUpgradesReleasedV26Database(t *testing.T) {
 		t.Fatal(err)
 	}
 	// v1 建表使用当前模型；用 v2.0.5 的列集合还原已发布库。
-	for _, col := range []string{"beef_usage_state", "beef_billing_state", "beef_reconcile_deadline", "image_job_id"} {
+	for _, col := range []string{"lucky_usage_state", "lucky_billing_state", "lucky_reconcile_deadline", "image_job_id"} {
 		if err = db.Exec("ALTER TABLE tasks DROP COLUMN " + col).Error; err != nil {
 			t.Fatal(err)
 		}
@@ -45,14 +45,14 @@ func TestTaskSettlementMigrationUpgradesReleasedV26Database(t *testing.T) {
 	}
 	var row struct {
 		RecoveryOutcome *string
-		BeefUsageState  *string
+		LuckyUsageState  *string
 		ImageJobID      string
 		ResultJSON      string
 	}
 	if err = db.Table("tasks").Where("id = ?", "released").First(&row).Error; err != nil {
 		t.Fatal(err)
 	}
-	if row.RecoveryOutcome == nil || *row.RecoveryOutcome != "no_result" || row.BeefUsageState != nil || row.ImageJobID != "" || row.ResultJSON != "original" {
+	if row.RecoveryOutcome == nil || *row.RecoveryOutcome != "no_result" || row.LuckyUsageState != nil || row.ImageJobID != "" || row.ResultJSON != "original" {
 		t.Fatalf("历史任务被改写: %+v", row)
 	}
 }

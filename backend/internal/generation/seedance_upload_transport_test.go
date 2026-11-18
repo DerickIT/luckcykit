@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/model"
 )
 
 func TestReferenceUploadGateway4xxKeepsRequestIDAndCategory(t *testing.T) {
@@ -35,9 +35,9 @@ func TestReferenceUploadTLSDeadlineIsRecordedBeforeGeneration(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 150*time.Millisecond)
 	defer cancel()
 	receipts := &recordingReceipts{}
-	ctx = WithRuntime(ctx, Runtime{Receipts: receipts, Endpoints: Endpoints{BeefTVVideoBaseURL: address}})
+	ctx = WithRuntime(ctx, Runtime{Receipts: receipts, Endpoints: Endpoints{LuckyTVVideoBaseURL: address}})
 	ctx = withReferenceUpload(ctx, ReferenceUploadMeta{Kind: "image", Index: 2})
-	err := PutBeefTVSeedanceBytes(ctx, BeefTVSeedanceUploadSession{UploadURL: address + "/?X-Amz-Signature=PRIVATE"}, []byte("owned-fixture"))
+	err := PutLuckyTVSeedanceBytes(ctx, LuckyTVSeedanceUploadSession{UploadURL: address + "/?X-Amz-Signature=PRIVATE"}, []byte("owned-fixture"))
 	var upload *ReferenceUploadError
 	if !errors.As(err, &upload) || !errors.Is(err, context.DeadlineExceeded) || upload.Meta.Index != 2 || strings.Contains(err.Error(), "PRIVATE") {
 		t.Fatalf("upload cause lost or unsafe: %v", err)
@@ -56,11 +56,11 @@ func TestReferenceUploadTLSDeadlineIsRecordedBeforeGeneration(t *testing.T) {
 }
 
 func TestReferenceUpload400PrependsReferenceIndexAndSupportsTIFF(t *testing.T) {
-	mime, err := CanonicalBeefTVSeedanceMime("image", "application/octet-stream", []byte{'I', 'I', '*', 0, 8, 0, 0, 0})
+	mime, err := CanonicalLuckyTVSeedanceMime("image", "application/octet-stream", []byte{'I', 'I', '*', 0, 8, 0, 0, 0})
 	if err != nil || mime != "image/tiff" {
 		t.Fatalf("TIFF detection = %q, %v", mime, err)
 	}
-	if _, err := CanonicalBeefTVSeedanceMime("image", "image/png", []byte{0, 0, 0, 28, 'f', 't', 'y', 'p', 'a', 'v', 'i', 'f'}); err == nil {
+	if _, err := CanonicalLuckyTVSeedanceMime("image", "image/png", []byte{0, 0, 0, 28, 'f', 't', 'y', 'p', 'a', 'v', 'i', 'f'}); err == nil {
 		t.Fatal("raw AVIF masquerading as image/png was accepted without conversion")
 	}
 	cause := HTTPError{
@@ -89,7 +89,7 @@ func TestManagedMediaUpload400PreservesReferenceAudioIndexAndServerMessage(t *te
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/v1/models":
-			w.Header().Set(beeftv.MediaProtocolHeader, beeftv.MediaProtocolVersion)
+			w.Header().Set(luckytv.MediaProtocolHeader, luckytv.MediaProtocolVersion)
 			w.Header().Set("Content-Type", "application/json")
 			_, _ = w.Write([]byte(`{"media_protocol":{"version":"managed-media-v1","supported_media_types":["video"],"task_submit_url":"/v1/media/tasks","task_query_url_template":"/v1/media/tasks/{task_ref}","uploads_url":"/v1/media/uploads"},"data":[]}`))
 		case "/v1/media/uploads":
@@ -107,14 +107,14 @@ func TestManagedMediaUpload400PreservesReferenceAudioIndexAndServerMessage(t *te
 	ctx := WithRuntime(context.Background(), Runtime{
 		ManagedMedia: stubManagedMediaState{},
 		Receipts:     receipts,
-		Endpoints:    Endpoints{BeefTVVideoBaseURL: server.URL},
+		Endpoints:    Endpoints{LuckyTVVideoBaseURL: server.URL},
 	})
 	client := managedMediaClient(ctx, Config{BaseURL: server.URL, APIKey: "test-key"})
-	request := beeftv.MediaRequest{TaskRef: "task-ref-upload-audio", MediaType: "video", Model: "video-test-model", Operation: "reference_to_video"}
-	refs := []beeftv.LocalMediaReference{
-		{MediaReference: beeftv.MediaReference{Kind: "image", Role: "reference", URL: server.URL + "/ref-1.png"}},
-		{MediaReference: beeftv.MediaReference{Kind: "image", Role: "reference", URL: server.URL + "/ref-2.png"}},
-		{MediaReference: beeftv.MediaReference{Kind: "audio", Role: "reference"}, DataURL: "data:audio/mp4;base64,AAAAIGZ0eXBNNEEg"},
+	request := luckytv.MediaRequest{TaskRef: "task-ref-upload-audio", MediaType: "video", Model: "video-test-model", Operation: "reference_to_video"}
+	refs := []luckytv.LocalMediaReference{
+		{MediaReference: luckytv.MediaReference{Kind: "image", Role: "reference", URL: server.URL + "/ref-1.png"}},
+		{MediaReference: luckytv.MediaReference{Kind: "image", Role: "reference", URL: server.URL + "/ref-2.png"}},
+		{MediaReference: luckytv.MediaReference{Kind: "audio", Role: "reference"}, DataURL: "data:audio/mp4;base64,AAAAIGZ0eXBNNEEg"},
 	}
 
 	_, err := executeManagedMedia(ctx, client, request, refs)
@@ -237,7 +237,7 @@ func TestManagedMediaUpload5xxAndPutFailuresStayNonPaidPreupload(t *testing.T) {
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				switch r.URL.Path {
 				case "/v1/models":
-					w.Header().Set(beeftv.MediaProtocolHeader, beeftv.MediaProtocolVersion)
+					w.Header().Set(luckytv.MediaProtocolHeader, luckytv.MediaProtocolVersion)
 					w.Header().Set("Content-Type", "application/json")
 					_, _ = w.Write([]byte(`{"media_protocol":{"version":"managed-media-v1","supported_media_types":["video"],"task_submit_url":"/v1/media/tasks","task_query_url_template":"/v1/media/tasks/{task_ref}","uploads_url":"/v1/media/uploads"},"data":[]}`))
 				case "/v1/media/uploads":
@@ -267,13 +267,13 @@ func TestManagedMediaUpload5xxAndPutFailuresStayNonPaidPreupload(t *testing.T) {
 			ctx := WithRuntime(context.Background(), Runtime{
 				ManagedMedia: stubManagedMediaState{},
 				Receipts:     &recordingReceipts{},
-				Endpoints:    Endpoints{BeefTVVideoBaseURL: server.URL},
+				Endpoints:    Endpoints{LuckyTVVideoBaseURL: server.URL},
 			})
 			client := managedMediaClient(ctx, Config{BaseURL: server.URL, APIKey: "test-key"})
 			client.AllowHTTPTest = true
-			request := beeftv.MediaRequest{TaskRef: "task-ref-upload-5xx", MediaType: "video", Model: "video-test-model", Operation: "reference_to_video"}
-			refs := []beeftv.LocalMediaReference{
-				{MediaReference: beeftv.MediaReference{Kind: "audio", Role: "reference"}, DataURL: "data:audio/mpeg;base64,SUQzBAAAAAA="},
+			request := luckytv.MediaRequest{TaskRef: "task-ref-upload-5xx", MediaType: "video", Model: "video-test-model", Operation: "reference_to_video"}
+			refs := []luckytv.LocalMediaReference{
+				{MediaReference: luckytv.MediaReference{Kind: "audio", Role: "reference"}, DataURL: "data:audio/mpeg;base64,SUQzBAAAAAA="},
 			}
 
 			_, err := executeManagedMedia(ctx, client, request, refs)

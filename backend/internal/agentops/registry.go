@@ -1,6 +1,6 @@
 package agentops
 
-import "infinite-canvas/backend/internal/operations"
+import "luckytv/backend/internal/operations"
 
 type (
 	Scope        = operations.Scope

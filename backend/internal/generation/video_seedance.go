@@ -7,15 +7,15 @@ import (
 	"fmt"
 	"strings"
 
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/outbound"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/outbound"
+	"luckytv/backend/internal/protocol"
 )
 
 func RunSeedanceVideosTask(ctx context.Context, input Input, pollPolicy VideoPollPolicy) (map[string]interface{}, error) {
-	if managedConnection(input.Config) || IsBeefTVVideoConfig(ctx, input.Config) {
+	if managedConnection(input.Config) || IsLuckyTVVideoConfig(ctx, input.Config) {
 		return runManagedLegacyVideo(ctx, input, pollPolicy)
 	}
 	pollPolicy = videoPollPolicyForConfig(ctx, input.Config, pollPolicy)
@@ -90,7 +90,7 @@ func RunSeedanceVideosTask(ctx context.Context, input Input, pollPolicy VideoPol
 	})
 }
 
-// BeefTV reports the transport task as in_progress while the nested
+// LuckyTV reports the transport task as in_progress while the nested
 // generation has completed and the output is being saved. Treat that nested
 // terminal state as authoritative and use its URL for the content download.
 func SeedancePollStatusAndURL(state map[string]interface{}) (string, string) {
@@ -164,10 +164,10 @@ func attachOptionalProviderLastFrame(ctx context.Context, config Config, videoRe
 	videoResult["lastFrame"] = map[string]interface{}{"dataUrl": DataURL(mime, data), "mimeType": mime}
 }
 
-// BeefTVVideoRequestBody assembles only user intent. The BeefTV adapter
+// LuckyTVVideoRequestBody assembles only user intent. The LuckyTV adapter
 // serializes canonical references and the server selects supplier parameters.
-func BeefTVVideoRequestBody(input Input) (map[string]interface{}, error) {
-	return beeftv.LegacyVideoBody(managedLegacyVideoInput(input))
+func LuckyTVVideoRequestBody(input Input) (map[string]interface{}, error) {
+	return luckytv.LegacyVideoBody(managedLegacyVideoInput(input))
 }
 
 func RunSeedanceAgentPlanVideoTask(ctx context.Context, input Input, pollPolicy VideoPollPolicy) (map[string]interface{}, error) {
@@ -537,7 +537,7 @@ func SeedanceVideosMediaURL(media Media) (string, error) {
 	return "", errors.New("Seedance /videos 参考素材需要公网 URL、asset:// 素材 ID 或 data URL")
 }
 
-func BeefTVAudioURL(media Media) (string, error) {
+func LuckyTVAudioURL(media Media) (string, error) {
 	value := strings.TrimSpace(media.URL)
 	if strings.HasPrefix(value, "asset://") || IsPublicMediaURL(value) {
 		return value, nil

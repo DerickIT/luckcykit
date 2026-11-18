@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
 )
 
 // 媒体任务的结果不可解析或没有媒体产物时，投影不能给出 ready；

@@ -13,13 +13,13 @@ import (
 )
 
 // CuratedRegistryURL and CuratedRegistryMirrorCDN are the authenticated public
-// recommendation list endpoints for Sunnyender-org/beeftv-plugins. Only these
+// recommendation list endpoints for Sunnyender-org/luckytv-plugins. Only these
 // two official repository origins are trusted for registry.json so the SHA-256
 // pins inside registry.json cannot be tampered with by third-party proxies.
 const (
-	CuratedRegistryURL       = "https://raw.githubusercontent.com/Sunnyender-org/beeftv-plugins/main/registry.json"
-	CuratedRegistryMirrorCDN = "https://cdn.jsdelivr.net/gh/Sunnyender-org/beeftv-plugins@main/registry.json"
-	CuratedCatalogPackage    = "beeftv-plugin-catalog"
+	CuratedRegistryURL       = "https://raw.githubusercontent.com/Sunnyender-org/luckytv-plugins/main/registry.json"
+	CuratedRegistryMirrorCDN = "https://cdn.jsdelivr.net/gh/Sunnyender-org/luckytv-plugins@main/registry.json"
+	CuratedCatalogPackage    = "luckytv-plugin-catalog"
 
 	curatedRegistryMemTTL = 2 * time.Minute
 )
@@ -85,7 +85,7 @@ type curatedRegistryEntry struct {
 type curatedRegistryPayload struct {
 	Plugins []curatedRegistryEntry `json:"plugins"`
 	// Packages 只写 npm 包名，名称、说明和版本从 npm 读，上架只需加一行。
-	// 已发布的旧版 BeefTV 不认这个键，会直接忽略，不会出现缺信息的卡片。
+	// 已发布的旧版 LuckyTV 不认这个键，会直接忽略，不会出现缺信息的卡片。
 	Packages []string `json:"packages"`
 }
 
@@ -156,7 +156,7 @@ func readCuratedRegistryWithCache(ctx context.Context, registry, cachePath strin
 			return cached
 		}
 	}
-	marketDir, ok := BundledSampleDir("beeftv-plugin-market")
+	marketDir, ok := BundledSampleDir("luckytv-plugin-market")
 	if !ok {
 		return nil
 	}

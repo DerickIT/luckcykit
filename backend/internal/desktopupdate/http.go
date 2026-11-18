@@ -15,7 +15,7 @@ import (
 	"sync"
 	"time"
 
-	"infinite-canvas/backend/internal/desktopnet"
+	"luckytv/backend/internal/desktopnet"
 )
 
 func newHTTPClient() *http.Client {
@@ -73,7 +73,7 @@ func (e *Engine) getBytes(ctx context.Context, rawURL string, maxBytes int64, ti
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("User-Agent", "BeefTV-Desktop-Updater/"+e.currentVersion)
+	req.Header.Set("User-Agent", "LuckyTV-Desktop-Updater/"+e.currentVersion)
 	resp, err := e.client.Do(req)
 	if err != nil {
 		return nil, classifyTransportError(err, false)
@@ -210,7 +210,7 @@ func (e *Engine) fetchRangeFromURL(ctx context.Context, artifact PlatformArtifac
 	if err != nil {
 		return offset, err
 	}
-	req.Header.Set("User-Agent", "BeefTV-Desktop-Updater/"+e.currentVersion)
+	req.Header.Set("User-Agent", "LuckyTV-Desktop-Updater/"+e.currentVersion)
 	if offset > 0 {
 		req.Header.Set("Range", "bytes="+strconv.FormatInt(offset, 10)+"-")
 	}

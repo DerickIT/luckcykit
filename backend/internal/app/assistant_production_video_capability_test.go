@@ -12,11 +12,11 @@ import (
 	"testing"
 	"time"
 
-	beefapi "infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/operations"
+	luckyapi "luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/operations"
 )
 
 type managedVideoCapabilityCounter struct {
@@ -40,11 +40,11 @@ func TestAssistantManagedVideoRestoresCapabilitiesBeforeEnvelope(t *testing.T) {
 					w.Header().Set("Content-Type", "application/json")
 					switch {
 					case r.URL.Path == "/v1/models":
-						w.Header().Set(beefapi.MediaProtocolHeader, beefapi.MediaProtocolVersion)
-						_ = json.NewEncoder(w).Encode(map[string]any{"media_protocol": beefapi.MediaDiscovery{Version: beefapi.MediaProtocolVersion, SupportedMediaTypes: []string{"video"}, TaskSubmitURL: "/v1/media/tasks", TaskQueryURLTemplate: "/v1/media/tasks/{task_ref}", UploadsURL: "/v1/media/uploads"}, "data": []any{map[string]any{"id": modelName}}})
+						w.Header().Set(luckyapi.MediaProtocolHeader, luckyapi.MediaProtocolVersion)
+						_ = json.NewEncoder(w).Encode(map[string]any{"media_protocol": luckyapi.MediaDiscovery{Version: luckyapi.MediaProtocolVersion, SupportedMediaTypes: []string{"video"}, TaskSubmitURL: "/v1/media/tasks", TaskQueryURLTemplate: "/v1/media/tasks/{task_ref}", UploadsURL: "/v1/media/uploads"}, "data": []any{map[string]any{"id": modelName}}})
 					case r.Method == http.MethodPost && r.URL.Path == "/v1/media/tasks":
 						posts.Add(1)
-						var request beefapi.MediaRequest
+						var request luckyapi.MediaRequest
 						if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 							t.Error(err)
 						}
@@ -55,10 +55,10 @@ func TestAssistantManagedVideoRestoresCapabilitiesBeforeEnvelope(t *testing.T) {
 						if request.Model != modelName || request.Operation != "text_to_video" || request.Options["seconds"] != float64(5) || request.Options["aspect_ratio"] != "16:9" || request.Options["resolution"] != "480p" || len(request.Input.References) != 0 {
 							t.Errorf("confirmed video settings changed: %+v", request)
 						}
-						_ = json.NewEncoder(w).Encode(beefapi.MediaTask{TaskRef: request.TaskRef, MediaType: "video", Status: "failed", Error: &beefapi.MediaTaskError{Code: "fixture_rejected", Message: "fixture stops before generation"}})
+						_ = json.NewEncoder(w).Encode(luckyapi.MediaTask{TaskRef: request.TaskRef, MediaType: "video", Status: "failed", Error: &luckyapi.MediaTaskError{Code: "fixture_rejected", Message: "fixture stops before generation"}})
 					case r.Method == http.MethodGet && strings.HasPrefix(r.URL.Path, "/v1/media/tasks/"):
 						queries.Add(1)
-						_ = json.NewEncoder(w).Encode(beefapi.MediaTask{TaskRef: strings.TrimPrefix(r.URL.Path, "/v1/media/tasks/"), MediaType: "video", Status: "failed", Error: &beefapi.MediaTaskError{Code: "fixture_rejected", Message: "fixture stops before generation"}})
+						_ = json.NewEncoder(w).Encode(luckyapi.MediaTask{TaskRef: strings.TrimPrefix(r.URL.Path, "/v1/media/tasks/"), MediaType: "video", Status: "failed", Error: &luckyapi.MediaTaskError{Code: "fixture_rejected", Message: "fixture stops before generation"}})
 					default:
 						t.Errorf("unexpected %s %s", r.Method, r.URL.Path)
 						http.NotFound(w, r)
@@ -73,11 +73,11 @@ func TestAssistantManagedVideoRestoresCapabilitiesBeforeEnvelope(t *testing.T) {
 				capability.Video.Resolutions = []string{"480p"}
 				capability.Video.DefaultResolution = "480p"
 				capability.Video.GenerateAudio = modelcatalog.VideoBooleanConfig{Supported: supported, Default: true}
-				body, _ := json.Marshal(map[string]any{"channels": []any{map[string]any{"id": beefapi.ChannelID, "baseUrl": server.URL, "apiKey": "synthetic-test-key", "credentialRef": beefapi.CredentialRef, "models": []string{modelName}, "modelProfiles": []any{map[string]any{"model": modelName, "capability": "video", "protocol": "openai-videos", "videoCapabilitiesVersion": "server-fixture-v1", "capabilityConfig": capability}}}}})
+				body, _ := json.Marshal(map[string]any{"channels": []any{map[string]any{"id": luckyapi.ChannelID, "baseUrl": server.URL, "apiKey": "synthetic-test-key", "credentialRef": luckyapi.CredentialRef, "models": []string{modelName}, "modelProfiles": []any{map[string]any{"model": modelName, "capability": "video", "protocol": "openai-videos", "videoCapabilitiesVersion": "server-fixture-v1", "capabilityConfig": capability}}}}})
 				if err := svc.SaveLocalModelConfig(body); err != nil {
 					t.Fatal(err)
 				}
-				config, err := svc.assistantGenerationConfig(operations.GenerationTarget{Kind: "video", ModelKey: beefapi.ChannelID + "::" + modelName, Parameters: map[string]string{"size": "16:9", "vquality": "480p", "seconds": "5", "generateAudio": "false"}})
+				config, err := svc.assistantGenerationConfig(operations.GenerationTarget{Kind: "video", ModelKey: luckyapi.ChannelID + "::" + modelName, Parameters: map[string]string{"size": "16:9", "vquality": "480p", "seconds": "5", "generateAudio": "false"}})
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -103,11 +103,11 @@ func TestAssistantManagedVideoRestoresCapabilitiesBeforeEnvelope(t *testing.T) {
 				if err := db.Save(stored).Error; err != nil {
 					t.Fatal(err)
 				}
-				attempt := &model.RouteAttempt{ID: "video-capability-attempt", TaskID: stored.ID, ChannelID: beefapi.ChannelID, DispatchState: "submission_unknown", StartedAt: time.Now()}
+				attempt := &model.RouteAttempt{ID: "video-capability-attempt", TaskID: stored.ID, ChannelID: luckyapi.ChannelID, DispatchState: "submission_unknown", StartedAt: time.Now()}
 				if err := db.Create(attempt).Error; err != nil {
 					t.Fatal(err)
 				}
-				ctx := generation.WithEndpoints(context.Background(), generation.Endpoints{BeefTVVideoBaseURL: server.URL})
+				ctx := generation.WithEndpoints(context.Background(), generation.Endpoints{LuckyTVVideoBaseURL: server.URL})
 				ctx = svc.bindGenerationRuntime(ctx, generation.CallMeta{UserID: stored.UserID, TaskID: stored.ID, TaskType: stored.Type})
 				ctx = context.WithValue(withProviderSubmissionKey(ctx, attempt), imageTaskContext{}, *stored)
 				runtime, _ := generation.RuntimeFromContext(ctx)
@@ -121,7 +121,7 @@ func TestAssistantManagedVideoRestoresCapabilitiesBeforeEnvelope(t *testing.T) {
 					} else {
 						_, err = generation.Execute(ctx, input)
 					}
-					var rejection *beefapi.MediaTaskError
+					var rejection *luckyapi.MediaTaskError
 					if !errors.As(err, &rejection) || rejection.Code != "fixture_rejected" {
 						t.Fatalf("run %d did not reach the local fixture: %v", run, err)
 					}

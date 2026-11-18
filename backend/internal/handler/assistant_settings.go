@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/operations"
 )
 
 type assistantSettingsService interface {

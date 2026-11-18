@@ -14,13 +14,13 @@ func TestTaskBindingDoesNotDependOnAppOrOperations(t *testing.T) {
 		t.Fatalf("list taskbinding dependencies: %v", err)
 	}
 	for _, dependency := range strings.Fields(string(output)) {
-		if dependency == "infinite-canvas/backend/internal/app" {
+		if dependency == "luckytv/backend/internal/app" {
 			t.Fatal("taskbinding still depends on the application service kernel")
 		}
-		if dependency == "infinite-canvas/backend/internal/operations" {
+		if dependency == "luckytv/backend/internal/operations" {
 			t.Fatal("taskbinding still depends on the operations registry")
 		}
-		if dependency == "infinite-canvas/backend/internal/canvas" {
+		if dependency == "luckytv/backend/internal/canvas" {
 			t.Fatal("taskbinding still depends on canvas document writes")
 		}
 	}

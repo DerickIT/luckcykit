@@ -7,9 +7,9 @@ import (
 	"runtime"
 	"sync"
 
-	"infinite-canvas/backend/internal/depthruntime"
-	"infinite-canvas/backend/internal/mediatools"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/depthruntime"
+	"luckytv/backend/internal/mediatools"
+	"luckytv/backend/internal/model"
 )
 
 // Service owns depth capture execution. Create-time quota and activity stay

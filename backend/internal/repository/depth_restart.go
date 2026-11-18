@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 	"time"
 )
 

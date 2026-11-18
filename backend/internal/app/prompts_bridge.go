@@ -1,7 +1,7 @@
 package app
 
 import (
-	"infinite-canvas/backend/internal/prompts"
+	"luckytv/backend/internal/prompts"
 )
 
 type (

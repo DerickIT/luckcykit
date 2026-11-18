@@ -14,18 +14,18 @@ document.documentElement.classList.toggle("dark",params.has("dark"));
 document.getElementById("root")!.className = "app-user-workspace app-product-workspace";
 document.body.style.background="var(--background)";
 document.body.style.color="var(--foreground)";
-const initial = { dataDir: "C:\\Users\\Creator\\AppData\\Roaming\\BeefTV", usedBytes: 1024 ** 3, freeBytes: 40 * 1024 ** 3 };
+const initial = { dataDir: "C:\\Users\\Creator\\AppData\\Roaming\\LuckyTV", usedBytes: 1024 ** 3, freeBytes: 40 * 1024 ** 3 };
 let usage = JSON.parse(localStorage.getItem("fixture-usage") || JSON.stringify(initial));
-if (params.has("cleanup-error")) usage = { ...initial, dataDir: "D:\\BeefTV", previousDir: initial.dataDir, previousBytes: initial.usedBytes };
+if (params.has("cleanup-error")) usage = { ...initial, dataDir: "D:\\LuckyTV", previousDir: initial.dataDir, previousBytes: initial.usedBytes };
 const config = { enabled: params.has("auto"), endpoint: params.has("auto") ? "https://s3.example.com" : "", bucket: params.has("auto") ? "example-media" : "", region: "auto", accessKeyId: params.has("auto") ? "example-access" : "", publicBaseURL: params.has("auto") ? "https://media.example.com" : "", hasSecret: params.has("auto") };
 window.go = {
     main: {
         DesktopApp: {
             StartupState: async () => ({ state: "ready", baseURL: "http://127.0.0.1:9999/api", launchToken: "fixture" }),
             StorageSettings: async () => usage,
-            ChooseStorageDirectory: async () => "D:\\BeefTV",
+            ChooseStorageDirectory: async () => "D:\\LuckyTV",
             MigrateStorage: async (path) => {
-                if (params.has("migration-error")) throw new Error("迁移未完成，原数据已保留，但工作区未能重新打开。请重启 BeefTV\n\nopen C:\\private\\data: fixture failure");
+                if (params.has("migration-error")) throw new Error("迁移未完成，原数据已保留，但工作区未能重新打开。请重启 LuckyTV\n\nopen C:\\private\\data: fixture failure");
                 usage = { ...usage, dataDir: path, previousDir: initial.dataDir, previousBytes: initial.usedBytes };
                 localStorage.setItem("fixture-usage", JSON.stringify(usage));
                 return usage;
@@ -33,7 +33,7 @@ window.go = {
             CleanupPreviousStorage: async () => {
                 if (params.has("cleanup-error")) {
                     usage = { ...usage, previousBytes: 2048 };
-                    throw new Error("临时文件仍在使用中，请重启 BeefTV 后再次清理。当前存储目录不受影响\n\nfixture sharing violation");
+                    throw new Error("临时文件仍在使用中，请重启 LuckyTV 后再次清理。当前存储目录不受影响\n\nfixture sharing violation");
                 }
                 usage = { ...usage, previousDir: undefined };
                 localStorage.setItem("fixture-usage", JSON.stringify(usage));

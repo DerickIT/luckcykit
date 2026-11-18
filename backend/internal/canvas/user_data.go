@@ -9,10 +9,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"infinite-canvas/backend/internal/asset"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/asset"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 
 	"gorm.io/gorm"
 )

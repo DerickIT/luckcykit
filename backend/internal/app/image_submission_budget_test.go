@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/generation"
+	"luckytv/backend/internal/generation"
 )
 
 type imageBudgetLimits struct{ closedAfter, checks int }

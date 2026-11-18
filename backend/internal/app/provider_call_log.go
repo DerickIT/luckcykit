@@ -1,8 +1,8 @@
 package app
 
 import (
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
 )
 
 func (s *Service) EnrichAPICallLog(log *model.ApiCallLog, responseBody []byte) {

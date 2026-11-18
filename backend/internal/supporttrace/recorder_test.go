@@ -128,7 +128,7 @@ func TestSnapshotWithoutUpperBoundIncludesPersistedClockAheadEvents(t *testing.T
 }
 
 func TestStartSurvivesKilledProcess(t *testing.T) {
-	if dir := os.Getenv("BEEFTV_SUPPORTTRACE_TEST_CHILD"); dir != "" {
+	if dir := os.Getenv("LUCKYTV_SUPPORTTRACE_TEST_CHILD"); dir != "" {
 		r, err := New(dir)
 		if err != nil {
 			panic(err)
@@ -141,7 +141,7 @@ func TestStartSurvivesKilledProcess(t *testing.T) {
 	}
 	dir := t.TempDir()
 	cmd := exec.Command(os.Args[0], "-test.run=^TestStartSurvivesKilledProcess$")
-	cmd.Env = append(os.Environ(), "BEEFTV_SUPPORTTRACE_TEST_CHILD="+dir)
+	cmd.Env = append(os.Environ(), "LUCKYTV_SUPPORTTRACE_TEST_CHILD="+dir)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		t.Fatal(err)

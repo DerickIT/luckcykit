@@ -6,10 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"infinite-canvas/backend/internal/buildinfo"
-	"infinite-canvas/backend/internal/desktopupdate"
-
-	wailsruntime "github.com/wailsapp/wails/v2/pkg/runtime"
+	"luckytv/backend/internal/buildinfo"
+	"luckytv/backend/internal/desktopupdate"
 )
 
 var (
@@ -27,15 +25,13 @@ func (a *DesktopApp) updater() *desktopupdate.Engine {
 		CurrentVersion: buildinfo.Current().Version,
 		DataDir:        a.dataDir,
 		Quit: func() error {
-			a.mu.RLock()
-			ctx := a.wailsCtx
-			a.mu.RUnlock()
-			if ctx == nil {
+			app, err := wailsApp()
+			if err != nil {
 				return errors.New("应用尚未就绪，无法安装更新")
 			}
 			go func() {
 				time.Sleep(500 * time.Millisecond)
-				wailsruntime.Quit(ctx)
+				app.Quit()
 			}()
 			return nil
 		},

@@ -5,9 +5,9 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 )
 
 func (s *Service) approveProposal(userID string, run *model.CreationRun, repo *repository.Repository, cmd Command, now time.Time) (replayed bool, err error) {

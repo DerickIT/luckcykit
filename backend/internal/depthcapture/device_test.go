@@ -13,8 +13,8 @@ import (
 
 func TestWorkerFindsBundledMediaToolsWithoutShellPath(t *testing.T) {
 	t.Setenv("PATH", "/usr/bin:/bin")
-	t.Setenv("CANVAS_FFPROBE_PATH", "/Applications/BeefTV.app/Contents/Resources/agent-host/media-runtime/ffprobe")
-	t.Setenv("CANVAS_FFMPEG_PATH", "/Applications/BeefTV.app/Contents/Resources/agent-host/media-runtime/ffmpeg")
+	t.Setenv("CANVAS_FFPROBE_PATH", "/Applications/LuckyTV.app/Contents/Resources/agent-host/media-runtime/ffprobe")
+	t.Setenv("CANVAS_FFMPEG_PATH", "/Applications/LuckyTV.app/Contents/Resources/agent-host/media-runtime/ffmpeg")
 	for _, platform := range []string{"darwin", "windows"} {
 		env := WorkerEnvForPlatform("/depth/worker", platform)
 		count := 0
@@ -57,7 +57,7 @@ func TestWorkerCheckpointDownloadUsesResolvedDesktopProxy(t *testing.T) {
 	t.Setenv("ALL_PROXY", "http://127.0.0.1:8888")
 	t.Setenv("NO_PROXY", "cdn.example.com")
 	command := exec.Command(os.Args[0], "-test.run=^TestDepthProxyChildProcess$")
-	command.Env = append(WorkerEnvForPlatform("C:/depth/worker", "windows"), "BEEFTV_PROXY_TEST_HELPER=1")
+	command.Env = append(WorkerEnvForPlatform("C:/depth/worker", "windows"), "LUCKYTV_PROXY_TEST_HELPER=1")
 	output, err := command.Output()
 	if err != nil {
 		t.Fatal(err)
@@ -77,7 +77,7 @@ func TestWorkerCheckpointDownloadUsesResolvedDesktopProxy(t *testing.T) {
 }
 
 func TestDepthProxyChildProcess(t *testing.T) {
-	if os.Getenv("BEEFTV_PROXY_TEST_HELPER") != "1" {
+	if os.Getenv("LUCKYTV_PROXY_TEST_HELPER") != "1" {
 		return
 	}
 	actual := map[string]string{}

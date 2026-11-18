@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/editing"
+	"luckytv/backend/internal/editing"
 )
 
 func TestDecodeVerboseJSON(t *testing.T) {

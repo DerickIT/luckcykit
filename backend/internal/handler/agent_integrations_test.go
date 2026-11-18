@@ -17,8 +17,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"infinite-canvas/backend/internal/agentconnect"
-	"infinite-canvas/backend/internal/agentops"
+	"luckytv/backend/internal/agentconnect"
+	"luckytv/backend/internal/agentops"
 )
 
 type integrationTestDirs struct{ dir string }
@@ -177,14 +177,14 @@ func integrationTestRouter(t *testing.T, registry agentClientRegistry, runner *f
 	newIntegrationManager = func(_ string) *agentconnect.Manager {
 		return &agentconnect.Manager{Home: home, DataDir: dataDir, Runner: runner, CLIDirs: []string{}, CommandTimeout: 2 * time.Second}
 	}
-	integrationCLIPath = func() (string, bool) { return "/fake/beeftv", true }
+	integrationCLIPath = func() (string, bool) { return "/fake/luckytv", true }
 	t.Cleanup(func() {
 		newIntegrationManager = previousManager
 		integrationCLIPath = previousCLI
 	})
 	router := gin.New()
 	trust := func(request *http.Request) bool {
-		return request.Header.Get("X-Desktop-Token") == "launch" && request.Header.Get("X-Beeftv-UI-Bootstrap") == "ui"
+		return request.Header.Get("X-Desktop-Token") == "launch" && request.Header.Get("X-Luckytv-UI-Bootstrap") == "ui"
 	}
 	RegisterAgentClientRoutes(router.Group("/api"), integrationTestDirs{dir: dataDir}, registry, trust)
 	return router
@@ -205,7 +205,7 @@ func callIntegration(t *testing.T, router *gin.Engine, method, path string, body
 	request.RemoteAddr = "127.0.0.1:1234"
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("X-Desktop-Token", "launch")
-	request.Header.Set("X-Beeftv-UI-Bootstrap", "ui")
+	request.Header.Set("X-Luckytv-UI-Bootstrap", "ui")
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, request)
 	return recorder
@@ -490,7 +490,7 @@ func TestDisconnectRemoveFailureSucceedsWithWarning(t *testing.T) {
 	if integration["connected"] != false || integration["needsRetry"] != false {
 		t.Fatalf("integration = %+v", integration)
 	}
-	if warning != "BeefTV 已停止接受 Claude Code 的访问。Claude Code 里的 BeefTV 连接没能自动移除，可以在它的 MCP 设置里手动删除。" {
+	if warning != "LuckyTV 已停止接受 Claude Code 的访问。Claude Code 里的 LuckyTV 连接没能自动移除，可以在它的 MCP 设置里手动删除。" {
 		t.Fatalf("warning = %q", warning)
 	}
 	if len(registry.List()) != 0 {

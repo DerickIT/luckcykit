@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	cw "infinite-canvas/backend/internal/canvasworkflow"
-	"infinite-canvas/backend/internal/model"
+	cw "luckytv/backend/internal/canvasworkflow"
+	"luckytv/backend/internal/model"
 )
 
 func TestCanvasWorkflowNewAudioReferenceRoundTrip(t *testing.T) {

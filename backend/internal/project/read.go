@@ -1,8 +1,8 @@
 package project
 
 import (
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
 
 	"golang.org/x/sync/errgroup"
 )

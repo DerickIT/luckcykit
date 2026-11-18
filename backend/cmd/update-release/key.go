@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	privateKeyEnv = "BEEFTV_UPDATER_PRIVATE_KEY"
-	publicKeyEnv  = "BEEFTV_UPDATER_PUBLIC_KEY"
+	privateKeyEnv = "LUCKYTV_UPDATER_PRIVATE_KEY"
+	publicKeyEnv  = "LUCKYTV_UPDATER_PUBLIC_KEY"
 )
 
 func cmdGenKey(args []string, stdout, stderr io.Writer) error {

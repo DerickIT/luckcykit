@@ -3,7 +3,7 @@ package platform
 import (
 	"time"
 
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/repository"
 )
 
 const TaskWorkerConcurrency = 3

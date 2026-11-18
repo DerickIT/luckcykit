@@ -5,9 +5,9 @@ import (
 	"reflect"
 	"testing"
 
-	"infinite-canvas/backend/internal/assistantturns"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/assistantturns"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/operations"
 )
 
 func TestAssistantProductionConfirmationReplayAfterClaim(t *testing.T) {

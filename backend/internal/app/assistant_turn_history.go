@@ -1,6 +1,6 @@
 package app
 
-import "infinite-canvas/backend/internal/skills"
+import "luckytv/backend/internal/skills"
 
 // AssistantTurnHistoryState supplements pi's conversation history with authoritative business receipts.
 // It is a read projection: reading history never settles or cancels an active turn.

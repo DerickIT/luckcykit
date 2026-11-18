@@ -11,13 +11,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/assistantturns"
-	"infinite-canvas/backend/internal/canvas"
-	"infinite-canvas/backend/internal/operations"
-	"infinite-canvas/backend/internal/skills"
-	httptransport "infinite-canvas/backend/internal/transport/http"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/assistantturns"
+	"luckytv/backend/internal/canvas"
+	"luckytv/backend/internal/operations"
+	"luckytv/backend/internal/skills"
+	httptransport "luckytv/backend/internal/transport/http"
 )
 
 // agentOpsMaxBody 与画布默认 PUT 上限对齐：文档提交会带上整份画布，运行时若用户放宽单画布上限则自动跟随放大。
@@ -136,11 +136,11 @@ func RegisterAgentOpsRoutes(r gin.IRouter, svc agentOpsService, store *agentops.
 			fail(c, http.StatusForbidden, app.BadAuthRequest("操作层只接受本机请求"))
 			return
 		}
-		if strings.TrimSpace(c.GetHeader("X-Beeftv-Client")) != "" || isAssistantHostRequest(c, svc) {
+		if strings.TrimSpace(c.GetHeader("X-Luckytv-Client")) != "" || isAssistantHostRequest(c, svc) {
 			c.JSON(http.StatusForbidden, gin.H{
 				"code":   http.StatusForbidden,
 				"reason": "agent_token_cannot_approve",
-				"msg":    "Agent 自身的凭据不能批准生成单，请使用工作区 owner 凭据或在 BeefTV 界面确认",
+				"msg":    "Agent 自身的凭据不能批准生成单，请使用工作区 owner 凭据或在 LuckyTV 界面确认",
 			})
 			return
 		}
@@ -150,7 +150,7 @@ func RegisterAgentOpsRoutes(r gin.IRouter, svc agentOpsService, store *agentops.
 			return
 		}
 		approvedBy := ""
-		if agentops.OwnerTokenMatches(svc.DataDir(), strings.TrimSpace(c.GetHeader("X-Beeftv-Owner"))) {
+		if agentops.OwnerTokenMatches(svc.DataDir(), strings.TrimSpace(c.GetHeader("X-Luckytv-Owner"))) {
 			approvedBy = "owner-cli"
 		} else if trustedDesktopUI(c) {
 			approvedBy = "ui"
@@ -320,7 +320,7 @@ func resolveCaller(c *gin.Context, svc ownerCredentialDirs, clients *agentops.Cl
 			ApprovalMode: agentops.ApprovalModeAsk,
 		}, "assistant-host", nil
 	}
-	clientID := strings.TrimSpace(c.GetHeader("X-Beeftv-Client"))
+	clientID := strings.TrimSpace(c.GetHeader("X-Luckytv-Client"))
 	if clientID != "" {
 		token := strings.TrimSpace(strings.TrimPrefix(c.GetHeader("Authorization"), "Bearer "))
 		reg, found := clients.Lookup(clientID, token)
@@ -335,7 +335,7 @@ func resolveCaller(c *gin.Context, svc ownerCredentialDirs, clients *agentops.Cl
 			ApprovalMode: agentops.ApprovalMode(reg.ApprovalMode),
 		}, reg.Label, nil
 	}
-	if agentops.OwnerTokenMatches(svc.DataDir(), strings.TrimSpace(c.GetHeader("X-Beeftv-Owner"))) {
+	if agentops.OwnerTokenMatches(svc.DataDir(), strings.TrimSpace(c.GetHeader("X-Luckytv-Owner"))) {
 		return agentops.Caller{Kind: agentops.CallerManual, ClientLabel: "owner"}, "owner", nil
 	}
 	if trustedDesktopUI(c) {
@@ -367,7 +367,7 @@ func requireTrustedDesktopWritePrincipal(c *gin.Context, message string) bool {
 		fail(c, http.StatusForbidden, app.Forbidden("此连接仅支持读取"))
 		return false
 	}
-	if strings.TrimSpace(c.GetHeader("X-Beeftv-Client")) != "" {
+	if strings.TrimSpace(c.GetHeader("X-Luckytv-Client")) != "" {
 		fail(c, http.StatusForbidden, app.Forbidden(message))
 		return false
 	}
@@ -456,7 +456,7 @@ func isLoopbackRequest(r *http.Request) bool {
 
 // allowedOrigins 允许显式配置的正式前端 Origin（例如 Wails 宿主页面）。
 func allowedOrigins() []string {
-	raw := strings.TrimSpace(os.Getenv("BEEFTV_ALLOWED_ORIGINS"))
+	raw := strings.TrimSpace(os.Getenv("LUCKYTV_ALLOWED_ORIGINS"))
 	if raw == "" {
 		return nil
 	}

@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"infinite-canvas/backend/internal/kernel"
+	"luckytv/backend/internal/kernel"
 )
 
 func originalPath(thumbnailPath string, itemID string, libraryPath string) (string, error) {

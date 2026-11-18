@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"infinite-canvas/backend/internal/editing"
+	"luckytv/backend/internal/editing"
 )
 
 func BuildSRT(segments []Segment) string {

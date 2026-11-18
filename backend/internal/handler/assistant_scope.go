@@ -7,11 +7,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/assistantturns"
-	"infinite-canvas/backend/internal/canvas"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/assistantturns"
+	"luckytv/backend/internal/canvas"
+	"luckytv/backend/internal/skills"
 )
 
 type assistantScopeService interface {
@@ -33,9 +33,9 @@ type assistantReferenceService interface {
 // 范围一律从后端自己的回合记录读取，调用方无法自报。
 const (
 	// assistantHostTokenHeader 是内置助手宿主的专属凭据头。
-	assistantHostTokenHeader = "X-Beeftv-Agent-Token"
+	assistantHostTokenHeader = "X-Luckytv-Agent-Token"
 	// assistantTurnHeader 是后端在 /assistant/chat 里签发、随转发体下发的回合标识。
-	assistantTurnHeader = "X-Beeftv-Agent-Turn"
+	assistantTurnHeader = "X-Luckytv-Agent-Turn"
 	// assistantMaxReferences 限制一次对话能带上的额外引用数量。
 	assistantMaxReferences = 16
 )

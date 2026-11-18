@@ -26,8 +26,8 @@ const { test, expect } = process.versions.bun
     };
 
 function resolveTestRuntime() {
-  if (process.env.BEEFTV_NODE_RUNTIME) return process.env.BEEFTV_NODE_RUNTIME;
-  const appRuntime = '/Applications/BeefTV.app/Contents/Resources/agent-host/runtime';
+  if (process.env.LUCKYTV_NODE_RUNTIME) return process.env.LUCKYTV_NODE_RUNTIME;
+  const appRuntime = '/Applications/LuckyTV.app/Contents/Resources/agent-host/runtime';
   if (process.platform === 'darwin' && existsSync(path.join(appRuntime, 'bin', 'node'))) return appRuntime;
   return '';
 }
@@ -41,7 +41,7 @@ test('release rejects missing runtime and unsupported target', () => {
 
 // Go's assistantruntime.BundledNpmCommand reads npm from exactly these paths next to the bundled node.
 test('bundleNpmRuntime copies the npm CLI next to the bundled node on unix and windows', () => {
-  const scratch = mkdtempSync(path.join(tmpdir(), 'beeftv-npm-bundle-'));
+  const scratch = mkdtempSync(path.join(tmpdir(), 'luckytv-npm-bundle-'));
   try {
     // Unix layout
     const unixRuntime = path.join(scratch, 'unix-runtime');
@@ -78,7 +78,7 @@ test('bundled runtime, locked dependencies, and paths with spaces', () => {
   const runtime = resolveTestRuntime();
   expect(runtime).toBeTruthy();
   const target = `${process.platform === 'win32' ? 'windows' : process.platform}/${process.arch === 'x64' ? 'amd64' : 'arm64'}`;
-  const scratch = mkdtempSync(path.join(tmpdir(), 'beeftv package test '));
+  const scratch = mkdtempSync(path.join(tmpdir(), 'luckytv package test '));
   try {
     const runtimeCopy = path.join(scratch, 'runtime source with spaces');
     const relative = process.platform === 'win32' ? 'node.exe' : 'bin/node';
@@ -117,7 +117,7 @@ test('packaged server starts with local imports and makes zero model requests', 
   const runtime = resolveTestRuntime();
   expect(runtime).toBeTruthy();
   const target = `${process.platform === 'win32' ? 'windows' : process.platform}/${process.arch === 'x64' ? 'amd64' : 'arm64'}`;
-  const scratch = mkdtempSync(path.join(tmpdir(), 'beeftv packaged server '));
+  const scratch = mkdtempSync(path.join(tmpdir(), 'luckytv packaged server '));
   const requests = [];
   let modelRequests = 0;
   // The host's request budget classifies model calls by origin, so keep this separate from ops.
@@ -126,13 +126,13 @@ test('packaged server starts with local imports and makes zero model requests', 
     response.writeHead(500).end('No model requests allowed in packaging tests');
   });
   const ops = createServer((request, response) => {
-    requests.push({ method: request.method, path: request.url, host: request.headers['x-beeftv-agent-token'] });
+    requests.push({ method: request.method, path: request.url, host: request.headers['x-luckytv-agent-token'] });
     response.setHeader('Content-Type', 'application/json');
-    if (request.method === 'GET' && request.url === '/api/plugins/packages/enabled' && request.headers['x-beeftv-agent-token'] === 'test-host') {
+    if (request.method === 'GET' && request.url === '/api/plugins/packages/enabled' && request.headers['x-luckytv-agent-token'] === 'test-host') {
       response.end(JSON.stringify({ code: 0, data: { packages: [] } }));
       return;
     }
-    if (request.method !== 'GET' || request.url !== '/api/ops' || request.headers['x-beeftv-agent-token'] !== 'test-host') {
+    if (request.method !== 'GET' || request.url !== '/api/ops' || request.headers['x-luckytv-agent-token'] !== 'test-host') {
       response.writeHead(403).end(JSON.stringify({ code: 403 }));
       return;
     }
@@ -157,10 +157,10 @@ test('packaged server starts with local imports and makes zero model requests', 
     let spawnError;
     child = spawn(bundled, ['server.mjs'], { cwd: destination, stdio: ['ignore', 'pipe', 'pipe'], env: {
       PATH: '', HOME: scratch, USERPROFILE: scratch, ...(process.env.SystemRoot ? { SystemRoot: process.env.SystemRoot } : {}),
-      BEEFTV_OPS_URL: `${opsURL}/api`, BEEFTV_AGENT_HOST_TOKEN: 'test-host',
-      BEEFTV_AGENT_DATA_DIR: path.join(scratch, 'data'), BEEFTV_AGENT_PORT: String(port),
-      BEEFTV_AGENT_MODEL: 'packaging-test-model', BEEFTV_AGENT_API: 'openai-completions',
-      BEEFTV_AGENT_BASE_URL: providerURL, BEEFTV_AGENT_API_KEY: 'test-placeholder', BEEFTV_AGENT_TOTAL_REQUEST_BUDGET: '0',
+      LUCKYTV_OPS_URL: `${opsURL}/api`, LUCKYTV_AGENT_HOST_TOKEN: 'test-host',
+      LUCKYTV_AGENT_DATA_DIR: path.join(scratch, 'data'), LUCKYTV_AGENT_PORT: String(port),
+      LUCKYTV_AGENT_MODEL: 'packaging-test-model', LUCKYTV_AGENT_API: 'openai-completions',
+      LUCKYTV_AGENT_BASE_URL: providerURL, LUCKYTV_AGENT_API_KEY: 'test-placeholder', LUCKYTV_AGENT_TOTAL_REQUEST_BUDGET: '0',
     } });
     child.stdout.on('data', (chunk) => { output += chunk; });
     child.stderr.on('data', (chunk) => { output += chunk; });

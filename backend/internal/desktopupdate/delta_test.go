@@ -82,21 +82,21 @@ func makeDeltaTestBundles(t *testing.T) (v1Zip, v2Zip, deltaZip string, v1AppDir
 	newExe[64*1024] ^= 0xff
 
 	v1Files, v1Exec := DarwinZipFiles("OLD-V2.1.0")
-	v1Files["BeefTV.app/Contents/MacOS/BeefTV"] = oldExe
-	v1Files["BeefTV.app/Contents/Resources/agent-host/runtime/bin/node"] = sharedNode
-	v1Files["BeefTV.app/Contents/Resources/agent-host/node_modules/node-domexception/.history/index.js"] = []byte{}
-	v1Zip = filepath.Join(dir, "BeefTV-v2.1.0-darwin-arm64.zip")
+	v1Files["LuckyTV.app/Contents/MacOS/LuckyTV"] = oldExe
+	v1Files["LuckyTV.app/Contents/Resources/agent-host/runtime/bin/node"] = sharedNode
+	v1Files["LuckyTV.app/Contents/Resources/agent-host/node_modules/node-domexception/.history/index.js"] = []byte{}
+	v1Zip = filepath.Join(dir, "LuckyTV-v2.1.0-darwin-arm64.zip")
 	if err := WriteZip(v1Zip, v1Files, v1Exec); err != nil {
 		t.Fatal(err)
 	}
 
 	v2Files, v2Exec := DarwinZipFiles("NEW-V2.1.1")
-	v2Files["BeefTV.app/Contents/MacOS/BeefTV"] = newExe
-	v2Files["BeefTV.app/Contents/Resources/agent-host/runtime/bin/node"] = sharedNode
-	v2Files["BeefTV.app/Contents/Resources/agent-host/node_modules/node-domexception/.history/index.js"] = []byte{}
-	v2Files["BeefTV.app/Contents/Resources/agent-host/node_modules/node-domexception/.history/new-empty.js"] = []byte{}
-	v2Files["BeefTV.app/Contents/Info.plist"] = []byte("<plist><string>v2.1.1</string></plist>")
-	v2Zip = filepath.Join(dir, "BeefTV-v2.1.1-darwin-arm64.zip")
+	v2Files["LuckyTV.app/Contents/MacOS/LuckyTV"] = newExe
+	v2Files["LuckyTV.app/Contents/Resources/agent-host/runtime/bin/node"] = sharedNode
+	v2Files["LuckyTV.app/Contents/Resources/agent-host/node_modules/node-domexception/.history/index.js"] = []byte{}
+	v2Files["LuckyTV.app/Contents/Resources/agent-host/node_modules/node-domexception/.history/new-empty.js"] = []byte{}
+	v2Files["LuckyTV.app/Contents/Info.plist"] = []byte("<plist><string>v2.1.1</string></plist>")
+	v2Zip = filepath.Join(dir, "LuckyTV-v2.1.1-darwin-arm64.zip")
 	if err := WriteZip(v2Zip, v2Files, v2Exec); err != nil {
 		t.Fatal(err)
 	}
@@ -110,7 +110,7 @@ func makeDeltaTestBundles(t *testing.T) (v1Zip, v2Zip, deltaZip string, v1AppDir
 	if err := extractSecureZip(v1Zip, installRoot, defaultExtractLimits()); err != nil {
 		t.Fatal(err)
 	}
-	v1AppDir = filepath.Join(installRoot, "BeefTV.app")
+	v1AppDir = filepath.Join(installRoot, "LuckyTV.app")
 	return v1Zip, v2Zip, deltaZip, v1AppDir
 }
 
@@ -124,20 +124,20 @@ func TestBuildAndValidateDeltaZipOperations(t *testing.T) {
 	for _, entry := range manifest.Entries {
 		ops[entry.Path] = entry.Op
 	}
-	if ops["BeefTV.app/Contents/Resources/agent-host/runtime/bin/node"] != "copy" {
-		t.Fatalf("expected unchanged node binary to use op=copy, got %q", ops["BeefTV.app/Contents/Resources/agent-host/runtime/bin/node"])
+	if ops["LuckyTV.app/Contents/Resources/agent-host/runtime/bin/node"] != "copy" {
+		t.Fatalf("expected unchanged node binary to use op=copy, got %q", ops["LuckyTV.app/Contents/Resources/agent-host/runtime/bin/node"])
 	}
-	if ops["BeefTV.app/Contents/MacOS/BeefTV"] != "patch" {
-		t.Fatalf("expected changed main binary to use op=patch, got %q", ops["BeefTV.app/Contents/MacOS/BeefTV"])
+	if ops["LuckyTV.app/Contents/MacOS/LuckyTV"] != "patch" {
+		t.Fatalf("expected changed main binary to use op=patch, got %q", ops["LuckyTV.app/Contents/MacOS/LuckyTV"])
 	}
-	if ops["BeefTV.app/Contents/Info.plist"] != "replace" {
-		t.Fatalf("expected changed small Info.plist to use op=replace, got %q", ops["BeefTV.app/Contents/Info.plist"])
+	if ops["LuckyTV.app/Contents/Info.plist"] != "replace" {
+		t.Fatalf("expected changed small Info.plist to use op=replace, got %q", ops["LuckyTV.app/Contents/Info.plist"])
 	}
-	if ops["BeefTV.app/Contents/Resources/agent-host/node_modules/node-domexception/.history/index.js"] != "copy" {
-		t.Fatalf("expected unchanged 0-byte file to use op=copy, got %q", ops["BeefTV.app/Contents/Resources/agent-host/node_modules/node-domexception/.history/index.js"])
+	if ops["LuckyTV.app/Contents/Resources/agent-host/node_modules/node-domexception/.history/index.js"] != "copy" {
+		t.Fatalf("expected unchanged 0-byte file to use op=copy, got %q", ops["LuckyTV.app/Contents/Resources/agent-host/node_modules/node-domexception/.history/index.js"])
 	}
-	if ops["BeefTV.app/Contents/Resources/agent-host/node_modules/node-domexception/.history/new-empty.js"] != "replace" {
-		t.Fatalf("expected new 0-byte file to use op=replace, got %q", ops["BeefTV.app/Contents/Resources/agent-host/node_modules/node-domexception/.history/new-empty.js"])
+	if ops["LuckyTV.app/Contents/Resources/agent-host/node_modules/node-domexception/.history/new-empty.js"] != "replace" {
+		t.Fatalf("expected new 0-byte file to use op=replace, got %q", ops["LuckyTV.app/Contents/Resources/agent-host/node_modules/node-domexception/.history/new-empty.js"])
 	}
 }
 
@@ -151,9 +151,9 @@ func TestEnvelopeDeltaSchemaValidation(t *testing.T) {
 		t.Fatal(err)
 	}
 	validSHA := strings.Repeat("a", 64)
-	r2Full := "https://updates.beefapi.com/beeftv/v2.1.1/BeefTV-v2.1.1-darwin-arm64.zip"
-	cnbDelta := "https://cnb.cool/beeftv-downloads/desktop/-/releases/download/v2.1.1/BeefTV-v2.1.1-darwin-arm64-from-v2.1.0.delta.zip"
-	r2Delta := "https://updates.beefapi.com/beeftv/v2.1.1/BeefTV-v2.1.1-darwin-arm64-from-v2.1.0.delta.zip"
+	r2Full := "https://updates.luckyapi.com/luckytv/v2.1.1/LuckyTV-v2.1.1-darwin-arm64.zip"
+	cnbDelta := "https://cnb.cool/luckytv-downloads/desktop/-/releases/download/v2.1.1/LuckyTV-v2.1.1-darwin-arm64-from-v2.1.0.delta.zip"
+	r2Delta := "https://updates.luckyapi.com/luckytv/v2.1.1/LuckyTV-v2.1.1-darwin-arm64-from-v2.1.0.delta.zip"
 
 	// Schema 1 must reject deltas.
 	v1WithDelta := Payload{
@@ -240,7 +240,7 @@ func TestEngineIncrementalUpdateAndFallbacks(t *testing.T) {
 
 	t.Run("happy-path-delta-without-touching-full-zip", func(t *testing.T) {
 		dir := t.TempDir()
-		appPath := filepath.Join(dir, "BeefTV.app")
+		appPath := filepath.Join(dir, "LuckyTV.app")
 		if err := copyTree(v1AppDir, appPath); err != nil {
 			t.Fatal(err)
 		}
@@ -281,7 +281,7 @@ func TestEngineIncrementalUpdateAndFallbacks(t *testing.T) {
 
 	t.Run("fallback-to-full-zip-when-local-file-modified-before-download", func(t *testing.T) {
 		dir := t.TempDir()
-		appPath := filepath.Join(dir, "BeefTV.app")
+		appPath := filepath.Join(dir, "LuckyTV.app")
 		if err := copyTree(v1AppDir, appPath); err != nil {
 			t.Fatal(err)
 		}
@@ -322,7 +322,7 @@ func TestEngineIncrementalUpdateAndFallbacks(t *testing.T) {
 
 	t.Run("fallback-to-full-zip-when-delta-download-fails", func(t *testing.T) {
 		dir := t.TempDir()
-		appPath := filepath.Join(dir, "BeefTV.app")
+		appPath := filepath.Join(dir, "LuckyTV.app")
 		if err := copyTree(v1AppDir, appPath); err != nil {
 			t.Fatal(err)
 		}
@@ -349,7 +349,7 @@ func TestEngineIncrementalUpdateAndFallbacks(t *testing.T) {
 
 	t.Run("fallback-to-full-zip-when-local-file-mutated-between-download-and-install", func(t *testing.T) {
 		dir := t.TempDir()
-		appPath := filepath.Join(dir, "BeefTV.app")
+		appPath := filepath.Join(dir, "LuckyTV.app")
 		if err := copyTree(v1AppDir, appPath); err != nil {
 			t.Fatal(err)
 		}
@@ -370,7 +370,7 @@ func TestEngineIncrementalUpdateAndFallbacks(t *testing.T) {
 			t.Fatal("full zip should not have been requested during DownloadUpdate")
 		}
 		// Mutate local binary after DownloadUpdate succeeded!
-		if err := os.WriteFile(filepath.Join(appPath, "Contents", "MacOS", "BeefTV"), []byte("tampered-after-download"), 0o755); err != nil {
+		if err := os.WriteFile(filepath.Join(appPath, "Contents", "MacOS", "LuckyTV"), []byte("tampered-after-download"), 0o755); err != nil {
 			t.Fatal(err)
 		}
 		if err := engine.InstallUpdate(context.Background()); err != nil {
@@ -399,12 +399,12 @@ func newDeltaTestServer(
 ) *httptest.Server {
 	t.Helper()
 	const (
-		fullURL  = "https://updates.beefapi.com/beeftv/v2.1.1/BeefTV-v2.1.1-darwin-arm64.zip"
-		deltaURL = "https://updates.beefapi.com/beeftv/v2.1.1/BeefTV-v2.1.1-darwin-arm64-from-v2.1.0.delta.zip"
+		fullURL  = "https://updates.luckyapi.com/luckytv/v2.1.1/LuckyTV-v2.1.1-darwin-arm64.zip"
+		deltaURL = "https://updates.luckyapi.com/luckytv/v2.1.1/LuckyTV-v2.1.1-darwin-arm64-from-v2.1.0.delta.zip"
 	)
 	server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
-		case "/beeftv/desktop-update-v2.json":
+		case "/luckytv/desktop-update-v2.json":
 			payload := Payload{
 				Schema:  payloadSchemaV2,
 				Version: "v2.1.1",
@@ -432,7 +432,7 @@ func newDeltaTestServer(
 			}
 			w.Header().Set("Content-Type", "application/json")
 			_, _ = w.Write(body)
-		case "/beeftv/v2.1.1/BeefTV-v2.1.1-darwin-arm64-from-v2.1.0.delta.zip":
+		case "/luckytv/v2.1.1/LuckyTV-v2.1.1-darwin-arm64-from-v2.1.0.delta.zip":
 			if onDelta != nil {
 				onDelta()
 			}
@@ -441,7 +441,7 @@ func newDeltaTestServer(
 				return
 			}
 			serveRange(w, r, deltaBytes)
-		case "/beeftv/v2.1.1/BeefTV-v2.1.1-darwin-arm64.zip":
+		case "/luckytv/v2.1.1/LuckyTV-v2.1.1-darwin-arm64.zip":
 			if onFull != nil {
 				onFull()
 			}
@@ -472,7 +472,7 @@ func newDeltaTestEngine(t *testing.T, pub string, server *httptest.Server, appPa
 		CurrentVersion: "v2.1.0",
 		DataDir:        t.TempDir(),
 		StagingRoot:    t.TempDir(),
-		FeedURL:        "https://updates.beefapi.com/beeftv/desktop-update-v2.json",
+		FeedURL:        "https://updates.luckyapi.com/luckytv/desktop-update-v2.json",
 		PublicKey:      pub,
 		Platform:       "darwin-arm64",
 		Locale:         "en-US",
@@ -483,7 +483,7 @@ func newDeltaTestEngine(t *testing.T, pub string, server *httptest.Server, appPa
 				Platform:   "darwin-arm64",
 				Kind:       "app",
 				Path:       appPath,
-				Executable: filepath.Join(appPath, "Contents", "MacOS", "BeefTV"),
+				Executable: filepath.Join(appPath, "Contents", "MacOS", "LuckyTV"),
 				PluginDir:  filepath.Join(appPath, "Contents", "Resources", "plugin-packages"),
 			}, nil
 		},
@@ -514,11 +514,11 @@ func TestWindowsEngineIncrementalUpdateAndFallback(t *testing.T) {
 	v1Files[windowsExeName] = baseExe
 	v2Files, v2Exec := WindowsZipFiles("WIN-SHARED")
 	v2Files[windowsExeName] = newExe
-	v2Files[pluginDirName+"/official.beeftv-plugin"] = []byte("official-v2.1.1")
+	v2Files[pluginDirName+"/official.luckytv-plugin"] = []byte("official-v2.1.1")
 
-	fromZip := filepath.Join(work, "BeefTV-v2.1.0-windows-amd64.zip")
-	toZip := filepath.Join(work, "BeefTV-v2.1.1-windows-amd64.zip")
-	deltaZip := filepath.Join(work, "BeefTV-v2.1.1-windows-amd64-from-v2.1.0.delta.zip")
+	fromZip := filepath.Join(work, "LuckyTV-v2.1.0-windows-amd64.zip")
+	toZip := filepath.Join(work, "LuckyTV-v2.1.1-windows-amd64.zip")
+	deltaZip := filepath.Join(work, "LuckyTV-v2.1.1-windows-amd64-from-v2.1.0.delta.zip")
 	if err := WriteZip(fromZip, v1Files, v1Exec); err != nil {
 		t.Fatal(err)
 	}
@@ -539,7 +539,7 @@ func TestWindowsEngineIncrementalUpdateAndFallback(t *testing.T) {
 		}
 	}
 	if patched != 1 {
-		t.Fatalf("expected 1 patched file (BeefTV.exe), got %d", patched)
+		t.Fatalf("expected 1 patched file (LuckyTV.exe), got %d", patched)
 	}
 	v1Dir := filepath.Join(work, "v1")
 	if err := extractSecureZip(fromZip, v1Dir, defaultExtractLimits()); err != nil {
@@ -552,14 +552,14 @@ func TestWindowsEngineIncrementalUpdateAndFallback(t *testing.T) {
 	deltaSum := sha256.Sum256(deltaBytes)
 
 	const (
-		fullURL  = "https://cnb.cool/beeftv-downloads/desktop/-/releases/download/v2.1.1/BeefTV-v2.1.1-windows-amd64.zip"
-		deltaURL = "https://cnb.cool/beeftv-downloads/desktop/-/releases/download/v2.1.1/BeefTV-v2.1.1-windows-amd64-from-v2.1.0.delta.zip"
+		fullURL  = "https://cnb.cool/luckytv-downloads/desktop/-/releases/download/v2.1.1/LuckyTV-v2.1.1-windows-amd64.zip"
+		deltaURL = "https://cnb.cool/luckytv-downloads/desktop/-/releases/download/v2.1.1/LuckyTV-v2.1.1-windows-amd64-from-v2.1.0.delta.zip"
 	)
 
 	makeServer := func(onDelta, onFull func()) *httptest.Server {
 		s := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			switch r.URL.Path {
-			case "/beeftv/desktop-update-v2.json":
+			case "/luckytv/desktop-update-v2.json":
 				payload := Payload{
 					Schema:  payloadSchemaV2,
 					Version: "v2.1.1",
@@ -583,12 +583,12 @@ func TestWindowsEngineIncrementalUpdateAndFallback(t *testing.T) {
 				body, _ := SignEnvelope(priv, payload)
 				w.Header().Set("Content-Type", "application/json")
 				_, _ = w.Write(body)
-			case "/beeftv-downloads/desktop/-/releases/download/v2.1.1/BeefTV-v2.1.1-windows-amd64-from-v2.1.0.delta.zip":
+			case "/luckytv-downloads/desktop/-/releases/download/v2.1.1/LuckyTV-v2.1.1-windows-amd64-from-v2.1.0.delta.zip":
 				if onDelta != nil {
 					onDelta()
 				}
 				serveRange(w, r, deltaBytes)
-			case "/beeftv-downloads/desktop/-/releases/download/v2.1.1/BeefTV-v2.1.1-windows-amd64.zip":
+			case "/luckytv-downloads/desktop/-/releases/download/v2.1.1/LuckyTV-v2.1.1-windows-amd64.zip":
 				if onFull != nil {
 					onFull()
 				}
@@ -615,7 +615,7 @@ func TestWindowsEngineIncrementalUpdateAndFallback(t *testing.T) {
 			CurrentVersion: "v2.1.0",
 			DataDir:        t.TempDir(),
 			StagingRoot:    t.TempDir(),
-			FeedURL:        "https://updates.beefapi.com/beeftv/desktop-update-v2.json",
+			FeedURL:        "https://updates.luckyapi.com/luckytv/desktop-update-v2.json",
 			PublicKey:      pub,
 			Platform:       "windows-amd64",
 			Locale:         "zh-CN",
@@ -640,8 +640,8 @@ func TestWindowsEngineIncrementalUpdateAndFallback(t *testing.T) {
 		})
 	}
 
-	// 1. Happy path on Windows layout: delta only, binary patch on BeefTV.exe
-	installDir := filepath.Join(t.TempDir(), "BeefTV")
+	// 1. Happy path on Windows layout: delta only, binary patch on LuckyTV.exe
+	installDir := filepath.Join(t.TempDir(), "LuckyTV")
 	if err := copyTree(v1Dir, installDir); err != nil {
 		t.Fatal(err)
 	}
@@ -661,11 +661,11 @@ func TestWindowsEngineIncrementalUpdateAndFallback(t *testing.T) {
 	}
 	upgradedExe, err := os.ReadFile(filepath.Join(installDir, windowsExeName))
 	if err != nil || !bytes.Equal(upgradedExe, newExe) {
-		t.Fatalf("BeefTV.exe binary patch mismatch after Windows incremental upgrade")
+		t.Fatalf("LuckyTV.exe binary patch mismatch after Windows incremental upgrade")
 	}
 
-	// 2. Fallback path on Windows layout: corrupt BeefTV.exe -> automatic fallback to full zip
-	installDir2 := filepath.Join(t.TempDir(), "BeefTV-corrupt")
+	// 2. Fallback path on Windows layout: corrupt LuckyTV.exe -> automatic fallback to full zip
+	installDir2 := filepath.Join(t.TempDir(), "LuckyTV-corrupt")
 	if err := copyTree(v1Dir, installDir2); err != nil {
 		t.Fatal(err)
 	}
@@ -688,6 +688,6 @@ func TestWindowsEngineIncrementalUpdateAndFallback(t *testing.T) {
 	}
 	upgradedExe2, err := os.ReadFile(filepath.Join(installDir2, windowsExeName))
 	if err != nil || !bytes.Equal(upgradedExe2, newExe) {
-		t.Fatalf("BeefTV.exe mismatch after Windows full-zip fallback")
+		t.Fatalf("LuckyTV.exe mismatch after Windows full-zip fallback")
 	}
 }

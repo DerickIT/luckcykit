@@ -19,15 +19,15 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/buildinfo"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/outbound"
-	"infinite-canvas/backend/internal/platform"
-	"infinite-canvas/backend/internal/referencestorage"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/buildinfo"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/outbound"
+	"luckytv/backend/internal/platform"
+	"luckytv/backend/internal/referencestorage"
+	"luckytv/backend/internal/repository"
 )
 
 const (
@@ -370,9 +370,9 @@ func RecordProviderRequest(repo *repository.Repository, logCall func(model.ApiCa
 		SyncProviderTaskProgress(repo, call.TaskID, responseBody)
 	}
 	if call.TaskID != "" && call.Capability == "video" && (requestKind == "create" || requestKind == "poll") && repo != nil {
-		settlement := ExtractBeefTVVideoSettlementBytes(responseBody)
+		settlement := ExtractLuckyTVVideoSettlementBytes(responseBody)
 		if settlement.UsageState != nil || settlement.ReconcileDeadline != nil {
-			_ = repo.UpdateTaskBeefVideoSettlement(call.TaskID, settlement.UsageState, settlement.ReconcileDeadline)
+			_ = repo.UpdateTaskLuckyVideoSettlement(call.TaskID, settlement.UsageState, settlement.ReconcileDeadline)
 		}
 	}
 	apiFormat := "openai"
@@ -458,17 +458,17 @@ func EnsureChatCompletionStreamUsageRequest(data []byte) ([]byte, error) {
 	return json.Marshal(payload)
 }
 
-func PrepareBeefTVSeedanceReferencesForUser(ctx context.Context, userID string, input *Input, openResource func(userID, resourceID string) (*model.Resource, io.ReadCloser, error)) error {
-	if input == nil || input.Mode != "video" || !IsBeefTVSeedancePreuploadConfig(ctx, input.Config) {
+func PrepareLuckyTVSeedanceReferencesForUser(ctx context.Context, userID string, input *Input, openResource func(userID, resourceID string) (*model.Resource, io.ReadCloser, error)) error {
+	if input == nil || input.Mode != "video" || !IsLuckyTVSeedancePreuploadConfig(ctx, input.Config) {
 		return nil
 	}
-	return PrepareBeefTVVideoReferences(ctx, input.Config, input, func(kind string, media Media) ([]byte, string, bool, error) {
-		return ReadBeefTVSeedanceMedia(userID, kind, media, openResource)
+	return PrepareLuckyTVVideoReferences(ctx, input.Config, input, func(kind string, media Media) ([]byte, string, bool, error) {
+		return ReadLuckyTVSeedanceMedia(userID, kind, media, openResource)
 	})
 }
 
-func ReadBeefTVSeedanceMedia(userID string, kind string, media Media, openResource func(userID, resourceID string) (*model.Resource, io.ReadCloser, error)) ([]byte, string, bool, error) {
-	if SkipBeefTVSeedanceMedia(media) {
+func ReadLuckyTVSeedanceMedia(userID string, kind string, media Media, openResource func(userID, resourceID string) (*model.Resource, io.ReadCloser, error)) ([]byte, string, bool, error) {
+	if SkipLuckyTVSeedanceMedia(media) {
 		return nil, "", true, nil
 	}
 	if raw := firstNonEmpty(media.DataURL, media.URL); strings.HasPrefix(strings.TrimSpace(raw), "data:") {
@@ -482,7 +482,7 @@ func ReadBeefTVSeedanceMedia(userID string, kind string, media Media, openResour
 		return nil, "", true, nil
 	}
 	if media.Bytes > 0 {
-		if err := ValidateBeefTVSeedanceMediaSize(kind, media.Bytes); err != nil {
+		if err := ValidateLuckyTVSeedanceMediaSize(kind, media.Bytes); err != nil {
 			return nil, "", false, err
 		}
 	}
@@ -492,7 +492,7 @@ func ReadBeefTVSeedanceMedia(userID string, kind string, media Media, openResour
 		return nil, "", false, fmt.Errorf("读取任务参考资源失败：%w", err)
 	}
 	defer body.Close()
-	limit := BeefTVSeedanceKindMaxBytes(kind)
+	limit := LuckyTVSeedanceKindMaxBytes(kind)
 	data, err := io.ReadAll(io.LimitReader(body, limit+1))
 	if err != nil {
 		return nil, "", false, fmt.Errorf("读取任务参考资源失败：%w", err)
@@ -708,8 +708,8 @@ func CaptureTaskFailureDiagnostics(task *model.Task, err error, source string) {
 		d.Source, d.Stage, d.RequestID, d.HTTPStatus = "local_response", "本地响应大小校验", last.RequestID, last.HTTPStatus
 	}
 	var httpErr HTTPError
-	var managedHTTP *beeftv.MediaHTTPError
-	var managedTask *beeftv.MediaTaskError
+	var managedHTTP *luckytv.MediaHTTPError
+	var managedTask *luckytv.MediaTaskError
 	var payload PayloadError
 	var appErr *kernel.AppError
 	var upload *ReferenceUploadError

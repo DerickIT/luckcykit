@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
 )
 
 type taskRequestEvidenceRecorder struct {

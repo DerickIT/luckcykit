@@ -1,7 +1,7 @@
 package prompts
 
 import (
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/repository"
 )
 
 type Service struct {

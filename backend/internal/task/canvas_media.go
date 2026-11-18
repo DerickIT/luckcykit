@@ -1,10 +1,10 @@
 package task
 
 import (
-	localasset "infinite-canvas/backend/internal/asset"
-	cw "infinite-canvas/backend/internal/canvasworkflow"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
+	localasset "luckytv/backend/internal/asset"
+	cw "luckytv/backend/internal/canvasworkflow"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
 )
 
 type CanvasMediaInput struct {

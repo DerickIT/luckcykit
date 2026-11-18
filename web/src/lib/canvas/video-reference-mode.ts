@@ -1,10 +1,10 @@
-import { beefTVVideoContract } from "@/lib/beeftv-video-contracts";
+import { luckyTVVideoContract } from "@/lib/luckytv-video-contracts";
 import { isH3Model, isH3Style } from "@/lib/h3-video";
 import { videoReferencesForOperation, type VideoCapabilityConfig } from "@/lib/model-capabilities";
-import { isBeefTVModelRoute } from "@/lib/model-selection";
+import { isLuckyTVModelRoute } from "@/lib/model-selection";
 import type { CanvasNodeMetadata } from "@/types/canvas";
 
-export { isBeefTVModelRoute };
+export { isLuckyTVModelRoute };
 
 export type VideoReferenceCandidate = {
     nodeId: string;
@@ -77,12 +77,12 @@ export function resolveVideoMiddleFrameSupport(
     model: string,
     videoProfile?: VideoCapabilityConfig | null,
     hasDeclaredCapability = false,
-    isBeefTVRoute = isBeefTVModelRoute(model),
+    isLuckyTVRoute = isLuckyTVModelRoute(model),
 ): VideoMiddleFrameSupport {
     if (videoProfile?.middleFrame === true) return "supported";
     if (videoProfile?.middleFrame === false) return "unsupported";
     const modelName = model.split("::").at(-1) || "";
-    if (isBeefTVRoute && beefTVVideoContract(modelName)?.middleFrame) return "supported";
+    if (isLuckyTVRoute && luckyTVVideoContract(modelName)?.middleFrame) return "supported";
     return hasDeclaredCapability ? "unsupported" : "opaque";
 }
 
@@ -90,7 +90,7 @@ export function resolveVideoReferenceCapabilities(
     model: string,
     videoProfile?: VideoCapabilityConfig | null,
     hasDeclaredCapability = false,
-    isBeefTVRoute = isBeefTVModelRoute(model),
+    isLuckyTVRoute = isLuckyTVModelRoute(model),
 ): {
     maxFrameImages: number;
     endFrameSupported: boolean;
@@ -100,13 +100,13 @@ export function resolveVideoReferenceCapabilities(
     middleFrameSupported: boolean;
 } {
     const modelName = model.split("::").at(-1) || "";
-    const contract = isBeefTVRoute ? beefTVVideoContract(modelName) : undefined;
-    const middleFrameSupport = resolveVideoMiddleFrameSupport(model, videoProfile, hasDeclaredCapability, isBeefTVRoute);
+    const contract = isLuckyTVRoute ? luckyTVVideoContract(modelName) : undefined;
+    const middleFrameSupport = resolveVideoMiddleFrameSupport(model, videoProfile, hasDeclaredCapability, isLuckyTVRoute);
     const middleFrameSupported = middleFrameSupport === "supported";
     const hasExplicitOpRefs = videoProfile?.operationReferences !== undefined;
     const frameRefs = videoProfile ? videoReferencesForOperation(videoProfile, "image_to_video") : undefined;
 
-    if (isBeefTVRoute && isH3Style(model) && !hasExplicitOpRefs) {
+    if (isLuckyTVRoute && isH3Style(model) && !hasExplicitOpRefs) {
         const styleMaxImages = hasDeclaredCapability && frameRefs ? Math.min(2, frameRefs.maxImages) : Math.min(2, contract?.maxReferences?.image ?? 1);
         const styleMaxAudios = hasDeclaredCapability && frameRefs ? frameRefs.maxAudios : (contract?.maxReferences?.audio ?? 0);
         return {
@@ -119,7 +119,7 @@ export function resolveVideoReferenceCapabilities(
         };
     }
 
-    const h3 = isBeefTVRoute && isH3Model(model);
+    const h3 = isLuckyTVRoute && isH3Model(model);
     const contractFrameMaxImages = contract?.operationReferences?.image_to_video?.maxImages;
     const maxFrameImages = hasExplicitOpRefs && frameRefs
         ? Math.min(2, frameRefs.maxImages)

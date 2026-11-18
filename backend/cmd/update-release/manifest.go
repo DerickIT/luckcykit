@@ -16,10 +16,10 @@ import (
 const (
 	payloadSchema       = 1
 	payloadSchemaV2     = 2
-	defaultFeedURL      = "https://updates.beefapi.com/beeftv/desktop-update-v2.json"
-	defaultDownloadHost = "https://updates.beefapi.com/beeftv"
-	defaultDomesticHost = "https://cnb.cool/beeftv-downloads/desktop/-/releases/download"
-	updaterImportPath   = "infinite-canvas/backend/internal/desktopupdate"
+	defaultFeedURL      = "https://updates.luckyapi.com/luckytv/desktop-update-v2.json"
+	defaultDownloadHost = "https://updates.luckyapi.com/luckytv"
+	defaultDomesticHost = "https://cnb.cool/luckytv-downloads/desktop/-/releases/download"
+	updaterImportPath   = "luckytv/backend/internal/desktopupdate"
 )
 
 type payload struct {
@@ -65,7 +65,7 @@ func cmdSign(args []string, stdout, stderr io.Writer) error {
 	domesticBase := fs.String("domestic-download-base", "", "optional domestic mirror prefix for schema-2 asset URLs")
 	requirePlatforms := fs.String("require-platforms", "", "comma-separated platforms that must all be present")
 	var assets assetFlags
-	fs.Var(&assets, "asset", "platform=path, repeatable (example: darwin-arm64=/tmp/BeefTV-v1.6.0-darwin-arm64.zip)")
+	fs.Var(&assets, "asset", "platform=path, repeatable (example: darwin-arm64=/tmp/LuckyTV-v1.6.0-darwin-arm64.zip)")
 	var deltas deltaFlags
 	fs.Var(&deltas, "delta", "platform=fromVersion=path, repeatable (schema 2 only)")
 	if err := fs.Parse(args); err != nil {
@@ -92,7 +92,7 @@ func cmdSign(args []string, stdout, stderr io.Writer) error {
 			return err
 		}
 		if !derivedPublicEquals(private, public) {
-			return fmt.Errorf("private key does not match --expect-public-key / BEEFTV_UPDATER_PUBLIC_KEY")
+			return fmt.Errorf("private key does not match --expect-public-key / LUCKYTV_UPDATER_PUBLIC_KEY")
 		}
 	}
 
@@ -236,7 +236,7 @@ func cmdPrintLdflags(args []string, stdout, stderr io.Writer) error {
 		return fmt.Errorf("print-ldflags: %w; unsigned desktop builds cannot publish an updater feed", err)
 	}
 	feed := strings.TrimSpace(*feedURL)
-	if envFeed := strings.TrimSpace(os.Getenv("BEEFTV_UPDATER_FEED_URL")); envFeed != "" && feed == defaultFeedURL {
+	if envFeed := strings.TrimSpace(os.Getenv("LUCKYTV_UPDATER_FEED_URL")); envFeed != "" && feed == defaultFeedURL {
 		feed = envFeed
 	}
 	if !strings.HasPrefix(feed, "https://") {
@@ -368,16 +368,16 @@ func validateSchema2URL(raw string) error {
 		return fmt.Errorf("url %q must be clean HTTPS", raw)
 	}
 	switch strings.ToLower(parsed.Hostname()) {
-	case "updates.beefapi.com":
-		if !strings.HasPrefix(parsed.Path, "/beeftv/") {
-			return fmt.Errorf("untrusted path on updates.beefapi.com: %s", parsed.Path)
+	case "updates.luckyapi.com":
+		if !strings.HasPrefix(parsed.Path, "/luckytv/") {
+			return fmt.Errorf("untrusted path on updates.luckyapi.com: %s", parsed.Path)
 		}
 	case "cnb.cool":
-		if !strings.HasPrefix(parsed.Path, "/beeftv-downloads/desktop/-/releases/download/") {
+		if !strings.HasPrefix(parsed.Path, "/luckytv-downloads/desktop/-/releases/download/") {
 			return fmt.Errorf("untrusted path on cnb.cool: %s", parsed.Path)
 		}
-	case "beeftv-components-1481187348.cos.ap-guangzhou.myqcloud.com":
-		if !strings.HasPrefix(parsed.Path, "/beeftv/") {
+	case "luckytv-components-1481187348.cos.ap-guangzhou.myqcloud.com":
+		if !strings.HasPrefix(parsed.Path, "/luckytv/") {
 			return fmt.Errorf("untrusted path on cos: %s", parsed.Path)
 		}
 	default:

@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"infinite-canvas/backend/internal/canvas"
+	"luckytv/backend/internal/canvas"
 )
 
 // AssociatedReferences parses media asset and generation-batch task IDs from

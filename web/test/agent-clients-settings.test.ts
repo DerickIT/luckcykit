@@ -34,7 +34,7 @@ describe("外部 Agent 接入 API", () => {
     test("列表按信封解包，并同时给出已连接客户端和命令行工具状态", async () => {
         const data = {
             clients: [{ id: "c-1", label: "Codex", kind: "codex", mode: "read-only", createdAt: "2026-09-20T02:00:00Z", lastUsedAt: null }],
-            cli: { path: "/Applications/BeefTV.app/Contents/Resources/beeftv", available: true, installCommand: "ln -s /x/beeftv /usr/local/bin/beeftv" },
+            cli: { path: "/Applications/LuckyTV.app/Contents/Resources/luckytv", available: true, installCommand: "ln -s /x/luckytv /usr/local/bin/luckytv" },
         };
         await withStubbedApi({ code: 0, data, msg: "ok" }, 200, async (recorded) => {
             await expect(listAgentClients()).resolves.toEqual(data);
@@ -89,7 +89,7 @@ describe("外部 Agent 接入 API", () => {
 
     test("断开成功后把无法自动移除的说明一并解包", async () => {
         const integration = { kind: "codex", name: "Codex", detected: true, connected: false, skillInstalled: false, needsRetry: false } as const;
-        const warning = "BeefTV 已停止接受 Codex 的访问。Codex 里的 BeefTV 连接没能自动移除，可以在它的 MCP 设置里手动删除。";
+        const warning = "LuckyTV 已停止接受 Codex 的访问。Codex 里的 LuckyTV 连接没能自动移除，可以在它的 MCP 设置里手动删除。";
         await withStubbedApi({ code: 0, data: { integration, warning }, msg: "ok" }, 200, async () => {
             await expect(disconnectAgentIntegration("codex")).resolves.toEqual({ integration, warning });
         });
@@ -98,7 +98,7 @@ describe("外部 Agent 接入 API", () => {
 
 describe("接入内容按客户端类型选命令或配置", () => {
     test("Claude Desktop 使用配置文件而非 Claude Code 命令", () => {
-        const block = agentClientSetupBlock({ kind: "claude-desktop", title: "T", json: '{"mcpServers":{"beeftv":{}}}' });
+        const block = agentClientSetupBlock({ kind: "claude-desktop", title: "T", json: '{"mcpServers":{"luckytv":{}}}' });
         expect(block?.format).toBe("json");
         expect(block?.instruction).toContain("保留已有服务");
         expect(block?.instruction).toContain("完全退出");
@@ -106,15 +106,15 @@ describe("接入内容按客户端类型选命令或配置", () => {
     });
     test("codex / claude 展示终端命令", () => {
         for (const kind of ["codex", "claude"] as const) {
-            const block = agentClientSetupBlock({ kind, title: "T", command: "beeftv mcp add", json: '{"mcpServers":{}}' });
-            expect(block).toMatchObject({ text: "beeftv mcp add", format: "command" });
+            const block = agentClientSetupBlock({ kind, title: "T", command: "luckytv mcp add", json: '{"mcpServers":{}}' });
+            expect(block).toMatchObject({ text: "luckytv mcp add", format: "command" });
             expect(block?.instruction).toContain("PowerShell");
         }
     });
 
     test("cursor 展示配置并指向 ~/.cursor/mcp.json", () => {
-        const block = agentClientSetupBlock({ kind: "cursor", title: "T", command: "beeftv mcp add", json: '{"mcpServers":{"beeftv":{}}}' });
-        expect(block).toMatchObject({ text: '{"mcpServers":{"beeftv":{}}}', format: "json", instruction: "粘贴到 ~/.cursor/mcp.json。" });
+        const block = agentClientSetupBlock({ kind: "cursor", title: "T", command: "luckytv mcp add", json: '{"mcpServers":{"luckytv":{}}}' });
+        expect(block).toMatchObject({ text: '{"mcpServers":{"luckytv":{}}}', format: "json", instruction: "粘贴到 ~/.cursor/mcp.json。" });
     });
 
     test("其他 MCP 客户端展示配置，指引不提 Cursor 的路径", () => {
@@ -125,7 +125,7 @@ describe("接入内容按客户端类型选命令或配置", () => {
 
     test("只给到另一种形式时按实际内容展示，不留空白", () => {
         expect(agentClientSetupBlock({ kind: "codex", title: "T", json: '{"mcpServers":{}}' })).toMatchObject({ format: "json" });
-        expect(agentClientSetupBlock({ kind: "cursor", title: "T", command: "beeftv mcp add" })).toMatchObject({ format: "command" });
+        expect(agentClientSetupBlock({ kind: "cursor", title: "T", command: "luckytv mcp add" })).toMatchObject({ format: "command" });
         expect(agentClientSetupBlock({ kind: "codex", title: "T" })).toBeNull();
         expect(agentClientSetupBlock(undefined)).toBeNull();
     });
@@ -141,7 +141,7 @@ describe("一键接入的按钮状态", () => {
         expect(agentIntegrationHint(integration)).toBe("没有检测到 Claude Code 的命令行。安装后打开一次，再回到这里。");
     });
 
-    test("配置还在但这次没检测到 Agent 时，仍能断开 BeefTV 写入的配置", () => {
+    test("配置还在但这次没检测到 Agent 时，仍能断开 LuckyTV 写入的配置", () => {
         const integration = { ...base, detected: false, connected: true, skillInstalled: true };
         expect(agentIntegrationStatusLabel(integration)).toBe("已接入");
         expect(agentIntegrationAction(integration)).toBe("disconnect");
@@ -158,14 +158,14 @@ describe("一键接入的按钮状态", () => {
     test("检测到但未接入时说明会发生什么", () => {
         expect(agentIntegrationStatusLabel(base)).toBe("未接入");
         expect(agentIntegrationAction(base)).toBe("connect");
-        expect(agentIntegrationHint(base)).toBe("接入后会在 Claude Code 里添加 BeefTV，并装好一份画布使用说明。");
+        expect(agentIntegrationHint(base)).toBe("接入后会在 Claude Code 里添加 LuckyTV，并装好一份画布使用说明。");
     });
 
     test("已接入时显示断开，并说明打开就能用", () => {
         const integration = { ...base, connected: true, skillInstalled: true };
         expect(agentIntegrationStatusLabel(integration)).toBe("已接入");
         expect(agentIntegrationAction(integration)).toBe("disconnect");
-        expect(agentIntegrationHint(integration)).toBe("已接入。打开 Claude Code 就能使用 BeefTV 画布。");
+        expect(agentIntegrationHint(integration)).toBe("已接入。打开 Claude Code 就能使用 LuckyTV 画布。");
     });
 
     test("配置写入了但使用说明缺失时如实提示，不假装完成", () => {

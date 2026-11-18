@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/outbound"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/outbound"
 )
 
 type appResourcePort struct{ service *Service }

@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 
-	"infinite-canvas/backend/internal/generation"
+	"luckytv/backend/internal/generation"
 )
 
 func (s *Service) validateResolvedVideoCapability(input *canvasGenerationInput) error {

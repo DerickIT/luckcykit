@@ -98,9 +98,9 @@ describe("video audio setting at JSON boundaries", () => {
                 config: {
                     ...defaultConfig,
                     channels: [{
-                        id: "beeftv",
-                        name: "BeefTV",
-                        baseUrl: "https://api.beeftv.ai/v1",
+                        id: "luckytv",
+                        name: "LuckyTV",
+                        baseUrl: "https://api.luckytv.ai/v1",
                         apiKey: "sk-test",
                         apiFormat: "openai",
                         pinned: true,

@@ -321,7 +321,7 @@ export function useCanvasMediaTools({
                 const { quote: _quote, ...taskOptions } = options;
                 const created = await createVideoSubtitleEraseTask({
                     ...taskOptions,
-                    channelId: "beeftv",
+                    channelId: "luckytv",
                     clientOperationId,
                     projectId,
                     nodeId: childId,

@@ -3,7 +3,7 @@ package editing
 import (
 	"context"
 	"fmt"
-	"infinite-canvas/backend/internal/mediatools"
+	"luckytv/backend/internal/mediatools"
 	"io"
 	"os"
 	"os/exec"
@@ -248,7 +248,7 @@ func (t *ffmpegLogTail) FontFailure() bool {
 }
 
 func (r *Renderer) materialize(ctx context.Context, plan *Plan) (string, map[string]string, func(), error) {
-	tmpDir, err := os.MkdirTemp("", "beeftv-render-*")
+	tmpDir, err := os.MkdirTemp("", "luckytv-render-*")
 	if err != nil {
 		return "", nil, nil, fmt.Errorf("创建临时目录失败: %w", err)
 	}

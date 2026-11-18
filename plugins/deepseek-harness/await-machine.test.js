@@ -199,7 +199,7 @@ function eventVariants(state) {
     events.push({ type: 'historyLoaded', sessions: [], away: [{ workspaceId: 'w1', taskIds: ['t1'], resolvedCount: 0 }] })
   }
   for (const [messageId, entry] of Object.entries(state.messages)) {
-    events.push({ type: 'messageClaimed', sessionId: entry.sessionId, messageId, sourceKind: 'beeftv-await', agentStatus: 'idle' })
+    events.push({ type: 'messageClaimed', sessionId: entry.sessionId, messageId, sourceKind: 'luckytv-await', agentStatus: 'idle' })
   }
   for (const sessionId of sessions) {
     const wait = state.waits[sessionId]
@@ -330,15 +330,15 @@ test('步数上限不会吞掉用户自己的消息，提示只在真正拒绝�
       for (const hasUserInput of [true, false]) {
         for (const turn of [1, 2]) {
           const step = createStepLimit()
-          step.startTurn({ sessionId: 's', turn: 1, beefTV: true })
-          for (let index = 0; index < count; index++) step.noteToolCall({ sessionId: 's', beefTV: true, limit })
+          step.startTurn({ sessionId: 's', turn: 1, luckyTV: true })
+          for (let index = 0; index < count; index++) step.noteToolCall({ sessionId: 's', luckyTV: true, limit })
           if (count >= limit) assert.equal(step.noticeText(), null, '还没拒绝下一步就提示先停一下')
           const reject = step.decideStep({ sessionId: 's', turn, hasUserInput })
           if (hasUserInput) assert.equal(reject, false, '用户消息被步数上限吞掉')
           else if (turn !== 1) assert.equal(reject, false, '别的轮次被上一轮上限影响')
           else assert.equal(reject, count >= limit, `步数 ${count}/${limit} 的判定不对`)
           if (reject) assert.match(step.noticeText(), /先停一下/)
-          step.startTurn({ sessionId: 's', turn: 2, beefTV: true })
+          step.startTurn({ sessionId: 's', turn: 2, luckyTV: true })
           assert.equal(step.noticeText(), null, '新的一轮仍显示上一轮的上限提示')
         }
       }
@@ -705,7 +705,7 @@ test('completedTaskIds 会写入快照并在重启后保持幂等', () => {
 })
 
 test('原地重做和普通提交一样进入等待并唤醒，等待批准不进入等待', () => {
-  const regenerate = 'mcp__beeftv__canvas_generation_regenerate_ab092b275e46'
+  const regenerate = 'mcp__luckytv__canvas_generation_regenerate_ab092b275e46'
   const result = value => ({ content: [{ type: 'text', text: JSON.stringify({ op: 'canvas.generation.regenerate', result: value }) }] })
   // 工具名只在 Host 层分类；状态机只看到 tasksSubmitted，所以 regenerate 不需要额外的事件类型。
   const taskIds = submittedTaskIds(regenerate, result({ taskIds: ['redo-1'] }))

@@ -4,9 +4,9 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -27,7 +27,7 @@ func TestManagedFailureCategoryAndServerMessageSurviveTaskRead(t *testing.T) {
 	if err := db.Create(&task).Error; err != nil {
 		t.Fatal(err)
 	}
-	managedErr := &beeftv.MediaTaskError{
+	managedErr := &luckytv.MediaTaskError{
 		Code:        "media_generation_failed",
 		Category:    "quota_user",
 		Message:     "账户余额不足，请充值后重试。",
@@ -103,7 +103,7 @@ func TestPreparationFailurePersistsCategory(t *testing.T) {
 	if err := db.Create(&task).Error; err != nil {
 		t.Fatal(err)
 	}
-	_ = svc.terminalCoordinator().MarkPreparationFailure(&task, "路由准备失败", &beeftv.MediaTaskError{
+	_ = svc.terminalCoordinator().MarkPreparationFailure(&task, "路由准备失败", &luckytv.MediaTaskError{
 		Code: "media_submission_rejected", Category: "authorization", Message: "no key",
 	}, false, "")
 	stored, err := svc.repo.Task(task.ID)

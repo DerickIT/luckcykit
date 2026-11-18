@@ -14,7 +14,7 @@ func TestDesktopDependencyGraphDoesNotContainServiceAliasPackage(t *testing.T) {
 		t.Fatalf("list desktop dependencies: %v", err)
 	}
 	for _, dependency := range strings.Fields(string(output)) {
-		if dependency == "infinite-canvas/backend/internal/service" {
+		if dependency == "luckytv/backend/internal/service" {
 			t.Fatal("desktop dependency graph still contains the service alias package")
 		}
 	}
@@ -54,7 +54,7 @@ func assertDomainDoesNotImportApp(t *testing.T, pkg string) {
 		t.Fatalf("list %s dependencies: %v", pkg, err)
 	}
 	for _, dependency := range strings.Fields(string(output)) {
-		if dependency == "infinite-canvas/backend/internal/app" {
+		if dependency == "luckytv/backend/internal/app" {
 			t.Fatalf("%s still depends on the application service kernel", pkg)
 		}
 	}
@@ -68,7 +68,7 @@ func TestProjectDomainDoesNotDependOnApplicationService(t *testing.T) {
 		t.Fatalf("list project dependencies: %v", err)
 	}
 	for _, dependency := range strings.Fields(string(output)) {
-		if dependency == "infinite-canvas/backend/internal/app" {
+		if dependency == "luckytv/backend/internal/app" {
 			t.Fatal("project domain still depends on the application service kernel")
 		}
 	}
@@ -82,7 +82,7 @@ func TestConversationDomainDoesNotDependOnApplicationService(t *testing.T) {
 		t.Fatalf("list conversation dependencies: %v", err)
 	}
 	for _, dependency := range strings.Fields(string(output)) {
-		if dependency == "infinite-canvas/backend/internal/app" {
+		if dependency == "luckytv/backend/internal/app" {
 			t.Fatal("conversation domain still depends on the application service kernel")
 		}
 	}
@@ -116,7 +116,7 @@ func TestLocalAppDoesNotDependOnApplicationService(t *testing.T) {
 		t.Fatalf("list localapp dependencies: %v", err)
 	}
 	for _, dependency := range strings.Fields(string(output)) {
-		if dependency == "infinite-canvas/backend/internal/app" {
+		if dependency == "luckytv/backend/internal/app" {
 			t.Fatal("local composition root still depends on the application service kernel")
 		}
 	}

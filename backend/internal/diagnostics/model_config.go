@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"strings"
 
-	"infinite-canvas/backend/internal/kernel"
+	"luckytv/backend/internal/kernel"
 )
 
 type rawModelConfig struct {

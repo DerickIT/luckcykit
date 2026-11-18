@@ -9,13 +9,13 @@ import (
 	"sync/atomic"
 	"time"
 
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/protocol"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/protocol"
+	"luckytv/backend/internal/repository"
 )
 
 type ProviderTaskQueryResult struct {
@@ -136,7 +136,7 @@ func WithFailedVideoRecoveryLease(
 func RecordFailedVideoRecoveryOutcome(
 	repo *repository.Repository,
 	newID func() string,
-	beefOwnsConclusion func(model.Task, time.Time) bool,
+	luckyOwnsConclusion func(model.Task, time.Time) bool,
 	backoff func(model.Task) time.Duration,
 	task *model.Task,
 	claimUserID, outcome string,
@@ -144,7 +144,7 @@ func RecordFailedVideoRecoveryOutcome(
 	if task == nil {
 		return
 	}
-	if beefOwnsConclusion != nil && beefOwnsConclusion(*task, time.Now()) {
+	if luckyOwnsConclusion != nil && luckyOwnsConclusion(*task, time.Now()) {
 		DeferManagedVideoQuery(repo, newID, backoff, task, claimUserID)
 		return
 	}
@@ -157,7 +157,7 @@ func RecordFailedVideoRecoveryOutcome(
 func RecordMissingVideoReceiptOutcome(
 	repo *repository.Repository,
 	newID func() string,
-	beefOwnsConclusion func(model.Task, time.Time) bool,
+	luckyOwnsConclusion func(model.Task, time.Time) bool,
 	backoff func(model.Task) time.Duration,
 	task *model.Task,
 	claimUserID string,
@@ -168,7 +168,7 @@ func RecordMissingVideoReceiptOutcome(
 			outcome = RecoveryNoResult
 		}
 	}
-	RecordFailedVideoRecoveryOutcome(repo, newID, beefOwnsConclusion, backoff, task, claimUserID, outcome)
+	RecordFailedVideoRecoveryOutcome(repo, newID, luckyOwnsConclusion, backoff, task, claimUserID, outcome)
 }
 
 func DeferManagedVideoQuery(
@@ -420,7 +420,7 @@ func QueryFailedVideoTaskWithDeps(ctx context.Context, deps VideoTaskRecoveryDep
 	}
 	var input generation.Input
 	var adapter protocol.Adapter
-	var declarative, beefVideo, legacyVideo bool
+	var declarative, luckyVideo, legacyVideo bool
 	var err error
 	if !unified {
 		decryptedInput, err := deps.DecryptTaskInput(task.InputJSON)
@@ -437,10 +437,10 @@ func QueryFailedVideoTaskWithDeps(ctx context.Context, deps VideoTaskRecoveryDep
 		}
 		ctx = deps.EnsureOfficialAdapter(ctx, config.InterfaceType)
 		adapter, declarative = deps.DeclarativeAdapter(ctx, config.InterfaceType)
-		beefVideo = generation.IsBeefTVVideoConfig(ctx, config)
+		luckyVideo = generation.IsLuckyTVVideoConfig(ctx, config)
 		_, officialVideo := generation.OfficialDeclarativeVideoInterface(config.InterfaceType)
 		legacyVideo = !officialVideo && (strings.TrimSpace(config.InterfaceType) == "" || generation.IsArkPlanVideoConfig(config))
-		if !declarative && !beefVideo && !legacyVideo && !upscale && !subtitleErase {
+		if !declarative && !luckyVideo && !legacyVideo && !upscale && !subtitleErase {
 			deps.RecordUnrecoverable(task, claimUserID)
 			return nil, kernel.BadAuthRequest("该任务的请求协议不支持安全查询上游状态")
 		}
@@ -471,7 +471,7 @@ func QueryFailedVideoTaskWithDeps(ctx context.Context, deps VideoTaskRecoveryDep
 	queryCtx := deps.BindAnalytics(recoveryCtx, *task)
 	var result map[string]interface{}
 	var providerStatus string
-	var settlement generation.BeefTVVideoSettlement
+	var settlement generation.LuckyTVVideoSettlement
 	if unified {
 		var early *ProviderTaskQueryResult
 		result, providerStatus, early, err = execManaged(queryCtx)
@@ -482,22 +482,22 @@ func QueryFailedVideoTaskWithDeps(ctx context.Context, deps VideoTaskRecoveryDep
 		result, providerStatus, err = generation.RecoverSubtitleEraseResult(queryCtx, input, providerRequestID)
 	} else if upscale {
 		result, providerStatus, err = generation.RecoverUpscaleResult(queryCtx, input, providerRequestID)
-	} else if beefVideo {
+	} else if luckyVideo {
 		result, providerStatus, settlement, err = generation.QueryManagedLegacyVideo(queryCtx, input, providerRequestID)
 		if settlement.UsageState != nil {
 			normalized := strings.ToLower(strings.TrimSpace(*settlement.UsageState))
-			task.BeefUsageState = &normalized
+			task.LuckyUsageState = &normalized
 		}
 		if settlement.ReconcileDeadline != nil {
-			task.BeefReconcileDeadline = nil
+			task.LuckyReconcileDeadline = nil
 			if trimmed := strings.TrimSpace(*settlement.ReconcileDeadline); trimmed != "" {
-				task.BeefReconcileDeadline = &trimmed
+				task.LuckyReconcileDeadline = &trimmed
 			}
 		} else if settlement.UsageState != nil && !strings.EqualFold(strings.TrimSpace(*settlement.UsageState), "pending") {
-			task.BeefReconcileDeadline = nil
+			task.LuckyReconcileDeadline = nil
 		}
 		if settlement.UsageState != nil || settlement.ReconcileDeadline != nil {
-			_ = deps.Repo.UpdateTaskBeefVideoSettlement(task.ID, task.BeefUsageState, task.BeefReconcileDeadline)
+			_ = deps.Repo.UpdateTaskLuckyVideoSettlement(task.ID, task.LuckyUsageState, task.LuckyReconcileDeadline)
 		}
 	} else if !declarative && legacyVideo {
 		result, providerStatus, err = generation.QueryHandwrittenVideoTask(queryCtx, input, providerRequestID)
@@ -596,7 +596,7 @@ func SelectCatalogTask(
 		if err != nil {
 			return SelectResult{}, err
 		}
-		if kernel.StringValue(config["credentialRef"]) != beeftv.CredentialRef || kernel.StringValue(config["apiKey"]) != managed.APIKey || kernel.StringValue(config["baseUrl"]) != managed.BaseURL {
+		if kernel.StringValue(config["credentialRef"]) != luckytv.CredentialRef || kernel.StringValue(config["apiKey"]) != managed.APIKey || kernel.StringValue(config["baseUrl"]) != managed.BaseURL {
 			return SelectResult{}, kernel.BadAuthRequest("AI 超分需要使用已连接的官方算力账号")
 		}
 	}
@@ -608,7 +608,7 @@ func SelectCatalogTask(
 		if err != nil {
 			return SelectResult{}, err
 		}
-		if kernel.StringValue(config["credentialRef"]) != beeftv.CredentialRef || kernel.StringValue(config["apiKey"]) != managed.APIKey || kernel.StringValue(config["baseUrl"]) != managed.BaseURL {
+		if kernel.StringValue(config["credentialRef"]) != luckytv.CredentialRef || kernel.StringValue(config["apiKey"]) != managed.APIKey || kernel.StringValue(config["baseUrl"]) != managed.BaseURL {
 			return SelectResult{}, kernel.BadAuthRequest("视频去字幕需要使用已连接的官方算力账号")
 		}
 	}
@@ -648,8 +648,8 @@ func ValidateCatalogCapability(
 ) error {
 	config, _ := input["config"].(map[string]any)
 	if input["upscale"] != nil || generation.UpscaleMediaType(kernel.StringValue(config["model"])) != "" {
-		if kernel.StringValue(config["credentialRef"]) == beeftv.CredentialRef {
-			config["mediaProtocolVersion"] = beeftv.MediaProtocolVersion
+		if kernel.StringValue(config["credentialRef"]) == luckytv.CredentialRef {
+			config["mediaProtocolVersion"] = luckytv.MediaProtocolVersion
 		}
 		raw, err := json.Marshal(input)
 		if err != nil {
@@ -662,8 +662,8 @@ func ValidateCatalogCapability(
 		return generation.ValidateUpscaleInput(prepared)
 	}
 	if input["subtitleErase"] != nil {
-		if kernel.StringValue(config["credentialRef"]) == beeftv.CredentialRef {
-			config["mediaProtocolVersion"] = beeftv.MediaProtocolVersion
+		if kernel.StringValue(config["credentialRef"]) == luckytv.CredentialRef {
+			config["mediaProtocolVersion"] = luckytv.MediaProtocolVersion
 		}
 		raw, err := json.Marshal(input)
 		if err != nil {

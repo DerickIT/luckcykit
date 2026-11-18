@@ -15,12 +15,12 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/mediatools"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
-	"infinite-canvas/backend/internal/taskruntime"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/mediatools"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
+	"luckytv/backend/internal/taskruntime"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -392,7 +392,7 @@ func TestRestoreManagedUpscaleAudioPreservesSubtitleEraseAudio(t *testing.T) {
 	_, db, _ := specializedSQLite(t, nil)
 	sourceWithAudio := sqliteTestClip(t, 64, 48, true)
 	mutedOutput := sqliteTestClip(t, 64, 48, false)
-	inputJSON := `{"mode":"video","config":{"channelId":"beeftv","model":"video-subtitle-erase"},"subtitleErase":{"eraseMethod":"auto","subtitleModel":"standard"},"referenceVideos":[{"storageKey":"resource:source"}]}`
+	inputJSON := `{"mode":"video","config":{"channelId":"luckytv","model":"video-subtitle-erase"},"subtitleErase":{"eraseMethod":"auto","subtitleModel":"standard"},"referenceVideos":[{"storageKey":"resource:source"}]}`
 	if err := db.Create(&model.Task{
 		ID:        "task-erase-audio",
 		UserID:    "owner",

@@ -220,11 +220,11 @@ func TestSeedanceReferenceMinimumsAndRouteIdentification(t *testing.T) {
 		if got := pixels("volcengine-ark-video", ""); got != documentedSeedanceVideoMinPixels {
 			t.Errorf("ark = %d", got)
 		}
-		if got := pixels("newapi-channel-2", "https://beeftv.app/v1"); got != documentedSeedanceVideoMinPixels {
+		if got := pixels("newapi-channel-2", "https://luckytv.app/v1"); got != documentedSeedanceVideoMinPixels {
 			t.Errorf("material host = %d", got)
 		}
 		if got := pixels("newapi-channel-2", "https://legacy.example.com/v1"); got != OfficialSeedanceVideoMinPixels {
-			t.Errorf("legacy beeftv host = %d", got)
+			t.Errorf("legacy luckytv host = %d", got)
 		}
 		if got := pixels("newapi-channel-2", "https://relay.example.com/v1"); got != OfficialSeedanceVideoMinPixels {
 			t.Errorf("custom host = %d", got)
@@ -373,10 +373,10 @@ func TestSeedanceProFlashResolutionAndReferenceRolesTable(t *testing.T) {
 			wantTaskTypeConst: false,
 		},
 		{
-			name:      "legacy zero-reference BeefTV profile repairs omni reference slots",
+			name:      "legacy zero-reference LuckyTV profile repairs omni reference slots",
 			protocol:  "newapi-channel-2",
 			model:     "doubao-seedance-2-0-260128",
-			channelID: "beeftv",
+			channelID: "luckytv",
 			saved: &ModelCapabilityConfig{
 				Version: 1,
 				Video: &VideoCapabilityConfig{
@@ -526,7 +526,7 @@ func TestSeedance25DraftAndDraftToFinalCapabilityAndValidation(t *testing.T) {
 		Capability:       "video",
 		Protocol:         "newapi",
 		Model:            "seedance-2.5",
-		ChannelID:        "beeftv",
+		ChannelID:        "luckytv",
 		CapabilityConfig: legacy25,
 	})
 	if err != nil {
@@ -547,7 +547,7 @@ func TestSeedance25DraftAndDraftToFinalCapabilityAndValidation(t *testing.T) {
 		Capability:       "video",
 		Protocol:         "newapi",
 		Model:            "seedance-2.5",
-		ChannelID:        "beeftv",
+		ChannelID:        "luckytv",
 		CapabilityConfig: &nonZeroRefs,
 	})
 	if err != nil {

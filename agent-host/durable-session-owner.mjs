@@ -41,13 +41,13 @@ export {
 // package version. Changing it rejects every existing session as mismatched.
 export const DURABLE_VERSION = '1.0.4';
 export const HOST_STATE_CHECKPOINT_DELTAS = 32;
-const STATE = defineDoc({ kind: 'beeftv.host', version: 1, scope: 'session',
+const STATE = defineDoc({ kind: 'luckytv.host', version: 1, scope: 'session',
   initial: () => ({ version: DURABLE_VERSION, canvasId: '', sessionId: '', active: null, turns: [], loadedSkills: [], plan: emptyPlan(), studioDigestText: '', lastStudioSnapshot: null, lastStudioSnapshotRevision: null }),
   checkpointWhen: (value, _ops, { deltasSinceBase }) => value.active === null || deltasSinceBase >= HOST_STATE_CHECKPOINT_DELTAS });
 export const THINKING_LEVELS = ['off', 'minimal', 'low', 'medium', 'high'];
 // The root agent's reasoning level; budgets follow pi-ai's DEFAULT_THINKING_BUDGETS.
 export function agentThinkingLevel(env = process.env) {
-  const value = String(env.BEEFTV_AGENT_THINKING || '').trim().toLowerCase();
+  const value = String(env.LUCKYTV_AGENT_THINKING || '').trim().toLowerCase();
   return THINKING_LEVELS.includes(value) ? value : 'low';
 }
 const CTX = BACKGROUND_CONTEXT;
@@ -676,7 +676,7 @@ export function createDurableSessionStore({ sessionRoot, workspaceRoot, getModel
             type: 'write',
             requestId: `event:${requestId}`,
             entry: {
-              kind: `beeftv.${cleanKind}`,
+              kind: `luckytv.${cleanKind}`,
               data,
               model: [{
                 role: 'user',
@@ -697,7 +697,7 @@ export function createDurableSessionStore({ sessionRoot, workspaceRoot, getModel
         type: 'write',
         requestId: `event:${requestId}`,
         entry: {
-          kind: `beeftv.${cleanKind}`,
+          kind: `luckytv.${cleanKind}`,
           data,
           model: [{
             role: 'user',

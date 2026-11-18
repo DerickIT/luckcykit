@@ -13,9 +13,9 @@ import (
 	"time"
 
 	"gorm.io/gorm"
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
 )
 
 // 每个恢复夹具都明确建立原 route attempt 的渠道和凭据，而非借用当前路由。
@@ -64,7 +64,7 @@ func TestImageSubmissionFreezesOriginalAttemptChannel(t *testing.T) {
 	task.InputJSON = `{"mode":"image","config":{"channelId":"different-current-channel"}}`
 	ctx := withProviderSubmissionKey(withProviderAnalytics(context.Background(), s, task), attempt)
 	ctx = context.WithValue(generation.WithImageReplayProtocol(ctx, generation.ImageReplayProtocol), imageTaskContext{}, task)
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, "https://beeftv.app/v1/images/generations", strings.NewReader(string(body)))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, "https://luckytv.app/v1/images/generations", strings.NewReader(string(body)))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -294,7 +294,7 @@ func TestAutomaticImageRecoveryStopsOnOriginalCredentialRejection(t *testing.T) 
 }
 
 func TestAutomaticImageRecoveryDirectChannelIdentity(t *testing.T) {
-	for _, id := range []string{"beeftv", "custom"} {
+	for _, id := range []string{"luckytv", "custom"} {
 		for _, mode := range []string{"unchanged", "rotated", "disabled", "deleted"} {
 			t.Run(id+"/"+mode, func(t *testing.T) {
 				s, _, task, row, _ := imageSubmissionFixture(t, false)
@@ -303,7 +303,7 @@ func TestAutomaticImageRecoveryDirectChannelIdentity(t *testing.T) {
 					t.Fatal(err)
 				}
 				wire.ChannelID = id
-				channel := map[string]any{"id": id, "enabled": true, "baseUrl": "https://beeftv.app", "apiKey": "private-test-key"}
+				channel := map[string]any{"id": id, "enabled": true, "baseUrl": "https://luckytv.app", "apiKey": "private-test-key"}
 				if mode == "rotated" {
 					channel["apiKey"] = "new-token"
 				}

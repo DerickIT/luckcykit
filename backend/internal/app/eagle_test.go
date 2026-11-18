@@ -3,7 +3,7 @@ package app
 import (
 	"testing"
 
-	"infinite-canvas/backend/internal/eagle"
+	"luckytv/backend/internal/eagle"
 )
 
 func TestEagleAdapterDelegatesEmptyItemCollections(t *testing.T) {

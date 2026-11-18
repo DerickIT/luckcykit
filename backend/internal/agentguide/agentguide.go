@@ -1,5 +1,5 @@
 // Package agentguide 保存所有外部 Agent 共用的一份画布使用说明。
-// 可编辑原文在 plugins/beeftv-skills/skills/beeftv-canvas/SKILL.md；
+// 可编辑原文在 plugins/luckytv-skills/skills/luckytv-canvas/SKILL.md；
 // 这里的嵌入副本由 scripts/sync-agent-skill.mjs 生成，字节必须一致。
 package agentguide
 
@@ -9,7 +9,7 @@ import (
 	"encoding/hex"
 )
 
-const Name = "beeftv-canvas"
+const Name = "luckytv-canvas"
 
 //go:embed skilldata/SKILL.md
 var content []byte

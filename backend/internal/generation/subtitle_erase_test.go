@@ -22,11 +22,11 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/mediatools"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
-	"infinite-canvas/backend/internal/topaz"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/mediatools"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
+	"luckytv/backend/internal/topaz"
 )
 
 func ptrFloat(v float64) *float64 { return &v }
@@ -172,10 +172,10 @@ func TestDynamicUpscaleModesAndSubtitleEraseClient(t *testing.T) {
 	defer srv.Close()
 
 	lookup := func() (string, string, string, string, error) {
-		return "test-key", srv.URL, "beeftv", "", nil
+		return "test-key", srv.URL, "luckytv", "", nil
 	}
 	bind := func(ctx context.Context, _ CallMeta) context.Context {
-		return WithEndpoints(ctx, Endpoints{BeefTVVideoBaseURL: srv.URL})
+		return WithEndpoints(ctx, Endpoints{LuckyTVVideoBaseURL: srv.URL})
 	}
 	caps := LiveUpscaleCapabilities(context.Background(), lookup, bind)
 	if caps["maxVideoDurationMs"] != 300000 {
@@ -185,17 +185,17 @@ func TestDynamicUpscaleModesAndSubtitleEraseClient(t *testing.T) {
 	if len(modes) != 1 {
 		t.Fatalf("expected dynamic upstream catalog to omit unconfigured static modes, got %+v", modes)
 	}
-	if _, staticErr := topaz.ResolveModelID(topaz.Request{ResourceID: "r1", ChannelID: "beeftv", Mode: "precision", Model: "Proteus", Scale: 2}, "video", modes); staticErr == nil {
+	if _, staticErr := topaz.ResolveModelID(topaz.Request{ResourceID: "r1", ChannelID: "luckytv", Mode: "precision", Model: "Proteus", Scale: 2}, "video", modes); staticErr == nil {
 		t.Fatal("expected withdrawn static model Proteus to be rejected when absent from dynamic catalog")
 	}
 	emptyFiltered := topaz.ModesFromUpstream([]topaz.UpstreamModel{{ID: "unknown-x", MediaType: "audio", Mode: "unknown"}})
 	if len(emptyFiltered) != 0 {
 		t.Fatalf("expected invalid upstream items to return empty modes rather than static defaults, got %+v", emptyFiltered)
 	}
-	if _, err := topaz.ResolveModelID(topaz.Request{ResourceID: "r1", ChannelID: "beeftv", Mode: "precision", Model: "Proteus", Scale: 2}, "video", emptyFiltered); err == nil {
+	if _, err := topaz.ResolveModelID(topaz.Request{ResourceID: "r1", ChannelID: "luckytv", Mode: "precision", Model: "Proteus", Scale: 2}, "video", emptyFiltered); err == nil {
 		t.Fatal("expected empty filtered modes to reject static model Proteus")
 	}
-	resolved, err := topaz.ResolveModelID(topaz.Request{ResourceID: "r1", ChannelID: "beeftv", Mode: "precision", Model: "通用实拍增强", Scale: 2}, "video", modes)
+	resolved, err := topaz.ResolveModelID(topaz.Request{ResourceID: "r1", ChannelID: "luckytv", Mode: "precision", Model: "通用实拍增强", Scale: 2}, "video", modes)
 	if err != nil || resolved != "vendor-video-real" {
 		t.Fatalf("ResolveModelID got %q, err=%v", resolved, err)
 	}
@@ -218,12 +218,12 @@ func TestDynamicUpscaleModesAndSubtitleEraseClient(t *testing.T) {
 	ensure := func(_ context.Context, _, id string) (*model.Resource, error) {
 		return &model.Resource{ID: id, Kind: "video", MimeType: "video/mp4", Width: 1280, Height: 720, DurationMs: 6000, Status: model.ResourceStatusReady}, nil
 	}
-	client := &beeftv.MediaClient{BaseURL: srv.URL, APIKey: "test-key", AllowHTTPTest: true}
-	est, err := client.EstimateSubtitleErase(context.Background(), beeftv.SubtitleEraseInput{
+	client := &luckytv.MediaClient{BaseURL: srv.URL, APIKey: "test-key", AllowHTTPTest: true}
+	est, err := client.EstimateSubtitleErase(context.Background(), luckytv.SubtitleEraseInput{
 		Model:           SubtitleEraseModelName,
 		EraseMethod:     "custom",
 		SubtitleModel:   "area",
-		Region:          &beeftv.SubtitleEraseRegion{X: ptrFloat(0.1), Y: ptrFloat(0.8), Width: ptrFloat(0.8), Height: ptrFloat(0.15)},
+		Region:          &luckytv.SubtitleEraseRegion{X: ptrFloat(0.1), Y: ptrFloat(0.8), Width: ptrFloat(0.8), Height: ptrFloat(0.15)},
 		Width:           1280,
 		Height:          720,
 		DurationSeconds: 6,
@@ -231,7 +231,7 @@ func TestDynamicUpscaleModesAndSubtitleEraseClient(t *testing.T) {
 	if err != nil || est.Reservation != 0.15 || est.ResolutionTier != "720p" || est.RateCNYPerMinute != 1.5 || estimateHits.Load() != 1 {
 		t.Fatalf("estimate=%+v err=%v hits=%d", est, err, estimateHits.Load())
 	}
-	taskID, err := client.CreateSubtitleErase(context.Background(), "idem-1", beeftv.SubtitleEraseInput{
+	taskID, err := client.CreateSubtitleErase(context.Background(), "idem-1", luckytv.SubtitleEraseInput{
 		Model:         SubtitleEraseModelName,
 		SourceURL:     srv.URL + "/source.mp4",
 		EraseMethod:   "auto",
@@ -250,7 +250,7 @@ func TestDynamicUpscaleModesAndSubtitleEraseClient(t *testing.T) {
 	}
 	_, payload, err := BuildVideoSubtitleEraseTaskPayload(context.Background(), "u1", SubtitleEraseRequest{
 		ResourceID:        "r1",
-		ChannelID:         "beeftv",
+		ChannelID:         "luckytv",
 		EraseMethod:       "auto",
 		SubtitleModel:     "standard",
 		ClientOperationID: "op-1",
@@ -275,7 +275,7 @@ func TestRunRecoverCancelSubtitleEraseAndAudioPreservation(t *testing.T) {
 		case "/v1/media/uploads":
 			uploads.Add(1)
 			w.Header().Set("Content-Type", "application/json")
-			_ = json.NewEncoder(w).Encode(BeefTVSeedanceUploadSession{
+			_ = json.NewEncoder(w).Encode(LuckyTVSeedanceUploadSession{
 				Ticket:          "erase-ticket",
 				UploadURL:       server.URL + "/put",
 				UploadMethod:    "PUT",
@@ -290,7 +290,7 @@ func TestRunRecoverCancelSubtitleEraseAndAudioPreservation(t *testing.T) {
 		case "/v1/media/uploads/complete":
 			sum := sha256.Sum256(sourceWithAudio)
 			w.Header().Set("Content-Type", "application/json")
-			_ = json.NewEncoder(w).Encode(BeefTVSeedanceUploadComplete{
+			_ = json.NewEncoder(w).Encode(LuckyTVSeedanceUploadComplete{
 				URL:    server.URL + "/source.mp4",
 				Kind:   "video",
 				Mime:   "video/mp4",
@@ -341,7 +341,7 @@ func TestRunRecoverCancelSubtitleEraseAndAudioPreservation(t *testing.T) {
 
 	progress := &upscaleProgressPort{}
 	runtime := taskRuntime(func(r *Runtime) {
-		r.Endpoints.BeefTVVideoBaseURL = server.URL
+		r.Endpoints.LuckyTVVideoBaseURL = server.URL
 		r.Resources = upscaleResources{data: sourceWithAudio, kind: "video"}
 		r.ReferenceProgress = progress
 		r.Stages = progress
@@ -401,7 +401,7 @@ func TestRunRecoverCancelSubtitleEraseAndAudioPreservation(t *testing.T) {
 	// Loud failure when source video is unreadable during audio restoration.
 	serveCorrupt.Store(false)
 	missingRuntime := taskRuntime(func(r *Runtime) {
-		r.Endpoints.BeefTVVideoBaseURL = server.URL
+		r.Endpoints.LuckyTVVideoBaseURL = server.URL
 		r.Call.UserID = "other-user"
 		r.Resources = upscaleResources{data: sourceWithAudio, kind: "video"}
 	})
@@ -430,7 +430,7 @@ func TestManagedEnvelopeSubtitleEraseCancelAndReconcile(t *testing.T) {
 		case "/v1/media/tasks/" + expectedTaskRef:
 			queryHits.Add(1)
 			w.Header().Set("Content-Type", "application/json")
-			w.Header().Set("X-BeefTV-Media-Protocol", "managed-media-v1")
+			w.Header().Set("X-LuckyTV-Media-Protocol", "managed-media-v1")
 			_ = json.NewEncoder(w).Encode(map[string]any{
 				"task_ref":   expectedTaskRef,
 				"task_id":    "erase_env_job_1",
@@ -466,7 +466,7 @@ func TestManagedEnvelopeSubtitleEraseCancelAndReconcile(t *testing.T) {
 			BaseURL:       srv.URL,
 			APIKey:        "test-key",
 			Model:         SubtitleEraseModelName,
-			ChannelID:     beeftv.ChannelID,
+			ChannelID:     luckytv.ChannelID,
 			InterfaceType: "newapi",
 		},
 		SubtitleErase:   &SubtitleEraseOptions{EraseMethod: "auto", SubtitleModel: "standard"},
@@ -490,7 +490,7 @@ func TestManagedEnvelopeSubtitleEraseCancelAndReconcile(t *testing.T) {
 		TaskID:        "t-env-1",
 		RouteRun:      1,
 		AttemptNumber: 1,
-		ChannelID:     beeftv.ChannelID,
+		ChannelID:     luckytv.ChannelID,
 	}).Error; err != nil {
 		t.Fatal(err)
 	}
@@ -505,7 +505,7 @@ func TestManagedEnvelopeSubtitleEraseCancelAndReconcile(t *testing.T) {
 
 	bindTaskCtx := func(ctx context.Context, _ model.Task) context.Context {
 		return WithRuntime(ctx, Runtime{
-			Endpoints: Endpoints{BeefTVVideoBaseURL: srv.URL},
+			Endpoints: Endpoints{LuckyTVVideoBaseURL: srv.URL},
 		})
 	}
 	identity := func(s string) (string, error) { return s, nil }
@@ -553,8 +553,8 @@ func TestSmartEraseModesMovAndSubtitlesMetadata(t *testing.T) {
 	if clampedPrepared.Region == nil || *clampedPrepared.Region.X != 0 || *clampedPrepared.Region.Width != 0.9999 || *clampedPrepared.Region.Y != 0.75 || *clampedPrepared.Region.Height != 0.2499 {
 		t.Fatalf("expected full-width region clamped to <=0.9999 on wire, got %+v", clampedPrepared.Region)
 	}
-	wireBody := beeftv.SubtitleEraseBody(clampedPrepared)
-	wireRegion, _ := wireBody["region"].(*beeftv.SubtitleEraseRegion)
+	wireBody := luckytv.SubtitleEraseBody(clampedPrepared)
+	wireRegion, _ := wireBody["region"].(*luckytv.SubtitleEraseRegion)
 	if wireRegion == nil || *wireRegion.X+*wireRegion.Width > 0.9999 || *wireRegion.Y+*wireRegion.Height > 0.9999 {
 		t.Fatalf("expected outbound body region right/bottom <= 0.9999, got %+v", wireRegion)
 	}
@@ -696,12 +696,12 @@ func TestSmartEraseModesMovAndSubtitlesMetadata(t *testing.T) {
 	defer srv.Close()
 
 	runtime := taskRuntime(func(r *Runtime) {
-		r.Endpoints.BeefTVVideoBaseURL = srv.URL
+		r.Endpoints.LuckyTVVideoBaseURL = srv.URL
 		r.Resources = upscaleResources{data: validMOV, kind: "video"}
 	})
 	ctx := WithRuntime(context.Background(), runtime)
 	queryInput := translateEmbed
-	queryInput.Config = Config{BaseURL: srv.URL, APIKey: "k", Model: SubtitleEraseModelName, ChannelID: beeftv.ChannelID}
+	queryInput.Config = Config{BaseURL: srv.URL, APIKey: "k", Model: SubtitleEraseModelName, ChannelID: luckytv.ChannelID}
 	queryInput.ReferenceVideos = []Media{{StorageKey: "resource:source"}}
 
 	res, status, err := QuerySubtitleEraseResult(ctx, queryInput, "erase_mov_sub_1")
@@ -753,10 +753,10 @@ func TestSmartEraseModesMovAndSubtitlesMetadata(t *testing.T) {
 	defer capSrv.Close()
 
 	capLookup := func() (string, string, string, string, error) {
-		return "k", capSrv.URL, "beeftv", "", nil
+		return "k", capSrv.URL, "luckytv", "", nil
 	}
 	restrictedCaps := SubtitleEraseCapabilities(context.Background(), capLookup, func(ctx context.Context, _ CallMeta) context.Context {
-		return WithEndpoints(ctx, Endpoints{BeefTVVideoBaseURL: capSrv.URL})
+		return WithEndpoints(ctx, Endpoints{LuckyTVVideoBaseURL: capSrv.URL})
 	})
 	if smartCapHits.Load() != 1 {
 		t.Fatalf("expected 1 hit on /v1/video-smart-erase/capabilities, got %d", smartCapHits.Load())
@@ -809,9 +809,9 @@ func TestSmartEraseModesMovAndSubtitlesMetadata(t *testing.T) {
 
 	disabledURL := capSrv.URL + "/disabled"
 	disabledCaps := SubtitleEraseCapabilities(context.Background(), func() (string, string, string, string, error) {
-		return "k", disabledURL, "beeftv", "", nil
+		return "k", disabledURL, "luckytv", "", nil
 	}, func(ctx context.Context, _ CallMeta) context.Context {
-		return WithEndpoints(ctx, Endpoints{BeefTVVideoBaseURL: disabledURL})
+		return WithEndpoints(ctx, Endpoints{LuckyTVVideoBaseURL: disabledURL})
 	})
 	if disabledCapHits.Load() != 1 || disabledCaps["available"] != false {
 		t.Fatalf("expected explicit available=false preserved (hits=%d), got %#v", disabledCapHits.Load(), disabledCaps)
@@ -845,9 +845,9 @@ func TestSmartEraseModesMovAndSubtitlesMetadata(t *testing.T) {
 	}))
 	defer legacyCapSrv.Close()
 	legacyCaps := SubtitleEraseCapabilities(context.Background(), func() (string, string, string, string, error) {
-		return "k", legacyCapSrv.URL, "beeftv", "", nil
+		return "k", legacyCapSrv.URL, "luckytv", "", nil
 	}, func(ctx context.Context, _ CallMeta) context.Context {
-		return WithEndpoints(ctx, Endpoints{BeefTVVideoBaseURL: legacyCapSrv.URL})
+		return WithEndpoints(ctx, Endpoints{LuckyTVVideoBaseURL: legacyCapSrv.URL})
 	})
 	if legacySmartHits.Load() != 1 || legacySubHits.Load() != 1 {
 		t.Fatalf("expected fallback from smart-erase (%d) to subtitle-erase (%d)", legacySmartHits.Load(), legacySubHits.Load())
@@ -892,9 +892,9 @@ func TestSmartEraseModesMovAndSubtitlesMetadata(t *testing.T) {
 	fetchPartialCaps := func(prefix string) map[string]any {
 		baseURL := partialCapSrv.URL + prefix
 		return SubtitleEraseCapabilities(context.Background(), func() (string, string, string, string, error) {
-			return "k", baseURL, "beeftv", "", nil
+			return "k", baseURL, "luckytv", "", nil
 		}, func(ctx context.Context, _ CallMeta) context.Context {
-			return WithEndpoints(ctx, Endpoints{BeefTVVideoBaseURL: baseURL})
+			return WithEndpoints(ctx, Endpoints{LuckyTVVideoBaseURL: baseURL})
 		})
 	}
 
@@ -1009,11 +1009,11 @@ func TestSmartEraseModesMovAndSubtitlesMetadata(t *testing.T) {
 	}
 
 	// Test end-to-end singleMediaResult setting LastTaskID + attachSmartEraseSubtitles for both embedded metadata and /subtitles fallback.
-	managedClient := &beeftv.MediaClient{BaseURL: srv.URL, APIKey: "k", AllowHTTPTest: true}
-	managedEmbedded, err := managedClient.Result(ctx, beeftv.MediaTask{
+	managedClient := &luckytv.MediaClient{BaseURL: srv.URL, APIKey: "k", AllowHTTPTest: true}
+	managedEmbedded, err := managedClient.Result(ctx, luckytv.MediaTask{
 		TaskID:    "erase_mov_sub_1",
 		MediaType: "video",
-		Outputs:   []beeftv.MediaOutput{{Kind: "video", URL: srv.URL + "/out.mov"}},
+		Outputs:   []luckytv.MediaOutput{{Kind: "video", URL: srv.URL + "/out.mov"}},
 		Metadata: map[string]any{
 			"subtitles": map[string]any{
 				"format":          "vtt",
@@ -1032,11 +1032,11 @@ func TestSmartEraseModesMovAndSubtitlesMetadata(t *testing.T) {
 		t.Fatalf("expected embedded managed subtitles normalized, got %#v", managedEmbedded["metadata"])
 	}
 
-	fallbackClient := &beeftv.MediaClient{BaseURL: srv.URL, APIKey: "k", AllowHTTPTest: true}
-	managedFallback, err := fallbackClient.Result(ctx, beeftv.MediaTask{
+	fallbackClient := &luckytv.MediaClient{BaseURL: srv.URL, APIKey: "k", AllowHTTPTest: true}
+	managedFallback, err := fallbackClient.Result(ctx, luckytv.MediaTask{
 		TaskID:    "erase_mov_sub_1",
 		MediaType: "video",
-		Outputs:   []beeftv.MediaOutput{{Kind: "video", URL: srv.URL + "/out.mov"}},
+		Outputs:   []luckytv.MediaOutput{{Kind: "video", URL: srv.URL + "/out.mov"}},
 	}, false)
 	if err != nil || fallbackClient.LastTaskID != "erase_mov_sub_1" {
 		t.Fatalf("expected fallbackClient.LastTaskID=erase_mov_sub_1, got %q err=%v", fallbackClient.LastTaskID, err)

@@ -3,7 +3,7 @@ package diagnostics
 import (
 	"time"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 type Store interface {
@@ -40,6 +40,6 @@ func (b staticBrand) NameAndSlug() (string, string) {
 }
 
 const (
-	defaultBrandName = "BeefTV"
-	defaultBrandSlug = "beeftv"
+	defaultBrandName = "LuckyTV"
+	defaultBrandSlug = "luckytv"
 )

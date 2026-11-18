@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"infinite-canvas/backend/internal/editing"
+	"luckytv/backend/internal/editing"
 )
 
 // renderSourceOpener is the typed asset seam for native timeline render.

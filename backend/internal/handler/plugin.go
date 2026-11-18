@@ -6,12 +6,12 @@ import (
 	"strconv"
 	"strings"
 
-	"infinite-canvas/backend/internal/eagle"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/platform"
-	"infinite-canvas/backend/internal/plugins"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/eagle"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/platform"
+	"luckytv/backend/internal/plugins"
+	"luckytv/backend/internal/protocol"
 
 	"github.com/gin-gonic/gin"
 )

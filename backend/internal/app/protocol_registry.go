@@ -3,8 +3,8 @@ package app
 import (
 	"strings"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/protocol"
 )
 
 func (s *Service) protocolRegistry() *protocol.Registry {

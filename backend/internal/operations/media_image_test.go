@@ -18,7 +18,7 @@ import (
 	"testing"
 
 	"golang.org/x/image/tiff"
-	"infinite-canvas/backend/internal/mediatools"
+	"luckytv/backend/internal/mediatools"
 )
 
 func imageDomain(data []byte) *mediaDomain {

@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { convertEditorGraph, extractAppMode } from "../../plugin-packages/beeftv-plugin-comfyui/lib/editor.mjs";
-import { inputTargets, outputNodeIds, prepareWorkflow, randomizeSeeds, workflowOutputKind } from "../../plugin-packages/beeftv-plugin-comfyui/lib/workflow.mjs";
-import * as provider from "../../plugin-packages/beeftv-plugin-comfyui/provider.mjs";
+import { convertEditorGraph, extractAppMode } from "../../plugin-packages/luckytv-plugin-comfyui/lib/editor.mjs";
+import { inputTargets, outputNodeIds, prepareWorkflow, randomizeSeeds, workflowOutputKind } from "../../plugin-packages/luckytv-plugin-comfyui/lib/workflow.mjs";
+import * as provider from "../../plugin-packages/luckytv-plugin-comfyui/provider.mjs";
 
 // 只列出用到的节点，形状和 ComfyUI 的 /object_info 一致。
 const objectInfo = {
@@ -109,7 +109,7 @@ describe("ComfyUI workflow conversion", () => {
 describe("ComfyUI provider against a ComfyUI server", () => {
     const workflows: Record<string, unknown> = { "invert.app.json": invertApp, "txt2img.json": textToImage("randomize"), "notes.json": { nodes: [{ id: 1, type: "Note", mode: 0 }] } };
     const uploads: Array<{ name: string; subfolder: string }> = [];
-    const prompts: Array<{ prompt: Record<string, { inputs: Record<string, unknown> }>; extra_data: { beeftv: { outputs: string[] } } }> = [];
+    const prompts: Array<{ prompt: Record<string, { inputs: Record<string, unknown> }>; extra_data: { luckytv: { outputs: string[] } } }> = [];
     let historyReady = false;
     let server: ReturnType<typeof Bun.serve>;
     let ctx: { config: { baseUrl: string }; signal: AbortSignal; log: (message: string) => void };
@@ -129,7 +129,7 @@ describe("ComfyUI provider against a ComfyUI server", () => {
                     const form = await request.formData();
                     const file = form.get("image") as File;
                     uploads.push({ name: file.name, subfolder: String(form.get("subfolder")) });
-                    return Response.json({ name: file.name, subfolder: "beeftv", type: "input" });
+                    return Response.json({ name: file.name, subfolder: "luckytv", type: "input" });
                 }
                 if (url.pathname === "/api/prompt") {
                     const body = await request.json();
@@ -143,7 +143,7 @@ describe("ComfyUI provider against a ComfyUI server", () => {
                     if (!historyReady) return Response.json({});
                     return Response.json({
                         p1: {
-                            prompt: [1, "p1", {}, { beeftv: { outputs: ["3"] } }, ["3", "4"]],
+                            prompt: [1, "p1", {}, { luckytv: { outputs: ["3"] } }, ["3", "4"]],
                             outputs: {
                                 "3": { images: [{ filename: "inverted_00001_.png", subfolder: "", type: "output" }] },
                                 "4": { images: [{ filename: "ComfyUI_temp_1.png", subfolder: "", type: "temp" }] },
@@ -171,9 +171,9 @@ describe("ComfyUI provider against a ComfyUI server", () => {
     test("submit uploads the reference image and fills the prompt where the workflow expects it", async () => {
         const image = { dataUrl: `data:image/png;base64,${Buffer.from("png-bytes").toString("base64")}`, mimeType: "image/png" };
         expect(await provider.submit({ model: "invert.app.json", prompt: "", images: [image], extra: { idempotencyKey: "task-1" } }, ctx)).toEqual({ taskId: "p1", status: "pending" });
-        expect(uploads).toEqual([{ name: "task-1-image-1.png", subfolder: "beeftv" }]);
-        expect(prompts[0].prompt["1"].inputs.image).toBe("beeftv/task-1-image-1.png");
-        expect(prompts[0].extra_data.beeftv.outputs).toEqual(["3"]);
+        expect(uploads).toEqual([{ name: "task-1-image-1.png", subfolder: "luckytv" }]);
+        expect(prompts[0].prompt["1"].inputs.image).toBe("luckytv/task-1-image-1.png");
+        expect(prompts[0].extra_data.luckytv.outputs).toEqual(["3"]);
 
         await provider.submit({ model: "txt2img.json", prompt: "a dog in the rain", extra: { idempotencyKey: "task-2" } }, ctx);
         expect(prompts[1].prompt["6"].inputs.text).toBe("a dog in the rain");

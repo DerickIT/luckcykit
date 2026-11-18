@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"testing"
 
-	"infinite-canvas/backend/internal/app"
+	"luckytv/backend/internal/app"
 )
 
 func TestSkillContextHTTPRequiresHostAndExactBoundSession(t *testing.T) {
@@ -15,7 +15,7 @@ func TestSkillContextHTTPRequiresHostAndExactBoundSession(t *testing.T) {
 		t.Fatal(err)
 	}
 	path := "/assistant/runtime/canvases/" + env.canvasID + "/skill-context"
-	headers := map[string]string{"X-Beeftv-Agent-Token": assistantTestHostToken}
+	headers := map[string]string{"X-Luckytv-Agent-Token": assistantTestHostToken}
 	if response := env.call(t, http.MethodGet, path+"?sessionId="+skillSessionOne, ""); response.Code != http.StatusForbidden {
 		t.Fatalf("UI bypassed host %d %s", response.Code, response.Body)
 	}

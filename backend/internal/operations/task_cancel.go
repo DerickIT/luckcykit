@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 // TaskController 是任务取消这类命令能力的窄端口，由组合根实现。

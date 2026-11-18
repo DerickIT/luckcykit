@@ -4,8 +4,10 @@ import { listWorkspaceAssetsPage } from "@/services/api/workspace-assets";
 import { getDesktopAppBinding } from "@/services/desktop-runtime";
 import { useAssetStore } from "@/stores/use-asset-store";
 import { useCanvasStore } from "@/stores/canvas/use-canvas-store";
+import { isBrowserLocalRuntime } from "@/lib/runtime-mode";
 
 export async function confirmDesktopUpdateStartup(): Promise<boolean> {
+    if (isBrowserLocalRuntime()) return false;
     const confirm = getDesktopAppBinding()?.ConfirmUpdateStartup;
     // The stores' public `hydrated` flags also become true on read errors.
     const cacheReady = () => useAssetStore.persist.hasHydrated() && useCanvasStore.persist.hasHydrated();

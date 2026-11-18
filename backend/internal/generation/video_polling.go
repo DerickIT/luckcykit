@@ -11,13 +11,13 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/outbound"
-	"infinite-canvas/backend/internal/platform"
+	"luckytv/backend/internal/outbound"
+	"luckytv/backend/internal/platform"
 )
 
 const DefaultVideoPollInterval = 30 * time.Second
 
-const beefTVVideoPollInterval = 5 * time.Second
+const luckyTVVideoPollInterval = 5 * time.Second
 
 type VideoPollPolicy struct {
 	QueryStage            string
@@ -73,12 +73,12 @@ func DefaultVideoPollPolicy() VideoPollPolicy {
 }
 
 func videoPollPolicyForConfig(ctx context.Context, config Config, policy VideoPollPolicy) VideoPollPolicy {
-	if IsBeefTVVideoConfig(ctx, config) {
+	if IsLuckyTVVideoConfig(ctx, config) {
 		if policy.InitialDelay == DefaultVideoPollInterval {
-			policy.InitialDelay = beefTVVideoPollInterval
+			policy.InitialDelay = luckyTVVideoPollInterval
 		}
 		if policy.Interval == DefaultVideoPollInterval {
-			policy.Interval = beefTVVideoPollInterval
+			policy.Interval = luckyTVVideoPollInterval
 		}
 	}
 	return policy

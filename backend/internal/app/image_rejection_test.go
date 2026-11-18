@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
 )
 
 func imageRejectionDiagnostics(code, message string) *model.TaskFailureDiagnostics {

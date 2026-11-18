@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/depthcapture"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/depthcapture"
+	"luckytv/backend/internal/model"
 )
 
 func TestCreateDepthCaptureTaskQueuesFixedStandardProfile(t *testing.T) {

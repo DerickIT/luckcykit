@@ -7,17 +7,17 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/database"
-	"infinite-canvas/backend/internal/repository"
-	"infinite-canvas/backend/internal/workspace"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/database"
+	"luckytv/backend/internal/repository"
+	"luckytv/backend/internal/workspace"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
-func TestWorkspaceModelConfigReturnsBuiltinBeefTVAndPersistenceMetadata(t *testing.T) {
+func TestWorkspaceModelConfigReturnsBuiltinLuckyTVAndPersistenceMetadata(t *testing.T) {
 	router, _ := newModelConfigTestRouter(t)
 	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/api/workspace/model-config", nil))
@@ -30,15 +30,15 @@ func TestWorkspaceModelConfigReturnsBuiltinBeefTVAndPersistenceMetadata(t *testi
 	}
 	config, _ := data["config"].(map[string]any)
 	channels, _ := config["channels"].([]any)
-	if len(channels) != 1 || channels[0].(map[string]any)["id"] != "beeftv" {
-		t.Fatalf("builtin BeefTV missing: %#v", channels)
+	if len(channels) != 1 || channels[0].(map[string]any)["id"] != "luckytv" {
+		t.Fatalf("builtin LuckyTV missing: %#v", channels)
 	}
 	if models, _ := channels[0].(map[string]any)["models"].([]any); len(models) != 0 {
 		t.Fatalf("model catalog must remain dynamic: %#v", models)
 	}
 }
 
-func TestWorkspaceModelConfigGETRedactsBeefTVKey(t *testing.T) {
+func TestWorkspaceModelConfigGETRedactsLuckyTVKey(t *testing.T) {
 	router, _ := newModelConfigTestRouter(t)
 	first := putModelConfig(t, router, 0, "local-secret-key")
 	if first.Code != http.StatusOK {
@@ -97,7 +97,7 @@ func putModelConfig(t *testing.T, router *gin.Engine, expectedRevision int64, ap
 	t.Helper()
 	body, err := json.Marshal(map[string]any{
 		"expectedRevision": expectedRevision,
-		"config":           map[string]any{"channels": []any{map[string]any{"id": "beeftv", "apiKey": apiKey, "enabled": true}}},
+		"config":           map[string]any{"channels": []any{map[string]any{"id": "luckytv", "apiKey": apiKey, "enabled": true}}},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -135,7 +135,7 @@ func TestWorkspaceModelConfigCapabilityNormalizesDrafts(t *testing.T) {
 				"type":          "video",
 				"interfaceType": "newapi-channel-2",
 				"model":         "bytedance/dreamina-seedance-2-5-flash",
-				"baseUrl":       "https://beeftv.app/v1",
+				"baseUrl":       "https://luckytv.app/v1",
 				"capabilityConfig": map[string]any{
 					"version": 1,
 					"video": map[string]any{

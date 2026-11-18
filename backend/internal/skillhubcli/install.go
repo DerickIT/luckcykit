@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"infinite-canvas/backend/internal/skillhub"
+	"luckytv/backend/internal/skillhub"
 )
 
 func pageOptions(a arguments) (int, int, error) {
@@ -89,18 +89,18 @@ func writeRelease(destination string, files map[string][]byte, r *skillhub.Relea
 	}
 	// Coordinate concurrent invocations before checking the destination. Never
 	// overwrite an installed or privately edited skill; updates are explicit.
-	lock, err := os.OpenFile(dest+".beeftv-lock", os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
+	lock, err := os.OpenFile(dest+".luckytv-lock", os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
 	if err != nil {
 		return "", &Error{Code: 4, Reason: "install_conflict", Message: "另一个安装正在进行，或遗留安装锁需要检查"}
 	}
 	lock.Close()
-	defer os.Remove(dest + ".beeftv-lock")
+	defer os.Remove(dest + ".luckytv-lock")
 	if _, err = os.Lstat(dest); err == nil {
 		return "", &Error{Code: 4, Reason: "destination_exists", Message: "目标已存在，原文件已保留；请选择新的目标目录"}
 	} else if !os.IsNotExist(err) {
 		return "", err
 	}
-	stage, err := os.MkdirTemp(parent, ".beeftv-skill-")
+	stage, err := os.MkdirTemp(parent, ".luckytv-skill-")
 	if err != nil {
 		return "", err
 	}
@@ -121,7 +121,7 @@ func writeRelease(destination string, files map[string][]byte, r *skillhub.Relea
 	if err != nil {
 		return "", err
 	}
-	if err = os.WriteFile(filepath.Join(stage, ".beeftv-install.json"), record, 0600); err != nil {
+	if err = os.WriteFile(filepath.Join(stage, ".luckytv-install.json"), record, 0600); err != nil {
 		return "", err
 	}
 	if err = os.Rename(stage, dest); err != nil {

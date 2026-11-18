@@ -2,7 +2,7 @@ package database
 
 import (
 	"gorm.io/gorm"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func migrateAssistantSkillContexts(tx *gorm.DB) error {

@@ -2,7 +2,7 @@ package outbound
 
 import (
 	"context"
-	"infinite-canvas/backend/internal/desktopnet"
+	"luckytv/backend/internal/desktopnet"
 	"net"
 	"net/http"
 	"net/url"

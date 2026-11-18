@@ -11,8 +11,8 @@ import (
 	"net/url"
 	"strings"
 
-	"infinite-canvas/backend/internal/outbound"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/outbound"
+	"luckytv/backend/internal/protocol"
 )
 
 type fullvideoUpload struct {
@@ -35,14 +35,14 @@ func fullvideoMediaLimit(kind string) int64 {
 	return 100_000_000
 }
 
-func ownedFullVideoMediaReader(ctx context.Context, userID string) BeefTVSeedanceMediaReader {
+func ownedFullVideoMediaReader(ctx context.Context, userID string) LuckyTVSeedanceMediaReader {
 	return func(kind string, media Media) ([]byte, string, bool, error) {
 		limit := fullvideoMediaLimit(kind)
 		if media.Bytes > limit {
 			return nil, "", false, errors.New("参考素材超过服务商大小限制")
 		}
 		if !strings.HasPrefix(media.StorageKey, "resource:") {
-			return ReadBeefTVSeedanceInlineMedia(kind, media)
+			return ReadLuckyTVSeedanceInlineMedia(kind, media)
 		}
 		runtime, ok := RuntimeFromContext(ctx)
 		if !ok || runtime.Resources == nil {
@@ -63,7 +63,7 @@ func ownedFullVideoMediaReader(ctx context.Context, userID string) BeefTVSeedanc
 
 // Uploads stay on the selected service and use the same key as generation.
 // Any incomplete receipt stops before creating a billable task.
-func prepareFullVideoReferences(ctx context.Context, input *Input, read BeefTVSeedanceMediaReader) error {
+func prepareFullVideoReferences(ctx context.Context, input *Input, read LuckyTVSeedanceMediaReader) error {
 	if input == nil || input.Mode != "video" || input.Config.InterfaceType != "full-video" {
 		return nil
 	}
@@ -81,7 +81,7 @@ func prepareFullVideoReferences(ctx context.Context, input *Input, read BeefTVSe
 	prepared.ReferenceImages = append([]Media(nil), input.ReferenceImages...)
 	prepared.ReferenceVideos = append([]Media(nil), input.ReferenceVideos...)
 	prepared.ReferenceAudios = append([]Media(nil), input.ReferenceAudios...)
-	for _, group := range BeefTVSeedanceMediaGroups(&prepared) {
+	for _, group := range LuckyTVSeedanceMediaGroups(&prepared) {
 		for i := range group.items {
 			media := &group.items[i]
 			if raw := strings.TrimSpace(media.URL); strings.HasPrefix(raw, "https://") && media.StorageKey == "" {

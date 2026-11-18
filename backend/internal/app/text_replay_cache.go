@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"infinite-canvas/backend/internal/platform"
+	"luckytv/backend/internal/platform"
 )
 
 func (s *Service) initReadCaches() {

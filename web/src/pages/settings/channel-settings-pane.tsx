@@ -10,13 +10,13 @@ import { applyFetchedChannelModelCatalog } from "@/lib/channel-model-catalog";
 import { cleanChannelBaseUrl, isRawChannelBaseUrl, normalizeChannelBaseUrl } from "@/lib/channel-url";
 import { ensureModelProfilesWithUiDefaults } from "@/lib/model-protocols";
 import { fetchChannelModels } from "@/services/api/image";
-import { channelHasGenerationCredential, channelHasManagedBeefTVCredential, createModelChannel, defaultBaseUrlForApiFormat, isBuiltinBeefTVChannel, normalizeConfigSnapshot, useConfigStore, type ModelChannel } from "@/stores/use-config-store";
+import { channelHasGenerationCredential, channelHasManagedLuckyTVCredential, createModelChannel, defaultBaseUrlForApiFormat, isBuiltinLuckyTVChannel, normalizeConfigSnapshot, useConfigStore, type ModelChannel } from "@/stores/use-config-store";
 import { ChannelModelSettings } from "./channel-model-settings";
 import { ModelServiceEditor } from "./model-service-editor";
 import { ChannelRequestAddressLines } from "./channel-request-addresses";
 import { currentModelConnectionReceipt, useModelConnectionTests } from "@/stores/use-model-connection-tests";
 import { ModelLogo } from "@/components/model-logo";
-import beefTVAppIcon from "../../../../assets/app-icon.png";
+import luckyTVAppIcon from "../../../../assets/app-icon.png";
 import { MODEL_SERVICE_PRESETS, isTopazUpscaleChannel, channelAllowsEmptyAPIKey, mergeSavedServiceChannel, pluginServices, servicePresetFor } from "@/lib/model-service-presets";
 import { workspaceCapabilities } from "@/services/workspace-mode";
 import { localWorkspaceConfig } from "@/lib/user-session";
@@ -25,12 +25,12 @@ import { commitModelConfig, flushModelConfig, getModelConfigPersistenceState, su
 import { createChannelCatalogRequests } from "@/services/channel-catalog-requests";
 import { getTransportFailureKind } from "@/services/api/request";
 import { fetchPluginProviderCatalog } from "@/services/api/plugin-catalog";
-import { beefTVConnectionLabel, type BeefTVConnectionSummary } from "@/services/api/beeftv-connection";
-import { useBeefTVConnection } from "@/components/layout/beeftv-connection-provider";
-import { BeefTVConnectionActions } from "@/components/beeftv-connection-actions";
-export { BeefTVConnectionActions } from "@/components/beeftv-connection-actions";
-import { mergeManagedBeefTVCatalog, withChannels } from "@/lib/managed-beeftv-catalog";
-export { mergeManagedBeefTVCatalog, shouldRefreshBeefTVCatalog, withChannels } from "@/lib/managed-beeftv-catalog";
+import { luckyTVConnectionLabel, type LuckyTVConnectionSummary } from "@/services/api/luckytv-connection";
+import { useLuckyTVConnection } from "@/components/layout/luckytv-connection-provider";
+import { LuckyTVConnectionActions } from "@/components/luckytv-connection-actions";
+export { LuckyTVConnectionActions } from "@/components/luckytv-connection-actions";
+import { mergeManagedLuckyTVCatalog, withChannels } from "@/lib/managed-luckytv-catalog";
+export { mergeManagedLuckyTVCatalog, shouldRefreshLuckyTVCatalog, withChannels } from "@/lib/managed-luckytv-catalog";
 import { recordChannelDelete, recordChannelDeleteConfirmOpen } from "./model-settings-diagnostics";
 
 type UserChannelConnection = "openai" | "gemini";
@@ -50,7 +50,7 @@ export function ChannelSettingsPane({ onOpenDiagnostics, onOpenModels }: Channel
     const [newChannelId, setNewChannelId] = useState<string | null>(null);
     const [serviceEditor, setServiceEditor] = useState<ModelChannel | null | undefined>(undefined);
     const [pluginServiceIds, setPluginServiceIds] = useState<ReadonlySet<string>>(() => new Set());
-    const { connection: beefConnection, busy: beefBusy, catalogSyncFailed, connect, cancel, disconnect, retryCatalog, openAccount } = useBeefTVConnection();
+    const { connection: luckyConnection, busy: luckyBusy, catalogSyncFailed, connect, cancel, disconnect, retryCatalog, openAccount } = useLuckyTVConnection();
     const requests = useRef(createChannelCatalogRequests());
     const deleting = useRef(new Set<string>());
     const [deleteFailures, setDeleteFailures] = useState<Record<string, string>>({});
@@ -128,7 +128,7 @@ export function ChannelSettingsPane({ onOpenDiagnostics, onOpenModels }: Channel
         if (deleting.current.has(id)) return;
         const latest = useConfigStore.getState().config;
         const channel = latest.channels.find((item) => item.id === id);
-        if (channel && (channel.scope === "system" || isBuiltinBeefTVChannel(channel))) {
+        if (channel && (channel.scope === "system" || isBuiltinLuckyTVChannel(channel))) {
             message.warning("系统渠道由管理员维护");
             return;
         }
@@ -158,7 +158,7 @@ export function ChannelSettingsPane({ onOpenDiagnostics, onOpenModels }: Channel
 
     const refreshChannelModels = async (channel: ModelChannel) => {
         if (isTopazUpscaleChannel(channel)) return;
-        const connectionError = channelConnectionError(channel, isBuiltinBeefTVChannel(channel) ? beefConnection : null);
+        const connectionError = channelConnectionError(channel, isBuiltinLuckyTVChannel(channel) ? luckyConnection : null);
         if (connectionError) {
             message.error(`${channel.name || "当前渠道"}：${connectionError}`);
             return;
@@ -179,12 +179,12 @@ export function ChannelSettingsPane({ onOpenDiagnostics, onOpenModels }: Channel
                 message.warning(`${latestChannel.name || "当前渠道"}的连接配置已改变，已忽略旧的拉取结果`);
                 return;
             }
-            if (localMode && isBuiltinBeefTVChannel(latestChannel)) {
+            if (localMode && isBuiltinLuckyTVChannel(latestChannel)) {
                 const server = await getLocalModelConfig();
                 if (!requests.current.current(channel.id, request)) return;
                 const current = useConfigStore.getState().config;
                 replaceConfig(localWorkspaceConfig(normalizeConfigSnapshot({
-                    config: mergeManagedBeefTVCatalog(current, server.config),
+                    config: mergeManagedLuckyTVCatalog(current, server.config),
                 }).config));
             } else {
                 updateChannels(
@@ -204,10 +204,10 @@ export function ChannelSettingsPane({ onOpenDiagnostics, onOpenModels }: Channel
 
     const refreshAllModels = async () => {
         const catalogChannels = userChannels.filter(channel => !isTopazUpscaleChannel(channel));
-        const runnable = catalogChannels.filter((channel) => !channelConnectionError(channel, isBuiltinBeefTVChannel(channel) ? beefConnection : null));
-        const skipped = catalogChannels.filter((channel) => channelConnectionError(channel, isBuiltinBeefTVChannel(channel) ? beefConnection : null));
+        const runnable = catalogChannels.filter((channel) => !channelConnectionError(channel, isBuiltinLuckyTVChannel(channel) ? luckyConnection : null));
+        const skipped = catalogChannels.filter((channel) => channelConnectionError(channel, isBuiltinLuckyTVChannel(channel) ? luckyConnection : null));
         if (!runnable.length) {
-            const detail = skipped.map((channel) => `${channel.name || "未命名渠道"}：${channelConnectionError(channel, isBuiltinBeefTVChannel(channel) ? beefConnection : null)}`).join("；");
+            const detail = skipped.map((channel) => `${channel.name || "未命名渠道"}：${channelConnectionError(channel, isBuiltinLuckyTVChannel(channel) ? luckyConnection : null)}`).join("；");
             message.error(detail || "没有可拉取的个人模型渠道，请先填写有效 Base URL 和 API Key");
             return;
         }
@@ -240,17 +240,17 @@ export function ChannelSettingsPane({ onOpenDiagnostics, onOpenModels }: Channel
             const failed = results.filter((item) => !item.cancelled && !item.result.models.length);
             if (successful.length) {
                 const resultMap = new Map(successful.map((item) => [item.channel.id, item.result] as const));
-                const refreshedManagedBeefTV = localMode && successful.some((item) => isBuiltinBeefTVChannel(item.channel));
-                const server = refreshedManagedBeefTV ? await getLocalModelConfig() : null;
+                const refreshedManagedLuckyTV = localMode && successful.some((item) => isBuiltinLuckyTVChannel(item.channel));
+                const server = refreshedManagedLuckyTV ? await getLocalModelConfig() : null;
                 const current = useConfigStore.getState().config;
                 const nextChannels = current.channels.map((channel) => {
-                    if (refreshedManagedBeefTV && isBuiltinBeefTVChannel(channel)) return channel;
+                    if (refreshedManagedLuckyTV && isBuiltinLuckyTVChannel(channel)) return channel;
                     const fetched = resultMap.get(channel.id);
                     return fetched ? applyFetchedChannelModelCatalog(channel, fetched) : channel;
                 });
                 const updated = withChannels(current, nextChannels);
                 replaceConfig(server ? localWorkspaceConfig(normalizeConfigSnapshot({
-                    config: mergeManagedBeefTVCatalog(updated, server.config),
+                    config: mergeManagedLuckyTVCatalog(updated, server.config),
                 }).config) : updated);
                 await flushModelConfig();
                 message.success(`已更新 ${successful.length} 个渠道的模型`);
@@ -258,7 +258,7 @@ export function ChannelSettingsPane({ onOpenDiagnostics, onOpenModels }: Channel
             const warnings = [
                 ...failed.map((item) => `${item.channel.name || "未命名渠道"}：${item.error || "未返回模型"}`),
                 ...stale.map((item) => `${item.channel.name || "未命名渠道"}：连接配置已改变，已忽略旧结果`),
-                ...skipped.map((channel) => `${channel.name || "未命名渠道"}：${channelConnectionError(channel, isBuiltinBeefTVChannel(channel) ? beefConnection : null)}`),
+                ...skipped.map((channel) => `${channel.name || "未命名渠道"}：${channelConnectionError(channel, isBuiltinLuckyTVChannel(channel) ? luckyConnection : null)}`),
             ];
             if (warnings.length) message.warning(`${warnings.join("；")}。未更新的渠道已保留原有模型列表`);
         } catch (error) {
@@ -290,37 +290,37 @@ export function ChannelSettingsPane({ onOpenDiagnostics, onOpenModels }: Channel
                 <div className="settings-channel-list space-y-2">
                     {userChannels.map((channel) => {
                         const editing = editingChannelId === channel.id;
-                        const builtinBeefTV = isBuiltinBeefTVChannel(channel);
+                        const builtinLuckyTV = isBuiltinLuckyTVChannel(channel);
                         const topazUpscale = isTopazUpscaleChannel(channel);
                         const pluginChannel = Boolean(channel.interfaceType && pluginServiceIds.has(channel.interfaceType));
                         return (
-                            <section key={channel.id} data-onboarding={builtinBeefTV ? "official-channel" : undefined} aria-labelledby={`channel-${channel.id}-title`} className="settings-channel p-2.5 sm:p-3">
+                            <section key={channel.id} data-onboarding={builtinLuckyTV ? "official-channel" : undefined} aria-labelledby={`channel-${channel.id}-title`} className="settings-channel p-2.5 sm:p-3">
                                 <div className="mb-2.5 flex flex-wrap items-start justify-between gap-2.5">
                                     <div className="min-w-0 flex-1 basis-52">
                                         <h3 id={`channel-${channel.id}-title`} className="flex items-center gap-2 text-sm font-semibold">
-                                            {builtinBeefTV ? <img src={beefTVAppIcon} alt="" className="size-5 shrink-0 object-contain" draggable={false} /> : <ModelLogo icon={MODEL_SERVICE_PRESETS.find((preset) => preset.id === servicePresetFor(channel))?.icon} size={20} />}
-                                            {builtinBeefTV ? "BeefTV" : channel.name || "未命名渠道"}
+                                            {builtinLuckyTV ? <img src={luckyTVAppIcon} alt="" className="size-5 shrink-0 object-contain" draggable={false} /> : <ModelLogo icon={MODEL_SERVICE_PRESETS.find((preset) => preset.id === servicePresetFor(channel))?.icon} size={20} />}
+                                            {builtinLuckyTV ? "LuckyTV" : channel.name || "未命名渠道"}
                                         </h3>
                                         <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-foreground/55">
-                                            {builtinBeefTV ? (
+                                            {builtinLuckyTV ? (
                                                 <>
                                                     <span>已保存 {channel.models.length} 个模型</span>
-                                                    <span>BeefTV 官方算力渠道，一键连接、开箱即用</span>
+                                                    <span>LuckyTV 官方算力渠道，一键连接、开箱即用</span>
                                                 </>
                                             ) : (
                                                 <span>{pluginChannel ? "插件提供" : channelProtocolLabel(channel)} · 已保存 {channel.models.length} 个模型</span>
                                             )}
-                                            <ChannelStatus channel={channel} persistence={persistence} connection={builtinBeefTV ? beefConnection : null} />
+                                            <ChannelStatus channel={channel} persistence={persistence} connection={builtinLuckyTV ? luckyConnection : null} />
                                         </div>
                                         {topazUpscale ? <p className="mt-1 text-xs text-foreground/55">从图片或视频节点上方的「AI超分」使用</p> : null}
-                                        {!builtinBeefTV && !topazUpscale && !pluginChannel && <ChannelRequestAddressLines channel={channel} />}
+                                        {!builtinLuckyTV && !topazUpscale && !pluginChannel && <ChannelRequestAddressLines channel={channel} />}
                                     </div>
                                     <div className="flex w-full flex-wrap justify-end gap-2 sm:w-auto sm:shrink-0">
-                                        {builtinBeefTV && catalogSyncFailed ? <Button loading={beefBusy} onClick={() => void retryCatalog()}>重试更新模型列表</Button> : null}
-                                        {builtinBeefTV ? (
-                                            <BeefTVConnectionActions
-                                                connection={beefConnection}
-                                                busy={beefBusy}
+                                        {builtinLuckyTV && catalogSyncFailed ? <Button loading={luckyBusy} onClick={() => void retryCatalog()}>重试更新模型列表</Button> : null}
+                                        {builtinLuckyTV ? (
+                                            <LuckyTVConnectionActions
+                                                connection={luckyConnection}
+                                                busy={luckyBusy}
                                                 onConnect={() => void connect()}
                                                 onCancel={() => void cancel()}
                                                 onRetry={() => void connect()}
@@ -334,7 +334,7 @@ export function ChannelSettingsPane({ onOpenDiagnostics, onOpenModels }: Channel
                                             size="small"
                                             icon={<RefreshCw className="size-3.5" />}
                                             loading={loadingChannelIds.includes(channel.id)}
-                                            disabled={loadingChannelIds.includes("all") || (builtinBeefTV && beefConnection?.state !== "connected")}
+                                            disabled={loadingChannelIds.includes("all") || (builtinLuckyTV && luckyConnection?.state !== "connected")}
                                             onClick={() => void refreshChannelModels(channel)}
                                         >
                                             拉取模型
@@ -345,14 +345,14 @@ export function ChannelSettingsPane({ onOpenDiagnostics, onOpenModels }: Channel
                                             icon={<Pencil className="size-3.5" />}
                                             onClick={() => {
                                                 cancelCatalog(channel.id);
-                                                if (!builtinBeefTV) { setServiceEditor(channel); return; }
+                                                if (!builtinLuckyTV) { setServiceEditor(channel); return; }
                                                 setNewChannelId(null);
                                                 setEditingChannelId(channel.id);
                                             }}
                                         >
                                             编辑
                                         </Button>
-                                        {!builtinBeefTV ? (
+                                        {!builtinLuckyTV ? (
                                             <Popconfirm classNames={{ root: "model-channel-delete-confirm" }} title="删除个人模型渠道？" description="该渠道关联的模型选择会同时移除。" okText="删除" cancelText="取消" okButtonProps={{ danger: true }} onOpenChange={recordChannelDeleteConfirmOpen} onConfirm={() => deleteChannel(channel.id)}>
                                                     <Button
                                                         title="删除渠道"
@@ -396,16 +396,16 @@ export function ChannelSettingsPane({ onOpenDiagnostics, onOpenModels }: Channel
                                                         <Input
                                                             id={`channel-${channel.id}-name`}
                                                             value={channel.name}
-                                                            disabled={builtinBeefTV}
+                                                            disabled={builtinLuckyTV}
                                                             placeholder="例如：我的 NewAPI"
                                                             onChange={(event) => updateChannel(channel.id, { name: event.target.value })}
                                                             onBlur={(event) => updateChannel(channel.id, { name: event.target.value.trim() || "未命名渠道" })}
                                                         />
                                                     </Form.Item>
-                                                    <Form.Item label="目录连接类型" className="mb-0 sm:col-span-1" extra={builtinBeefTV ? "应用内置适配" : "仅影响模型目录拉取。"}>
+                                                    <Form.Item label="目录连接类型" className="mb-0 sm:col-span-1" extra={builtinLuckyTV ? "应用内置适配" : "仅影响模型目录拉取。"}>
                                                         <Segmented<UserChannelConnection>
                                                             block
-                                                            disabled={builtinBeefTV}
+                                                            disabled={builtinLuckyTV}
                                                             value={channelConnectionMode(channel)}
                                                             options={[
                                                                 { label: "OpenAI", value: "openai" },
@@ -419,16 +419,16 @@ export function ChannelSettingsPane({ onOpenDiagnostics, onOpenModels }: Channel
                                                             id={`channel-${channel.id}-base-url`}
                                                             inputMode="url"
                                                             value={channel.baseUrl}
-                                                            disabled={builtinBeefTV}
+                                                            disabled={builtinLuckyTV}
                                                             placeholder={localMode ? "填写本地服务 Base URL" : "填写云端渠道 Base URL"}
                                                             onChange={(event) => updateChannel(channel.id, { baseUrl: event.target.value })}
                                                             onBlur={(event) => updateChannel(channel.id, { baseUrl: normalizeChannelBaseUrl(event.target.value) })}
                                                         />
                                                     </Form.Item>
-                                                    {builtinBeefTV ? (
+                                                    {builtinLuckyTV ? (
                                                         <Form.Item label="账号连接" className="mb-0 sm:col-span-2">
-                                                            <p className="m-0 text-sm leading-6 text-foreground/80">{beefTVConnectionLabel(beefConnection)}</p>
-                                                            {beefConnection?.balance === "zero" ? <p className="mt-1 text-xs leading-5 text-foreground/55">余额为 0 时仍可查看模型。生成时会提示余额不足。</p> : null}
+                                                            <p className="m-0 text-sm leading-6 text-foreground/80">{luckyTVConnectionLabel(luckyConnection)}</p>
+                                                            {luckyConnection?.balance === "zero" ? <p className="mt-1 text-xs leading-5 text-foreground/55">余额为 0 时仍可查看模型。生成时会提示余额不足。</p> : null}
                                                         </Form.Item>
                                                     ) : (
                                                         <>
@@ -503,7 +503,7 @@ export function ChannelSettingsPane({ onOpenDiagnostics, onOpenModels }: Channel
     );
 }
 
-export function channelValidationError(channel: ModelChannel, connection?: BeefTVConnectionSummary | null) {
+export function channelValidationError(channel: ModelChannel, connection?: LuckyTVConnectionSummary | null) {
     return channelConnectionError(channel, connection) || validateChannelHeaders(channel.headers) || (!channel.models.length ? "请添加至少一个模型" : "");
 }
 
@@ -521,7 +521,7 @@ export function focusInvalidChannelField(channel: ModelChannel) {
     });
 }
 
-function ChannelStatus({ channel, persistence, connection }: { channel: ModelChannel; persistence: ModelConfigPersistenceState; connection?: BeefTVConnectionSummary | null }) {
+function ChannelStatus({ channel, persistence, connection }: { channel: ModelChannel; persistence: ModelConfigPersistenceState; connection?: LuckyTVConnectionSummary | null }) {
     const receipts = useModelConnectionTests((state) => state.receipts);
     const tested = channel.models.map((model) => currentModelConnectionReceipt(receipts, channel, model));
     const passed = tested.filter((result) => result?.success).length;
@@ -532,17 +532,17 @@ function ChannelStatus({ channel, persistence, connection }: { channel: ModelCha
     return (
         <span className={`settings-channel-status ${error || failed ? "is-warning" : "is-ready"}`}>
             <i aria-hidden="true" />
-            {isBuiltinBeefTVChannel(channel) ? label : error || (persistence.status === "saving" || persistence.status === "error" ? label : testLabel)}
+            {isBuiltinLuckyTVChannel(channel) ? label : error || (persistence.status === "saving" || persistence.status === "error" ? label : testLabel)}
         </span>
     );
 }
 
 
-export function modelConfigChannelStatusLabel(channel: ModelChannel, persistence: ModelConfigPersistenceState, connection?: BeefTVConnectionSummary | null) {
-    if (isBuiltinBeefTVChannel(channel)) {
-        if (connection?.state === "connected") return beefTVConnectionLabel(connection);
-        if (connection?.state && connection.state !== "disconnected") return beefTVConnectionLabel(connection);
-        if (channelHasManagedBeefTVCredential(channel)) return "待确认连接";
+export function modelConfigChannelStatusLabel(channel: ModelChannel, persistence: ModelConfigPersistenceState, connection?: LuckyTVConnectionSummary | null) {
+    if (isBuiltinLuckyTVChannel(channel)) {
+        if (connection?.state === "connected") return luckyTVConnectionLabel(connection);
+        if (connection?.state && connection.state !== "disconnected") return luckyTVConnectionLabel(connection);
+        if (channelHasManagedLuckyTVCredential(channel)) return "待确认连接";
         return "未连接";
     }
     if (!channelHasGenerationCredential(channel) && !channelAllowsEmptyAPIKey(channel)) return "待配置";
@@ -554,7 +554,7 @@ export function modelConfigChannelStatusLabel(channel: ModelChannel, persistence
 
 
 export function modelConfigChannelPresentation(channel: ModelChannel) {
-    const builtin = isBuiltinBeefTVChannel(channel);
+    const builtin = isBuiltinLuckyTVChannel(channel);
     return {
         builtin,
         deletable: !builtin,
@@ -578,7 +578,7 @@ function channelConnectionMode(channel: ModelChannel): UserChannelConnection {
     return channel.apiFormat === "gemini" ? "gemini" : "openai";
 }
 
-function channelConnectionError(channel: ModelChannel, connection?: BeefTVConnectionSummary | null) {
+function channelConnectionError(channel: ModelChannel, connection?: LuckyTVConnectionSummary | null) {
     const baseUrl = channel.baseUrl.trim();
     if (!baseUrl) return "请填写 Base URL";
     try {
@@ -588,9 +588,9 @@ function channelConnectionError(channel: ModelChannel, connection?: BeefTVConnec
     } catch {
         return "Base URL 格式不正确";
     }
-    if (isBuiltinBeefTVChannel(channel)) {
-        if (connection?.state === "connected" || channelHasManagedBeefTVCredential(channel)) return "";
-        return "请先连接 BeefTV";
+    if (isBuiltinLuckyTVChannel(channel)) {
+        if (connection?.state === "connected" || channelHasManagedLuckyTVCredential(channel)) return "";
+        return "请先连接 LuckyTV";
     }
     if (!channelHasGenerationCredential(channel) && !channelAllowsEmptyAPIKey(channel)) return "请填写 API Key / Access Key";
     if (requiresSecretKey(channel) && !channel.secretKey?.trim()) return "当前协议需要填写 Secret Key";

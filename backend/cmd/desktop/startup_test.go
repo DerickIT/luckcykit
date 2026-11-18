@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/wailsapp/wails/v2/pkg/options"
-	"infinite-canvas/backend/internal/bootstrap"
-	"infinite-canvas/backend/internal/runtimeinfo"
+	"github.com/wailsapp/wails/v3/pkg/application"
+	"luckytv/backend/internal/bootstrap"
+	"luckytv/backend/internal/runtimeinfo"
 )
 
 func TestSecondLaunchReachesWailsWhilePrimaryOwnsWorkspace(t *testing.T) {
@@ -23,24 +23,17 @@ func TestSecondLaunchReachesWailsWhilePrimaryOwnsWorkspace(t *testing.T) {
 	t.Cleanup(func() { primary.stop(context.Background()) })
 	primaryOptions := desktopAppOptions(primary)
 	secondary := newDesktopApp(primary.dataDir)
-	link := "beeftv://skills/install?id=official-interview-outline&version=official-interview-outline-1.0.0"
-	enteredWails := false
-	err := runDesktopApp(secondary, func(opts *options.App) error {
-		enteredWails = true
-		if secondary.runtime() != nil {
-			t.Fatal("secondary opened the workspace before single-instance dispatch")
-		}
-		if opts.SingleInstanceLock.UniqueId != primaryOptions.SingleInstanceLock.UniqueId {
-			t.Fatal("same workspace did not select the primary instance")
-		}
-		// Wails forwards these arguments and exits the second process without
-		// calling its OnStartup. Exercise our actual receiver with the real lock held.
-		primaryOptions.SingleInstanceLock.OnSecondInstanceLaunch(options.SecondInstanceData{Args: []string{"--data-dir=" + primary.dataDir, link}})
-		return nil
-	})
-	if err != nil || !enteredWails {
-		t.Fatalf("second launch could not reach Wails: %v", err)
+	link := "luckytv://skills/install?id=official-interview-outline&version=official-interview-outline-1.0.0"
+	secondaryOptions := desktopAppOptions(secondary)
+	if secondaryOptions.SingleInstance.UniqueID != primaryOptions.SingleInstance.UniqueID {
+		t.Fatal("same workspace did not select the primary instance")
 	}
+	if secondary.runtime() != nil {
+		t.Fatal("secondary opened the workspace before single-instance dispatch")
+	}
+	// Wails forwards these arguments and exits the second process without
+	// calling its ServiceStartup. Exercise our actual receiver with the real lock held.
+	primaryOptions.SingleInstance.OnSecondInstanceLaunch(application.SecondInstanceData{Args: []string{"--data-dir=" + primary.dataDir, link}})
 	if got := primary.ConsumeSkillLink(); got != "/skills?releaseId=official-interview-outline-1.0.0&skillId=official-interview-outline" {
 		t.Fatalf("primary did not receive exact-version preview: %q", got)
 	}
@@ -66,18 +59,14 @@ func TestSeparateWorkspaceRunsItsOwnStartup(t *testing.T) {
 	t.Cleanup(func() { primary.stop(context.Background()) })
 	other := newDesktopApp(t.TempDir())
 	t.Cleanup(func() { other.shutdown(context.Background()) })
-	if err := runDesktopApp(other, func(opts *options.App) error {
-		if opts.SingleInstanceLock.UniqueId == desktopAppOptions(primary).SingleInstanceLock.UniqueId {
-			t.Fatal("different data directories share the Wails instance lock")
-		}
-		if other.runtime() != nil {
-			t.Fatal("backend opened before the Wails primary-instance decision")
-		}
-		opts.OnStartup(context.Background())
-		return nil
-	}); err != nil {
-		t.Fatal(err)
+	otherOptions := desktopAppOptions(other)
+	if otherOptions.SingleInstance.UniqueID == desktopAppOptions(primary).SingleInstance.UniqueID {
+		t.Fatal("different data directories share the Wails instance lock")
 	}
+	if other.runtime() != nil {
+		t.Fatal("backend opened before the Wails primary-instance decision")
+	}
+	other.ServiceStartup(context.Background(), application.ServiceOptions{})
 	if got := other.StartupState(); got.BaseURL == "" || got.BaseURL == primary.StartupState().BaseURL {
 		t.Fatal("isolated startup did not receive its own backend")
 	}
@@ -116,7 +105,7 @@ func TestPrimaryStartupFailureStillRecordsWorkspaceLockError(t *testing.T) {
 		}
 	}
 
-	data, readErr := os.ReadFile(filepath.Join(app.tempDir, "beeftv-diagnostics", "startup-error.log"))
+	data, readErr := os.ReadFile(filepath.Join(app.tempDir, "luckytv-diagnostics", "startup-error.log"))
 	if readErr != nil || strings.TrimSpace(string(data)) != startupErr.Error() {
 		t.Fatalf("startup failure not recorded in temp diagnostics log: %q, %v", data, readErr)
 	}

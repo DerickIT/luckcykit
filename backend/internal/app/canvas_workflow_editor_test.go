@@ -2,9 +2,9 @@ package app
 
 import (
 	"encoding/json"
-	cw "infinite-canvas/backend/internal/canvasworkflow"
-	"infinite-canvas/backend/internal/mediatools"
-	"infinite-canvas/backend/internal/model"
+	cw "luckytv/backend/internal/canvasworkflow"
+	"luckytv/backend/internal/mediatools"
+	"luckytv/backend/internal/model"
 	"strings"
 	"testing"
 )

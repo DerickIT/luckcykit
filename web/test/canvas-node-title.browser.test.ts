@@ -23,7 +23,7 @@ beforeAll(async () => {
     browser = await chromium.launch({ headless: true, executablePath });
     page = await browser.newPage();
     page.on("pageerror", (error) => console.error(error.message));
-    await page.route("https://beeftv-title.test/**", (route) => route.fulfill(new URL(route.request().url()).pathname === "/app.js"
+    await page.route("https://luckytv-title.test/**", (route) => route.fulfill(new URL(route.request().url()).pathname === "/app.js"
         ? { contentType: "text/javascript", body: script }
         : { contentType: "text/html", body: '<div id="root"></div><script type="module">import { mountNodeTitleHarness } from "/app.js"; mountNodeTitleHarness(document.getElementById("root"));</script>' }));
 }, 30_000);
@@ -31,7 +31,7 @@ beforeAll(async () => {
 afterAll(async () => { await browser?.close(); });
 
 async function mount() {
-    await page.goto("https://beeftv-title.test/", { waitUntil: "domcontentloaded" });
+    await page.goto("https://luckytv-title.test/", { waitUntil: "domcontentloaded" });
     await page.getByRole("button", { name: "编辑节点名称：原名称", exact: true }).click({ timeout: 2000 });
 }
 

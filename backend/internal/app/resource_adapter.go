@@ -1,6 +1,6 @@
 package app
 
-import "infinite-canvas/backend/internal/model"
+import "luckytv/backend/internal/model"
 
 type resourceLifecycle struct{ svc *Service }
 

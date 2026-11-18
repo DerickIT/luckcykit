@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	"infinite-canvas/backend/internal/canvas"
+	"luckytv/backend/internal/canvas"
 )
 
 // storyboardRowFieldSchemas 是分镜行可写字段的白名单（与 canvas.StoryboardRowDraft 一一对应）。

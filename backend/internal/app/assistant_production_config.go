@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"strings"
 
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/operations"
-	"infinite-canvas/backend/internal/providerpreset"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/operations"
+	"luckytv/backend/internal/providerpreset"
 )
 
 func (s *Service) assistantGenerationConfig(target operations.GenerationTarget) (map[string]any, error) {
@@ -39,7 +39,7 @@ func (s *Service) assistantGenerationConfig(target operations.GenerationTarget) 
 			if channel.CredentialRef != "" {
 				config["credentialRef"] = channel.CredentialRef
 			}
-			if channel.ID == beeftv.ChannelID {
+			if channel.ID == luckytv.ChannelID {
 				config["channelId"] = channel.ID
 			}
 			break
@@ -58,7 +58,7 @@ func (s *Service) assistantGenerationConfig(target operations.GenerationTarget) 
 				config["capabilityConfig"] = profile.CapabilityConfig
 			}
 			if target.Kind == "video" {
-				if _, protocol, ok := providerpreset.HostedBeefTVVideoProfile(profile.BaseURL, modelID); ok {
+				if _, protocol, ok := providerpreset.HostedLuckyTVVideoProfile(profile.BaseURL, modelID); ok {
 					config["interfaceType"] = protocol
 				}
 			}

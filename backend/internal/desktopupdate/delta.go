@@ -48,7 +48,7 @@ type DeltaEntry struct {
 }
 
 func DeltaArtifactFileName(version, platform, fromVersion string) string {
-	return fmt.Sprintf("BeefTV-%s-%s-from-%s.delta.zip", version, platform, fromVersion)
+	return fmt.Sprintf("LuckyTV-%s-%s-from-%s.delta.zip", version, platform, fromVersion)
 }
 
 func targetInstallContainer(targetPath, platform string) (string, string, error) {
@@ -231,7 +231,7 @@ func BuildDeltaZip(platform, fromVersion, toVersion, fromZipPath, toZipPath, out
 	if err := os.MkdirAll(filepath.Dir(outputZipPath), 0o755); err != nil {
 		return err
 	}
-	tmp, err := os.CreateTemp(filepath.Dir(outputZipPath), ".beeftv-delta-*.zip")
+	tmp, err := os.CreateTemp(filepath.Dir(outputZipPath), ".luckytv-delta-*.zip")
 	if err != nil {
 		return err
 	}
@@ -372,7 +372,7 @@ func BuildDeltaZip(platform, fromVersion, toVersion, fromZipPath, toZipPath, out
 	}
 
 	// Self-verify by reconstructing toZip from fromZip + tmpName in an isolated temp directory.
-	verifyRoot, err := os.MkdirTemp("", "beeftv-delta-verify-*")
+	verifyRoot, err := os.MkdirTemp("", "luckytv-delta-verify-*")
 	if err != nil {
 		return err
 	}

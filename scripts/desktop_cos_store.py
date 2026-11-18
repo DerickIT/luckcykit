@@ -125,10 +125,10 @@ def fingerprint(path):
 
 
 class COSStore:
-    probe_prefix = "beeftv/.publication-probes/"
-    lock_prefix = "beeftv/.publication-locks/"
-    claim_prefix = "beeftv/.publication-claims/"
-    latest_key = "beeftv/desktop-update.json"
+    probe_prefix = "luckytv/.publication-probes/"
+    lock_prefix = "luckytv/.publication-locks/"
+    claim_prefix = "luckytv/.publication-claims/"
+    latest_key = "luckytv/desktop-update.json"
 
     def __init__(self, bucket, region, transport=None):
         self.http = transport or COSHTTP(bucket, region)
@@ -177,7 +177,7 @@ class COSStore:
                            "createdAt": datetime.datetime.now(datetime.timezone.utc).isoformat()}, sort_keys=True).encode()
 
     def _lock_content(self, key):
-        with tempfile.TemporaryDirectory(prefix="beeftv-lock-read-") as directory:
+        with tempfile.TemporaryDirectory(prefix="luckytv-lock-read-") as directory:
             path = Path(directory) / "lock"
             return None if self.get(key, path, max_bytes=8192) is None else path.read_bytes()
 
@@ -233,7 +233,7 @@ class COSStore:
         lock = self.acquire(key)
         may_release = True
         try:
-            with tempfile.TemporaryDirectory(prefix="beeftv-cos-cas-") as directory:
+            with tempfile.TemporaryDirectory(prefix="luckytv-cos-cas-") as directory:
                 current = Path(directory) / "current"
                 actual = self.get(key, current)
                 if actual != etag:
@@ -297,7 +297,7 @@ class COSStore:
             raise PublishError("Recovery refuses a missing or different publisher lock")
         if self._lock_content(self.claim_key(target, claim["expectedETag"])) != original_claim:
             raise PublishError("Recovery refuses a missing or different ETag claim")
-        with tempfile.TemporaryDirectory(prefix="beeftv-cos-resume-") as directory:
+        with tempfile.TemporaryDirectory(prefix="luckytv-cos-resume-") as directory:
             current = Path(directory) / "feed"
             actual = self.get(target, current)
             if actual is not None and actual != claim["expectedETag"] and fingerprint(current) == expected:
@@ -335,7 +335,7 @@ class COSStore:
 
     def check_conditions(self):
         key = self.probe_prefix + uuid.uuid4().hex + "/object"
-        with tempfile.TemporaryDirectory(prefix="beeftv-cos-probe-") as directory:
+        with tempfile.TemporaryDirectory(prefix="luckytv-cos-probe-") as directory:
             first, second, current = (Path(directory) / name for name in ("first", "second", "current"))
             first.write_bytes(b"COS immutable-create probe A")
             second.write_bytes(b"COS immutable-create probe B")

@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/operations"
-	"infinite-canvas/backend/internal/workspace"
+	"luckytv/backend/internal/operations"
+	"luckytv/backend/internal/workspace"
 )
 
 func TestMediaReviewProviderSendsRealVideoOnceAndRejectsIncompleteResponses(t *testing.T) {

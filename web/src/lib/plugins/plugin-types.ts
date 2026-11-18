@@ -2,9 +2,9 @@ import type { ComponentType, MouseEventHandler, ReactNode } from "react";
 import type { Asset } from "@/stores/use-asset-store";
 import type { CanvasNodeData } from "@/types/canvas";
 
-export const PLUGIN_API_VERSION = "beeftv.plugin/v1" as const;
-export const PLUGIN_API_VERSION_V2 = "beeftv.plugin/v2" as const;
-export const PLUGIN_API_VERSION_V3 = "beeftv.plugin/v3" as const;
+export const PLUGIN_API_VERSION = "luckytv.plugin/v1" as const;
+export const PLUGIN_API_VERSION_V2 = "luckytv.plugin/v2" as const;
+export const PLUGIN_API_VERSION_V3 = "luckytv.plugin/v3" as const;
 
 export type EditorSlotKind =
     | "timeline-panel"
@@ -319,7 +319,7 @@ export type RegisteredPlugin = {
     source?: "bundled" | "uploaded" | string;
     activate?: (context: PluginHostContext) => Promise<void> | void;
     deactivate?: (context: PluginHostContext) => Promise<void> | void;
-    setup?: (host: BeefTVPluginHost) => Promise<(() => void) | void> | (() => void) | void;
+    setup?: (host: LuckyTVPluginHost) => Promise<(() => void) | void> | (() => void) | void;
     createAssetSource?: (context: PluginHostContext) => AssetSourceProvider;
     createPromptOptimizer?: (context: PluginHostContext) => PromptOptimizerProvider;
     /** v2 插件由注册器从 manifest 提取的编辑器插槽声明（v1 插件无此字段）。 */
@@ -684,7 +684,7 @@ export type PluginEventName = keyof PluginEventMap;
 
 /** What the host install confirmation needs; Go reads the real package before committing. */
 export type PluginInstallConfirmRequest = {
-    /** npm spec, local package directory, or the name of a sample shipped with BeefTV. */
+    /** npm spec, local package directory, or the name of a sample shipped with LuckyTV. */
     source: string;
     name?: string;
     version?: string;
@@ -695,7 +695,7 @@ export type PluginInstallConfirmRequest = {
     isUpdate?: boolean;
 };
 
-export type BeefTVPluginHost = {
+export type LuckyTVPluginHost = {
     pluginId: string;
     manifest: PluginManifest | PluginManifestV2;
     React: typeof import("react");

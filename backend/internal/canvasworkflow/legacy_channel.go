@@ -4,15 +4,15 @@ import (
 	"encoding/json"
 	"strings"
 
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/providerpreset"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/providerpreset"
 )
 
 // officialLegacyIDs are IDs the official channel was saved under in earlier
-// releases (before v2.2.0 it was "beefapi"), declared by the official preset.
+// releases (before v2.2.0 it was "luckyapi"), declared by the official preset.
 func officialLegacyIDs() []string {
 	for _, preset := range providerpreset.BuiltinChannels() {
-		if preset.ID == beeftv.ChannelID {
+		if preset.ID == luckytv.ChannelID {
 			return preset.LegacyIDs
 		}
 	}
@@ -22,7 +22,7 @@ func officialLegacyIDs() []string {
 // IsOfficialWorkflowChannel reports whether a saved workflow recipe runs on the
 // official channel, including recipes saved under a former official ID.
 func IsOfficialWorkflowChannel(channelID string) bool {
-	if channelID == "@beeftv" {
+	if channelID == "@luckytv" {
 		return true
 	}
 	for _, legacy := range officialLegacyIDs() {
@@ -34,8 +34,8 @@ func IsOfficialWorkflowChannel(channelID string) bool {
 }
 
 // UnmarshalJSON reads every saved workflow node through one place, so a node
-// saved before the official channel was renamed ("beefapi::model" or
-// channelId "beefapi") runs and displays on the current official channel.
+// saved before the official channel was renamed ("luckyapi::model" or
+// channelId "luckyapi") runs and displays on the current official channel.
 func (n *Node) UnmarshalJSON(data []byte) error {
 	type plain Node
 	if err := json.Unmarshal(data, (*plain)(n)); err != nil {
@@ -46,10 +46,10 @@ func (n *Node) UnmarshalJSON(data []byte) error {
 	}
 	for _, legacy := range officialLegacyIDs() {
 		if option, ok := n.Config["modelOption"].(string); ok && strings.HasPrefix(option, legacy+"::") {
-			n.Config["modelOption"] = beeftv.ChannelID + option[len(legacy):]
+			n.Config["modelOption"] = luckytv.ChannelID + option[len(legacy):]
 		}
 		if channel, ok := n.Config["channelId"].(string); ok && channel == legacy {
-			n.Config["channelId"] = beeftv.ChannelID
+			n.Config["channelId"] = luckytv.ChannelID
 		}
 	}
 	return nil

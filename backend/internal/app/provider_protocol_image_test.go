@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/protocol"
 )
 
 func TestProtocolRequestMapsOpenAICanvasRatioToPixelSize(t *testing.T) {

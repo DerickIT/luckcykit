@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/google/jsonschema-go/jsonschema"
-	"infinite-canvas/backend/internal/canvas/capability"
+	"luckytv/backend/internal/canvas/capability"
 )
 
 func TestCanvasNodesBatchSchemasAndPolicy(t *testing.T) {

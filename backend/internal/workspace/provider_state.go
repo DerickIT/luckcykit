@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"infinite-canvas/backend/internal/providerpreset"
+	"luckytv/backend/internal/providerpreset"
 )
 
 const providerStateSchemaVersion = 1
@@ -93,14 +93,14 @@ func mergeBuiltinProviderPresets(config map[string]any) (map[string]any, error) 
 	mergedChannels := make([]any, 0, len(order))
 	for _, id := range order {
 		if channel := channels[id]; channel != nil {
-			mergedChannels = append(mergedChannels, overlayHostedBeefTVMediaProfiles(channel))
+			mergedChannels = append(mergedChannels, overlayHostedLuckyTVMediaProfiles(channel))
 		}
 	}
 	result["channels"] = mergedChannels
 	return result, nil
 }
 
-func overlayHostedBeefTVMediaProfiles(channel map[string]any) map[string]any {
+func overlayHostedLuckyTVMediaProfiles(channel map[string]any) map[string]any {
 	baseURL, _ := channel["baseUrl"].(string)
 	profiles, _ := channel["modelProfiles"].([]any)
 	seen := map[string]bool{}
@@ -120,7 +120,7 @@ func overlayHostedBeefTVMediaProfiles(channel map[string]any) map[string]any {
 			next = append(next, profile)
 			continue
 		}
-		if capability, protocol, ok := hostedBeefTVMediaProfile(baseURL, model); ok {
+		if capability, protocol, ok := hostedLuckyTVMediaProfile(baseURL, model); ok {
 			overlaid := cloneProfileMap(profile)
 			overlaid["capability"] = capability
 			overlaid["protocol"] = protocol
@@ -133,7 +133,7 @@ func overlayHostedBeefTVMediaProfiles(channel map[string]any) map[string]any {
 		if seen[model] {
 			continue
 		}
-		capability, protocol, ok := hostedBeefTVMediaProfile(baseURL, model)
+		capability, protocol, ok := hostedLuckyTVMediaProfile(baseURL, model)
 		if !ok {
 			continue
 		}
@@ -174,13 +174,13 @@ func declaredVideoProfile(profile map[string]any) bool {
 	return true
 }
 
-func hostedBeefTVMediaProfile(baseURL, model string) (string, string, bool) {
-	if providerpreset.IsBeefTVEndpoint(baseURL) {
-		if contract, ok := providerpreset.BeefTVImageContract(model); ok {
+func hostedLuckyTVMediaProfile(baseURL, model string) (string, string, bool) {
+	if providerpreset.IsLuckyTVEndpoint(baseURL) {
+		if contract, ok := providerpreset.LuckyTVImageContract(model); ok {
 			return "image", contract.Protocol, true
 		}
 	}
-	return providerpreset.HostedBeefTVVideoProfile(baseURL, model)
+	return providerpreset.HostedLuckyTVVideoProfile(baseURL, model)
 }
 
 func cloneProfileMap(profile map[string]any) map[string]any {
@@ -268,12 +268,12 @@ func presetChannelMap(preset providerpreset.ChannelPreset, local map[string]any)
 			result[key] = value
 		}
 	}
-	if preset.ID == "beeftv" {
+	if preset.ID == "luckytv" {
 		base, _ := local["baseUrl"].(string)
-		if base == "https://beeftv.app" {
+		if base == "https://luckytv.app" {
 			result["baseUrl"] = base
 		} else if key, _ := local["apiKey"].(string); base == "" && key != "" {
-			result["baseUrl"] = "https://beeftv.app"
+			result["baseUrl"] = "https://luckytv.app"
 		}
 	}
 	return result, nil

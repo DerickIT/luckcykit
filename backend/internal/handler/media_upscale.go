@@ -3,8 +3,8 @@ package handler
 import (
 	"context"
 	"github.com/gin-gonic/gin"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/topaz"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/topaz"
 	"net/http"
 	"time"
 )

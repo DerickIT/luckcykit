@@ -12,6 +12,7 @@ import { useCanvasStore } from "@/stores/canvas/use-canvas-store";
 import { useUserStore } from "@/stores/use-user-store";
 import { appQueryClient } from "@/lib/query-client";
 import { isLocalWorkspaceMode } from "@/services/workspace-mode";
+import { isBrowserLocalRuntime } from "@/lib/runtime-mode";
 import { getActiveUserScope } from "@/lib/user-scope";
 import { confirmDesktopUpdateStartup } from "@/services/desktop-update-startup";
 import { runStartupEnvironmentCheck } from "@/services/diagnostics/environment-startup";
@@ -61,7 +62,7 @@ export function ClientRootInit({ children }: { children: ReactNode }) {
     }, [userId]);
 
     useEffect(() => {
-        if (!userId || !localMode || environmentScope.current === userId) return;
+        if (!userId || !localMode || isBrowserLocalRuntime() || environmentScope.current === userId) return;
         environmentScope.current = userId;
         const controller = new AbortController();
         void runStartupEnvironmentCheck(controller.signal).then((report) => {

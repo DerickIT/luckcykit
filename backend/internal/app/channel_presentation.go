@@ -1,8 +1,8 @@
 package app
 
 import (
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
 )
 
 type ChannelModelSortRequest = modelcatalog.ChannelModelSortRequest

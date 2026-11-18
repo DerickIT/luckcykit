@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 test('production readCanvas -> Durable digest and unbound checks across HTTP', () => {
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-  const scratch = mkdtempSync(path.join(tmpdir(), 'beeftv-studio-receipt-'));
+  const scratch = mkdtempSync(path.join(tmpdir(), 'luckytv-studio-receipt-'));
   try {
     const receipt = path.join(scratch, 'receipt.json');
     const child = spawnSync('node', [path.join(root, 'agent-host/test-support/studio-http-probe.mjs'), root, receipt], { cwd: root, encoding: 'utf8', timeout: 150000 });

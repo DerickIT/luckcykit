@@ -6,13 +6,13 @@
 !include "FileFunc.nsh"
 ${StrStr}
 ${UnStrStr}
-Name "BeefTV"
+Name "LuckyTV"
 OutFile "${OUTPUT}"
 RequestExecutionLevel user
 SetCompressor /SOLID lzma
-InstallDir "$LOCALAPPDATA\Programs\BeefTV"
+InstallDir "$LOCALAPPDATA\Programs\LuckyTV"
 # Upgrades default to the previous location; the user can still choose another folder.
-InstallDirRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\BeefTV" "InstallLocation"
+InstallDirRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\LuckyTV" "InstallLocation"
 Var BackupDir
 Var CleanDir
 Var InstallParent
@@ -28,47 +28,47 @@ Var MoveError
 Var MoveAttempt
 Var OldMoved
 VIProductVersion "${VERSION}.0"
-VIAddVersionKey "ProductName" "BeefTV"
+VIAddVersionKey "ProductName" "LuckyTV"
 VIAddVersionKey "FileVersion" "${VERSION}"
-VIAddVersionKey "FileDescription" "BeefTV Setup"
-VIAddVersionKey "LegalCopyright" "BeefTV"
+VIAddVersionKey "FileDescription" "LuckyTV Setup"
+VIAddVersionKey "LegalCopyright" "LuckyTV"
 !define MUI_PAGE_CUSTOMFUNCTION_LEAVE DirectoryPageLeave
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
-!define MUI_FINISHPAGE_RUN "$INSTDIR\BeefTV.exe"
+!define MUI_FINISHPAGE_RUN "$INSTDIR\LuckyTV.exe"
 !insertmacro MUI_PAGE_FINISH
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
 !insertmacro MUI_LANGUAGE "English"
 !insertmacro MUI_LANGUAGE "SimpChinese"
 
-LangString BEEFTV_DIR_FOREIGN ${LANG_ENGLISH} "This folder already holds other files and is not a BeefTV installation. Choose an empty folder or the current BeefTV location."
-LangString BEEFTV_DIR_FOREIGN ${LANG_SIMPCHINESE} "这个文件夹里已有其他文件，不是 BeefTV 安装位置。请选择一个空文件夹，或当前的 BeefTV 安装位置。"
-LangString BEEFTV_DIR_WRITE ${LANG_ENGLISH} "BeefTV cannot write here. Administrator rights are required, so choose another folder."
-LangString BEEFTV_DIR_WRITE ${LANG_SIMPCHINESE} "需要管理员权限，请选择其他文件夹。"
-LangString BEEFTV_BUSY ${LANG_ENGLISH} "Another BeefTV installer or uninstaller is running. Close it and try again."
-LangString BEEFTV_BUSY ${LANG_SIMPCHINESE} "另一个 BeefTV 安装或卸载程序正在运行。请先关闭它，再试一次。"
-LangString BEEFTV_CLOSE ${LANG_ENGLISH} "Please close BeefTV and its CLI, then choose Retry."
-LangString BEEFTV_CLOSE ${LANG_SIMPCHINESE} "请退出 BeefTV 及其命令行程序，然后点击“重试”。"
-LangString BEEFTV_RETRY ${LANG_ENGLISH} "Windows could not move this application folder (error $MoveError):$\r$\n$MoveFrom$\r$\n$\r$\nClose programs or terminal windows using it, then choose Retry. Cancel stops this installation.$\r$\nLog: $InstallLog"
-LangString BEEFTV_RETRY ${LANG_SIMPCHINESE} "Windows 无法移动以下程序文件夹（错误 $MoveError）：$\r$\n$MoveFrom$\r$\n$\r$\n请关闭正在使用它的程序或终端窗口，然后点击“重试”。点击“取消”将停止安装。$\r$\n安装日志：$InstallLog"
-LangString BEEFTV_PRESERVED ${LANG_ENGLISH} "Installation stopped. The previous application is still at $INSTDIR. Your projects are preserved.$\r$\nLog: $InstallLog"
-LangString BEEFTV_PRESERVED ${LANG_SIMPCHINESE} "安装已停止，原程序仍保留在 $INSTDIR，项目不会被删除。$\r$\n安装日志：$InstallLog"
-LangString BEEFTV_STOPPED ${LANG_ENGLISH} "Installation stopped. Your projects are preserved.$\r$\nLog: $InstallLog"
-LangString BEEFTV_STOPPED ${LANG_SIMPCHINESE} "安装已停止，项目不会被删除。$\r$\n安装日志：$InstallLog"
-LangString BEEFTV_RESTORE_FAILED ${LANG_ENGLISH} "Windows could not restore the previous application. It is preserved at:$\r$\n$BackupDir$\r$\nDo not delete this folder. Contact support with this log:$\r$\n$InstallLog"
-LangString BEEFTV_RESTORE_FAILED ${LANG_SIMPCHINESE} "Windows 未能恢复原程序，原文件保留在：$\r$\n$BackupDir$\r$\n请不要删除此文件夹，并将安装日志发给客服：$\r$\n$InstallLog"
+LangString LUCKYTV_DIR_FOREIGN ${LANG_ENGLISH} "This folder already holds other files and is not a LuckyTV installation. Choose an empty folder or the current LuckyTV location."
+LangString LUCKYTV_DIR_FOREIGN ${LANG_SIMPCHINESE} "这个文件夹里已有其他文件，不是 LuckyTV 安装位置。请选择一个空文件夹，或当前的 LuckyTV 安装位置。"
+LangString LUCKYTV_DIR_WRITE ${LANG_ENGLISH} "LuckyTV cannot write here. Administrator rights are required, so choose another folder."
+LangString LUCKYTV_DIR_WRITE ${LANG_SIMPCHINESE} "需要管理员权限，请选择其他文件夹。"
+LangString LUCKYTV_BUSY ${LANG_ENGLISH} "Another LuckyTV installer or uninstaller is running. Close it and try again."
+LangString LUCKYTV_BUSY ${LANG_SIMPCHINESE} "另一个 LuckyTV 安装或卸载程序正在运行。请先关闭它，再试一次。"
+LangString LUCKYTV_CLOSE ${LANG_ENGLISH} "Please close LuckyTV and its CLI, then choose Retry."
+LangString LUCKYTV_CLOSE ${LANG_SIMPCHINESE} "请退出 LuckyTV 及其命令行程序，然后点击“重试”。"
+LangString LUCKYTV_RETRY ${LANG_ENGLISH} "Windows could not move this application folder (error $MoveError):$\r$\n$MoveFrom$\r$\n$\r$\nClose programs or terminal windows using it, then choose Retry. Cancel stops this installation.$\r$\nLog: $InstallLog"
+LangString LUCKYTV_RETRY ${LANG_SIMPCHINESE} "Windows 无法移动以下程序文件夹（错误 $MoveError）：$\r$\n$MoveFrom$\r$\n$\r$\n请关闭正在使用它的程序或终端窗口，然后点击“重试”。点击“取消”将停止安装。$\r$\n安装日志：$InstallLog"
+LangString LUCKYTV_PRESERVED ${LANG_ENGLISH} "Installation stopped. The previous application is still at $INSTDIR. Your projects are preserved.$\r$\nLog: $InstallLog"
+LangString LUCKYTV_PRESERVED ${LANG_SIMPCHINESE} "安装已停止，原程序仍保留在 $INSTDIR，项目不会被删除。$\r$\n安装日志：$InstallLog"
+LangString LUCKYTV_STOPPED ${LANG_ENGLISH} "Installation stopped. Your projects are preserved.$\r$\nLog: $InstallLog"
+LangString LUCKYTV_STOPPED ${LANG_SIMPCHINESE} "安装已停止，项目不会被删除。$\r$\n安装日志：$InstallLog"
+LangString LUCKYTV_RESTORE_FAILED ${LANG_ENGLISH} "Windows could not restore the previous application. It is preserved at:$\r$\n$BackupDir$\r$\nDo not delete this folder. Contact support with this log:$\r$\n$InstallLog"
+LangString LUCKYTV_RESTORE_FAILED ${LANG_SIMPCHINESE} "Windows 未能恢复原程序，原文件保留在：$\r$\n$BackupDir$\r$\n请不要删除此文件夹，并将安装日志发给客服：$\r$\n$InstallLog"
 
 # Keep the handle until process exit. Installation and uninstallation must not
 # race while moving folders or updating the per-user registration.
 !macro InstallerLock PREFIX
 Function ${PREFIX}AcquireInstallerLock
-  System::Call 'kernel32::CreateMutexW(p 0, i 0, w "Local\BeefTV.Installation") p .r0 ?e'
+  System::Call 'kernel32::CreateMutexW(p 0, i 0, w "Local\LuckyTV.Installation") p .r0 ?e'
   Pop $1
   StrCpy $InstallerMutex $0
   ${If} $0 == 0
   ${OrIf} $1 == 183
-    MessageBox MB_OK|MB_ICONEXCLAMATION "$(BEEFTV_BUSY)" /SD IDOK
+    MessageBox MB_OK|MB_ICONEXCLAMATION "$(LUCKYTV_BUSY)" /SD IDOK
     SetErrorLevel 2
     Abort
   ${EndIf}
@@ -110,19 +110,19 @@ Function MoveInstallFolder
       Goto move_attempt
     ${EndIf}
   ${EndIf}
-  MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "$(BEEFTV_RETRY)" /SD IDCANCEL IDRETRY move_retry
+  MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "$(LUCKYTV_RETRY)" /SD IDCANCEL IDRETRY move_retry
   StrCpy $0 0
 FunctionEnd
 
-# Appends a dedicated BeefTV subfolder to the chosen location (including drive
+# Appends a dedicated LuckyTV subfolder to the chosen location (including drive
 # roots like D:\ or E:\), then validates that final folder. Choosing E:\ or
-# D:\Apps therefore installs to E:\BeefTV or D:\Apps\BeefTV and never mixes the
+# D:\Apps therefore installs to E:\LuckyTV or D:\Apps\LuckyTV and never mixes the
 # payload with the user's other files. Sets $0 to 0 when valid, or 2 (foreign
 # folder), 3 (not writable).
 Function PrepareInstallDir
   StrCpy $0 0
   ${If} $INSTDIR == ""
-    StrCpy $INSTDIR "$LOCALAPPDATA\Programs\BeefTV"
+    StrCpy $INSTDIR "$LOCALAPPDATA\Programs\LuckyTV"
   ${EndIf}
   # Drop trailing separators so the last component is a real name.
   StrCpy $1 "$INSTDIR"
@@ -138,19 +138,19 @@ Function PrepareInstallDir
     ${EndIf}
   ${GetRoot} "$1" $2
   ${If} $2 == "$1"
-    StrCpy $1 "$1\BeefTV"
+    StrCpy $1 "$1\LuckyTV"
   ${Else}
     ${GetFileName} "$1" $2
-    ${If} $2 != "BeefTV"
-      StrCpy $1 "$1\BeefTV"
+    ${If} $2 != "LuckyTV"
+      StrCpy $1 "$1\LuckyTV"
     ${EndIf}
   ${EndIf}
-  # An existing final folder is only reused when it is a previous BeefTV
-  # install (or portable BeefTV directory) or empty.
+  # An existing final folder is only reused when it is a previous LuckyTV
+  # install (or portable LuckyTV directory) or empty.
   StrCpy $5 ""
   ${If} ${FileExists} "$1\*.*"
     ${IfNot} ${FileExists} "$1\.installed-root-files.txt"
-    ${AndIfNot} ${FileExists} "$1\BeefTV.exe"
+    ${AndIfNot} ${FileExists} "$1\LuckyTV.exe"
       StrCpy $3 ""
       FindFirst $2 $4 "$1\*"
       PrepareInstallDir_scan:
@@ -179,12 +179,12 @@ Function PrepareInstallDir
   # administrator-only folders must be rejected before anything is written.
   ClearErrors
   CreateDirectory "$1"
-  FileOpen $2 "$1\.beeftv-write-test" w
+  FileOpen $2 "$1\.luckytv-write-test" w
   ${If} ${Errors}
     StrCpy $0 3
   ${Else}
     FileClose $2
-    Delete "$1\.beeftv-write-test"
+    Delete "$1\.luckytv-write-test"
   ${EndIf}
   # Leave no empty folder behind if the user goes back and picks another one.
   ${If} $5 == "created"
@@ -197,9 +197,9 @@ FunctionEnd
 
 Function ShowInstallDirError
   ${If} $0 == 2
-    MessageBox MB_OK|MB_ICONSTOP "$(BEEFTV_DIR_FOREIGN)" /SD IDOK
+    MessageBox MB_OK|MB_ICONSTOP "$(LUCKYTV_DIR_FOREIGN)" /SD IDOK
   ${ElseIf} $0 == 3
-    MessageBox MB_OK|MB_ICONSTOP "$(BEEFTV_DIR_WRITE)" /SD IDOK
+    MessageBox MB_OK|MB_ICONSTOP "$(LUCKYTV_DIR_WRITE)" /SD IDOK
   ${EndIf}
 FunctionEnd
 
@@ -216,19 +216,19 @@ Function ${PREFIX}RequireClosed
   retry_closed_${PREFIX}:
   StrCpy $3 0
   check_closed_${PREFIX}:
-  nsExec::ExecToStack '"$SYSDIR\tasklist.exe" /FI "IMAGENAME eq BeefTV.exe" /NH'
+  nsExec::ExecToStack '"$SYSDIR\tasklist.exe" /FI "IMAGENAME eq LuckyTV.exe" /NH'
   Pop $0
   Pop $1
 !if "${PREFIX}" == "un."
-  ${UnStrStr} $2 $1 "BeefTV.exe"
+  ${UnStrStr} $2 $1 "LuckyTV.exe"
 !else
-  ${StrStr} $2 $1 "BeefTV.exe"
+  ${StrStr} $2 $1 "LuckyTV.exe"
 !endif
   ${If} $2 == ""
 !if "${PREFIX}" == "un."
-    ${UnStrStr} $2 $1 "beeftv.exe"
+    ${UnStrStr} $2 $1 "luckytv.exe"
 !else
-    ${StrStr} $2 $1 "beeftv.exe"
+    ${StrStr} $2 $1 "luckytv.exe"
 !endif
   ${EndIf}
   ${If} $0 == 0
@@ -241,9 +241,9 @@ Function ${PREFIX}RequireClosed
   ${EndIf}
   IntOp $3 $3 + 1
   ${If} $3 == 1
-    # Ask BeefTV's main window to close cleanly first so SQLite and WebView2
+    # Ask LuckyTV's main window to close cleanly first so SQLite and WebView2
     # flush state before exiting.
-    nsExec::Exec '"$SYSDIR\taskkill.exe" /IM BeefTV.exe'
+    nsExec::Exec '"$SYSDIR\taskkill.exe" /IM LuckyTV.exe'
     Pop $0
     Sleep 500
     Goto check_closed_${PREFIX}
@@ -251,10 +251,10 @@ Function ${PREFIX}RequireClosed
     Sleep 500
     Goto check_closed_${PREFIX}
   ${ElseIf} $3 == 11
-    # Force-terminate any remaining BeefTV or CLI process tree.
-    nsExec::Exec '"$SYSDIR\taskkill.exe" /F /IM BeefTV.exe /T'
+    # Force-terminate any remaining LuckyTV or CLI process tree.
+    nsExec::Exec '"$SYSDIR\taskkill.exe" /F /IM LuckyTV.exe /T'
     Pop $0
-    nsExec::Exec '"$SYSDIR\taskkill.exe" /F /IM beeftv.exe /T'
+    nsExec::Exec '"$SYSDIR\taskkill.exe" /F /IM luckytv.exe /T'
     Pop $0
     Sleep 500
     Goto check_closed_${PREFIX}
@@ -262,7 +262,7 @@ Function ${PREFIX}RequireClosed
     Sleep 500
     Goto check_closed_${PREFIX}
   ${EndIf}
-  MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "$(BEEFTV_CLOSE)" /SD IDCANCEL IDRETRY retry_closed_${PREFIX}
+  MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "$(LUCKYTV_CLOSE)" /SD IDCANCEL IDRETRY retry_closed_${PREFIX}
   SetErrorLevel 2
   Abort
 FunctionEnd
@@ -302,7 +302,7 @@ Function ${PREFIX}RemovePayload
     done_${PREFIX}:
     FileClose $0
   ${EndIf}
-  Delete "$CleanDir\BeefTV.exe"
+  Delete "$CleanDir\LuckyTV.exe"
   Delete "$CleanDir\.installed-root-files.txt"
   Delete "$CleanDir\Uninstall.exe"
   RMDir /r "$CleanDir\agent-host"
@@ -319,13 +319,13 @@ Function .onInit
   SetShellVarContext current
   Call AcquireInstallerLock
   ClearErrors
-  CreateDirectory "$LOCALAPPDATA\BeefTV\Installer"
-  GetTempFileName $InstallLog "$LOCALAPPDATA\BeefTV\Installer"
+  CreateDirectory "$LOCALAPPDATA\LuckyTV\Installer"
+  GetTempFileName $InstallLog "$LOCALAPPDATA\LuckyTV\Installer"
   ${If} ${Errors}
     ClearErrors
     GetTempFileName $InstallLog "$TEMP"
     ${If} ${Errors}
-      MessageBox MB_OK|MB_ICONSTOP "$(BEEFTV_DIR_WRITE)" /SD IDOK
+      MessageBox MB_OK|MB_ICONSTOP "$(LUCKYTV_DIR_WRITE)" /SD IDOK
       SetErrorLevel 1
       Abort
     ${EndIf}
@@ -335,7 +335,7 @@ Function .onInit
   StrCpy $InstallPhase "startup"
   StrCpy $LogLine 'version=${VERSION} destination="$INSTDIR"'
   Call WriteInstallLog
-  ReadRegStr $PreviousInstallDir HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\BeefTV" "InstallLocation"
+  ReadRegStr $PreviousInstallDir HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\LuckyTV" "InstallLocation"
   Call RequireClosed
   # Interactive runs validate on the directory page; /D= needs the same checks here.
   ${If} ${Silent}
@@ -359,7 +359,7 @@ Function .onInstFailed
   Call WriteInstallLog
 FunctionEnd
 
-Section "BeefTV (required)" SEC_APP
+Section "LuckyTV (required)" SEC_APP
   SectionIn RO
   Call RequireClosed
   StrCpy $InstallPhase "prepare"
@@ -386,7 +386,7 @@ Section "BeefTV (required)" SEC_APP
   prepare_failed:
   StrCpy $LogLine 'could not prepare installation beside "$INSTDIR"'
   Call WriteInstallLog
-  MessageBox MB_OK|MB_ICONSTOP "$(BEEFTV_STOPPED)" /SD IDOK
+  MessageBox MB_OK|MB_ICONSTOP "$(LUCKYTV_STOPPED)" /SD IDOK
   SetErrorLevel 1
   Abort
   backup_existing:
@@ -456,36 +456,36 @@ Section "BeefTV (required)" SEC_APP
     ${If} $0 == 0
       # Preserve BOTH trees when rollback is blocked; never delete the only
       # working old application or obscure its exact recovery location.
-      MessageBox MB_OK|MB_ICONSTOP "$(BEEFTV_RESTORE_FAILED)" /SD IDOK
+      MessageBox MB_OK|MB_ICONSTOP "$(LUCKYTV_RESTORE_FAILED)" /SD IDOK
       SetErrorLevel 1
       Abort
     ${EndIf}
   ${EndIf}
   install_failed:
   ${If} ${FileExists} "$INSTDIR\*.*"
-    MessageBox MB_OK|MB_ICONSTOP "$(BEEFTV_PRESERVED)" /SD IDOK
+    MessageBox MB_OK|MB_ICONSTOP "$(LUCKYTV_PRESERVED)" /SD IDOK
   ${Else}
-    MessageBox MB_OK|MB_ICONSTOP "$(BEEFTV_STOPPED)" /SD IDOK
+    MessageBox MB_OK|MB_ICONSTOP "$(LUCKYTV_STOPPED)" /SD IDOK
   ${EndIf}
   SetErrorLevel 1
   Abort
   install_registered:
   SetOutPath "$INSTDIR"
-  CreateDirectory "$SMPROGRAMS\BeefTV"
-  CreateShortcut "$SMPROGRAMS\BeefTV\BeefTV.lnk" "$INSTDIR\BeefTV.exe"
-  CreateShortcut "$SMPROGRAMS\BeefTV\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
-  CreateShortcut "$DESKTOP\BeefTV.lnk" "$INSTDIR\BeefTV.exe"
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\BeefTV" "DisplayName" "BeefTV"
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\BeefTV" "DisplayVersion" "${VERSION}"
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\BeefTV" "UninstallString" '$\"$INSTDIR\Uninstall.exe$\"'
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\BeefTV" "QuietUninstallString" '$\"$INSTDIR\Uninstall.exe$\" /S'
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\BeefTV" "InstallLocation" "$INSTDIR"
-  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\BeefTV" "DisplayIcon" "$INSTDIR\BeefTV.exe"
-  WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\BeefTV" "NoModify" 1
-  WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\BeefTV" "NoRepair" 1
-  WriteRegStr HKCU "Software\Classes\beeftv" "" "URL:BeefTV skill link"
-  WriteRegStr HKCU "Software\Classes\beeftv" "URL Protocol" ""
-  WriteRegStr HKCU "Software\Classes\beeftv\shell\open\command" "" '$\"$INSTDIR\BeefTV.exe$\" $\"%1$\"'
+  CreateDirectory "$SMPROGRAMS\LuckyTV"
+  CreateShortcut "$SMPROGRAMS\LuckyTV\LuckyTV.lnk" "$INSTDIR\LuckyTV.exe"
+  CreateShortcut "$SMPROGRAMS\LuckyTV\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
+  CreateShortcut "$DESKTOP\LuckyTV.lnk" "$INSTDIR\LuckyTV.exe"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\LuckyTV" "DisplayName" "LuckyTV"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\LuckyTV" "DisplayVersion" "${VERSION}"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\LuckyTV" "UninstallString" '$\"$INSTDIR\Uninstall.exe$\"'
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\LuckyTV" "QuietUninstallString" '$\"$INSTDIR\Uninstall.exe$\" /S'
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\LuckyTV" "InstallLocation" "$INSTDIR"
+  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\LuckyTV" "DisplayIcon" "$INSTDIR\LuckyTV.exe"
+  WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\LuckyTV" "NoModify" 1
+  WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\LuckyTV" "NoRepair" 1
+  WriteRegStr HKCU "Software\Classes\luckytv" "" "URL:LuckyTV skill link"
+  WriteRegStr HKCU "Software\Classes\luckytv" "URL Protocol" ""
+  WriteRegStr HKCU "Software\Classes\luckytv\shell\open\command" "" '$\"$INSTDIR\LuckyTV.exe$\" $\"%1$\"'
   # A successful move replaces the registered install; remove only the old
   # installer's shipped payload. Unknown user files remain in that directory.
   ${If} $PreviousInstallDir != ""
@@ -513,16 +513,16 @@ Section "Uninstall"
   Call un.RemovePayload
   # A stale uninstaller copied from an older location must not unregister
   # or remove shortcuts for the current installation.
-  ReadRegStr $RegisteredInstallDir HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\BeefTV" "InstallLocation"
+  ReadRegStr $RegisteredInstallDir HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\LuckyTV" "InstallLocation"
   ${If} $RegisteredInstallDir == $INSTDIR
-    ReadRegStr $0 HKCU "Software\Classes\beeftv\shell\open\command" ""
-    ${If} $0 == '$\"$INSTDIR\BeefTV.exe$\" $\"%1$\"'
-      DeleteRegKey HKCU "Software\Classes\beeftv"
+    ReadRegStr $0 HKCU "Software\Classes\luckytv\shell\open\command" ""
+    ${If} $0 == '$\"$INSTDIR\LuckyTV.exe$\" $\"%1$\"'
+      DeleteRegKey HKCU "Software\Classes\luckytv"
     ${EndIf}
-    Delete "$DESKTOP\BeefTV.lnk"
-    Delete "$SMPROGRAMS\BeefTV\BeefTV.lnk"
-    Delete "$SMPROGRAMS\BeefTV\Uninstall.lnk"
-    RMDir "$SMPROGRAMS\BeefTV"
-    DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\BeefTV"
+    Delete "$DESKTOP\LuckyTV.lnk"
+    Delete "$SMPROGRAMS\LuckyTV\LuckyTV.lnk"
+    Delete "$SMPROGRAMS\LuckyTV\Uninstall.lnk"
+    RMDir "$SMPROGRAMS\LuckyTV"
+    DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\LuckyTV"
   ${EndIf}
 SectionEnd

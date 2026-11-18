@@ -5,10 +5,10 @@ import (
 
 	"gorm.io/gorm"
 
-	"infinite-canvas/backend/internal/canvas"
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
-	"infinite-canvas/backend/internal/taskbinding"
+	"luckytv/backend/internal/canvas"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
+	"luckytv/backend/internal/taskbinding"
 )
 
 // Domain 是一次操作在当前事务里看到的工作区。方法不接受 *gorm.DB：

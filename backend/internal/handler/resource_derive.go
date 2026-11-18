@@ -9,10 +9,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/asset"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/mediatools"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/asset"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/mediatools"
 )
 
 const resourceDeriveBodyCapJSON = 8 << 10

@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"infinite-canvas/backend/internal/kernel"
+	"luckytv/backend/internal/kernel"
 )
 
 // Client talks to the user-local Eagle HTTP API and opens jailed library files.

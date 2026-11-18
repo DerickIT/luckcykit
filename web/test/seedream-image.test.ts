@@ -5,7 +5,7 @@ import { defaultConfig } from "../src/stores/use-config-store";
 
 describe("Seedream model capabilities", () => {
     test("5.5 exposes 1K/1.5K/2K, up to 10 references, transparent background, and no sequential group mode", () => {
-        for (const model of ["beeftv::dola-seedream-5-5-261028", "doubao-seedream-5-5-261028", "seedream-5-5-261028"]) {
+        for (const model of ["luckytv::dola-seedream-5-5-261028", "doubao-seedream-5-5-261028", "seedream-5-5-261028"]) {
             const p = seedreamImageCapability(model)!;
             expect(p.size.values).toEqual(["1K", "1.5K", "2K"]);
             expect(p.references.maxImages).toBe(10);
@@ -30,7 +30,7 @@ describe("Seedream model capabilities", () => {
         expect(p.transparentBackground.supported).toBe(false);
     });
     test("国内 doubao 前缀的 Pro / Flash 不会被当成 Lite", () => {
-        const pro = seedreamImageCapability("beeftv::doubao-seedream-5-0-pro-260628")!;
+        const pro = seedreamImageCapability("luckytv::doubao-seedream-5-0-pro-260628")!;
         expect(pro.size.values).toEqual(["1K", "1.5K", "2K"]);
         expect(pro.references.maxImages).toBe(10);
         expect(pro.transparentBackground.supported).toBe(true);

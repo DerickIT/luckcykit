@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"infinite-canvas/backend/internal/modelcatalog"
+	"luckytv/backend/internal/modelcatalog"
 )
 
 func TestCapabilityTypesShareModelCatalogJSON(t *testing.T) {

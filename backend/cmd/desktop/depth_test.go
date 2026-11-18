@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/depthruntime"
+	"luckytv/backend/internal/depthruntime"
 )
 
 func TestDepthStatusAllowsSlowMetadataWithoutBlockingWorkspaceLock(t *testing.T) {
@@ -28,7 +28,7 @@ func TestDepthStatusAllowsSlowMetadataWithoutBlockingWorkspaceLock(t *testing.T)
 		json.NewEncoder(w).Encode(depthruntime.Manifest{Version: 1, Runtime: depthruntime.Artifact{Size: 3, SHA256: strings.Repeat("a", 64), ExpandedSize: 4}, Model: depthruntime.Artifact{Size: 5, SHA256: strings.Repeat("b", 64)}})
 	}))
 	defer server.Close()
-	t.Setenv("BEEFTV_DEPTH_MANIFEST_URL", server.URL)
+	t.Setenv("LUCKYTV_DEPTH_MANIFEST_URL", server.URL)
 	app := newDesktopApp(t.TempDir())
 	if err := app.start(context.Background()); err != nil {
 		t.Fatal(err)

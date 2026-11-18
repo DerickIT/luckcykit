@@ -18,7 +18,7 @@ const userText = (payload) => payload.messages.filter((m) => m.role === 'user').
 const systemText = (payload) => payload.messages.filter((m) => m.role === 'system' || m.role === 'developer').map(msgText).join('\n');
 
 async function createProducerFixture({ canvasState, script = () => null, buildTools = () => [], maxPlanContinuations = 4, withSkills = false } = {}) {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-producer-'));
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-producer-'));
   const payloads = [];
   const server = createServer(async (req, res) => {
     let raw = '';
@@ -43,19 +43,19 @@ async function createProducerFixture({ canvasState, script = () => null, buildTo
   });
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   const runtime = await ModelRuntime.create({ authPath: path.join(directory, 'auth.json'), modelsPath: null, refreshOnCreate: false });
-  runtime.registerProvider('beeftv', {
+  runtime.registerProvider('luckytv', {
     api: 'openai-completions',
     apiKey: 'synthetic',
     baseUrl: `http://127.0.0.1:${server.address().port}/v1`,
     models: [{ id: 'producer', name: 'producer', reasoning: false, input: ['text'], contextWindow: 200000, maxTokens: 4096, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 } }],
   });
   const models = createModels();
-  models.setProvider(runtime.getProvider('beeftv'));
+  models.setProvider(runtime.getProvider('luckytv'));
   const store = createDurableSessionStore({
     sessionRoot: path.join(directory, 'sessions'),
     workspaceRoot: path.join(directory, 'workspace'),
     getModels: () => models,
-    getModelRef: () => ({ provider: 'beeftv', modelId: 'producer' }),
+    getModelRef: () => ({ provider: 'luckytv', modelId: 'producer' }),
     buildTools,
     authorizeTurn: async () => ({ open: true, canvasId: 'canvas-1', permissionMode: 'canvas' }),
     readCanvas: canvasState ? async () => canvasState.current : null,
@@ -81,7 +81,7 @@ describe('creative producer durable host', () => {
     const fixture = await createProducerFixture({ canvasState, withSkills: true });
     try {
       const entry = await fixture.store.ensureSession('canvas-1');
-      const state = defineDoc({ kind: 'beeftv.host', version: 1, scope: 'session', initial: () => ({}), checkpointWhen: () => true });
+      const state = defineDoc({ kind: 'luckytv.host', version: 1, scope: 'session', initial: () => ({}), checkpointWhen: () => true });
       expect((await entry.harness.snapshot(state, BACKGROUND_CONTEXT)).lastStudioSnapshotRevision).toBeNull();
       await entry.harness.commit(async tx => {
         const doc = await tx.doc(state);
@@ -91,7 +91,7 @@ describe('creative producer durable host', () => {
       }, BACKGROUND_CONTEXT);
       const first = await fixture.store.submit(entry, { turnId: 'legacy-1', requestId: 'legacy-1', content: '看当前画布', userText: '看当前画布', revisionBefore: 8 });
       await fixture.store.wait(entry, first);
-      expect(systemText(fixture.payloads[0])).not.toContain('<beeftv_studio>');
+      expect(systemText(fixture.payloads[0])).not.toContain('<luckytv_studio>');
       expect(userText(fixture.payloads[0])).toContain('文本 1');
       expect(userText(fixture.payloads[0])).not.toContain('画布是空的');
       expect(userText(fixture.payloads[0])).not.toContain('<canvas_changes>');
@@ -143,7 +143,7 @@ describe('creative producer durable host', () => {
       expect(events.some(event => event.type === 'plan' && event.plan?.goal === '实时制作计划')).toBe(true);
     } finally { releaseReply(); await fixture.close(); }
   });
-  test('injects <beeftv_studio> digest and prepends <canvas_changes> when user edits between turns', async () => {
+  test('injects <luckytv_studio> digest and prepends <canvas_changes> when user edits between turns', async () => {
     const canvasState = {
       current: {
         revision: 3,
@@ -170,8 +170,8 @@ describe('creative producer durable host', () => {
       await fixture.store.wait(entry, sub1);
 
       expect(fixture.payloads.length).toBe(1);
-      expect(systemText(fixture.payloads[0])).not.toContain('<beeftv_studio>');
-      expect(userText(fixture.payloads[0])).toContain('<beeftv_studio>');
+      expect(systemText(fixture.payloads[0])).not.toContain('<luckytv_studio>');
+      expect(userText(fixture.payloads[0])).toContain('<luckytv_studio>');
       expect(userText(fixture.payloads[0])).toContain('都市逆袭分镜');
       expect(userText(fixture.payloads[0])).toContain('生成中 1');
       expect(userText(fixture.payloads[0])).not.toContain('<canvas_changes>');
@@ -210,7 +210,7 @@ describe('creative producer durable host', () => {
     }
   });
 
-  test('plan_update maintains <beeftv_plan> and onYield continues todo steps until needs_user', async () => {
+  test('plan_update maintains <luckytv_plan> and onYield continues todo steps until needs_user', async () => {
     const fixture = await createProducerFixture({
       script(_body, callIndex) {
         if (callIndex === 1) {
@@ -254,9 +254,9 @@ describe('creative producer durable host', () => {
 
       expect(fixture.payloads.length).toBe(4);
       expect(userText(fixture.payloads[2])).toContain('计划还没做完。继续做「创建首帧节点并提议生成」');
-      expect(systemText(fixture.payloads[3])).not.toContain('<beeftv_plan>');
+      expect(systemText(fixture.payloads[3])).not.toContain('<luckytv_plan>');
       expect(systemText(fixture.payloads[3])).toBe(systemText(fixture.payloads[0]));
-      expect(userText(fixture.payloads[3])).toContain('<beeftv_plan>');
+      expect(userText(fixture.payloads[3])).toContain('<luckytv_plan>');
       expect(userText(fixture.payloads[3])).toContain('[等你确认] 创建首帧节点并提议生成');
       expect(record.reply).toContain('请确认后开始生成');
       expect(record.plan).toMatchObject({ done: 1, total: 2 });

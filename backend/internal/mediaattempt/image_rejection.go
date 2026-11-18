@@ -1,6 +1,6 @@
 package mediaattempt
 
-import "infinite-canvas/backend/internal/generation"
+import "luckytv/backend/internal/generation"
 
 // A completed input rejection ends this attempt. It does not authorize an
 // automatic resend, and cannot erase an earlier accepted or uncertain request.

@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"infinite-canvas/backend/internal/plugins"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/plugins"
+	"luckytv/backend/internal/protocol"
 )
 
 // Plugin types remain exported from app as aliases while callers migrate to

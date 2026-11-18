@@ -73,7 +73,7 @@ for (const dark of [false, true]) {
                 await page.keyboard.press("Escape");
                 await dialog.waitFor({ state: "hidden" });
                 expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-                if (process.env.BEEFTV_FONT_SCREENSHOT_DIR) await page.screenshot({ path: `${process.env.BEEFTV_FONT_SCREENSHOT_DIR}/prompt-font-${dark ? "dark" : "light"}-${width}.png` });
+                if (process.env.LUCKYTV_FONT_SCREENSHOT_DIR) await page.screenshot({ path: `${process.env.LUCKYTV_FONT_SCREENSHOT_DIR}/prompt-font-${dark ? "dark" : "light"}-${width}.png` });
                 await page.reload();
                 await panel.getByRole("button", { name: "放大提示词字号" }).waitFor();
                 expect(await editor.evaluate(element => getComputedStyle(element).fontSize)).toBe("24px");

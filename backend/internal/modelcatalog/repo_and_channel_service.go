@@ -10,11 +10,11 @@ import (
 	"sync"
 	"time"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/provider"
-	"infinite-canvas/backend/internal/provider/bailian"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/provider"
+	"luckytv/backend/internal/provider/bailian"
+	"luckytv/backend/internal/repository"
 
 	"gorm.io/gorm"
 )
@@ -619,12 +619,12 @@ func DeleteAdminChannelModelsInRepo(
 	return deleted, err
 }
 
-func LocalChannelModelListItems(models []LocalChannelModel, intent *ModelRequestIntent, beefChannelID, managedBeefRef string) []map[string]any {
+func LocalChannelModelListItems(models []LocalChannelModel, intent *ModelRequestIntent, luckyChannelID, managedLuckyRef string) []map[string]any {
 	items := []map[string]any{}
 	for _, item := range FilterLocalChannelModels(models, intent) {
 		selection := map[string]any{"channelId": item.ChannelID, "channelModelKey": item.Model}
-		if item.ChannelID == beefChannelID {
-			selection["credentialRef"] = managedBeefRef
+		if item.ChannelID == luckyChannelID {
+			selection["credentialRef"] = managedLuckyRef
 		}
 		entry := map[string]any{"name": item.DisplayName, "capability": item.Capability, "selection": selection}
 		if item.CapabilityConfig != nil {

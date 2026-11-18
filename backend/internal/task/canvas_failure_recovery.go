@@ -5,8 +5,8 @@ import (
 	"sync"
 
 	"gorm.io/gorm"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 )
 
 // CanvasFailureScan writes failed canvas generation tasks back onto their nodes,

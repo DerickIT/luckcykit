@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/assistantturns"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/assistantturns"
+	"luckytv/backend/internal/model"
 )
 
 func claimBackgroundHTTPContinuation(t *testing.T, env *assistantTestEnv) *assistantturns.ContinuationView {
@@ -83,7 +83,7 @@ func TestAssistantBackgroundContinuationHTTPUnknownAdmissionDoesNotFinalize(t *t
 						http.NotFound(w, r)
 						return
 					}
-					if r.Header.Get("X-Beeftv-Agent-Token") != assistantTestHostToken {
+					if r.Header.Get("X-Luckytv-Agent-Token") != assistantTestHostToken {
 						w.WriteHeader(http.StatusForbidden)
 						return
 					}

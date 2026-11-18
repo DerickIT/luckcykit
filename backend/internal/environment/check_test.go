@@ -45,7 +45,7 @@ func TestRepairIsBoundedAndIdempotent(t *testing.T) {
 	if data, _ := os.ReadFile(project); string(data) != "original project bytes" {
 		t.Fatal("project changed")
 	}
-	files, _ := filepath.Glob(filepath.Join(dir, ".beeftv-environment-*"))
+	files, _ := filepath.Glob(filepath.Join(dir, ".luckytv-environment-*"))
 	if len(files) != 0 {
 		t.Fatal("write probe leaked files")
 	}

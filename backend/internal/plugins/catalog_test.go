@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/protocol"
 )
 
 func TestProviderCatalogOverlaysOfficialRegistry(t *testing.T) {
@@ -114,7 +114,7 @@ func TestProviderCatalogCustomPluginUsesManifestUntilRegistryOverlay(t *testing.
 		t.Fatal(err)
 	}
 	svc := New(runtime, nil)
-	plugin, err := svc.Install(testPluginPackage(t, testManifest("catalog-custom-video", "1.0.0")), "catalog-custom-video.beeftv-plugin")
+	plugin, err := svc.Install(testPluginPackage(t, testManifest("catalog-custom-video", "1.0.0")), "catalog-custom-video.luckytv-plugin")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -139,8 +139,8 @@ func TestProviderCatalogProjectsAuthType(t *testing.T) {
 		t.Fatal(err)
 	}
 	svc := New(runtime, nil)
-	raw := []byte(`{"apiVersion":"beeftv.plugin/v1","id":"catalog-auth-none","version":"1.0.0","name":"catalog-auth-none","author":"Test","documentation":"# catalog-auth-none","contributes":{"providers":[{"id":"catalog-auth-none","label":"catalog-auth-none","capabilities":["text"],"scopes":["canvas"],"auth":{"type":"none","field":"apiKey"},"create":{"method":"POST","path":"/api/chat","fields":{"prompt":"request.prompt"}},"response":{"statusPaths":["status"]}}]}}`)
-	if _, err := svc.Install(testPluginPackage(t, raw), "catalog-auth-none.beeftv-plugin"); err != nil {
+	raw := []byte(`{"apiVersion":"luckytv.plugin/v1","id":"catalog-auth-none","version":"1.0.0","name":"catalog-auth-none","author":"Test","documentation":"# catalog-auth-none","contributes":{"providers":[{"id":"catalog-auth-none","label":"catalog-auth-none","capabilities":["text"],"scopes":["canvas"],"auth":{"type":"none","field":"apiKey"},"create":{"method":"POST","path":"/api/chat","fields":{"prompt":"request.prompt"}},"response":{"statusPaths":["status"]}}]}}`)
+	if _, err := svc.Install(testPluginPackage(t, raw), "catalog-auth-none.luckytv-plugin"); err != nil {
 		t.Fatal(err)
 	}
 	item := findProvider(svc.ProviderCatalog(string(protocol.SurfaceCanvas), string(protocol.CapabilityText), false), "catalog-auth-none")
@@ -167,10 +167,10 @@ func TestOnlyShippedArchiveInterfacesAreMarkedBuiltIn(t *testing.T) {
 	if uploaded.BuiltInInterface {
 		t.Fatal("an interface the user uploaded is their plugin, not a built-in one")
 	}
-	bundledApp := ManagementFromView(View{Manifest: ManifestView{ID: "beeftv-plugin-ll2", Client: "./client/index.js",
+	bundledApp := ManagementFromView(View{Manifest: ManifestView{ID: "luckytv-plugin-ll2", Client: "./client/index.js",
 		Configuration: protocol.ManifestConfiguration{Fields: []protocol.ManifestField{{Name: "apiKey"}}},
 		Contributes:   protocol.ManifestContributions{Providers: []protocol.ManifestProvider{{ID: "ll2-video"}}}},
-		Source: OriginOfficial, PackageDir: "/app/plugin-packages/beeftv-plugin-ll2"})
+		Source: OriginOfficial, PackageDir: "/app/plugin-packages/luckytv-plugin-ll2"})
 	if bundledApp.BuiltInInterface {
 		t.Fatal("a bundled app plugin with its own settings stays in the plugin center")
 	}
@@ -182,8 +182,8 @@ func TestLookupWorkflowMatchesProviderCatalogContract(t *testing.T) {
 		t.Fatal(err)
 	}
 	svc := New(runtime, nil)
-	raw := []byte(`{"apiVersion":"beeftv.plugin/v1","id":"wf-contract-plugin","version":"1.0.0","name":"wf-contract-plugin","author":"Test","documentation":"# wf","contributes":{"providers":[{"id":"wf-provider","legacyAliases":["wf-provider-legacy"],"label":"WF Provider","capabilities":["video"],"scopes":["user.custom-channel","canvas"],"create":{"method":"POST","path":"/tasks","fields":{"prompt":"request.prompt"}},"response":{"statusPaths":["status"]}}],"workflows":[{"id":"exact_wf","label":"Exact","providerId":"wf-provider","capability":"video"},{"id":"orphan_wf","label":"Orphan","providerId":"","capability":"video"},{"id":"untyped_wf","label":"Untyped","providerId":"wf-provider","capability":""}]}}`)
-	if _, err := svc.Install(testPluginPackage(t, raw), "wf-contract-plugin.beeftv-plugin"); err != nil {
+	raw := []byte(`{"apiVersion":"luckytv.plugin/v1","id":"wf-contract-plugin","version":"1.0.0","name":"wf-contract-plugin","author":"Test","documentation":"# wf","contributes":{"providers":[{"id":"wf-provider","legacyAliases":["wf-provider-legacy"],"label":"WF Provider","capabilities":["video"],"scopes":["user.custom-channel","canvas"],"create":{"method":"POST","path":"/tasks","fields":{"prompt":"request.prompt"}},"response":{"statusPaths":["status"]}}],"workflows":[{"id":"exact_wf","label":"Exact","providerId":"wf-provider","capability":"video"},{"id":"orphan_wf","label":"Orphan","providerId":"","capability":"video"},{"id":"untyped_wf","label":"Untyped","providerId":"wf-provider","capability":""}]}}`)
+	if _, err := svc.Install(testPluginPackage(t, raw), "wf-contract-plugin.luckytv-plugin"); err != nil {
 		t.Fatal(err)
 	}
 

@@ -17,7 +17,7 @@ const EOF_MESSAGE = 'upstream stream ended before first response: eof';
 const sse = value => `data: ${JSON.stringify(value)}\n\n`;
 
 async function fixture(t, respond, {settings = {}, maxRequests = 0, idleTimeoutMs} = {}) {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-model-transport-'));
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-model-transport-'));
   const requests = [];
   const toolCalls = [];
   const realFetch = globalThis.fetch;

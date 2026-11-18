@@ -16,15 +16,15 @@ import (
 	"strings"
 	"time"
 
-	localasset "infinite-canvas/backend/internal/asset"
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/outbound"
-	"infinite-canvas/backend/internal/playback"
-	"infinite-canvas/backend/internal/protocol"
-	"infinite-canvas/backend/internal/repository"
+	localasset "luckytv/backend/internal/asset"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/outbound"
+	"luckytv/backend/internal/playback"
+	"luckytv/backend/internal/protocol"
+	"luckytv/backend/internal/repository"
 
 	"gorm.io/gorm"
 )
@@ -208,7 +208,7 @@ func DecodeGenerationArtifact(deps DeliveryMediaDeps, userID, identity, mediaTyp
 }
 
 func isManagedTaskConnection(task model.Task) bool {
-	return beeftv.IsManagedTaskInput(task.InputJSON)
+	return luckytv.IsManagedTaskInput(task.InputJSON)
 }
 
 func ImageDownloadHeaders(
@@ -259,7 +259,7 @@ func ImageDownloadHeaders(
 			return nil, err
 		}
 	}
-	if input.Config.CredentialRef == beeftv.CredentialRef || input.Config.ChannelID == beeftv.ChannelID {
+	if input.Config.CredentialRef == luckytv.CredentialRef || input.Config.ChannelID == luckytv.ChannelID {
 		return nil, nil
 	}
 	if input.Config.BaseURL == "" && input.Config.ChannelID == "" {
@@ -327,7 +327,7 @@ func ManagedDeliveryArtifact(repo *repository.Repository, decryptSetting func(st
 		if err := json.Unmarshal([]byte(plain), &config); err != nil {
 			return false, err
 		}
-		if config.CredentialRef == beeftv.CredentialRef || config.ChannelID == beeftv.ChannelID {
+		if config.CredentialRef == luckytv.CredentialRef || config.ChannelID == luckytv.ChannelID {
 			return true, nil
 		}
 		if strings.TrimSpace(config.BaseURL) != "" || strings.TrimSpace(config.APIKey) != "" || strings.TrimSpace(config.ChannelID) != "" {
@@ -335,7 +335,7 @@ func ManagedDeliveryArtifact(repo *repository.Repository, decryptSetting func(st
 		}
 	}
 	if attempt, err := repo.LatestRouteAttempt(task.ID); err == nil && attempt != nil {
-		if attempt.ChannelID == beeftv.ChannelID {
+		if attempt.ChannelID == luckytv.ChannelID {
 			return true, nil
 		}
 		if row, err := repo.ImageSubmission(attempt.ID, task.ID, task.UserID); err == nil && row.QueryCipher != "" {
@@ -353,7 +353,7 @@ func ArtifactDownloadPartialPath(dataDir, userID, identity string) string {
 func RefreshManagedArtifactURL(
 	ctx context.Context,
 	repo *repository.Repository,
-	queryManaged func(ctx context.Context, task model.Task) (status string, outputs []beeftv.MediaOutput, managed, legacy bool, err error),
+	queryManaged func(ctx context.Context, task model.Task) (status string, outputs []luckytv.MediaOutput, managed, legacy bool, err error),
 	userID, identity, kind string,
 	cause error,
 ) (string, bool, error) {

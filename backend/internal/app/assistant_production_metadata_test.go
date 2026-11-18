@@ -2,8 +2,8 @@ package app
 
 import (
 	"encoding/json"
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/operations"
 	"reflect"
 	"testing"
 )

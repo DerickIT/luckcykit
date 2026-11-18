@@ -3,10 +3,10 @@ package mediaattempt
 import (
 	"context"
 	"encoding/json"
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/database"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/database"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
@@ -50,7 +50,7 @@ func TestManagedMediaActiveStageAndObserveTiming(t *testing.T) {
 
 	port := managedMediaPort{service: &Service{repo: repo}}
 	ctx := context.WithValue(context.Background(), TaskContext{}, task)
-	port.Project(ctx, beeftv.MediaTask{TaskID: "remote-1", MediaType: "video", Status: "in_progress"})
+	port.Project(ctx, luckytv.MediaTask{TaskID: "remote-1", MediaType: "video", Status: "in_progress"})
 
 	stored, err := repo.Task(task.ID)
 	if err != nil || stored == nil {
@@ -64,7 +64,7 @@ func TestManagedMediaActiveStageAndObserveTiming(t *testing.T) {
 	if err := repo.UpdateTaskStageForLease(task.ID, task.LeaseOwner, "正在取回生成结果"); err != nil {
 		t.Fatalf("advance stage: %v", err)
 	}
-	port.Project(ctx, beeftv.MediaTask{TaskID: "remote-1", MediaType: "video", Status: "in_progress"})
+	port.Project(ctx, luckytv.MediaTask{TaskID: "remote-1", MediaType: "video", Status: "in_progress"})
 	stored, err = repo.Task(task.ID)
 	if err != nil || stored.Stage != "正在取回生成结果" {
 		t.Fatalf("expected stage 正在取回生成结果 preserved, got %q (err=%v)", stored.Stage, err)
@@ -86,7 +86,7 @@ func TestManagedMediaActiveStageAndObserveTiming(t *testing.T) {
 	if err := db.Create(&legacyTask).Error; err != nil {
 		t.Fatalf("create legacy task: %v", err)
 	}
-	port.Project(context.WithValue(context.Background(), TaskContext{}, legacyTask), beeftv.MediaTask{TaskID: "remote-legacy", MediaType: "video", Status: "in_progress"})
+	port.Project(context.WithValue(context.Background(), TaskContext{}, legacyTask), luckytv.MediaTask{TaskID: "remote-legacy", MediaType: "video", Status: "in_progress"})
 	storedLegacy, err := repo.Task(legacyTask.ID)
 	if err != nil || storedLegacy == nil || storedLegacy.Stage != "正在消除视频字幕" {
 		t.Fatalf("expected legacy task stage 正在消除视频字幕, got %+v (err=%v)", storedLegacy, err)
@@ -96,17 +96,17 @@ func TestManagedMediaActiveStageAndObserveTiming(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		time.Sleep(25 * time.Millisecond)
 		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(beeftv.MediaTask{
+		_ = json.NewEncoder(w).Encode(luckytv.MediaTask{
 			TaskRef:   "remote-1",
 			MediaType: "video",
 			Status:    "in_progress",
-			Outputs:   []beeftv.MediaOutput{},
+			Outputs:   []luckytv.MediaOutput{},
 		})
 	}))
 	defer server.Close()
 
 	var observedElapsed time.Duration
-	client := &beeftv.MediaClient{
+	client := &luckytv.MediaClient{
 		BaseURL:       server.URL,
 		APIKey:        "test-key",
 		AllowHTTPTest: true,

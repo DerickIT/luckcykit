@@ -12,8 +12,8 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/privatefile"
-	"infinite-canvas/backend/internal/skillhub"
+	"luckytv/backend/internal/privatefile"
+	"luckytv/backend/internal/skillhub"
 )
 
 func TestPublishingConfirmationRetryAndPrivateCredentials(t *testing.T) {
@@ -35,7 +35,7 @@ func TestPublishingConfirmationRetryAndPrivateCredentials(t *testing.T) {
 		case "/session":
 			envelope(w, skillhub.PublishingAccount{UserID: accountID, Username: "author", DisplayName: "Actual author"})
 		case "/authorizations":
-			envelope(w, skillhub.Authorization{DeviceCode: "fixture-device-secret", UserCode: "USER-ONLY", VerificationURL: "https://beeftv.app/skills/authorize?user_code=USER-ONLY", ExpiresIn: 600, Interval: 5})
+			envelope(w, skillhub.Authorization{DeviceCode: "fixture-device-secret", UserCode: "USER-ONLY", VerificationURL: "https://luckytv.app/skills/authorize?user_code=USER-ONLY", ExpiresIn: 600, Interval: 5})
 		case "/authorizations/token":
 			if !approved {
 				w.WriteHeader(409)

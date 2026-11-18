@@ -21,7 +21,7 @@ import {
     getPluginEventListenerCount,
     onPluginEvent,
 } from "../src/lib/plugins/plugin-events";
-import { createBeefTVPluginHost } from "../src/lib/plugins/plugin-host-runtime";
+import { createLuckyTVPluginHost } from "../src/lib/plugins/plugin-host-runtime";
 import {
     clearAllPluginContributions,
     contributeSlot,
@@ -149,7 +149,7 @@ describe("plugin host slots, events, and lifecycle", () => {
         });
         usePluginStore.getState().setEnabled(pluginId, true);
 
-        const host = createBeefTVPluginHost(pluginId);
+        const host = createLuckyTVPluginHost(pluginId);
 
         // 1. canvas.node
         host.contribute("canvas.node", {
@@ -275,7 +275,7 @@ describe("plugin host slots, events, and lifecycle", () => {
     test("runGenerationBeforeSubmitHooks transforms payload and records plugin attribution", async () => {
         const pluginId = "watermark-guard";
         usePluginStore.getState().ensurePlugin({
-            apiVersion: "beeftv.plugin/v1",
+            apiVersion: "luckytv.plugin/v1",
             id: pluginId,
             name: "提示词增强器",
             version: "1.0.0",
@@ -391,28 +391,28 @@ describe("plugin host slots, events, and lifecycle", () => {
     });
 
     test("install confirmation labels where the code comes from, and requests cannot mark themselves trusted", () => {
-        expect(installSourceLabel({ source: "beeftv-plugin-example" })).toBe("npm 包");
+        expect(installSourceLabel({ source: "luckytv-plugin-example" })).toBe("npm 包");
         expect(installSourceLabel({ source: "/Users/me/my-plugin" })).toBe("本地目录");
-        expect(installSourceLabel({ source: "beeftv-plugin-sticky-note" })).toBe("npm 包");
+        expect(installSourceLabel({ source: "luckytv-plugin-sticky-note" })).toBe("npm 包");
     });
 
     test("activates real bundled ESM client plugins from plugin-packages and cleans up on disable", async () => {
-        const marketMod = await import("../../plugin-packages/beeftv-plugin-market/client/index.js");
-        const ll2Mod = await import("../../plugin-packages/beeftv-plugin-ll2/client/index.js");
-        const ysduiMod = await import("../../plugin-packages/beeftv-plugin-ysdui/client/index.js");
-        const stickyMod = await import("../../plugin-packages/beeftv-plugin-sticky-note/client/index.js");
-        const ecommerceMod = await import("../../plugin-packages/beeftv-plugin-ecommerce-hero/client/index.js");
-        const charReplaceMod = await import("../../plugin-packages/beeftv-plugin-character-replacement/client/index.js");
-        const slotTestMod = await import("../../plugin-packages/beeftv-plugin-slot-test/client/index.js");
+        const marketMod = await import("../../plugin-packages/luckytv-plugin-market/client/index.js");
+        const ll2Mod = await import("../../plugin-packages/luckytv-plugin-ll2/client/index.js");
+        const ysduiMod = await import("../../plugin-packages/luckytv-plugin-ysdui/client/index.js");
+        const stickyMod = await import("../../plugin-packages/luckytv-plugin-sticky-note/client/index.js");
+        const ecommerceMod = await import("../../plugin-packages/luckytv-plugin-ecommerce-hero/client/index.js");
+        const charReplaceMod = await import("../../plugin-packages/luckytv-plugin-character-replacement/client/index.js");
+        const slotTestMod = await import("../../plugin-packages/luckytv-plugin-slot-test/client/index.js");
 
         const packages = [
-            { id: "beeftv-plugin-market", name: "插件市场", mod: marketMod },
-            { id: "beeftv-plugin-ll2", name: "LL2 算力与视频渠道", mod: ll2Mod },
-            { id: "beeftv-plugin-ysdui", name: "银盛云枢壹算算力与多模态渠道", mod: ysduiMod },
-            { id: "beeftv-plugin-sticky-note", name: "便签节点", mod: stickyMod },
-            { id: "beeftv-plugin-ecommerce-hero", name: "一键商品主图", mod: ecommerceMod },
-            { id: "beeftv-plugin-character-replacement", name: "AI 角色替换工作室", mod: charReplaceMod },
-            { id: "beeftv-plugin-slot-test", name: "挂点测试套件", mod: slotTestMod },
+            { id: "luckytv-plugin-market", name: "插件市场", mod: marketMod },
+            { id: "luckytv-plugin-ll2", name: "LL2 算力与视频渠道", mod: ll2Mod },
+            { id: "luckytv-plugin-ysdui", name: "银盛云枢壹算算力与多模态渠道", mod: ysduiMod },
+            { id: "luckytv-plugin-sticky-note", name: "便签节点", mod: stickyMod },
+            { id: "luckytv-plugin-ecommerce-hero", name: "一键商品主图", mod: ecommerceMod },
+            { id: "luckytv-plugin-character-replacement", name: "AI 角色替换工作室", mod: charReplaceMod },
+            { id: "luckytv-plugin-slot-test", name: "挂点测试套件", mod: slotTestMod },
         ];
 
         for (const pkg of packages) {
@@ -431,12 +431,12 @@ describe("plugin host slots, events, and lifecycle", () => {
 
         // Market plugin contributes pluginCenter.section
         expect(
-            getPluginSlotEntries("pluginCenter.section").some((e) => e.pluginId === "beeftv-plugin-market"),
+            getPluginSlotEntries("pluginCenter.section").some((e) => e.pluginId === "luckytv-plugin-market"),
         ).toBe(true);
 
         // LL2 plugin contributes app.settings and builds a complete BYOK channel
         expect(
-            getPluginSlotEntries("app.settings").some((e) => e.pluginId === "beeftv-plugin-ll2"),
+            getPluginSlotEntries("app.settings").some((e) => e.pluginId === "luckytv-plugin-ll2"),
         ).toBe(true);
         const builtChannel = ll2Mod.buildLL2ModelChannel({ apiKey: "sk-test-demo", baseUrl: "https://api.ll2.cn" });
         expect(builtChannel.id).toBe("ll2");
@@ -446,7 +446,7 @@ describe("plugin host slots, events, and lifecycle", () => {
         expect(builtChannel.modelProfiles).toHaveLength(9);
 
         expect(
-            getPluginSlotEntries("app.settings").some((e) => e.pluginId === "beeftv-plugin-ysdui"),
+            getPluginSlotEntries("app.settings").some((e) => e.pluginId === "luckytv-plugin-ysdui"),
         ).toBe(true);
         const builtYsduiChannel = ysduiMod.buildYsduiModelChannel({
             apiKey: "sk-test-demo",
@@ -469,8 +469,8 @@ describe("plugin host slots, events, and lifecycle", () => {
         expect(defaultYsduiChannel.modelProfiles).toHaveLength(32);
 
         // Untrusted plugins without settings.write cannot read or mutate channels
-        const untrustedHost = createBeefTVPluginHost("untrusted-plugin", {
-            apiVersion: "beeftv.plugin/v2",
+        const untrustedHost = createLuckyTVPluginHost("untrusted-plugin", {
+            apiVersion: "luckytv.plugin/v2",
             id: "untrusted-plugin",
             name: "Untrusted",
             version: "1.0.0",
@@ -481,9 +481,9 @@ describe("plugin host slots, events, and lifecycle", () => {
         expect(() => untrustedHost.channels?.list()).toThrow();
 
         // Trusted plugin with settings.write gets redacted channel copies
-        const trustedHost = createBeefTVPluginHost("beeftv-plugin-ll2", {
-            apiVersion: "beeftv.plugin/v2",
-            id: "beeftv-plugin-ll2",
+        const trustedHost = createLuckyTVPluginHost("luckytv-plugin-ll2", {
+            apiVersion: "luckytv.plugin/v2",
+            id: "luckytv-plugin-ll2",
             name: "LL2",
             version: "1.0.0",
             description: "LL2",
@@ -500,41 +500,41 @@ describe("plugin host slots, events, and lifecycle", () => {
         ).rejects.toThrow("仅允许写入自身命名空间下的模型渠道");
 
         // Sticky note plugin contributes canvas.node (sticky-note) and canvas.addNodeMenu
-        expect(getPluginCanvasNodeRenderer("sticky-note")?.pluginId).toBe("beeftv-plugin-sticky-note");
+        expect(getPluginCanvasNodeRenderer("sticky-note")?.pluginId).toBe("luckytv-plugin-sticky-note");
 
         // Ecommerce hero contributes canvas.node (ecommerce-hero), canvas.addNodeMenu, assistant.toolCard
-        expect(getPluginCanvasNodeRenderer("ecommerce-hero")?.pluginId).toBe("beeftv-plugin-ecommerce-hero");
+        expect(getPluginCanvasNodeRenderer("ecommerce-hero")?.pluginId).toBe("luckytv-plugin-ecommerce-hero");
         expect(
-            getPluginSlotEntries("assistant.toolCard").some((e) => e.pluginId === "beeftv-plugin-ecommerce-hero"),
+            getPluginSlotEntries("assistant.toolCard").some((e) => e.pluginId === "luckytv-plugin-ecommerce-hero"),
         ).toBe(true);
 
         // Character replacement contributes canvas.node (character-replacement), canvas.addNodeMenu, canvas.toolbar.main, canvas.sidePanel, app.page, app.sidebar, assistant.toolCard
-        expect(getPluginCanvasNodeRenderer("character-replacement")?.pluginId).toBe("beeftv-plugin-character-replacement");
+        expect(getPluginCanvasNodeRenderer("character-replacement")?.pluginId).toBe("luckytv-plugin-character-replacement");
         expect(
-            getAddNodeMenuCommands().some((t) => t.id === "plugin:beeftv-plugin-character-replacement:addNodeMenu:character-replacement-add"),
+            getAddNodeMenuCommands().some((t) => t.id === "plugin:luckytv-plugin-character-replacement:addNodeMenu:character-replacement-add"),
         ).toBe(true);
         expect(
-            getToolbarTools("main").some((t) => t.id === "plugin:beeftv-plugin-character-replacement:main:character-replacement-toolbar"),
+            getToolbarTools("main").some((t) => t.id === "plugin:luckytv-plugin-character-replacement:main:character-replacement-toolbar"),
         ).toBe(true);
         expect(
-            getPluginSlotEntries("canvas.sidePanel").some((e) => e.pluginId === "beeftv-plugin-character-replacement"),
+            getPluginSlotEntries("canvas.sidePanel").some((e) => e.pluginId === "luckytv-plugin-character-replacement"),
         ).toBe(true);
         expect(
             getPluginSlotEntries("app.page").some(
-                (e) => e.pluginId === "beeftv-plugin-character-replacement" && e.payload.path === "/p/beeftv-plugin-character-replacement",
+                (e) => e.pluginId === "luckytv-plugin-character-replacement" && e.payload.path === "/p/luckytv-plugin-character-replacement",
             ),
         ).toBe(true);
         expect(
-            getPluginSlotEntries("assistant.toolCard").filter((e) => e.pluginId === "beeftv-plugin-character-replacement"),
+            getPluginSlotEntries("assistant.toolCard").filter((e) => e.pluginId === "luckytv-plugin-character-replacement"),
         ).toHaveLength(2);
         expect(
             getPluginSlotEntries("app.sidebar").some(
-                (e) => e.pluginId === "beeftv-plugin-character-replacement" && e.payload.path === "/p/beeftv-plugin-character-replacement",
+                (e) => e.pluginId === "luckytv-plugin-character-replacement" && e.payload.path === "/p/luckytv-plugin-character-replacement",
             ),
         ).toBe(true);
 
         // Slot test plugin contributes to every slot and listens to every event
-        expect(getPluginCanvasNodeRenderer("slot-test-node")?.pluginId).toBe("beeftv-plugin-slot-test");
+        expect(getPluginCanvasNodeRenderer("slot-test-node")?.pluginId).toBe("luckytv-plugin-slot-test");
         expect(getPluginEventListenerCount("generation.completed")).toBeGreaterThanOrEqual(1);
         expect(getPluginEventListenerCount("assistant.turnCompleted")).toBeGreaterThanOrEqual(1);
 

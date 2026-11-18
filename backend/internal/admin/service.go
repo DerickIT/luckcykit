@@ -8,12 +8,12 @@ import (
 
 	"gorm.io/gorm"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/platform"
-	"infinite-canvas/backend/internal/repository"
-	"infinite-canvas/backend/internal/resource"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/platform"
+	"luckytv/backend/internal/repository"
+	"luckytv/backend/internal/resource"
 )
 
 type ListQuery struct {

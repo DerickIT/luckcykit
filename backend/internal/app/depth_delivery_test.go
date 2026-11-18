@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/depthcapture"
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/depthcapture"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
 )
 
 func TestDepthCompletionSurvivesDeliveryFailureAndSQLiteReopen(t *testing.T) {

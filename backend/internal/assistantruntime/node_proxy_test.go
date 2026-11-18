@@ -26,7 +26,7 @@ import (
 // Exercise the actual child environment with Node's built-in fetch and local
 // CONNECT proxies. No SDK, model service, inherited credential or public target.
 func TestNodeHostProxyRoutesHTTPAndHTTPSWithoutLeakingLoopbackTokens(t *testing.T) {
-	node := os.Getenv("BEEFTV_TEST_NODE")
+	node := os.Getenv("LUCKYTV_TEST_NODE")
 	if node == "" {
 		var err error
 		node, err = exec.LookPath("node")
@@ -38,10 +38,10 @@ func TestNodeHostProxyRoutesHTTPAndHTTPSWithoutLeakingLoopbackTokens(t *testing.
 	if err != nil || strings.TrimSpace(string(version)) != "24" {
 		t.Skip("Node 24 required for proxy integration")
 	}
-	const targetHost = "beeftv-proxy-test.invalid"
+	const targetHost = "luckytv-proxy-test.invalid"
 	var localReads, proxyReads, leaked atomic.Int64
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Header.Get("X-BeefTV-Agent-Token") == "synthetic-launch-token" {
+		if r.Header.Get("X-LuckyTV-Agent-Token") == "synthetic-launch-token" {
 			localReads.Add(1)
 		}
 		_, _ = io.WriteString(w, "local fixture")
@@ -68,7 +68,7 @@ func TestNodeHostProxyRoutesHTTPAndHTTPSWithoutLeakingLoopbackTokens(t *testing.
 	_, tlsPort, _ := net.SplitHostPort(secure.Listener.Addr().String())
 	proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		proxyReads.Add(1)
-		if r.Header.Get("X-BeefTV-Agent-Token") != "" {
+		if r.Header.Get("X-LuckyTV-Agent-Token") != "" {
 			leaked.Add(1)
 		}
 		if r.Method != http.MethodConnect {
@@ -115,7 +115,7 @@ func TestNodeHostProxyRoutesHTTPAndHTTPSWithoutLeakingLoopbackTokens(t *testing.
 		env := host.buildEnv(provider, testPin(plain.URL, "synthetic-launch-token"))
 		ctx, cancel := context.WithTimeout(context.Background(), 8*time.Second)
 		defer cancel()
-		command := exec.CommandContext(ctx, node, "--input-type=module", "-e", `try { const response = await fetch(process.argv[1], {signal: AbortSignal.timeout(2500), headers: process.argv[2] === 'true' ? {'X-BeefTV-Agent-Token': process.env.BEEFTV_AGENT_DESKTOP_TOKEN} : {}}); if (!response.ok) throw Error('http'); console.log(await response.text()); } catch(error) { console.log(error.cause?.code || error.code || error.name); process.exitCode=1; }`, target, map[bool]string{true: "true", false: "false"}[token])
+		command := exec.CommandContext(ctx, node, "--input-type=module", "-e", `try { const response = await fetch(process.argv[1], {signal: AbortSignal.timeout(2500), headers: process.argv[2] === 'true' ? {'X-LuckyTV-Agent-Token': process.env.LUCKYTV_AGENT_DESKTOP_TOKEN} : {}}); if (!response.ok) throw Error('http'); console.log(await response.text()); } catch(error) { console.log(error.cause?.code || error.code || error.name); process.exitCode=1; }`, target, map[bool]string{true: "true", false: "false"}[token])
 		command.Env = env
 		output, err := command.CombinedOutput()
 		return string(output), err
@@ -218,14 +218,14 @@ func TestModelOriginChangeRebuildsOwnedChildProxyEnvironment(t *testing.T) {
 	if launched, err := host.Ensure(updated, "http://127.0.0.1:18090/api", "", false); err != nil || launched || host.PID() != first {
 		t.Fatal("busy host must retain its original model and environment")
 	}
-	if envValue(readChild(), "BEEFTV_AGENT_BASE_URL") != original.BaseURL {
+	if envValue(readChild(), "LUCKYTV_AGENT_BASE_URL") != original.BaseURL {
 		t.Fatal("busy host changed its model")
 	}
 	if launched, err := host.Ensure(updated, "http://127.0.0.1:18090/api", "", true); err != nil || !launched || host.PID() == first {
 		t.Fatal("idle model-origin change must restart the owned child")
 	}
 	env := readChild()
-	if envValue(env, "BEEFTV_AGENT_BASE_URL") != updated.BaseURL || envValue(env, "NODE_USE_ENV_PROXY") != "1" ||
+	if envValue(env, "LUCKYTV_AGENT_BASE_URL") != updated.BaseURL || envValue(env, "NODE_USE_ENV_PROXY") != "1" ||
 		!strings.Contains(envValue(env, "NO_PROXY"), "new-model.invalid") || strings.Contains(envValue(env, "NO_PROXY"), "old-model.invalid") {
 		t.Fatal("restarted child retained stale model proxy projection")
 	}

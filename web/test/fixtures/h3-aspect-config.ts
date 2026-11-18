@@ -5,9 +5,9 @@ import { H3_STYLES, isH3Style } from "../../src/lib/h3-video";
 export const h3Models = ["minimax-h3", "minimax-h3-max", "minimax-h3-max-turbo"];
 export const h3StyleModels = Object.keys(H3_STYLES);
 
-export function h3AspectConfig(model = "minimax-h3-max-turbo", baseUrl = "https://beeftv.app") {
+export function h3AspectConfig(model = "minimax-h3-max-turbo", baseUrl = "https://luckytv.app") {
     const models = [...h3Models, ...h3StyleModels];
-    const channel = createModelChannel({ id: "beeftv", baseUrl, models });
+    const channel = createModelChannel({ id: "luckytv", baseUrl, models });
     channel.modelProfiles = mergeFetchedChannelModelProfiles(channel, models.map((id) => ({
         id, supportedEndpointTypes: ["openai-video"], videoCapabilitiesVersion: "aspect-hint-fixture",
         videoCapabilities: {
@@ -19,5 +19,5 @@ export function h3AspectConfig(model = "minimax-h3-max-turbo", baseUrl = "https:
             operations: isH3Style(id) ? ["text_to_video", "image_to_video"] : ["text_to_video", "image_to_video", "audio_to_video", "reference_to_video"], defaultOperation: "text_to_video",
         },
     })));
-    return normalizeConfigSnapshot({ config: { ...defaultConfig, channels: [channel], model: `beeftv::${model}`, videoModel: `beeftv::${model}`, size: "9:16", vquality: "768p", videoSeconds: "15" } }).config;
+    return normalizeConfigSnapshot({ config: { ...defaultConfig, channels: [channel], model: `luckytv::${model}`, videoModel: `luckytv::${model}`, size: "9:16", vquality: "768p", videoSeconds: "15" } }).config;
 }

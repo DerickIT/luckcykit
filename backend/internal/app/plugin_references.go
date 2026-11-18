@@ -3,8 +3,8 @@ package app
 import (
 	"fmt"
 
-	"infinite-canvas/backend/internal/plugins"
-	"infinite-canvas/backend/internal/workspace"
+	"luckytv/backend/internal/plugins"
+	"luckytv/backend/internal/workspace"
 )
 
 // providerReferenceSource is the part of the task and channel store the

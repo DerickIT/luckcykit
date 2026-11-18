@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"infinite-canvas/backend/internal/canvas"
-	"infinite-canvas/backend/internal/creation"
+	"luckytv/backend/internal/canvas"
+	"luckytv/backend/internal/creation"
 )
 
 type creationRouteService interface {

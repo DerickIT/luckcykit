@@ -7,11 +7,11 @@ import (
 	"image"
 	"image/color"
 	"image/png"
-	localasset "infinite-canvas/backend/internal/asset"
-	cw "infinite-canvas/backend/internal/canvasworkflow"
-	"infinite-canvas/backend/internal/mediatools"
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
+	localasset "luckytv/backend/internal/asset"
+	cw "luckytv/backend/internal/canvasworkflow"
+	"luckytv/backend/internal/mediatools"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
 	"testing"
 )
 

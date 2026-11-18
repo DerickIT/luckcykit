@@ -1,6 +1,6 @@
 package app
 
-import "infinite-canvas/backend/internal/modelcatalog"
+import "luckytv/backend/internal/modelcatalog"
 
 // Desktop execution uses its provider snapshot, not hosted database channels.
 // The public sanitizer excludes execution addresses, headers and credentials.

@@ -1,4 +1,4 @@
-// Host 的 HTTP 面：嵌入页代理与 /beeftv/* 控制接口。协议细节留在 runtime.js。
+// Host 的 HTTP 面：嵌入页代理与 /luckytv/* 控制接口。协议细节留在 runtime.js。
 
 import { request } from 'node:http'
 import { embeddedDocument, embeddedPathRejection, publicContext } from './runtime.js'
@@ -29,8 +29,8 @@ function proxy(runtime, req, res, path, basePath) {
     // The checked target is sent verbatim. Re-parsing it could drop or rewrite parts the check saw.
     const bridge = new URL(runtime.bridgeURL)
     // The page marker lets the bridge apply its own path check to embedded-page traffic.
-    const headers = { ...req.headers, host: bridge.host, 'x-beeftv-harness-token': runtime.bridgeToken, 'x-beeftv-harness-page': '1' }
-    for (const header of ['authorization', 'cookie', 'origin', 'x-desktop-token', 'x-beeftv-ui-bootstrap', 'x-beeftv-client', 'x-beeftv-owner']) delete headers[header]
+    const headers = { ...req.headers, host: bridge.host, 'x-luckytv-harness-token': runtime.bridgeToken, 'x-luckytv-harness-page': '1' }
+    for (const header of ['authorization', 'cookie', 'origin', 'x-desktop-token', 'x-luckytv-ui-bootstrap', 'x-luckytv-client', 'x-luckytv-owner']) delete headers[header]
     const upstream = request({ hostname: bridge.hostname, port: bridge.port, path, method: req.method, headers }, response => {
       const responseHeaders = { ...response.headers, 'referrer-policy': 'no-referrer', 'cache-control': 'no-store' }
       delete responseHeaders['set-cookie']
@@ -68,7 +68,7 @@ function proxy(runtime, req, res, path, basePath) {
 
 export function registerWorkspaceRoutes(ctx, { connection, runner, stepLimit }) {
   ctx.effect(() => ctx.webServer.register({
-    kind: 'prefix', path: '/beeftv',
+    kind: 'prefix', path: '/luckytv',
     async handler(req, res) {
       try {
         const current = connection.current()
@@ -87,18 +87,18 @@ export function registerWorkspaceRoutes(ctx, { connection, runner, stepLimit }) 
         const url = new URL(req.url, 'http://localhost')
         const rejection = ctx.connection.requestRejection({ headers: req.headers })
         if (rejection) return json(res, rejection, { error: '未授权' })
-        if (req.method === 'GET' && url.pathname === '/beeftv/status') {
+        if (req.method === 'GET' && url.pathname === '/luckytv/status') {
           await connection.settingsReady
           await connection.pluginSettingsReady
           return json(res, 200, await connection.refreshConnection())
         }
-        if (req.method === 'POST' && url.pathname === '/beeftv/connect') {
+        if (req.method === 'POST' && url.pathname === '/luckytv/connect') {
           const body = await bodyJSON(req)
           await connection.settingsReady
           await connection.connect(body.mode)
           return json(res, 200, connection.status())
         }
-        if (req.method === 'POST' && url.pathname === '/beeftv/context') {
+        if (req.method === 'POST' && url.pathname === '/luckytv/context') {
           const body = await bodyJSON(req)
           const live = connection.current()
           if (!live || body.connectionId !== live.connectionId) return json(res, 409, { error: '工作区连接已更新，请刷新后重试' })
@@ -108,13 +108,13 @@ export function registerWorkspaceRoutes(ctx, { connection, runner, stepLimit }) 
           connection.setContext(body.sessionId, view)
           return json(res, 200, { ok: true })
         }
-        if (req.method === 'POST' && url.pathname === '/beeftv/settings') {
+        if (req.method === 'POST' && url.pathname === '/luckytv/settings') {
           const body = await bodyJSON(req)
           await connection.pluginSettingsReady
           await connection.updatePluginSettings(body)
           return json(res, 200, connection.status())
         }
-        if (req.method === 'POST' && url.pathname === '/beeftv/away-notice') {
+        if (req.method === 'POST' && url.pathname === '/luckytv/away-notice') {
           const body = await bodyJSON(req)
           if (body.seen !== true) throw new Error('无效的提示设置')
           // 断线时不知道该清哪个工作区；先忽略，等连回后再关，避免把别的工作区计数一起清掉。
@@ -124,13 +124,13 @@ export function registerWorkspaceRoutes(ctx, { connection, runner, stepLimit }) 
           await runner.dispatch({ type: 'awaySeen', workspaceId: live.workspace?.id ?? null }).settled
           return json(res, 200, connection.status())
         }
-        if (req.method === 'POST' && url.pathname === '/beeftv/step-notice') {
+        if (req.method === 'POST' && url.pathname === '/luckytv/step-notice') {
           const body = await bodyJSON(req)
           if (body.seen !== true) throw new Error('无效的提示设置')
           stepLimit.acknowledge()
           return json(res, 200, connection.status())
         }
-        if (req.method === 'POST' && url.pathname === '/beeftv/local-prompt') {
+        if (req.method === 'POST' && url.pathname === '/luckytv/local-prompt') {
           const body = await bodyJSON(req)
           if (body.dismissed !== true) throw new Error('无效的本机连接提示设置')
           await connection.dismissLocalPrompt()

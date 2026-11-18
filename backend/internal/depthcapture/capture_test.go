@@ -11,9 +11,9 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/depthruntime"
-	"infinite-canvas/backend/internal/mediatools"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/depthruntime"
+	"luckytv/backend/internal/mediatools"
+	"luckytv/backend/internal/model"
 )
 
 type fakeMedia struct {

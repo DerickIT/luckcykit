@@ -21,7 +21,7 @@ func TestPackageDoesNotImportApp(t *testing.T) {
 		t.Fatalf("go list deps: %v\n%s", err, output)
 	}
 	for _, dependency := range strings.Fields(string(output)) {
-		if dependency == "infinite-canvas/backend/internal/app" {
+		if dependency == "luckytv/backend/internal/app" {
 			t.Fatal("taskruntime must not import internal/app")
 		}
 	}

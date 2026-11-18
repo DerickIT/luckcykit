@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/operations"
 )
 
 // 内置助手的范围裁决：当前画布可读写，显式引用/画布关联的素材与任务只读，

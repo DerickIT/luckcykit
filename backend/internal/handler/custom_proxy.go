@@ -11,9 +11,9 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/platform"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/platform"
 
 	"github.com/gin-gonic/gin"
 )

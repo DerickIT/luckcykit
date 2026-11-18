@@ -12,8 +12,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/app"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/app"
 )
 
 // 内置 UI 会话：短期限、限定 scope 的独立凭据，由后端签发给可信 UI。
@@ -80,14 +80,14 @@ type agentUISessionService interface {
 // 2) 内置 UI 会话凭据 → 读写（绑定签发时的用户）；
 // 其他一律未认证。
 func resolveAgentCapability(c *gin.Context, svc ownerCredentialDirs, clients *agentops.ClientRegistry, ui *uiSessionStore, userID string) (readOnly bool, identity string, ok bool, reason string) {
-	if strings.TrimSpace(c.GetHeader("X-Beeftv-Client")) != "" {
+	if strings.TrimSpace(c.GetHeader("X-Luckytv-Client")) != "" {
 		readOnly, label, err := resolveClientMode(c, svc, clients)
 		if err != nil {
 			return true, "", false, err.Error()
 		}
 		return readOnly, label, true, ""
 	}
-	if _, found := ui.verify(strings.TrimSpace(c.GetHeader("X-Beeftv-Ui-Session")), userID); found {
+	if _, found := ui.verify(strings.TrimSpace(c.GetHeader("X-Luckytv-Ui-Session")), userID); found {
 		return false, "ui-session", true, ""
 	}
 	return true, "", false, "缺少内置 UI 会话凭据或已登记客户端凭据"
@@ -96,7 +96,7 @@ func resolveAgentCapability(c *gin.Context, svc ownerCredentialDirs, clients *ag
 // RegisterAgentUISessionRoutes 只在本机同源且能出示 owner 凭据（或显式开发引导）时签发 UI 会话。
 func RegisterAgentUISessionRoutes(r gin.IRouter, svc agentUISessionService, ui *uiSessionStore, desktopTrust func(*http.Request) bool) {
 	r.POST("/assistant/ui-session", func(c *gin.Context) {
-		if strings.TrimSpace(c.GetHeader("X-Beeftv-Client")) != "" {
+		if strings.TrimSpace(c.GetHeader("X-Luckytv-Client")) != "" {
 			fail(c, http.StatusForbidden, app.BadAuthRequest("外部客户端不能签发界面会话"))
 			return
 		}
@@ -109,8 +109,8 @@ func RegisterAgentUISessionRoutes(r gin.IRouter, svc agentUISessionService, ui *
 			failService(c, err)
 			return
 		}
-		ownerOK := agentops.OwnerTokenMatches(svc.DataDir(), strings.TrimSpace(c.GetHeader("X-Beeftv-Owner")))
-		devBootstrap := strings.TrimSpace(os.Getenv("BEEFTV_UI_BOOTSTRAP")) == "1"
+		ownerOK := agentops.OwnerTokenMatches(svc.DataDir(), strings.TrimSpace(c.GetHeader("X-Luckytv-Owner")))
+		devBootstrap := strings.TrimSpace(os.Getenv("LUCKYTV_UI_BOOTSTRAP")) == "1"
 		// The UI bootstrap secret comes through the Wails binding, separately from entry credentials.
 		desktopShell := desktopTrust != nil && desktopTrust(c.Request)
 		if !ownerOK && !devBootstrap && !desktopShell {

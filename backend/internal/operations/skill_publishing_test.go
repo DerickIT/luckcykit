@@ -25,7 +25,7 @@ func TestSkillPublicationRequirementsDescriptorIsFinite(t *testing.T) {
 		t.Fatal(err)
 	}
 	requirements := schema.Properties.Metadata.Properties["requirements"]
-	if !reflect.DeepEqual(requirements.Items.Enum, []string{"beeftv.canvas", "model.image", "model.video", "model.audio"}) || !strings.Contains(requirements.Description, "[]") || !strings.Contains(requirements.Description, "text") {
+	if !reflect.DeepEqual(requirements.Items.Enum, []string{"luckytv.canvas", "model.image", "model.video", "model.audio"}) || !strings.Contains(requirements.Description, "[]") || !strings.Contains(requirements.Description, "text") {
 		t.Fatalf("model-facing capability contract is ambiguous: %+v", requirements)
 	}
 	if schema.Properties.Metadata.Properties["requirementNotes"].Type != "string" {

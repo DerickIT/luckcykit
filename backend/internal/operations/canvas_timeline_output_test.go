@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"infinite-canvas/backend/internal/editing"
+	"luckytv/backend/internal/editing"
 )
 
 func TestTimelineUpdatePreservesOnlyOmittedValidOutput(t *testing.T) {

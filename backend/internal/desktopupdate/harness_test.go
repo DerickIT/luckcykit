@@ -61,9 +61,9 @@ func WriteDarwinLayout(root, marker string) error {
 	if err := writeAgentLayout(filepath.Join(root, appBundleName, "Contents", "Resources", "agent-host"), "runtime/bin/node", marker); err != nil {
 		return err
 	}
-	exe := filepath.Join(root, appBundleName, "Contents", "MacOS", "BeefTV")
+	exe := filepath.Join(root, appBundleName, "Contents", "MacOS", "LuckyTV")
 	plist := filepath.Join(root, appBundleName, "Contents", "Info.plist")
-	plugin := filepath.Join(root, appBundleName, "Contents", "Resources", pluginDirName, "official.beeftv-plugin")
+	plugin := filepath.Join(root, appBundleName, "Contents", "Resources", pluginDirName, "official.luckytv-plugin")
 	if err := os.MkdirAll(filepath.Dir(exe), 0o755); err != nil {
 		return err
 	}
@@ -81,7 +81,7 @@ func WriteDarwinLayout(root, marker string) error {
 	if err := os.WriteFile(cli, []byte(script), 0o755); err != nil {
 		return err
 	}
-	if err := os.WriteFile(plist, []byte(`<plist><dict><key>CFBundleIdentifier</key><string>app.beeftv.desktop</string></dict></plist>`), 0o644); err != nil {
+	if err := os.WriteFile(plist, []byte(`<plist><dict><key>CFBundleIdentifier</key><string>app.luckytv.desktop</string></dict></plist>`), 0o644); err != nil {
 		return err
 	}
 	return os.WriteFile(plugin, []byte("official-"+marker), 0o644)
@@ -92,7 +92,7 @@ func WriteWindowsLayout(root, marker string) error {
 		return err
 	}
 	exe := filepath.Join(root, windowsExeName)
-	plugin := filepath.Join(root, pluginDirName, "official.beeftv-plugin")
+	plugin := filepath.Join(root, pluginDirName, "official.luckytv-plugin")
 	if err := os.MkdirAll(filepath.Dir(plugin), 0o755); err != nil {
 		return err
 	}
@@ -111,24 +111,24 @@ func WriteWindowsLayout(root, marker string) error {
 
 func DarwinZipFiles(marker string) (map[string][]byte, map[string]bool) {
 	files := map[string][]byte{
-		"BeefTV.app/Contents/MacOS/BeefTV":                                     []byte("#!/bin/sh\necho " + marker + "\n"),
-		"BeefTV.app/Contents/Info.plist":                                       []byte("<plist></plist>"),
-		"BeefTV.app/Contents/Resources/plugin-packages/official.beeftv-plugin": []byte("official-" + marker),
+		"LuckyTV.app/Contents/MacOS/LuckyTV":                                     []byte("#!/bin/sh\necho " + marker + "\n"),
+		"LuckyTV.app/Contents/Info.plist":                                       []byte("<plist></plist>"),
+		"LuckyTV.app/Contents/Resources/plugin-packages/official.luckytv-plugin": []byte("official-" + marker),
 	}
-	files["BeefTV.app/Contents/MacOS/cli/beeftv"] = []byte("#!/bin/sh\necho cli-" + marker + "\n")
-	execFiles := map[string]bool{"BeefTV.app/Contents/MacOS/BeefTV": true, "BeefTV.app/Contents/MacOS/cli/beeftv": true}
+	files["LuckyTV.app/Contents/MacOS/cli/luckytv"] = []byte("#!/bin/sh\necho cli-" + marker + "\n")
+	execFiles := map[string]bool{"LuckyTV.app/Contents/MacOS/LuckyTV": true, "LuckyTV.app/Contents/MacOS/cli/luckytv": true}
 	for name, body := range agentFiles("runtime/bin/node", marker) {
-		files["BeefTV.app/Contents/Resources/agent-host/"+name] = body
+		files["LuckyTV.app/Contents/Resources/agent-host/"+name] = body
 	}
-	execFiles["BeefTV.app/Contents/Resources/agent-host/runtime/bin/node"] = true
+	execFiles["LuckyTV.app/Contents/Resources/agent-host/runtime/bin/node"] = true
 	return files, execFiles
 }
 
 func WindowsZipFiles(marker string) (map[string][]byte, map[string]bool) {
 	files := map[string][]byte{
-		"BeefTV.exe":                             []byte("MZ-" + marker),
-		"cli/beeftv.exe":                         []byte("MZ-cli-" + marker),
-		"plugin-packages/official.beeftv-plugin": []byte("official-" + marker),
+		"LuckyTV.exe":                             []byte("MZ-" + marker),
+		"cli/luckytv.exe":                         []byte("MZ-cli-" + marker),
+		"plugin-packages/official.luckytv-plugin": []byte("official-" + marker),
 	}
 	for name, body := range agentFiles("runtime/node.exe", marker) {
 		files["agent-host/"+name] = body

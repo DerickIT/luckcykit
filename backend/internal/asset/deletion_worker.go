@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/assets"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/assets"
+	"luckytv/backend/internal/model"
 )
 
 const resourceDeletionLease = 2 * time.Minute

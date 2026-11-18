@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"testing"
 
-	"infinite-canvas/backend/internal/kernel"
+	"luckytv/backend/internal/kernel"
 )
 
 // 画布编辑器的提示词输入框读的是 metadata.composerContent（见

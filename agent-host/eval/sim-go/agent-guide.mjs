@@ -11,9 +11,9 @@ import { permissionDenied } from './common.mjs';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SKILL_PATH = path.resolve(
   __dirname,
-  '../../../plugins/beeftv-skills/skills/beeftv-canvas/SKILL.md',
+  '../../../plugins/luckytv-skills/skills/luckytv-canvas/SKILL.md',
 );
-const GUIDE_NAME = 'beeftv-canvas';
+const GUIDE_NAME = 'luckytv-canvas';
 
 let cached = null;
 

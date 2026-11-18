@@ -6,16 +6,16 @@ import (
 	"slices"
 	"strconv"
 
-	"infinite-canvas/backend/internal/beeftv"
+	"luckytv/backend/internal/luckytv"
 )
 
 type managedClientContextKey struct{}
 
 // A frozen legacy provider ID stays on its original query contract. Tasks
 // already sent through the common media envelope keep it. A new task uses the
-// envelope only when BeefTV currently lists its media type; otherwise it keeps
-// the existing endpoint (BeefTV enables audio and upscale separately).
-func useManagedMediaEnvelope(ctx context.Context, config Config, mediaType string) (*beeftv.MediaClient, bool, error) {
+// envelope only when LuckyTV currently lists its media type; otherwise it keeps
+// the existing endpoint (LuckyTV enables audio and upscale separately).
+func useManagedMediaEnvelope(ctx context.Context, config Config, mediaType string) (*luckytv.MediaClient, bool, error) {
 	if !managedConnection(config) {
 		return nil, false, nil
 	}
@@ -23,7 +23,7 @@ func useManagedMediaEnvelope(ctx context.Context, config Config, mediaType strin
 	if runtime.ManagedMedia == nil {
 		return nil, false, nil
 	}
-	client, _ := ctx.Value(managedClientContextKey{}).(*beeftv.MediaClient)
+	client, _ := ctx.Value(managedClientContextKey{}).(*luckytv.MediaClient)
 	if client == nil {
 		client = managedMediaClient(ctx, config)
 	}
@@ -31,7 +31,7 @@ func useManagedMediaEnvelope(ctx context.Context, config Config, mediaType strin
 	if err != nil || sent {
 		return client, sent, err
 	}
-	if config.MediaProtocolVersion != beeftv.MediaProtocolVersion || ResumedProviderRequestID(ctx) != "" {
+	if config.MediaProtocolVersion != luckytv.MediaProtocolVersion || ResumedProviderRequestID(ctx) != "" {
 		return nil, false, nil
 	}
 	discovery, err := client.Discover(ctx)
@@ -63,17 +63,17 @@ func resolveManagedVideoCapability(ctx context.Context, runtime Runtime, input *
 	return nil
 }
 
-func runManagedVideoTask(ctx context.Context, client *beeftv.MediaClient, input Input) (map[string]any, error) {
+func runManagedVideoTask(ctx context.Context, client *luckytv.MediaClient, input Input) (map[string]any, error) {
 	runtime, _ := RuntimeFromContext(ctx)
 	if err := resolveManagedVideoCapability(ctx, runtime, &input); err != nil {
 		return nil, err
 	}
 	intent := managedLegacyVideoInput(input)
-	ordered, err := beeftv.VideoIntentReferences(intent)
+	ordered, err := luckytv.VideoIntentReferences(intent)
 	if err != nil {
 		return nil, RequestPreparationError{Cause: err}
 	}
-	var sources []beeftv.LocalMediaReference
+	var sources []luckytv.LocalMediaReference
 	var localLimit int64
 	if runtime.Limits != nil {
 		localLimit, err = runtime.Limits.ResourceUploadBytes(ctx)
@@ -81,7 +81,7 @@ func runManagedVideoTask(ctx context.Context, client *beeftv.MediaClient, input 
 			return nil, RequestPreparationError{Cause: err}
 		}
 	}
-	for _, group := range BeefTVSeedanceMediaGroups(&input) {
+	for _, group := range LuckyTVSeedanceMediaGroups(&input) {
 		for _, media := range group.items {
 			ref := managedReference(media, "reference")
 			ref.Kind = group.kind
@@ -91,7 +91,7 @@ func runManagedVideoTask(ctx context.Context, client *beeftv.MediaClient, input 
 			sources = append(sources, ref)
 		}
 	}
-	refs := make([]beeftv.LocalMediaReference, 0, len(ordered))
+	refs := make([]luckytv.LocalMediaReference, 0, len(ordered))
 	for _, selected := range ordered {
 		ref := sources[selected.SourceIndex]
 		ref.Role = selected.Role
@@ -158,7 +158,7 @@ func runManagedVideoTask(ctx context.Context, client *beeftv.MediaClient, input 
 	if value, exists := input.Metadata["videoMiddleFrameTime"]; exists {
 		options["middle_frame_time"] = value
 	}
-	request := beeftv.MediaRequest{TaskRef: SubmissionKeyFromContext(ctx), MediaType: "video", Model: input.Config.Model, Operation: operation, Options: options}
+	request := luckytv.MediaRequest{TaskRef: SubmissionKeyFromContext(ctx), MediaType: "video", Model: input.Config.Model, Operation: operation, Options: options}
 	request.Input.Prompt = intent.Prompt
 	return executeManagedMedia(ctx, client, request, refs)
 }

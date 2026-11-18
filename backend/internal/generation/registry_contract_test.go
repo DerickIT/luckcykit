@@ -3,7 +3,7 @@ package generation_test
 import (
 	"testing"
 
-	"infinite-canvas/backend/internal/generation"
+	"luckytv/backend/internal/generation"
 )
 
 // Engine/NewEngine/Deps 包装层已移除：生成域在生产里由 registry 与组合根的实际

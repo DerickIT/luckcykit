@@ -13,9 +13,9 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"infinite-canvas/backend/internal/conversation"
-	"infinite-canvas/backend/internal/database"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/conversation"
+	"luckytv/backend/internal/database"
+	"luckytv/backend/internal/repository"
 )
 
 func TestConversationKeepsLongTextAndHistoryWithinWorkspaceDocumentBound(t *testing.T) {

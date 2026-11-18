@@ -17,10 +17,10 @@ import zipfile
 
 
 def smoke(archive, platform):
-    relative = ("cli/beeftv.exe" if platform == "windows-amd64" else
-                "BeefTV-linux/cli/beeftv" if platform == "linux-amd64" else
-                "BeefTV.app/Contents/MacOS/cli/beeftv")
-    with tempfile.TemporaryDirectory(prefix="beeftv-package-smoke-") as directory:
+    relative = ("cli/luckytv.exe" if platform == "windows-amd64" else
+                "LuckyTV-linux/cli/luckytv" if platform == "linux-amd64" else
+                "LuckyTV.app/Contents/MacOS/cli/luckytv")
+    with tempfile.TemporaryDirectory(prefix="luckytv-package-smoke-") as directory:
         root = Path(directory)
         cli = root / relative
         # Extract only the shipped executable; never start the desktop or open user data.
@@ -44,9 +44,9 @@ def smoke(archive, platform):
         class Backend(http.server.BaseHTTPRequestHandler):
             def do_GET(self):
                 authorized = (self.path in ("/api/ops", "/api/business/tools") and
-                              self.headers.get("X-Beeftv-Client") == "release-smoke" and
+                              self.headers.get("X-Luckytv-Client") == "release-smoke" and
                               self.headers.get("Authorization") == "Bearer " + token and
-                              not self.headers.get("X-Beeftv-Owner") and
+                              not self.headers.get("X-Luckytv-Owner") and
                               not self.headers.get("X-Desktop-Token"))
                 requests.append((self.path, authorized))
                 self.send_response(200 if authorized else 403)
@@ -70,10 +70,10 @@ def smoke(archive, platform):
         worker = threading.Thread(target=server.serve_forever, daemon=True)
         worker.start()
         env = {key: value for key, value in os.environ.items()
-               if not key.startswith("BEEFTV_") and not key.startswith("CANVAS_")}
-        env.update(BEEFTV_BASE_URL=f"http://127.0.0.1:{server.server_port}/api",
-                   BEEFTV_DATA_DIR=str(root / "data"), BEEFTV_CLIENT_ID="release-smoke",
-                   BEEFTV_CLIENT_TOKEN=token)
+               if not key.startswith("LUCKYTV_") and not key.startswith("CANVAS_")}
+        env.update(LUCKYTV_BASE_URL=f"http://127.0.0.1:{server.server_port}/api",
+                   LUCKYTV_DATA_DIR=str(root / "data"), LUCKYTV_CLIENT_ID="release-smoke",
+                   LUCKYTV_CLIENT_TOKEN=token)
         process = None
         try:
             with (root / "stderr.log").open("w+") as stderr:
@@ -113,8 +113,8 @@ def smoke(archive, platform):
                     "protocolVersion": "2024-11-05", "capabilities": {},
                     "clientInfo": {"name": "release-smoke", "version": "1.0"}}})
                 initialized = receive(1)
-                if initialized.get("serverInfo", {}).get("name") != "beeftv":
-                    raise RuntimeError("initialize did not identify beeftv")
+                if initialized.get("serverInfo", {}).get("name") != "luckytv":
+                    raise RuntimeError("initialize did not identify luckytv")
                 send({"method": "notifications/initialized"})
                 send({"id": 2, "method": "tools/list", "params": {}})
                 tools = receive(2).get("tools", [])
@@ -129,12 +129,12 @@ def smoke(archive, platform):
                 if ({route for route, _ in requests} != {"/api/ops", "/api/business/tools"}
                         or not all(authorized for _, authorized in requests)):
                     raise RuntimeError("catalog request did not use isolated client credentials")
-                headers = {"X-Beeftv-Client": "release-smoke", "Authorization": "Bearer " + token}
+                headers = {"X-Luckytv-Client": "release-smoke", "Authorization": "Bearer " + token}
                 for route in ("/api/ops", "/api/business/tools"):
                     for invalid in ({}, {**headers, "Authorization": "Bearer invalid"},
-                                    {**headers, "X-Beeftv-Owner": "owner"},
+                                    {**headers, "X-Luckytv-Owner": "owner"},
                                     {**headers, "X-Desktop-Token": "desktop"}):
-                        request = urllib.request.Request(env["BEEFTV_BASE_URL"][:-4] + route,
+                        request = urllib.request.Request(env["LUCKYTV_BASE_URL"][:-4] + route,
                                                          headers=invalid)
                         try:
                             urllib.request.urlopen(request, timeout=5).close()
@@ -143,7 +143,7 @@ def smoke(archive, platform):
                                 raise RuntimeError("unexpected credential rejection") from error
                         else:
                             raise RuntimeError("mock catalog accepted invalid credentials")
-                request = urllib.request.Request(env["BEEFTV_BASE_URL"] + "/unknown", headers=headers)
+                request = urllib.request.Request(env["LUCKYTV_BASE_URL"] + "/unknown", headers=headers)
                 try:
                     urllib.request.urlopen(request, timeout=5).close()
                 except urllib.error.HTTPError as error:

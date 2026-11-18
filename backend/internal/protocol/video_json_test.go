@@ -8,7 +8,7 @@ import (
 )
 
 func TestVideoGenerationsJSONPreservesMediaAndOptions(t *testing.T) {
-	a := officialPackageAdapter(t, "video-generations-json.beeftv-plugin", "video-generations-json")
+	a := officialPackageAdapter(t, "video-generations-json.luckytv-plugin", "video-generations-json")
 	request := GenerationRequest{Capability: CapabilityVideo, Model: "seedance-2.5", Prompt: "move", Duration: 5, AspectRatio: "9:16", Resolution: "720p", GenerateAudio: false, Watermark: false,
 		Images: []MediaReference{{URL: "https://example.com/two.png", Role: "last_frame", Order: 2}, {DataURL: "data:image/png;base64,aGVsbG8=", Role: "first_frame", Order: 1}},
 		Videos: []MediaReference{{URL: "https://example.com/ref.mp4"}}, Audios: []MediaReference{{URL: "https://example.com/ref.wav"}},
@@ -66,7 +66,7 @@ func TestVideoGenerationsJSONPreservesMediaAndOptions(t *testing.T) {
 }
 
 func TestOpenAIVideosRejectsMediaItCannotSend(t *testing.T) {
-	a := officialPackageAdapter(t, "openai-videos.beeftv-plugin", "newapi")
+	a := officialPackageAdapter(t, "openai-videos.luckytv-plugin", "newapi")
 	for name, request := range map[string]GenerationRequest{
 		"two images": {Images: []MediaReference{{URL: "https://example.com/a.png"}, {URL: "https://example.com/b.png"}}},
 		"video":      {Videos: []MediaReference{{URL: "https://example.com/a.mp4"}}},

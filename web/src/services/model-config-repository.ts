@@ -1,5 +1,5 @@
 import { getLocalModelConfig, saveLocalModelConfig, type LocalModelConfigPayload } from "@/services/api/workspace";
-import type { AiConfig } from "@/stores/use-config-store";
+import { defaultConfig, type AiConfig } from "@/stores/use-config-store";
 
 export type ModelConfigPersistenceState = {
     status: "idle" | "hydrating" | "saving" | "saved" | "error";
@@ -124,19 +124,22 @@ function isRevisionConflict(error: unknown) {
     return candidate.status === 409 || candidate.response?.status === 409;
 }
 
-function omitManagedBeefTVSecrets(config: AiConfig): AiConfig {
+function omitManagedLuckyTVSecrets(config: AiConfig): AiConfig {
     return {
         ...config,
         channels: config.channels.map((channel) => {
-            if (channel.id !== "beeftv" || !channel.pinned) return channel;
+            if (channel.id !== "luckytv" || !channel.pinned) return channel;
             return { ...channel, apiKey: "", secretKey: "" };
         }),
     };
 }
 
 const repository = createModelConfigRepository({
-    read: getLocalModelConfig,
-    write: (config, expectedRevision) => saveLocalModelConfig(omitManagedBeefTVSecrets(config), expectedRevision),
+    read: async () => {
+        const result = await getLocalModelConfig();
+        return { ...result, config: result.config ?? defaultConfig };
+    },
+    write: (config, expectedRevision) => saveLocalModelConfig(omitManagedLuckyTVSecrets(config), expectedRevision),
 });
 
 export const hydrateModelConfig = repository.hydrate;

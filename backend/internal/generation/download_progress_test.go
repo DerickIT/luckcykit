@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/outbound"
+	"luckytv/backend/internal/outbound"
 )
 
 type fakeDeliveryPort struct {

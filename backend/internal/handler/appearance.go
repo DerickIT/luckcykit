@@ -4,8 +4,8 @@ import (
 	"io"
 	"net/http"
 
-	"infinite-canvas/backend/internal/appearance"
-	"infinite-canvas/backend/internal/assets"
+	"luckytv/backend/internal/appearance"
+	"luckytv/backend/internal/assets"
 
 	"github.com/gin-gonic/gin"
 )

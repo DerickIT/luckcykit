@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 )
 
 func seedChapter(t *testing.T, svc *Service, projectID string) model.ProjectUnit {

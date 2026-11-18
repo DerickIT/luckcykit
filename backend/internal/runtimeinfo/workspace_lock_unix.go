@@ -3,7 +3,7 @@
 package runtimeinfo
 
 import (
-	"infinite-canvas/backend/internal/desktopstorage"
+	"luckytv/backend/internal/desktopstorage"
 	"os"
 )
 

@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"gorm.io/gorm"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func changeFromReceipts(record Record, receipts []model.AgentOpRecord) (*Change, error) {

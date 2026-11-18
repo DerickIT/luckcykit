@@ -2,10 +2,10 @@ package agentops_test
 
 import (
 	"encoding/json"
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/assistantturns"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/assistantturns"
+	"luckytv/backend/internal/model"
 	"reflect"
 	"testing"
 )

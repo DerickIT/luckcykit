@@ -4,10 +4,10 @@ package app
 // These private wrappers have no production callers.
 import (
 	"context"
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/protocol"
 	"io"
 	"net/http"
 	"time"
@@ -81,8 +81,8 @@ func seedancePollStatusAndURL(state map[string]interface{}) (string, string) {
 	return generation.SeedancePollStatusAndURL(state)
 }
 
-func beefTVVideoRequestBody(input canvasGenerationInput) (map[string]interface{}, error) {
-	return generation.BeefTVVideoRequestBody(input)
+func luckyTVVideoRequestBody(input canvasGenerationInput) (map[string]interface{}, error) {
+	return generation.LuckyTVVideoRequestBody(input)
 }
 
 func runSeedanceAgentPlanVideoTask(ctx context.Context, input canvasGenerationInput, pollPolicy videoPollPolicy) (map[string]interface{}, error) {
@@ -109,8 +109,8 @@ func seedanceVideosPromptText(input canvasGenerationInput) string {
 	return generation.SeedanceVideosPromptText(input)
 }
 
-func beefTVAudioURL(media providerMedia) (string, error) {
-	return generation.BeefTVAudioURL(media)
+func luckyTVAudioURL(media providerMedia) (string, error) {
+	return generation.LuckyTVAudioURL(media)
 }
 
 func seedanceErrorMessage(state map[string]interface{}) string {
@@ -185,8 +185,8 @@ func normalizeSeedanceResolution(value string, interfaceType string) string {
 	return generation.NormalizeSeedanceResolution(value, interfaceType)
 }
 
-func beefTVSeedancePutTimeout(ctx context.Context) time.Duration {
-	return generation.BeefTVSeedancePutTimeout(ctx)
+func luckyTVSeedancePutTimeout(ctx context.Context) time.Duration {
+	return generation.LuckyTVSeedancePutTimeout(ctx)
 }
 
 func arkPrivateAssetUpstreamDetail(response map[string]interface{}) string {

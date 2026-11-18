@@ -1,9 +1,9 @@
 package app
 
 import (
-	localasset "infinite-canvas/backend/internal/asset"
-	"infinite-canvas/backend/internal/assets"
-	"infinite-canvas/backend/internal/model"
+	localasset "luckytv/backend/internal/asset"
+	"luckytv/backend/internal/assets"
+	"luckytv/backend/internal/model"
 )
 
 type resourceUsage = localasset.ResourceUsage

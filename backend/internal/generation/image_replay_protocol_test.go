@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/protocol"
 )
 
 type imageReplayProbeTransport func(*http.Request) (*http.Response, error)

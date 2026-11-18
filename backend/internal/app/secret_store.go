@@ -1,6 +1,6 @@
 package app
 
-import "infinite-canvas/backend/internal/localcrypto"
+import "luckytv/backend/internal/localcrypto"
 
 const encryptedSettingPrefix = localcrypto.Prefix
 

@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/skills"
 	"strings"
 	"unicode/utf8"
 )
@@ -39,7 +39,7 @@ func truncateSkillDescription(value string) string {
 }
 
 func skillScriptRunParams() json.RawMessage {
-	return json.RawMessage(fmt.Sprintf(`{"type":"object","properties":{"canvasId":{"type":"string"},"skillId":{"type":"string"},"versionId":{"type":"string"},"contentHash":{"type":"string"},"scriptPath":{"type":"string","description":"scripts/ 或 script/ 下的相对路径"},"args":{"type":"array","items":{"type":"string","maxLength":4096},"maxItems":64},"stdin":{"type":"string","maxLength":65536},"timeoutSec":{"type":"integer","minimum":1,"maximum":%d,"description":"默认 %d"},"useWorkspaceOutputDir":{"type":"boolean","description":"输出目录经 BEEFTV_OUTPUT_DIR 传入"},"note":{"type":"string","maxLength":500,"description":"告诉用户运行原因"}},"required":["canvasId","skillId","versionId","contentHash","scriptPath"],"additionalProperties":false}`, skills.MaxScriptTimeoutSec, skills.DefaultScriptTimeoutSec))
+	return json.RawMessage(fmt.Sprintf(`{"type":"object","properties":{"canvasId":{"type":"string"},"skillId":{"type":"string"},"versionId":{"type":"string"},"contentHash":{"type":"string"},"scriptPath":{"type":"string","description":"scripts/ 或 script/ 下的相对路径"},"args":{"type":"array","items":{"type":"string","maxLength":4096},"maxItems":64},"stdin":{"type":"string","maxLength":65536},"timeoutSec":{"type":"integer","minimum":1,"maximum":%d,"description":"默认 %d"},"useWorkspaceOutputDir":{"type":"boolean","description":"输出目录经 LUCKYTV_OUTPUT_DIR 传入"},"note":{"type":"string","maxLength":500,"description":"告诉用户运行原因"}},"required":["canvasId","skillId","versionId","contentHash","scriptPath"],"additionalProperties":false}`, skills.MaxScriptTimeoutSec, skills.DefaultScriptTimeoutSec))
 }
 
 func registerSkillOps(r *Registry) {

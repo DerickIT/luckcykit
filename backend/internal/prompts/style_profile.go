@@ -3,11 +3,11 @@ package prompts
 import (
 	"encoding/json"
 	"errors"
-	"infinite-canvas/backend/internal/kernel"
+	"luckytv/backend/internal/kernel"
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 const maxUserStyleProfiles = 200

@@ -15,20 +15,20 @@ import (
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/database"
-	"infinite-canvas/backend/internal/editing"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/operations"
-	"infinite-canvas/backend/internal/repository"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/database"
+	"luckytv/backend/internal/editing"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/operations"
+	"luckytv/backend/internal/repository"
+	localtask "luckytv/backend/internal/task"
 )
 
 // Opt-in real-media acceptance fixture: source bytes are existing coffee shots,
 // never an old experimental final film. The output database/resources persist.
 func TestIntegratedCoffeeFilmBusinessOperations(t *testing.T) {
-	out := os.Getenv("BEEFTV_INTEGRATED_FILM_OUTPUT")
-	manifest := os.Getenv("BEEFTV_COFFEE_ASSETS_MANIFEST")
+	out := os.Getenv("LUCKYTV_INTEGRATED_FILM_OUTPUT")
+	manifest := os.Getenv("LUCKYTV_COFFEE_ASSETS_MANIFEST")
 	if out == "" || manifest == "" {
 		t.Skip("set explicit source manifest and output directory for OUT01 acceptance")
 	}

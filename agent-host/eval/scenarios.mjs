@@ -177,12 +177,12 @@ export function createFakeModelServer(options = {}) {
           !txt ||
           txt.startsWith('以下是前述工具返回的素材内容') ||
           isTransientStudioTailMessage(messages[i]) ||
-          (hasImageAttachment && !txt.includes('BEEFTV_CONTEXT:'))
+          (hasImageAttachment && !txt.includes('LUCKYTV_CONTEXT:'))
         ) {
           continue;
         }
         if (firstTurnUserIdx < 0) firstTurnUserIdx = i;
-        if (!txt.includes('BEEFTV_SUPPLEMENT:')) {
+        if (!txt.includes('LUCKYTV_SUPPLEMENT:')) {
           lastUserIdx = i;
         }
       }

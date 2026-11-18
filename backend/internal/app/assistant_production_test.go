@@ -5,8 +5,8 @@ import (
 	"gorm.io/gorm"
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/operations"
 )
 
 func TestAssistantProductionAtomicAuthorizationAndReplay(t *testing.T) {

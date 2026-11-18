@@ -31,7 +31,7 @@ export default function SkillMarketplace() {
     const [items, setItems] = useState<MarketItem[]>([]);
     const [publicItems, setPublicItems] = useState<PublicMarketSkill[]>([]);
     const [publicNotice, setPublicNotice] = useState("");
-    const [marketSource, setMarketSource] = useState<"all" | "beeftv" | "public">("all");
+    const [marketSource, setMarketSource] = useState<"all" | "luckytv" | "public">("all");
     const [publicDetail, setPublicDetail] = useState<PublicMarketSkill | null>(null);
     const [installed, setInstalled] = useState<Skill[]>([]);
     const [installedLoading, setInstalledLoading] = useState(true);
@@ -234,7 +234,7 @@ export default function SkillMarketplace() {
     const releaseUnsupported = release ? releaseUnsupportedReasons(release, releaseItem?.compatibility) : [];
     const publicDetailInstalled = publicDetail ? isPublicMarketSkillInstalled(publicDetail, installed) : false;
     const visibleMarketItems = marketSource === "public" ? [] : items;
-    const visiblePublicItems = marketSource === "beeftv" ? [] : publicItems;
+    const visiblePublicItems = marketSource === "luckytv" ? [] : publicItems;
     const scriptAutoRunControl = scriptLoadState === "unavailable" ? undefined : (
         <div className="skill-script-autorun" role="group" aria-label="技能脚本设置">
             {scriptLoadState === "error" ? (
@@ -282,9 +282,9 @@ export default function SkillMarketplace() {
             />
             <div className="skill-market-content">
             {tab === "market" ? <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                <SegmentedControl size="sm" value={marketSource} onChange={(v) => setMarketSource(v as "all" | "beeftv" | "public")} options={[{ value: "all", label: "全部来源" }, { value: "beeftv", label: "BeefTV 市场" }, { value: "public", label: "公共技能目录" }]} />
+                <SegmentedControl size="sm" value={marketSource} onChange={(v) => setMarketSource(v as "all" | "luckytv" | "public")} options={[{ value: "all", label: "全部来源" }, { value: "luckytv", label: "LuckyTV 市场" }, { value: "public", label: "公共技能目录" }]} />
             </div> : null}
-            {tab === "market" && publicNotice && marketSource !== "beeftv" ? <Alert type="info" showIcon title={publicNotice} className="mb-3" /> : null}
+            {tab === "market" && publicNotice && marketSource !== "luckytv" ? <Alert type="info" showIcon title={publicNotice} className="mb-3" /> : null}
             {error ? <Alert type="error" showIcon title={error} action={<Button size="small" onClick={reload}>重试</Button>} /> : loading ? <Skeleton active paragraph={{ rows: 6 }} /> : <>
                 {tab === "market" && installedError ? <Alert type="warning" showIcon title={installedError} className="mb-4" action={<Button size="small" onClick={reload}>重试</Button>} /> : null}
                 {tab === "market" ? <>
@@ -298,7 +298,7 @@ export default function SkillMarketplace() {
                                 <h2><button type="button" className="workspace-item-title" onClick={() => openRelease(item.skillId, item.releaseId)}>{item.name}</button></h2>
                             </div>
                             <div className="workspace-list-controls">
-                                <Tooltip title={isOfficial ? "BeefTV 官方内置技能" : `作者：${item.author || "未提供"}`}><span className="skill-origin-label">{isOfficial ? "官方" : "市场"}</span></Tooltip>
+                                <Tooltip title={isOfficial ? "LuckyTV 官方内置技能" : `作者：${item.author || "未提供"}`}><span className="skill-origin-label">{isOfficial ? "官方" : "市场"}</span></Tooltip>
                                 <Button size="small" onClick={() => openRelease(item.skillId, item.releaseId)} disabled={busy}>查看详情</Button>
                                 <Button type="primary" size="small" className="min-w-16" aria-label={`${installLabel}${item.name}`} loading={installingRelease === item.releaseId} disabled={!canInstallMarketRelease({ busy, installedLoading, installedError, installation, unsupportedReasons: itemUnsupported })} onClick={() => requestInstall(item, false)}>{installLabel}</Button>
                             </div>

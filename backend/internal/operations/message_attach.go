@@ -5,9 +5,9 @@ import (
 	"errors"
 	"strings"
 
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
-	"infinite-canvas/backend/internal/taskbinding"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
+	"luckytv/backend/internal/taskbinding"
 )
 
 func opConversationMessageAttach(ctx *Context, params json.RawMessage) (any, error) {

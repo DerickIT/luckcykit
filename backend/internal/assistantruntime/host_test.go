@@ -7,18 +7,18 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/assistant"
+	"luckytv/backend/internal/assistant"
 )
 
 func testProvider() assistant.Provider {
-	return assistant.Provider{Model: "gpt-5.5", BaseURL: "https://beeftv.app/v1", APIKey: "test-key", Protocol: "chat-completion"}
+	return assistant.Provider{Model: "gpt-5.5", BaseURL: "https://luckytv.app/v1", APIKey: "test-key", Protocol: "chat-completion"}
 }
 
 func testPin(opsURL, desktop string) childPin {
 	return childPin{OpsURL: opsURL, DesktopTok: desktop}
 }
 
-// 宿主把 BEEFTV_OPS_URL 当基址再拼 /ops，因此这里必须带 /api 前缀；
+// 宿主把 LUCKYTV_OPS_URL 当基址再拼 /ops，因此这里必须带 /api 前缀；
 // 少了它宿主启动即因 404 退出，界面只会显示「创作助手暂时不可用」。
 func TestHostEnvOpsURLKeepsAPIPrefix(t *testing.T) {
 	dataDir := t.TempDir()
@@ -32,32 +32,32 @@ func TestHostEnvOpsURLKeepsAPIPrefix(t *testing.T) {
 	t.Setenv("CANVAS_BACKEND_PORT", "")
 
 	env := New(Options{DataDir: dataDir}).buildEnv(testProvider(), testPin("http://127.0.0.1:18090/api", "desktop-shell-token"))
-	if got := envValue(env, "BEEFTV_OPS_URL"); got != "http://127.0.0.1:18090/api" {
-		t.Fatalf("BEEFTV_OPS_URL 应使用显式地址，得到 %q", got)
+	if got := envValue(env, "LUCKYTV_OPS_URL"); got != "http://127.0.0.1:18090/api" {
+		t.Fatalf("LUCKYTV_OPS_URL 应使用显式地址，得到 %q", got)
 	}
-	if got := envValue(env, "BEEFTV_AGENT_HOST_TOKEN"); got != "host-token" {
-		t.Fatalf("BEEFTV_AGENT_HOST_TOKEN = %q", got)
+	if got := envValue(env, "LUCKYTV_AGENT_HOST_TOKEN"); got != "host-token" {
+		t.Fatalf("LUCKYTV_AGENT_HOST_TOKEN = %q", got)
 	}
-	if got := envValue(env, "BEEFTV_OWNER_TOKEN"); got != "" {
-		t.Fatalf("不得向子进程注入 BEEFTV_OWNER_TOKEN，得到 %q", got)
+	if got := envValue(env, "LUCKYTV_OWNER_TOKEN"); got != "" {
+		t.Fatalf("不得向子进程注入 LUCKYTV_OWNER_TOKEN，得到 %q", got)
 	}
-	if got := envValue(env, "BEEFTV_AGENT_DATA_DIR"); got != dataDir {
-		t.Fatalf("BEEFTV_AGENT_DATA_DIR = %q", got)
+	if got := envValue(env, "LUCKYTV_AGENT_DATA_DIR"); got != dataDir {
+		t.Fatalf("LUCKYTV_AGENT_DATA_DIR = %q", got)
 	}
-	if got := envValue(env, "BEEFTV_AGENT_API_KEY"); got != "test-key" {
-		t.Fatalf("BEEFTV_AGENT_API_KEY 应由调用方注入，得到 %q", got)
+	if got := envValue(env, "LUCKYTV_AGENT_API_KEY"); got != "test-key" {
+		t.Fatalf("LUCKYTV_AGENT_API_KEY 应由调用方注入，得到 %q", got)
 	}
-	if got := envValue(env, "BEEFTV_AGENT_DESKTOP_TOKEN"); got != "desktop-shell-token" {
+	if got := envValue(env, "LUCKYTV_AGENT_DESKTOP_TOKEN"); got != "desktop-shell-token" {
 		t.Fatalf("桌面形态应把启动令牌交给宿主，得到 %q", got)
 	}
 }
 
 // 显式注入的环境变量优先于渠道解析（开发与受控测试路径）；此时不需要应用服务。
 func TestResolveAssistantProviderPrefersExplicitEnv(t *testing.T) {
-	t.Setenv("BEEFTV_AGENT_API_KEY", "env-key")
-	t.Setenv("BEEFTV_AGENT_BASE_URL", "https://env.example/v1")
-	t.Setenv("BEEFTV_AGENT_MODEL", "env-model")
-	t.Setenv("BEEFTV_AGENT_PROTOCOL", "claude-api")
+	t.Setenv("LUCKYTV_AGENT_API_KEY", "env-key")
+	t.Setenv("LUCKYTV_AGENT_BASE_URL", "https://env.example/v1")
+	t.Setenv("LUCKYTV_AGENT_MODEL", "env-model")
+	t.Setenv("LUCKYTV_AGENT_PROTOCOL", "claude-api")
 
 	provider, reason := ResolveProvider(nil)
 	if reason != "" {
@@ -80,15 +80,15 @@ func TestAssistantHostEnvCarriesProtocolAndBaseURLShape(t *testing.T) {
 		wantAPI  string
 		wantBase string
 	}{
-		{"chat-completion", "https://beeftv.app", "openai-completions", "https://beeftv.app/v1"},
-		{"chat-completion", "https://beeftv.app/v1/", "openai-completions", "https://beeftv.app/v1"},
+		{"chat-completion", "https://luckytv.app", "openai-completions", "https://luckytv.app/v1"},
+		{"chat-completion", "https://luckytv.app/v1/", "openai-completions", "https://luckytv.app/v1"},
 		{"chat-completion", "https://gateway.example.com/api/v3", "openai-completions", "https://gateway.example.com/api/v3"},
 		{"chat-completion", "https://gateway.example.com/api/paas/v4/", "openai-completions", "https://gateway.example.com/api/paas/v4"},
 		{"chat-completion", "https://gateway.example.com/v1/chat/completions", "openai-completions", "https://gateway.example.com/v1"},
-		{"responses", "https://beeftv.app", "openai-responses", "https://beeftv.app/v1"},
+		{"responses", "https://luckytv.app", "openai-responses", "https://luckytv.app/v1"},
 		{"responses", "https://gateway.example.com/api/v3", "openai-responses", "https://gateway.example.com/api/v3"},
-		{"claude-api", "https://beeftv.app/v1", "anthropic-messages", "https://beeftv.app"},
-		{"claude-api", "https://beeftv.app", "anthropic-messages", "https://beeftv.app"},
+		{"claude-api", "https://luckytv.app/v1", "anthropic-messages", "https://luckytv.app"},
+		{"claude-api", "https://luckytv.app", "anthropic-messages", "https://luckytv.app"},
 		{"claude-api", "http://127.0.0.1:8080/custom/#", "anthropic-messages", "http://127.0.0.1:8080/custom#"},
 		{"chat-completion", "http://127.0.0.1:8080#", "openai-completions", "http://127.0.0.1:8080"},
 		{"responses", "http://127.0.0.1:8080/custom/#", "openai-responses", "http://127.0.0.1:8080/custom"},
@@ -96,10 +96,10 @@ func TestAssistantHostEnvCarriesProtocolAndBaseURLShape(t *testing.T) {
 	for _, item := range cases {
 		env := host.buildEnv(assistant.Provider{Model: "m", BaseURL: item.baseURL, APIKey: "k", Protocol: item.protocol},
 			testPin("http://127.0.0.1:18090/api", ""))
-		if got := envValue(env, "BEEFTV_AGENT_API"); got != item.wantAPI {
+		if got := envValue(env, "LUCKYTV_AGENT_API"); got != item.wantAPI {
 			t.Fatalf("协议 %s 应映射到 %s，得到 %q", item.protocol, item.wantAPI, got)
 		}
-		if got := envValue(env, "BEEFTV_AGENT_BASE_URL"); got != item.wantBase {
+		if got := envValue(env, "LUCKYTV_AGENT_BASE_URL"); got != item.wantBase {
 			t.Fatalf("协议 %s 的接口地址应为 %s，得到 %q", item.protocol, item.wantBase, got)
 		}
 	}
@@ -121,17 +121,17 @@ func TestStartIsNoopWithoutConfig(t *testing.T) {
 func TestBundledAgentHostCommandFollowsAppLayout(t *testing.T) {
 	for _, goos := range []string{"darwin", "windows", "linux"} {
 		t.Run(goos, func(t *testing.T) {
-			root := filepath.Join(t.TempDir(), "Program Files", "BeefTV")
-			executable := filepath.Join(root, "Contents", "MacOS", "BeefTV")
+			root := filepath.Join(t.TempDir(), "Program Files", "LuckyTV")
+			executable := filepath.Join(root, "Contents", "MacOS", "LuckyTV")
 			hostDir := filepath.Join(root, "Contents", "Resources", "agent-host")
 			node := filepath.Join(hostDir, "runtime", "bin", "node")
 			if goos == "linux" {
-				executable = filepath.Join(root, "BeefTV")
+				executable = filepath.Join(root, "LuckyTV")
 				hostDir = filepath.Join(root, "agent-host")
 				node = filepath.Join(hostDir, "runtime", "bin", "node")
 			}
 			if goos == "windows" {
-				executable = filepath.Join(root, "BeefTV.exe")
+				executable = filepath.Join(root, "LuckyTV.exe")
 				hostDir = filepath.Join(root, "agent-host")
 				node = filepath.Join(hostDir, "runtime", "node.exe")
 			}
@@ -163,12 +163,12 @@ func TestBundledNpmCommandUsesNpmShippedNextToNode(t *testing.T) {
 	for _, goos := range []string{"darwin", "windows"} {
 		t.Run(goos, func(t *testing.T) {
 			root := t.TempDir()
-			executable := filepath.Join(root, "Contents", "MacOS", "BeefTV")
+			executable := filepath.Join(root, "Contents", "MacOS", "LuckyTV")
 			hostDir := filepath.Join(root, "Contents", "Resources", "agent-host")
 			node := filepath.Join(hostDir, "runtime", "bin", "node")
 			cli := filepath.Join(hostDir, "runtime", "lib", "node_modules", "npm", "bin", "npm-cli.js")
 			if goos == "windows" {
-				executable = filepath.Join(root, "BeefTV.exe")
+				executable = filepath.Join(root, "LuckyTV.exe")
 				hostDir = filepath.Join(root, "agent-host")
 				node = filepath.Join(hostDir, "runtime", "node.exe")
 				cli = filepath.Join(hostDir, "runtime", "node_modules", "npm", "bin", "npm-cli.js")
@@ -262,16 +262,16 @@ func TestBuildEnvStripsInheritedSecretsAndClearsBlankAuthority(t *testing.T) {
 			return []string{
 				"PATH=/usr/bin:/opt/homebrew/bin",
 				"HOME=/tmp",
-				"BEEFTV_AGENT_PORT=18500",
-				"BEEFTV_OWNER_TOKEN=stolen-owner",
-				"BEEFTV_AGENT_HOST_TOKEN=stolen-host",
-				"BEEFTV_OPS_URL=http://evil.example/api",
-				"BEEFTV_AGENT_API_KEY=inherited-key",
+				"LUCKYTV_AGENT_PORT=18500",
+				"LUCKYTV_OWNER_TOKEN=stolen-owner",
+				"LUCKYTV_AGENT_HOST_TOKEN=stolen-host",
+				"LUCKYTV_OPS_URL=http://evil.example/api",
+				"LUCKYTV_AGENT_API_KEY=inherited-key",
 				"OPENAI_API_KEY=sk-openai",
 				"ANTHROPIC_API_KEY=sk-ant",
 				"GEMINI_API_KEY=stolen-gemini",
-				"BEEFTV_AGENT_MAX_TOKENS=1234",
-				"BEEFTV_AGENT_THINKING=medium",
+				"LUCKYTV_AGENT_MAX_TOKENS=1234",
+				"LUCKYTV_AGENT_THINKING=medium",
 			}
 		},
 	})
@@ -282,22 +282,22 @@ func TestBuildEnvStripsInheritedSecretsAndClearsBlankAuthority(t *testing.T) {
 	if got := envValue(env, "PATH"); got != "/usr/bin:/opt/homebrew/bin" {
 		t.Fatalf("PATH 必须保留，得到 %q", got)
 	}
-	if got := envValue(env, "BEEFTV_AGENT_PORT"); got != "54321" {
+	if got := envValue(env, "LUCKYTV_AGENT_PORT"); got != "54321" {
 		t.Fatalf("PORT 必须由监督器钉死，得到 %q", got)
 	}
-	if got := envValue(env, "BEEFTV_AGENT_HOST_TOKEN"); got != "pinned-host" {
+	if got := envValue(env, "LUCKYTV_AGENT_HOST_TOKEN"); got != "pinned-host" {
 		t.Fatalf("宿主凭据必须覆盖继承值，得到 %q", got)
 	}
-	if got := envValue(env, "BEEFTV_OWNER_TOKEN"); got != "" {
+	if got := envValue(env, "LUCKYTV_OWNER_TOKEN"); got != "" {
 		t.Fatalf("OWNER_TOKEN 不得进入子进程，得到 %q", got)
 	}
-	if got := envValue(env, "BEEFTV_OPS_URL"); got != "http://127.0.0.1:18090/api" {
+	if got := envValue(env, "LUCKYTV_OPS_URL"); got != "http://127.0.0.1:18090/api" {
 		t.Fatalf("OPS_URL 必须钉死，得到 %q", got)
 	}
-	if got := envValue(env, "BEEFTV_AGENT_API_KEY"); got != "" {
+	if got := envValue(env, "LUCKYTV_AGENT_API_KEY"); got != "" {
 		t.Fatalf("空白权威密钥必须清掉继承值，得到 %q", got)
 	}
-	if !envHasKey(env, "BEEFTV_AGENT_API_KEY") {
+	if !envHasKey(env, "LUCKYTV_AGENT_API_KEY") {
 		t.Fatal("空白权威密钥必须以空值写出，不能省略")
 	}
 	if envValue(env, "OPENAI_API_KEY") != "" || envHasKey(env, "OPENAI_API_KEY") {
@@ -306,26 +306,26 @@ func TestBuildEnvStripsInheritedSecretsAndClearsBlankAuthority(t *testing.T) {
 	if envValue(env, "ANTHROPIC_API_KEY") != "" || envHasKey(env, "ANTHROPIC_API_KEY") {
 		t.Fatal("不得把环境里的 ANTHROPIC_API_KEY 带进 SDK")
 	}
-	if envValue(env, "BEEFTV_AGENT_INSTANCE_NONCE") != "nonce-value" {
+	if envValue(env, "LUCKYTV_AGENT_INSTANCE_NONCE") != "nonce-value" {
 		t.Fatal("实例 nonce 必须钉死")
 	}
-	if envValue(env, "BEEFTV_AGENT_LIFETIME_STDIN") != "1" {
+	if envValue(env, "LUCKYTV_AGENT_LIFETIME_STDIN") != "1" {
 		t.Fatal("生命周期管道标记必须钉死")
 	}
-	if envValue(env, "BEEFTV_AGENT_MAX_TOKENS") != "1234" {
-		t.Fatalf("非权威可调参数应保留，得到 %q", envValue(env, "BEEFTV_AGENT_MAX_TOKENS"))
+	if envValue(env, "LUCKYTV_AGENT_MAX_TOKENS") != "1234" {
+		t.Fatalf("非权威可调参数应保留，得到 %q", envValue(env, "LUCKYTV_AGENT_MAX_TOKENS"))
 	}
-	if envValue(env, "BEEFTV_AGENT_THINKING") != "medium" {
-		t.Fatalf("思考强度应保留，得到 %q", envValue(env, "BEEFTV_AGENT_THINKING"))
+	if envValue(env, "LUCKYTV_AGENT_THINKING") != "medium" {
+		t.Fatalf("思考强度应保留，得到 %q", envValue(env, "LUCKYTV_AGENT_THINKING"))
 	}
 	explicitEnv := host.buildEnv(assistant.Provider{
 		Model: "m", BaseURL: "https://example.invalid/v1", Protocol: "chat-completion",
 		ContextWindow: 256000, MaxTokens: 16384,
 	}, childPin{Port: 54321, Nonce: "nonce-value", ListenFD: "3", Lifetime: true, OpsURL: "http://127.0.0.1:18090/api", DesktopTok: "desk"})
-	if got := envValue(explicitEnv, "BEEFTV_AGENT_CONTEXT_WINDOW"); got != "256000" {
+	if got := envValue(explicitEnv, "LUCKYTV_AGENT_CONTEXT_WINDOW"); got != "256000" {
 		t.Fatalf("显式模型上下文窗口应传入宿主环境，得到 %q", got)
 	}
-	if got := envValue(explicitEnv, "BEEFTV_AGENT_MAX_TOKENS"); got != "16384" {
+	if got := envValue(explicitEnv, "LUCKYTV_AGENT_MAX_TOKENS"); got != "16384" {
 		t.Fatalf("显式模型最大输出应覆盖继承值，得到 %q", got)
 	}
 }

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"infinite-canvas/backend/internal/depthcapture"
+	"luckytv/backend/internal/depthcapture"
 )
 
 // Three metadata sources can each consume six seconds before failing over.

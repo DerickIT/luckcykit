@@ -1,4 +1,4 @@
-// Command update-release packages and signs BeefTV desktop updater artifacts.
+// Command update-release packages and signs LuckyTV desktop updater artifacts.
 // It is a standalone maintainer CLI and does not import the desktop runtime.
 package main
 
@@ -26,7 +26,7 @@ Commands:
 
 The private key is never written to stdout or stderr. Generate it only to an
 explicit file with mode 0600. Production publishing uses GitHub secret
-BEEFTV_UPDATER_PRIVATE_KEY and repository variable BEEFTV_UPDATER_PUBLIC_KEY.
+LUCKYTV_UPDATER_PRIVATE_KEY and repository variable LUCKYTV_UPDATER_PUBLIC_KEY.
 `
 
 func main() {

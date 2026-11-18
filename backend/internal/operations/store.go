@@ -12,7 +12,7 @@ import (
 
 	"gorm.io/gorm"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 // Store 负责操作记录的持久化去重。它和业务写入共用同一个数据库与同一个事务：

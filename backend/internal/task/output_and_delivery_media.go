@@ -9,13 +9,13 @@ import (
 	"sync"
 	"time"
 
-	"infinite-canvas/backend/internal/assets"
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/outbound"
-	"infinite-canvas/backend/internal/repository"
-	"infinite-canvas/backend/internal/taskruntime"
+	"luckytv/backend/internal/assets"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/outbound"
+	"luckytv/backend/internal/repository"
+	"luckytv/backend/internal/taskruntime"
 )
 
 func SummariesForOutput(tasks []model.Task) []Summary {
@@ -280,7 +280,7 @@ func PublicTaskInputJSON(raw string) string {
 		if u != nil {
 			host = strings.ToLower(u.Hostname())
 		}
-		parameters["affectedChannel"] = config["credentialRef"] == "beeftv" || host == "beeftv.app" || host == "whatstoken.ai" || host == "www.whatstoken.ai"
+		parameters["affectedChannel"] = config["credentialRef"] == "luckytv" || host == "luckytv.app" || host == "whatstoken.ai" || host == "www.whatstoken.ai"
 		public["videoParameters"] = parameters
 	}
 	for _, key := range []string{"mode", "metadata", "workflowStepId", "domainProjectId", "assetVersionId", "resourceId", "mediaType", "role"} {

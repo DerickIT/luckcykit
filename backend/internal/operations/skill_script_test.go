@@ -16,13 +16,13 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/database"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/operations"
-	"infinite-canvas/backend/internal/repository"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/database"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/operations"
+	"luckytv/backend/internal/repository"
+	"luckytv/backend/internal/skills"
 )
 
 func TestSkillScriptProposalApprovalAndSessionAlwaysAllow(t *testing.T) {
@@ -175,7 +175,7 @@ func TestSkillScriptRunOperationAuthorizationAndIdempotentReplay(t *testing.T) {
 	zw := zip.NewWriter(&zipBuf)
 	for name, content := range map[string]string{
 		"SKILL.md":          "---\nname: 计数器脚本\ndescription: 验证 opId 幂等与权限边界\n---\n运行 scripts/count.js",
-		"scripts/count.js":  "const fs=require('fs'),p=require('path');const f=p.join(process.env.BEEFTV_OUTPUT_DIR,'count.txt');const n=fs.existsSync(f)?Number(fs.readFileSync(f,'utf8'))+1:1;fs.writeFileSync(f,String(n));console.log('COUNT:'+n);",
+		"scripts/count.js":  "const fs=require('fs'),p=require('path');const f=p.join(process.env.LUCKYTV_OUTPUT_DIR,'count.txt');const n=fs.existsSync(f)?Number(fs.readFileSync(f,'utf8'))+1:1;fs.writeFileSync(f,String(n));console.log('COUNT:'+n);",
 	} {
 		f, err := zw.Create(name)
 		if err != nil {

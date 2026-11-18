@@ -2,8 +2,8 @@ package operations
 
 import (
 	"encoding/json"
-	"infinite-canvas/backend/internal/skillhub"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/skillhub"
+	"luckytv/backend/internal/skills"
 )
 
 type SkillPublishing interface {
@@ -33,7 +33,7 @@ func registerSkillPublishingOps(r *Registry) {
 		v, e := p.DraftSkill(ctx.UserID, skills.SkillMutationRequest{SkillName: a.Name, Description: a.Description, Instruction: a.Instruction, Tag: "others", IsPrivate: true})
 		return v, mapDomainError(e)
 	}})
-	r.Register(Op{ID: "skill.publish.prepare", AssistantCanvas: true, Scope: ScopeCanvas, Summary: "准备技能投稿预览，等待用户确认上传", Params: json.RawMessage(`{"type":"object","properties":{"canvasId":{"type":"string"},"skillId":{"type":"string"},"publicationTarget":{"type":"string","enum":["new","existing"]},"marketSkillId":{"type":"string","description":"existing时填市场ID，禁填本机skillId"},"metadata":{"type":"object","properties":{"license":{"type":"string"},"requirements":{"type":"array","description":"纯文字填[]，禁填text","items":{"type":"string","enum":["beeftv.canvas","model.image","model.video","model.audio"]}},"requirementNotes":{"type":"string"}},"required":["license","requirements"]}},"required":["canvasId","skillId","publicationTarget","metadata"]}`), Handler: func(ctx *Context, raw json.RawMessage) (any, error) {
+	r.Register(Op{ID: "skill.publish.prepare", AssistantCanvas: true, Scope: ScopeCanvas, Summary: "准备技能投稿预览，等待用户确认上传", Params: json.RawMessage(`{"type":"object","properties":{"canvasId":{"type":"string"},"skillId":{"type":"string"},"publicationTarget":{"type":"string","enum":["new","existing"]},"marketSkillId":{"type":"string","description":"existing时填市场ID，禁填本机skillId"},"metadata":{"type":"object","properties":{"license":{"type":"string"},"requirements":{"type":"array","description":"纯文字填[]，禁填text","items":{"type":"string","enum":["luckytv.canvas","model.image","model.video","model.audio"]}},"requirementNotes":{"type":"string"}},"required":["license","requirements"]}},"required":["canvasId","skillId","publicationTarget","metadata"]}`), Handler: func(ctx *Context, raw json.RawMessage) (any, error) {
 		var a struct {
 			skills.PublicationTarget
 			CanvasID string            `json:"canvasId"`

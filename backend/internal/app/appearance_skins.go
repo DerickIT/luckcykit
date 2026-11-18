@@ -1,6 +1,6 @@
 package app
 
-import "infinite-canvas/backend/internal/appearance"
+import "luckytv/backend/internal/appearance"
 
 func defaultAppearanceSkinThemes() []AppearanceSkinTheme {
 	return appearance.DefaultSkinThemes()

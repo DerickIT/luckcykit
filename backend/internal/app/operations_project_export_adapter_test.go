@@ -11,8 +11,8 @@ import (
 	"testing"
 
 	"gorm.io/gorm"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/operations"
 )
 
 func TestCanvasProjectExportUsesSameTransactionAndReusesArchive(t *testing.T) {

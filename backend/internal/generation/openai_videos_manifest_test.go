@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/protocol"
 )
 
 // openai-videos 的生成声音开关要保留显式 false；节点未设置时不能替上游补值。

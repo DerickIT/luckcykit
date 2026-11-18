@@ -72,7 +72,7 @@ rsync -a \
     --exclude='web/.reference-*' \
     --exclude='web/.canvas-probe-*' \
     --exclude='web/test/.agent-reliability-*' \
-    --include='web/scripts/beeftv-local-network-audit.mjs' \
+    --include='web/scripts/luckytv-local-network-audit.mjs' \
     --exclude='web/scripts/*audit*' \
     --exclude='web/scripts/*probe*' \
     --exclude='web/scripts/*smoke*' \
@@ -104,7 +104,7 @@ rsync -a \
     --exclude='docs/topaz-fal-integration-report-2026-10-20.md' \
     --exclude='docs/windows-upgrade-compatibility.md' \
     --exclude='reviews/' \
-    --exclude='plugin-packages/*.beeftv-plugin' \
+    --exclude='plugin-packages/*.luckytv-plugin' \
     --exclude='plugin-packages/official-payment-*' \
     --exclude='*.db' \
     --exclude='*.db-*' \
@@ -119,4 +119,4 @@ rsync -a \
 
 (cd "$destination_directory" && sh scripts/audit-public-docs.sh >/dev/null)
 
-printf 'exported BeefTV public source to %s\n' "$destination_directory"
+printf 'exported LuckyTV public source to %s\n' "$destination_directory"

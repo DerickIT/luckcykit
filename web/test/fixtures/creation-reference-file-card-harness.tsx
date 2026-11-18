@@ -11,10 +11,10 @@ import { createModelChannel, defaultConfig } from "@/stores/use-config-store";
 
 const model = "seedance-2.0";
 const capabilityConfig = defaultModelCapabilityConfig("newapi", model);
-const channel = createModelChannel({ id: "beeftv", name: "BeefTV", scope: "user", interfaceType: "newapi", baseUrl: "https://beeftv.app", models: [model] });
+const channel = createModelChannel({ id: "luckytv", name: "LuckyTV", scope: "user", interfaceType: "newapi", baseUrl: "https://luckytv.app", models: [model] });
 channel.modelProfiles = [{ model, displayName: model, capability: "video", protocol: "newapi", capabilityConfig, videoCapabilitiesVersion: "fixture-v1" }];
-const config = { ...defaultConfig, channels: [channel], model: `beeftv::${model}`, videoModel: `beeftv::${model}` };
-const capabilities = modelCapabilityConfigFor(config, `beeftv::${model}`);
+const config = { ...defaultConfig, channels: [channel], model: `luckytv::${model}`, videoModel: `luckytv::${model}` };
+const capabilities = modelCapabilityConfigFor(config, `luckytv::${model}`);
 const videoProfile = capabilities.video!;
 const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 
@@ -63,7 +63,7 @@ function Harness() {
                                     onReplaceReferenceFiles={() => {}}
                                     onOpenLibrary={() => {}}
                                     onModeChange={() => {}}
-                                    model={`beeftv::${model}`}
+                                    model={`luckytv::${model}`}
                                     modelRequirements={{}}
                                     videoProfile={videoProfile}
                                     imageProfile={capabilities.image!}

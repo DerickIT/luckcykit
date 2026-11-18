@@ -3,11 +3,11 @@ package canvas
 import (
 	"encoding/json"
 
-	"infinite-canvas/backend/internal/asset"
-	"infinite-canvas/backend/internal/assets"
-	"infinite-canvas/backend/internal/kernel"
+	"luckytv/backend/internal/asset"
+	"luckytv/backend/internal/assets"
+	"luckytv/backend/internal/kernel"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 type MediaAssetReference = asset.CanvasMediaReference

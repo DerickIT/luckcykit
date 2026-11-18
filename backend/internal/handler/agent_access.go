@@ -6,8 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/app"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/app"
 )
 
 // ownerCredentialDirs locates the owner token file. Agent routes still pass
@@ -23,7 +23,7 @@ func requireOwner(c *gin.Context, dirs ownerCredentialDirs) bool {
 		fail(c, http.StatusForbidden, app.BadAuthRequest("只接受本机同源请求"))
 		return false
 	}
-	if !agentops.OwnerTokenMatches(dirs.DataDir(), strings.TrimSpace(c.GetHeader("X-Beeftv-Owner"))) {
+	if !agentops.OwnerTokenMatches(dirs.DataDir(), strings.TrimSpace(c.GetHeader("X-Luckytv-Owner"))) {
 		fail(c, http.StatusForbidden, app.BadAuthRequest("该操作需要 owner 凭据"))
 		return false
 	}

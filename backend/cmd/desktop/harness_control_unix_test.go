@@ -12,7 +12,7 @@ import (
 )
 
 func TestHarnessAttachOnlyDoesNotCreateWorkspace(t *testing.T) {
-	dataDir := filepath.Join("/tmp", fmt.Sprintf("beeftv-harness-attach-only-%d-%d", os.Getpid(), time.Now().UnixNano()))
+	dataDir := filepath.Join("/tmp", fmt.Sprintf("luckytv-harness-attach-only-%d-%d", os.Getpid(), time.Now().UnixNano()))
 	handled, err := handleHarnessCommand([]string{"--harness-runtime", "--harness-attach-only", "--data-dir", dataDir})
 	if !handled || err == nil || !strings.Contains(err.Error(), "尚未就绪") {
 		t.Fatalf("attach-only did not report the missing desktop runtime: handled=%v err=%v", handled, err)
@@ -27,7 +27,7 @@ func TestHarnessAttachOnlyDoesNotCreateWorkspace(t *testing.T) {
 
 func TestHarnessPrivateControlAttachesWithoutOpeningWorkspace(t *testing.T) {
 	// Only a socket file is created. This protocol test never opens a database.
-	dataDir := filepath.Join("/tmp", fmt.Sprintf("beeftv-harness-protocol-%d-%d", os.Getpid(), time.Now().UnixNano()))
+	dataDir := filepath.Join("/tmp", fmt.Sprintf("luckytv-harness-protocol-%d-%d", os.Getpid(), time.Now().UnixNano()))
 	want := harnessRuntimeConfig{DesktopRuntimeConfig: DesktopRuntimeConfig{
 		BaseURL: "http://127.0.0.1:12345/api", LaunchToken: "desktop-test-token", UIBootstrapToken: "bootstrap-test-token",
 	}, BridgeURL: "http://127.0.0.1:12346", BridgeToken: "bridge-test-token", Owned: true}

@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/protocol"
 )
 
 func decodeRegistryJSON(data []byte) ([]RegistryRecord, error) {

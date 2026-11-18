@@ -11,7 +11,7 @@ import (
 // 成功样例断言取回结果，并锁定创建请求只发官方字段。
 
 func TestOfficialRunwayVideoUsesOfficialFieldsAndReadsTaskOutput(t *testing.T) {
-	adapter := officialPackageAdapter(t, "runway-video.beeftv-plugin", "runway-video")
+	adapter := officialPackageAdapter(t, "runway-video.luckytv-plugin", "runway-video")
 
 	textOnly, err := adapter.BuildCreate(context.Background(), RequestContext{Request: GenerationRequest{
 		Model: "gen4.5", Prompt: "a glass cube", Duration: 5, AspectRatio: "9:16",
@@ -84,7 +84,7 @@ func TestOfficialRunwayVideoUsesOfficialFieldsAndReadsTaskOutput(t *testing.T) {
 }
 
 func TestOfficialRunwayVideoRejectsUnsentMediaRoles(t *testing.T) {
-	adapter := officialPackageAdapter(t, "runway-video.beeftv-plugin", "runway-video")
+	adapter := officialPackageAdapter(t, "runway-video.luckytv-plugin", "runway-video")
 	_, err := adapter.BuildCreate(context.Background(), RequestContext{Request: GenerationRequest{
 		Model: "gen4.5", Prompt: "a glass cube",
 		Images: []MediaReference{{URL: "https://cdn.example/character.png", Role: "reference_image"}},
@@ -104,7 +104,7 @@ func TestOfficialRunwayVideoRejectsUnsentMediaRoles(t *testing.T) {
 // gen4.5 的 promptImage 只有一张 position=first；只发首帧时必须照常发送（尾帧被拒
 // 的用例见 TestOfficialRunwayVideoRejectsLastFrameForFirstOnlyModels）。
 func TestOfficialRunwayVideoKeepsFirstFrameForFirstOnlyModels(t *testing.T) {
-	adapter := officialPackageAdapter(t, "runway-video.beeftv-plugin", "runway-video")
+	adapter := officialPackageAdapter(t, "runway-video.luckytv-plugin", "runway-video")
 
 	firstOnly, err := adapter.BuildCreate(context.Background(), RequestContext{Request: GenerationRequest{
 		Model: "gen4.5", Prompt: "a glass cube",
@@ -127,7 +127,7 @@ func TestOfficialRunwayVideoKeepsFirstFrameForFirstOnlyModels(t *testing.T) {
 // position=last。校验只拦官方明确限制的单帧模型，其它模型的双帧请求必须原样发送，
 // 否则新模型和中转会被本地名单误拦。
 func TestOfficialRunwayVideoKeepsLastFrameForModelsThatSupportIt(t *testing.T) {
-	adapter := officialPackageAdapter(t, "runway-video.beeftv-plugin", "runway-video")
+	adapter := officialPackageAdapter(t, "runway-video.luckytv-plugin", "runway-video")
 	for _, model := range []string{"veo3.1", "veo3.1_fast", "kling2.5_turbo_pro", "kling3.0_pro", "seedance2_5", "h3_max", "kling_4", "wan3", "some-future-model"} {
 		t.Run(model, func(t *testing.T) {
 			spec, err := adapter.BuildCreate(context.Background(), RequestContext{Request: GenerationRequest{
@@ -158,7 +158,7 @@ func TestOfficialRunwayVideoKeepsLastFrameForModelsThatSupportIt(t *testing.T) {
 
 // 官方把这些模型的 position 限定为 first，带尾帧必须在校验阶段报错。
 func TestOfficialRunwayVideoRejectsLastFrameForFirstOnlyModels(t *testing.T) {
-	adapter := officialPackageAdapter(t, "runway-video.beeftv-plugin", "runway-video")
+	adapter := officialPackageAdapter(t, "runway-video.luckytv-plugin", "runway-video")
 	for _, model := range []string{"gen4.5", "gen4_turbo", "happyhorse_1_0", "gemini_omni_flash", "grok_imagine_1_5", "grok_imagine_1_5_lite"} {
 		t.Run(model, func(t *testing.T) {
 			_, err := adapter.BuildCreate(context.Background(), RequestContext{Request: GenerationRequest{
@@ -176,7 +176,7 @@ func TestOfficialRunwayVideoRejectsLastFrameForFirstOnlyModels(t *testing.T) {
 }
 
 func TestOfficialLumaReadsGenerationAssetsAndOfficialFields(t *testing.T) {
-	adapter := officialPackageAdapter(t, "luma-dream-machine.beeftv-plugin", "luma-dream-machine")
+	adapter := officialPackageAdapter(t, "luma-dream-machine.luckytv-plugin", "luma-dream-machine")
 	create, err := adapter.BuildCreate(context.Background(), RequestContext{Request: GenerationRequest{
 		Model: "ray-2", Prompt: "a tiger walking in snow", Duration: 5, AspectRatio: "16:9", Resolution: "720P",
 		Images: []MediaReference{
@@ -233,7 +233,7 @@ func TestOfficialLumaReadsGenerationAssetsAndOfficialFields(t *testing.T) {
 }
 
 func TestOfficialXAIVideoReadsRequestIDAndVideoURL(t *testing.T) {
-	adapter := officialPackageAdapter(t, "xai-video.beeftv-plugin", "xai-video")
+	adapter := officialPackageAdapter(t, "xai-video.luckytv-plugin", "xai-video")
 	create, err := adapter.BuildCreate(context.Background(), RequestContext{Request: GenerationRequest{
 		Model: "grok-imagine-video-1.5", Prompt: "a paper boat", AspectRatio: "16:9", Resolution: "720p",
 	}})

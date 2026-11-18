@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://beeftv.app/schemas/interface-manifest.schema.json",
-  "title": "BeefTV 接口插件 manifest",
-  "description": "描述一个模型服务的请求格式：怎么发请求、怎么查进度、怎么取结果。完整校验以 `beeftv plugin validate` 为准，这份 schema 用于编辑器提示。",
+  "$id": "https://luckytv.app/schemas/interface-manifest.schema.json",
+  "title": "LuckyTV 接口插件 manifest",
+  "description": "描述一个模型服务的请求格式：怎么发请求、怎么查进度、怎么取结果。完整校验以 `luckytv plugin validate` 为准，这份 schema 用于编辑器提示。",
   "type": "object",
   "required": ["apiVersion", "id", "name", "version", "contributes"],
   "properties": {
     "$schema": { "type": "string" },
-    "apiVersion": { "enum": ["beeftv.plugin/v1", "beeftv.plugin/v2", "beeftv.plugin/v3"], "description": "用到 variables、defaultPathPrefix 或图片流响应时要写 v3。" },
+    "apiVersion": { "enum": ["luckytv.plugin/v1", "luckytv.plugin/v2", "luckytv.plugin/v3"], "description": "用到 variables、defaultPathPrefix 或图片流响应时要写 v3。" },
     "id": { "$ref": "#/$defs/identifier", "description": "插件 ID，小写字母、数字、- _ .，不超过 96 个字符。" },
     "name": { "type": "string", "minLength": 1, "maxLength": 160 },
     "version": { "type": "string", "minLength": 1 },
@@ -122,7 +122,7 @@
         },
         "parameters": {
           "type": "array",
-          "description": "写给读插件的人看的参数说明，BeefTV 不读取。",
+          "description": "写给读插件的人看的参数说明，LuckyTV 不读取。",
           "items": { "$ref": "#/$defs/parameter" }
         },
         "validations": {

@@ -4,21 +4,21 @@ import (
 	"context"
 	"strings"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/providerpreset"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/providerpreset"
 )
 
 func MediaHydrationPolicyFor(ctx context.Context, input Input) MediaHydrationPolicy {
 	if managedConnection(input.Config) && (input.Mode == "image" || input.Mode == "video") {
 		return MediaHydrationPolicy{KeepLocal: true}
 	}
-	if input.Mode == "video" && IsBeefTVVideoConfig(ctx, input.Config) {
+	if input.Mode == "video" && IsLuckyTVVideoConfig(ctx, input.Config) {
 		return MediaHydrationPolicy{KeepLocal: true}
 	}
 	if input.Config.InterfaceType == "full-video" {
 		return MediaHydrationPolicy{KeepLocal: true}
 	}
-	if requiresBeefTVHTTPReferences(ctx, input.Config) {
+	if requiresLuckyTVHTTPReferences(ctx, input.Config) {
 		return MediaHydrationPolicy{KeepLocal: true}
 	}
 	if adapter, ok := ProtocolAdapterForContext(EnsureOfficialProtocolAdapter(ctx, input.Config.InterfaceType), input.Config.InterfaceType); ok && adapter.Metadata().MediaUpload != nil {
@@ -28,9 +28,9 @@ func MediaHydrationPolicyFor(ctx context.Context, input Input) MediaHydrationPol
 	if model.IsVolcengineArkVideoProtocol(model.ChannelInterfaceType(input.Config.InterfaceType)) {
 		return MediaHydrationPolicy{PreferHTTPS: true}
 	}
-	if IsBeefTVVideoConfig(ctx, input.Config) {
-		if contract, ok := providerpreset.BeefTVVideoContract(input.Config.Model); ok && contract.InlineMedia && (contract.Protocol == input.Config.InterfaceType || IsSeedanceVideoConfig(input.Config)) {
-			return MediaHydrationPolicy{PreferHTTPS: true, KeepLocal: IsBeefTVSeedancePreuploadConfig(ctx, input.Config)}
+	if IsLuckyTVVideoConfig(ctx, input.Config) {
+		if contract, ok := providerpreset.LuckyTVVideoContract(input.Config.Model); ok && contract.InlineMedia && (contract.Protocol == input.Config.InterfaceType || IsSeedanceVideoConfig(input.Config)) {
+			return MediaHydrationPolicy{PreferHTTPS: true, KeepLocal: IsLuckyTVSeedancePreuploadConfig(ctx, input.Config)}
 		}
 	}
 	if strings.TrimSpace(input.Config.InterfaceType) == string(model.ChannelInterfaceNewAPIChannel1) {

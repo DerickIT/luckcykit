@@ -5,8 +5,8 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/skillhub"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/skillhub"
 )
 
 // RefreshPublication reads the current cloud draft without reuploading the local

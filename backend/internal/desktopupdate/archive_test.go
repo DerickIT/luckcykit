@@ -14,11 +14,11 @@ func TestSanitizeZipNameRejectsUnsafePaths(t *testing.T) {
 		"../etc/passwd",
 		"/tmp/x",
 		"//server/share/x",
-		`C:/Windows/BeefTV.exe`,
-		`C:\Windows\BeefTV.exe`,
+		`C:/Windows/LuckyTV.exe`,
+		`C:\Windows\LuckyTV.exe`,
 		`\\server\share\x`,
-		"BeefTV.app/../../outside",
-		"BeefTV.app/Contents/MacOS/./BeefTV",
+		"LuckyTV.app/../../outside",
+		"LuckyTV.app/Contents/MacOS/./LuckyTV",
 		"",
 		"\x00foo",
 	}
@@ -27,8 +27,8 @@ func TestSanitizeZipNameRejectsUnsafePaths(t *testing.T) {
 			t.Fatalf("accepted %q", name)
 		}
 	}
-	rel, dir, err := sanitizeZipName("BeefTV.app/Contents/MacOS/BeefTV")
-	if err != nil || dir || rel != "BeefTV.app/Contents/MacOS/BeefTV" {
+	rel, dir, err := sanitizeZipName("LuckyTV.app/Contents/MacOS/LuckyTV")
+	if err != nil || dir || rel != "LuckyTV.app/Contents/MacOS/LuckyTV" {
 		t.Fatalf("got %q dir=%v err=%v", rel, dir, err)
 	}
 }
@@ -54,7 +54,7 @@ func TestExtractSecureZipRejectsMaliciousArchives(t *testing.T) {
 			t.Fatal(err)
 		}
 		writer := zip.NewWriter(file)
-		header := &zip.FileHeader{Name: "BeefTV.app/Contents/MacOS/BeefTV"}
+		header := &zip.FileHeader{Name: "LuckyTV.app/Contents/MacOS/LuckyTV"}
 		header.SetMode(os.ModeSymlink | 0o755)
 		entry, err := writer.CreateHeader(header)
 		if err != nil {
@@ -80,7 +80,7 @@ func TestExtractSecureZipRejectsMaliciousArchives(t *testing.T) {
 		}
 		writer := zip.NewWriter(file)
 		for i := 0; i < 2; i++ {
-			entry, err := writer.Create("BeefTV.app/Contents/MacOS/BeefTV")
+			entry, err := writer.Create("LuckyTV.app/Contents/MacOS/LuckyTV")
 			if err != nil {
 				t.Fatal(err)
 			}

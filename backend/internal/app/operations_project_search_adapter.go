@@ -1,6 +1,6 @@
 package app
 
-import "infinite-canvas/backend/internal/operations"
+import "luckytv/backend/internal/operations"
 
 // Every read resolves current DB membership, including after host recovery.
 // A search result or model-provided ID is never itself an authorization receipt.

@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"infinite-canvas/backend/internal/assistant"
+	"luckytv/backend/internal/assistant"
 )
 
 // Options 是 Host 的可注入边界：配置、供应商解析、凭据与进程环境。
@@ -120,7 +120,7 @@ func (h *Host) readyTimeout() time.Duration {
 }
 
 // TestingUseOwnedEndpoint injects a loopback child for handler tests. Production
-// never reads BEEFTV_AGENT_HOST_URL or :18500 as a fallback.
+// never reads LUCKYTV_AGENT_HOST_URL or :18500 as a fallback.
 func (h *Host) TestingUseOwnedEndpoint(baseURL, nonce, fingerprint string) {
 	if h == nil {
 		return

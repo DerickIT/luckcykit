@@ -7,10 +7,10 @@ import (
 	"sync"
 	"testing"
 
-	"infinite-canvas/backend/internal/depthcapture"
-	"infinite-canvas/backend/internal/editing"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/depthcapture"
+	"luckytv/backend/internal/editing"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
 )
 
 type unusedGenerationCatalog struct{}
@@ -368,7 +368,7 @@ func TestCloudTranscriptionAdmissionBindsModelAndPreservesOwner(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if task.Model != req.Model || task.Provider != "beeftv" || !strings.Contains(task.InputJSON, `"managedTokenId":"token-fixture"`) {
+	if task.Model != req.Model || task.Provider != "luckytv" || !strings.Contains(task.InputJSON, `"managedTokenId":"token-fixture"`) {
 		t.Fatalf("bad task binding: %+v", task)
 	}
 	replay, err := svc.CreateTimelineTranscriptionTask("owner", req)

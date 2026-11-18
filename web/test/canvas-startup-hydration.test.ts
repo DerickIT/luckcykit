@@ -31,7 +31,7 @@ test("startup selects canonical workspace before asynchronous browser cache hydr
 
 test("embedded startup defers backend projection until the workspace session selects its scope", async () => {
     const originalWindow = globalThis.window;
-    globalThis.window = { __BEEFTV_HARNESS__: { embedded: true } } as Window & typeof globalThis;
+    globalThis.window = { __LUCKYTV_HARNESS__: { embedded: true } } as Window & typeof globalThis;
     try {
         calls.length = 0;
         const { startApplication } = await import("../src/bootstrap-workspace");

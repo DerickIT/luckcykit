@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/protocol"
 )
 
 // WorkflowLookup resolves a protocol plugin's workflow declaration for a given provider, capability, and model ID.

@@ -16,7 +16,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/signer/v4"
-	"infinite-canvas/backend/internal/outbound"
+	"luckytv/backend/internal/outbound"
 )
 
 func Upload(ctx context.Context, config Config, path string, observers ...func(int64, int64, string)) (string, error) {
@@ -61,7 +61,7 @@ func upload(ctx context.Context, config Config, path string, client *http.Client
 	if _, err = file.Seek(0, io.SeekStart); err != nil {
 		return "", err
 	}
-	key := "beeftv/references/" + digest
+	key := "luckytv/references/" + digest
 	endpoint, err := objectEndpointURL(config, key)
 	if err != nil {
 		return "", err

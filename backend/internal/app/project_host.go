@@ -1,6 +1,6 @@
 package app
 
-import localproject "infinite-canvas/backend/internal/project"
+import localproject "luckytv/backend/internal/project"
 
 func (s *Service) ProjectService() *localproject.Service {
 	return s.projectDomain()

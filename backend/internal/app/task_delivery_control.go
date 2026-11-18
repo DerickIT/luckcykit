@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/taskdelivery"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/taskdelivery"
 )
 
 const generationDownloadTimeout = taskdelivery.GenerationDownloadTimeout

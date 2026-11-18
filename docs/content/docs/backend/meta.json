@@ -5,7 +5,7 @@
   "pages": [
     "local-development",
     "external-agents",
-    "beeftv-cli",
+    "luckytv-cli",
     "http-api",
     "storyboard-operations",
     "code-map",

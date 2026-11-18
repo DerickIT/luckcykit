@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -97,7 +97,7 @@ func TestExportRedactsSensitiveValuesFromFixture(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	svc := New(Dependencies{Store: repository.New(db), Brand: staticBrand{name: "BeefTV", slug: "beeftv"}})
+	svc := New(Dependencies{Store: repository.New(db), Brand: staticBrand{name: "LuckyTV", slug: "luckytv"}})
 	bundle, err := svc.Export("user-1", ExportRequest{
 		From: now.Add(-2 * time.Minute).Format(time.RFC3339Nano), To: now.Add(time.Minute).Format(time.RFC3339Nano), TaskID: "task-1",
 		Description: "页面报错", ClientEvents: []ClientEvent{{ID: "event-1", Message: "cookie=client-secret", TraceID: "trace-1"}},
@@ -148,7 +148,7 @@ func TestExportRedactsModelConfigSummary(t *testing.T) {
 		]
 	}`)
 	now := time.Now().UTC()
-	svc := New(Dependencies{Store: repository.New(db), Brand: staticBrand{name: "BeefTV", slug: "beeftv"}, Config: stubModelConfig{body: body}})
+	svc := New(Dependencies{Store: repository.New(db), Brand: staticBrand{name: "LuckyTV", slug: "luckytv"}, Config: stubModelConfig{body: body}})
 	bundle, err := svc.Export("user-1", ExportRequest{From: now.Add(-time.Minute).Format(time.RFC3339Nano), To: now.Format(time.RFC3339Nano)})
 	if err != nil {
 		t.Fatal(err)

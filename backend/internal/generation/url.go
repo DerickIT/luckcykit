@@ -4,8 +4,8 @@ import (
 	"net/url"
 	"strings"
 
-	"infinite-canvas/backend/internal/channelurl"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/channelurl"
+	"luckytv/backend/internal/model"
 )
 
 func APIURL(baseURL string, path string) string {
@@ -91,7 +91,7 @@ func ProviderDownloadURL(baseURL string, rawURL string) string {
 	if baseErr != nil || targetErr != nil || !strings.EqualFold(base.Scheme, "https") || !strings.EqualFold(target.Scheme, "https") {
 		return rawURL
 	}
-	if isBeefTVHost(base.Hostname()) && isBeefTVHost(target.Hostname()) {
+	if isLuckyTVHost(base.Hostname()) && isLuckyTVHost(target.Hostname()) {
 		target.Scheme = base.Scheme
 		target.Host = base.Host
 		return target.String()
@@ -99,13 +99,13 @@ func ProviderDownloadURL(baseURL string, rawURL string) string {
 	return rawURL
 }
 
-func IsBeefTVHost(host string) bool {
-	return isBeefTVHost(host)
+func IsLuckyTVHost(host string) bool {
+	return isLuckyTVHost(host)
 }
 
-func isBeefTVHost(host string) bool {
+func isLuckyTVHost(host string) bool {
 	host = strings.ToLower(strings.TrimSpace(host))
-	return host == "beeftv.app"
+	return host == "luckytv.app"
 }
 
 func SameProviderOrigin(baseURL string, rawURL string) bool {

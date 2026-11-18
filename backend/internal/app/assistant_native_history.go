@@ -5,8 +5,8 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/operations"
 	"io"
 )
 

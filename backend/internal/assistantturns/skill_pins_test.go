@@ -2,10 +2,10 @@ package assistantturns_test
 
 import (
 	"encoding/json"
-	"infinite-canvas/backend/internal/assistantturns"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/assistantturns"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
+	"luckytv/backend/internal/skills"
 	"reflect"
 	"strings"
 	"testing"

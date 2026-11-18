@@ -1,6 +1,7 @@
 import { useUserStore } from "@/stores/use-user-store";
 import { apiBaseURL } from "@/services/api/request";
 import { isDesktopShellOrigin } from "@/lib/desktop-shell";
+import { isEmbeddedRuntime } from "@/lib/embedded-runtime";
 
 export type RuntimeSessionLike = {
     storageMode?: "local" | "remote";
@@ -27,4 +28,23 @@ export function isLocalRuntimeMode() {
 export function isNativeDesktopRuntime() {
     return isDesktopShellOrigin()
         || /^http:\/\/127\.0\.0\.1:\d+\/api$/u.test(String(apiBaseURL));
+}
+
+export function isBrowserLocalRuntimeFor(input: { desktopShell: boolean; embedded: boolean; backendConfigured: boolean; productionBuild: boolean; apiBaseURL: string }) {
+    return !input.desktopShell
+        && !input.embedded
+        && !input.backendConfigured
+        && input.productionBuild
+        && input.apiBaseURL.startsWith("/");
+}
+
+/** Browser-local builds persist workspace data in IndexedDB and must not call same-origin /api. */
+export function isBrowserLocalRuntime() {
+    return isBrowserLocalRuntimeFor({
+        desktopShell: isDesktopShellOrigin(),
+        embedded: isEmbeddedRuntime(),
+        backendConfigured: Boolean(import.meta.env.VITE_CANVAS_BACKEND_URL),
+        productionBuild: import.meta.env.PROD,
+        apiBaseURL: String(apiBaseURL),
+    });
 }

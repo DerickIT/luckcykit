@@ -1,8 +1,8 @@
 package app
 
 import (
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/playback"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/playback"
 )
 
 var ErrPlaybackNotReady = playback.ErrNotReady

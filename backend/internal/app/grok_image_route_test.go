@@ -12,11 +12,11 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/platform"
-	"infinite-canvas/backend/internal/protocol"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/platform"
+	"luckytv/backend/internal/protocol"
+	localtask "luckytv/backend/internal/task"
 )
 
 func grokSourceRegistry(t *testing.T) *protocol.Registry {

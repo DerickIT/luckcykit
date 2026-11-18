@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"testing"
 
-	"infinite-canvas/backend/internal/kernel"
+	"luckytv/backend/internal/kernel"
 )
 
 func connectFixture(t *testing.T) (*Service, string, int64) {

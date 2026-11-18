@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// Target is one planned generation in the shape BeefTV will submit it.
+// Target is one planned generation in the shape LuckyTV will submit it.
 type Target struct {
 	Kind            string // image, video or audio
 	Size            string // image size as sent; empty uses the catalog default
@@ -105,7 +105,7 @@ func Summarize(items []Estimate) Summary {
 
 func quoteImage(table *Table, target Target, count int) Estimate {
 	if image := table.Image; image != nil {
-		// BeefTV 官方算力 publishes Seedream rows with standard/layers qualities. Those
+		// LuckyTV 官方算力 publishes Seedream rows with standard/layers qualities. Those
 		// rows tier by pixel area; 5.0 includes the first reference image while 5.5 bills
 		// from the first reference image via free_reference_images = 0.
 		seedream := image.Output["standard"] != nil
@@ -225,7 +225,7 @@ func imageQuality(image *ImageTable, quality string) string {
 	return quality
 }
 
-// imageTier mirrors how BeefTV 官方算力 picks the billed tier from the sent size.
+// imageTier mirrors how LuckyTV 官方算力 picks the billed tier from the sent size.
 func imageTier(image *ImageTable, size string, seedream bool) string {
 	size = strings.ToUpper(strings.TrimSpace(strings.ReplaceAll(size, "×", "x")))
 	if size == "" || size == "AUTO" {

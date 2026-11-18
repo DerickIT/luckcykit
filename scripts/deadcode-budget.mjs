@@ -15,10 +15,13 @@ const backend = path.join(root, 'backend');
 const baselinePath = path.join(root, 'scripts', 'deadcode-baseline.txt');
 const update = process.argv.includes('--update');
 
+// Wails v3 refuses a cgo-free macOS/Linux build unless the purego backend is
+// selected. deadcode always runs with CGO_ENABLED=0, so those targets need the
+// tag to type-check the webview layer at all.
 const targets = [
-  { goos: 'linux', goarch: 'amd64' },
-  { goos: 'darwin', goarch: 'amd64' },
-  { goos: 'windows', goarch: 'amd64' },
+  { goos: 'linux', goarch: 'amd64', tags: 'purego' },
+  { goos: 'darwin', goarch: 'amd64', tags: 'purego' },
+  { goos: 'windows', goarch: 'amd64', tags: '' },
 ];
 
 function normalize(output) {
@@ -55,8 +58,9 @@ function analyze(binary) {
   const perPlatform = [];
   for (const target of targets) {
     let output;
+    const args = target.tags ? ['-tags', target.tags, './cmd/...'] : ['./cmd/...'];
     try {
-      output = execFileSync(binary, ['./cmd/...'], {
+      output = execFileSync(binary, args, {
         cwd: backend,
         env: { ...process.env, GOOS: target.goos, GOARCH: target.goarch, CGO_ENABLED: '0' },
         encoding: 'utf8',

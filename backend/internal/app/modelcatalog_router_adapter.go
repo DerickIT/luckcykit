@@ -5,10 +5,10 @@ import (
 	"log"
 	"time"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/repository"
 )
 
 func catalogGraphFromRepo(graph *repository.LogicalModelGraph) modelcatalog.LogicalModelGraph {

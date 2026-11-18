@@ -6,7 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
-	"infinite-canvas/backend/internal/buildinfo"
+	"luckytv/backend/internal/buildinfo"
 	"net/url"
 	"os"
 	"regexp"
@@ -14,8 +14,8 @@ import (
 	"strings"
 	"sync"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/skillhub"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/skillhub"
 )
 
 var marketLocks sync.Map
@@ -28,7 +28,7 @@ func (s *Service) lockMarket(user string) func() {
 	return m.Unlock
 }
 func marketClient() (*skillhub.Client, error) {
-	base := os.Getenv("BEEFTV_SKILLHUB_URL")
+	base := os.Getenv("LUCKYTV_SKILLHUB_URL")
 	if base == "" {
 		base = skillhub.DefaultURL
 	}
@@ -117,14 +117,14 @@ func populateReleaseCompatibility(r *skillhub.Release) {
 		reasons = append(reasons, r.Compatibility.Reasons...)
 	}
 	for _, required := range r.Requirements {
-		if required != "beeftv.canvas" && required != "model.image" && required != "model.video" && required != "model.audio" {
+		if required != "luckytv.canvas" && required != "model.image" && required != "model.video" && required != "model.audio" {
 			status = "unsupported"
 			reasons = appendUniqueReason(reasons, "当前工作区尚未验证技能要求的能力："+required)
 		}
 	}
 	if !marketClientCompatible(buildinfo.Current().Version, r.MinClientVersion) {
 		status = "unsupported"
-		reasons = appendUniqueReason(reasons, "请先更新 BeefTV，再安装这个技能")
+		reasons = appendUniqueReason(reasons, "请先更新 LuckyTV，再安装这个技能")
 	}
 	if status == "unsupported" || len(reasons) > 0 || r.Compatibility != nil {
 		r.Compatibility = &skillhub.Compatibility{Status: status, Reasons: reasons}
@@ -153,7 +153,7 @@ func (s *Service) InstallMarket(ctx context.Context, user, id, version string) (
 		return nil, e
 	}
 	if !marketClientCompatible(buildinfo.Current().Version, r.MinClientVersion) {
-		return nil, kernel.BadAuthRequest("请先更新 BeefTV，再安装这个技能")
+		return nil, kernel.BadAuthRequest("请先更新 LuckyTV，再安装这个技能")
 	}
 	c, e := marketClient()
 	if e != nil {

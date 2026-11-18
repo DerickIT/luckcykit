@@ -13,7 +13,7 @@ func TestProjectDomainDoesNotDependOnApplicationService(t *testing.T) {
 		t.Fatalf("list project dependencies: %v", err)
 	}
 	for _, dependency := range strings.Fields(string(output)) {
-		if dependency == "infinite-canvas/backend/internal/app" {
+		if dependency == "luckytv/backend/internal/app" {
 			t.Fatal("project domain still depends on the application service kernel")
 		}
 	}

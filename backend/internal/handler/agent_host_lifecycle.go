@@ -7,9 +7,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/assistantruntime"
-	httptransport "infinite-canvas/backend/internal/transport/http"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/assistantruntime"
+	httptransport "luckytv/backend/internal/transport/http"
 )
 
 func missingAssistantHost(c *gin.Context, host *assistantruntime.Host) bool {

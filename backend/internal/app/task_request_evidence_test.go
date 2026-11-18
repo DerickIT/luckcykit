@@ -13,10 +13,10 @@ import (
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"infinite-canvas/backend/internal/diagnostics"
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/diagnostics"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 )
 
 func TestReferenceRecoveryEvidenceSurvivesSQLiteAndDiagnosticZIP(t *testing.T) {
@@ -41,9 +41,9 @@ func TestReferenceRecoveryEvidenceSurvivesSQLiteAndDiagnosticZIP(t *testing.T) {
 		}
 	}))
 	defer server.Close()
-	ctx := generation.WithRuntime(context.Background(), generation.Runtime{Endpoints: generation.Endpoints{BeefTVVideoBaseURL: server.URL}})
+	ctx := generation.WithRuntime(context.Background(), generation.Runtime{Endpoints: generation.Endpoints{LuckyTVVideoBaseURL: server.URL}})
 	ctx, recorder := withTaskRequestEvidence(ctx)
-	_, uploadErr := generation.CompleteBeefTVSeedanceUpload(ctx, generation.Config{BaseURL: server.URL + "/v1"}, generation.BeefTVSeedanceUploadSession{Ticket: "private-ticket", UploadURL: server.URL + "/storage?X-Amz-Signature=PRIVATE"}, []byte("owned"))
+	_, uploadErr := generation.CompleteLuckyTVSeedanceUpload(ctx, generation.Config{BaseURL: server.URL + "/v1"}, generation.LuckyTVSeedanceUploadSession{Ticket: "private-ticket", UploadURL: server.URL + "/storage?X-Amz-Signature=PRIVATE"}, []byte("owned"))
 	mu.Lock()
 	defer mu.Unlock()
 	if uploadErr == nil || puts != 3 || confirms != 3 || other != 0 {
@@ -288,11 +288,11 @@ func TestNilServiceAnalyticsRecordsHTTPEvidenceAndKeepsImageFailClosed(t *testin
 
 	expired, cancel := context.WithTimeout(generation.WithImageReplayProtocol(ctx, generation.ImageReplayProtocol), 0)
 	cancel()
-	beef, err := http.NewRequestWithContext(expired, http.MethodPost, "https://beeftv.app/v1/images/generations", strings.NewReader(`{"prompt":"draw"}`))
+	lucky, err := http.NewRequestWithContext(expired, http.MethodPost, "https://luckytv.app/v1/images/generations", strings.NewReader(`{"prompt":"draw"}`))
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, _, err = generation.DoBinary(beef)
+	_, _, err = generation.DoBinary(lucky)
 	if !errors.Is(err, generation.ErrImageOwnerMissing) {
 		t.Fatalf("missing image owner err=%v", err)
 	}

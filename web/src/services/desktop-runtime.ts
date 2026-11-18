@@ -1,3 +1,4 @@
+import { Call as WailsCall } from "@wailsio/runtime";
 import { configureApiRuntime } from "@/services/api/request";
 import { isDesktopShellOrigin } from "@/lib/desktop-shell";
 import { getEmbeddedHarnessConfig } from "@/lib/embedded-runtime";
@@ -79,9 +80,9 @@ export type DesktopRuntimeBinding = {
     DownloadUpdate?: () => Promise<DesktopUpdateState>;
     InstallUpdate?: () => Promise<void>;
     ConfirmUpdateStartup?: () => Promise<void>;
-    OpenBeefTVX?: () => Promise<void>;
-    OpenBeefTVWebsite?: () => Promise<void>;
-    OpenBeefTVGitHub?: () => Promise<void>;
+    OpenLuckyTVX?: () => Promise<void>;
+    OpenLuckyTVWebsite?: () => Promise<void>;
+    OpenLuckyTVGitHub?: () => Promise<void>;
 };
 
 export type DesktopStorageUsage = { dataDir: string; usedBytes: number; freeBytes: number; previousDir?: string; previousBytes?: number };
@@ -98,18 +99,36 @@ export type DepthComponentState = {
 };
 export type ReferenceStorageConfig = { enabled: boolean; endpoint: string; bucket: string; region: string; accessKeyId: string; publicBaseURL: string; hasSecret: boolean };
 
-declare global {
-    interface Window {
-        go?: {
-            main?: {
-                DesktopApp?: DesktopRuntimeBinding;
-            };
-        };
-    }
+// Wails v3 exposes bound services via Call.ByName("package.Service.Method").
+// The FQN is derived from the Go package path and type name.
+const DESKTOP_APP_FQN = "luckytv/backend/cmd/desktop.DesktopApp";
+
+function callDesktopApp<T>(method: string, ...args: unknown[]): Promise<T> {
+    return WailsCall.ByName(`${DESKTOP_APP_FQN}.${method}`, ...args) as Promise<T>;
 }
 
+function createV3Binding(): DesktopRuntimeBinding {
+    // Each method is resolved lazily by name. The proxy keeps this robust to
+    // changes in the exported method list without maintaining a mirror table.
+    const cache = new Map<string, (...args: any[]) => Promise<any>>();
+    return new Proxy({} as DesktopRuntimeBinding, {
+        get(_target, prop: string) {
+            if (!cache.has(prop)) {
+                cache.set(prop, (...args: unknown[]) => callDesktopApp(prop, ...args));
+            }
+            return cache.get(prop);
+        },
+    });
+}
+
+let v3Binding: DesktopRuntimeBinding | undefined;
+
 export function getDesktopAppBinding(): DesktopRuntimeBinding | undefined {
-    return typeof window !== "undefined" ? window.go?.main?.DesktopApp : undefined;
+    if (typeof window === "undefined" || !isDesktopShellOrigin()) return undefined;
+    if (!v3Binding) {
+        v3Binding = createV3Binding();
+    }
+    return v3Binding;
 }
 
 let wrappedFetch: typeof fetch | undefined;

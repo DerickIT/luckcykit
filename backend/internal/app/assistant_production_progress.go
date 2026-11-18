@@ -6,10 +6,10 @@ import (
 	"strings"
 
 	"gorm.io/gorm"
-	"infinite-canvas/backend/internal/assistantturns"
-	"infinite-canvas/backend/internal/canvas"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/assistantturns"
+	"luckytv/backend/internal/canvas"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/operations"
 )
 
 // The existing continuation receipt advances the exact confirmed inputs. Model

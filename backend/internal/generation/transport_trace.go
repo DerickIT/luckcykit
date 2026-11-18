@@ -1,7 +1,7 @@
 package generation
 
 import (
-	"infinite-canvas/backend/internal/outbound"
+	"luckytv/backend/internal/outbound"
 	"net/http"
 )
 

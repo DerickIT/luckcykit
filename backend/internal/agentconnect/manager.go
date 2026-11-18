@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/agentops"
+	"luckytv/backend/internal/agentops"
 )
 
 var (
@@ -77,7 +77,7 @@ func (execRunner) Run(ctx context.Context, name string, args []string, env []str
 }
 
 // Manager finds and invokes the official agent CLIs under one home directory
-// and owns BeefTV's one-click records and token files.
+// and owns LuckyTV's one-click records and token files.
 type Manager struct {
 	Home           string
 	DataDir        string
@@ -235,7 +235,7 @@ func (m *Manager) Connect(kind agentops.ClientKind, spec LaunchSpec) error {
 	return nil
 }
 
-// RemoveConfig attempts to remove the beeftv entry. Callers use its error as a
+// RemoveConfig attempts to remove the luckytv entry. Callers use its error as a
 // user-visible warning after access has already been cut.
 func (m *Manager) RemoveConfig(kind agentops.ClientKind) error {
 	if displayName(kind) == "" {

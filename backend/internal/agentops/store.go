@@ -3,7 +3,7 @@ package agentops
 import (
 	"gorm.io/gorm"
 
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/operations"
 )
 
 type (

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/protocol"
 )
 
 func TestApplyProtocolAuthJWTHS256SignsAccessAndSecretKey(t *testing.T) {

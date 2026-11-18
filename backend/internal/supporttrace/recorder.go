@@ -42,7 +42,7 @@ func New(dataDir string) (*Recorder, error) {
 		sdktrace.WithIDGenerator(localIDGenerator{}),
 		sdktrace.WithSpanProcessor(localProcessor{recorder: r}),
 	)
-	r.tracer = r.provider.Tracer("beeftv.support")
+	r.tracer = r.provider.Tracer("luckytv.support")
 	return r, nil
 }
 

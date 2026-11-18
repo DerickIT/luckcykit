@@ -4,7 +4,7 @@ import { getRegisteredPlugin } from "@/lib/plugins/plugin-registry";
 import { pluginStorageFor } from "@/lib/plugins/plugin-storage";
 import {
     PLUGIN_API_VERSION,
-    type BeefTVPluginHost,
+    type LuckyTVPluginHost,
     type PluginInstallConfirmRequest,
     type PluginManifest,
     type PluginManifestV2,
@@ -18,7 +18,7 @@ import { useConfigStore, type ModelChannel } from "@/stores/use-config-store";
 import { usePluginStore } from "@/stores/use-plugin-store";
 
 /** The host install confirmation listens for this event; plugins never install directly. */
-export const PLUGIN_INSTALL_REQUEST_EVENT = "beeftv:plugin-install-request";
+export const PLUGIN_INSTALL_REQUEST_EVENT = "luckytv:plugin-install-request";
 
 export function requestPluginInstall(request: PluginInstallConfirmRequest): void {
     const source = typeof request?.source === "string" ? request.source.trim() : "";
@@ -72,7 +72,7 @@ const READ_ONLY_OPS = new Set([
     "project.canvas.search",
 ]);
 
-export function createBeefTVPluginHost(pluginId: string, manifest?: PluginManifest | PluginManifestV2): BeefTVPluginHost {
+export function createLuckyTVPluginHost(pluginId: string, manifest?: PluginManifest | PluginManifestV2): LuckyTVPluginHost {
     const notify = (msg: string, level: "info" | "success" | "warning" | "error" = "info") => {
         void import("antd").then(({ message }) => message[level](msg));
     };
@@ -186,10 +186,10 @@ export function createBeefTVPluginHost(pluginId: string, manifest?: PluginManife
                 }
                 const incoming = rawChannel as unknown as Partial<ModelChannel>;
                 const targetId = String(incoming.id || "").trim();
-                const allowedPrefix = pluginId.replace(/^beeftv-plugin-/, "");
+                const allowedPrefix = pluginId.replace(/^luckytv-plugin-/, "");
                 const isPluginOwnedId =
                     Boolean(targetId) &&
-                    targetId !== "beeftv" &&
+                    targetId !== "luckytv" &&
                     (targetId === allowedPrefix ||
                         targetId === `${allowedPrefix}-channel` ||
                         targetId.startsWith(`${pluginId}:`));

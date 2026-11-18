@@ -3,7 +3,7 @@ package playback
 import (
 	"errors"
 	"fmt"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 	"os"
 )
 

@@ -21,9 +21,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"infinite-canvas/backend/internal/desktopnet"
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/outbound"
+	"luckytv/backend/internal/desktopnet"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/outbound"
 )
 
 type input struct {
@@ -120,11 +120,11 @@ func main() {
 	rec := &receipts{}
 	ctx, cancel := context.WithTimeout(context.Background(), 6*time.Minute)
 	defer cancel()
-	ctx = generation.WithRuntime(ctx, generation.Runtime{Endpoints: generation.Endpoints{BeefTVVideoBaseURL: in.BaseURL}, Receipts: rec})
+	ctx = generation.WithRuntime(ctx, generation.Runtime{Endpoints: generation.Endpoints{LuckyTVVideoBaseURL: in.BaseURL}, Receipts: rec})
 	config := generation.Config{BaseURL: in.BaseURL + "/v1", APIKey: "cos-live-fixture", InterfaceType: "newapi", Model: "seedance-2.0-mini"}
 	task := generation.Input{Config: config, ReferenceImages: []generation.Media{{DataURL: "fixture", MimeType: "image/png"}}}
 	start := time.Now()
-	err := generation.PrepareBeefTVVideoReferences(ctx, config, &task, func(string, generation.Media) ([]byte, string, bool, error) { return data, "image/png", false, nil })
+	err := generation.PrepareLuckyTVVideoReferences(ctx, config, &task, func(string, generation.Media) ([]byte, string, bool, error) { return data, "image/png", false, nil })
 	out := map[string]any{"event": "cos_live_client", "route": in.Route, "fault": in.Fault, "proxy_selected": proxy != nil, "cut_triggered": cut.Load(), "bytes": len(data), "sha256": expected, "seconds": time.Since(start).Seconds(), "puts": rec.Puts}
 	if err != nil {
 		failure := generation.ClassifyError(err)

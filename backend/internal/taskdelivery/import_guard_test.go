@@ -12,7 +12,7 @@ func TestTaskDeliveryDoesNotDependOnAppOrProviders(t *testing.T) {
 		t.Fatalf("list taskdelivery deps: %v\n%s", err, deps)
 	}
 	for _, dependency := range strings.Fields(string(deps)) {
-		if dependency == "infinite-canvas/backend/internal/app" {
+		if dependency == "luckytv/backend/internal/app" {
 			t.Fatal("taskdelivery depends on internal/app")
 		}
 	}
@@ -21,10 +21,10 @@ func TestTaskDeliveryDoesNotDependOnAppOrProviders(t *testing.T) {
 		t.Fatalf("list taskdelivery imports: %v\n%s", err, direct)
 	}
 	forbiddenDirect := map[string]bool{
-		"infinite-canvas/backend/internal/generation": true,
-		"infinite-canvas/backend/internal/provider":   true,
-		"infinite-canvas/backend/internal/protocol":   true,
-		"infinite-canvas/backend/internal/outbound":   true,
+		"luckytv/backend/internal/generation": true,
+		"luckytv/backend/internal/provider":   true,
+		"luckytv/backend/internal/protocol":   true,
+		"luckytv/backend/internal/outbound":   true,
 	}
 	for _, dependency := range strings.Fields(string(direct)) {
 		if forbiddenDirect[dependency] {

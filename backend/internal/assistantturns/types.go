@@ -2,7 +2,7 @@ package assistantturns
 
 import (
 	"encoding/json"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/skills"
 	"reflect"
 	"sort"
 	"strings"

@@ -13,8 +13,8 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/skillhub"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/skillhub"
 )
 
 func TestMarketVersionMetadataSurvivesOfflineForkEditAndRollback(t *testing.T) {
@@ -37,7 +37,7 @@ func TestMarketVersionMetadataSurvivesOfflineForkEditAndRollback(t *testing.T) {
 		_ = json.NewEncoder(w).Encode(map[string]any{"success": true, "data": current})
 	}))
 	t.Cleanup(server.Close)
-	t.Setenv("BEEFTV_SKILLHUB_URL", server.URL)
+	t.Setenv("LUCKYTV_SKILLHUB_URL", server.URL)
 	first, err := s.InstallMarket(context.Background(), "owner", r1.SkillID, r1.ReleaseID)
 	if err != nil {
 		t.Fatal(err)

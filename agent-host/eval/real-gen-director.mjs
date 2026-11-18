@@ -56,8 +56,8 @@ function currentTurnView(messages = [], scenarios = []) {
       if (messages[index].role !== 'user') continue;
       const text = extractMessageText(messages[index]).trim();
       const hasImage = Array.isArray(messages[index].content) && messages[index].content.some((part) => part && (part.type === 'image_url' || part.type === 'image'));
-      if (!text || text.startsWith('以下是前述工具返回的素材内容') || isTransientStudioTailMessage(messages[index]) || (hasImage && !text.includes('BEEFTV_CONTEXT:'))) continue;
-      if (!text.includes('BEEFTV_SUPPLEMENT:')) lastUser = index;
+      if (!text || text.startsWith('以下是前述工具返回的素材内容') || isTransientStudioTailMessage(messages[index]) || (hasImage && !text.includes('LUCKYTV_CONTEXT:'))) continue;
+      if (!text.includes('LUCKYTV_SUPPLEMENT:')) lastUser = index;
     }
   }
   const slice = messages.slice(lastUser >= 0 ? lastUser : 0).filter((message) => !isTransientStudioTailMessage(message));

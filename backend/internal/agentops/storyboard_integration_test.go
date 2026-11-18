@@ -2,8 +2,8 @@ package agentops_test
 
 import (
 	"errors"
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/app"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/app"
 	"reflect"
 	"testing"
 )

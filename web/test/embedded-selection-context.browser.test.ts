@@ -51,9 +51,9 @@ test("嵌入模式点击问助手向父窗口发送选区，不打开内置助�
     await page.goto(`http://localhost:${server.port}/`);
     const child = page.frameLocator("#child");
     await child.locator("#ask").click();
-    await page.waitForFunction(() => (window as unknown as { __messages?: { type?: string }[] }).__messages?.some((message) => message.type === "beeftv:ask"));
+    await page.waitForFunction(() => (window as unknown as { __messages?: { type?: string }[] }).__messages?.some((message) => message.type === "luckytv:ask"));
     const messages = await page.evaluate(() => (window as unknown as { __messages: { type: string; ask?: { source: string; canvasId: string; canvasTitle: string; nodes: { id: string; title: string; type: string }[] } }[] }).__messages);
-    const ask = messages.find((message) => message.type === "beeftv:ask")!.ask!;
+    const ask = messages.find((message) => message.type === "luckytv:ask")!.ask!;
     expect(ask.source).toBe("selection-toolbar");
     expect(ask.canvasId).toBe("canvas-1");
     expect(ask.canvasTitle).toBe("雨夜故事");

@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
 )
 
 const providerTaskRecoveryLeaseDuration = localtask.ProviderTaskRecoveryLeaseDuration
@@ -43,7 +43,7 @@ func (s *Service) queryFailedVideoTask(ctx context.Context, task *model.Task, cl
 			return true, mq.Kind, func(queryCtx context.Context) (map[string]interface{}, string, *ProviderTaskQueryResult, error) {
 				queryCtx = context.WithValue(queryCtx, imageTaskContext{}, *t)
 				projection, qErr := mq.Client.Query(queryCtx, mq.Key, mq.Kind)
-				if beeftv.IsMediaTaskNotFound(qErr) {
+				if luckytv.IsMediaTaskNotFound(qErr) {
 					outcome, resubmitted, resolveErr := s.mediaAttempts().ResolveMissingManagedSubmission(queryCtx, *t)
 					switch {
 					case outcome != "":
@@ -64,14 +64,14 @@ func (s *Service) queryFailedVideoTask(ctx context.Context, task *model.Task, cl
 					return nil, projection.Status, nil, qErr
 				}
 				if projection.BillingState != nil {
-					t.BeefBillingState = projection.BillingState
+					t.LuckyBillingState = projection.BillingState
 				}
 				if projection.UsageState != nil {
-					t.BeefUsageState = projection.UsageState
+					t.LuckyUsageState = projection.UsageState
 				}
 				if projection.ReconcileDeadline != nil {
 					value := time.Unix(*projection.ReconcileDeadline, 0).UTC().Format(time.RFC3339)
-					t.BeefReconcileDeadline = &value
+					t.LuckyReconcileDeadline = &value
 				}
 				var res map[string]interface{}
 				if projection.Status == "completed" {
@@ -99,12 +99,12 @@ func (s *Service) queryFailedVideoTask(ctx context.Context, task *model.Task, cl
 	}, task, claimUserID)
 }
 
-func queryBeefTVVideoResult(ctx context.Context, input canvasGenerationInput, id string) (map[string]interface{}, string, error) {
-	result, status, _, err := queryBeefTVVideoResultWithSettlement(ctx, input, id)
+func queryLuckyTVVideoResult(ctx context.Context, input canvasGenerationInput, id string) (map[string]interface{}, string, error) {
+	result, status, _, err := queryLuckyTVVideoResultWithSettlement(ctx, input, id)
 	return result, status, err
 }
 
-func queryBeefTVVideoResultWithSettlement(ctx context.Context, input canvasGenerationInput, id string) (map[string]interface{}, string, generation.BeefTVVideoSettlement, error) {
+func queryLuckyTVVideoResultWithSettlement(ctx context.Context, input canvasGenerationInput, id string) (map[string]interface{}, string, generation.LuckyTVVideoSettlement, error) {
 	return generation.QueryManagedLegacyVideo(ctx, input, id)
 }
 

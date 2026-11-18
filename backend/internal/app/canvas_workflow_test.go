@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"gorm.io/gorm"
-	cw "infinite-canvas/backend/internal/canvasworkflow"
-	"infinite-canvas/backend/internal/model"
+	cw "luckytv/backend/internal/canvasworkflow"
+	"luckytv/backend/internal/model"
 )
 
 func workflowFixture(t *testing.T) (*Service, *gorm.DB, cw.Definition) {

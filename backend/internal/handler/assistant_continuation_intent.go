@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"infinite-canvas/backend/internal/assistantruntime"
-	"infinite-canvas/backend/internal/assistantturns"
+	"luckytv/backend/internal/assistantruntime"
+	"luckytv/backend/internal/assistantturns"
 )
 
 type assistantContinuationIntentService interface {

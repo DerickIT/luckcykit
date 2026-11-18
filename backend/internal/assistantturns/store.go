@@ -3,12 +3,12 @@ package assistantturns
 import (
 	"encoding/json"
 	"errors"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/skills"
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 
 	"gorm.io/gorm"
 )

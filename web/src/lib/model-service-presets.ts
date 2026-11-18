@@ -6,8 +6,8 @@ import { cleanChannelBaseUrl, isRawChannelBaseUrl } from "@/lib/channel-url";
 import { catalogEndpointCapability, type ChannelModelCatalogItem } from "@/lib/channel-model-catalog";
 import { serviceCredentialGuide } from "@/lib/service-credentials";
 import { BUILTIN_PRESETS, COMPATIBLE_CANDIDATES, builtinPreset, builtinProtocolsAvailable, upgradeBuiltinModelProfile } from "@/lib/builtin-service-presets";
-import { DEFAULT_BASE_URL as LL2_DEFAULT_BASE_URL, LL2_CHANNEL_ID, LL2_CHANNEL_NAME } from "../../../plugin-packages/beeftv-plugin-ll2/client/index.js";
-import { DEFAULT_BASE_URL as YSDUI_DEFAULT_BASE_URL, YSDUI_CHANNEL_ICON, YSDUI_CHANNEL_ID, YSDUI_CHANNEL_NAME } from "../../../plugin-packages/beeftv-plugin-ysdui/client/index.js";
+import { DEFAULT_BASE_URL as LL2_DEFAULT_BASE_URL, LL2_CHANNEL_ID, LL2_CHANNEL_NAME } from "../../../plugin-packages/luckytv-plugin-ll2/client/index.js";
+import { DEFAULT_BASE_URL as YSDUI_DEFAULT_BASE_URL, YSDUI_CHANNEL_ICON, YSDUI_CHANNEL_ID, YSDUI_CHANNEL_NAME } from "../../../plugin-packages/luckytv-plugin-ysdui/client/index.js";
 
 export const MODEL_SERVICE_PRESETS = [
     { id: "compatible", name: "第三方模型服务", subtitle: "OpenAI 兼容 API · 中转服务", icon: "OpenAI", baseUrl: "", apiFormat: "openai" },

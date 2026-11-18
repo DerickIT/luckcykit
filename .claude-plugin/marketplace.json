@@ -1,11 +1,11 @@
 {
-  "name": "beeftv",
-  "owner": { "name": "BeefTV" },
+  "name": "luckytv",
+  "owner": { "name": "LuckyTV" },
   "plugins": [
     {
-      "name": "beeftv-skills",
-      "source": "./plugins/beeftv-skills",
-      "description": "在 BeefTV 画布上创作，查找创作技能并协助作者准备投稿。",
+      "name": "luckytv-skills",
+      "source": "./plugins/luckytv-skills",
+      "description": "在 LuckyTV 画布上创作，查找创作技能并协助作者准备投稿。",
       "version": "0.1.0"
     }
   ]

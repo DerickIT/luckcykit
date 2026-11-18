@@ -5,9 +5,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/sqlite"

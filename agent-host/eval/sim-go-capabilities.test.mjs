@@ -211,7 +211,7 @@ describe('模拟能力默认关闭，打开后才出现', () => {
 describe('agent.guide 只在夹具包含描述符时暴露', () => {
   const descriptor = {
     id: 'agent.guide',
-    summary: '读取 BeefTV 外部 Agent 使用说明（与一键接入安装的技能同一份）',
+    summary: '读取 LuckyTV 外部 Agent 使用说明（与一键接入安装的技能同一份）',
     readOnly: true,
     scope: 'workspace_read',
     params: { type: 'object', properties: {}, additionalProperties: false },
@@ -219,7 +219,7 @@ describe('agent.guide 只在夹具包含描述符时暴露', () => {
     replay: 'safe',
   };
   const skillBytes = () =>
-    fs.readFileSync(path.resolve(__dirname, '../../plugins/beeftv-skills/skills/beeftv-canvas/SKILL.md'));
+    fs.readFileSync(path.resolve(__dirname, '../../plugins/luckytv-skills/skills/luckytv-canvas/SKILL.md'));
 
   function stateWithGuide() {
     const state = createSimState();
@@ -234,7 +234,7 @@ describe('agent.guide 只在夹具包含描述符时暴露', () => {
     const result = executeOp(stateWithGuide(), 'agent.guide', {}).result;
     const bytes = skillBytes();
     const contentHash = crypto.createHash('sha256').update(bytes).digest('hex');
-    expect(result.name).toBe('beeftv-canvas');
+    expect(result.name).toBe('luckytv-canvas');
     expect(result.contentHash).toBe(contentHash);
     expect(result.version).toBe(contentHash.slice(0, 12));
     expect(result.text).toBe(bytes.toString('utf8'));

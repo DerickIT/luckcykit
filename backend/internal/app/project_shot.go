@@ -1,7 +1,7 @@
 package app
 
 import (
-	localproject "infinite-canvas/backend/internal/project"
+	localproject "luckytv/backend/internal/project"
 )
 
 type CreateProjectShotRequest = localproject.CreateProjectShotRequest

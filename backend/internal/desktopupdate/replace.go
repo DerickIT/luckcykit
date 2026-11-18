@@ -88,7 +88,7 @@ func swapWindows(req HelperRequest) error {
 	return nil
 }
 
-// windowsSidecarEntries 是 BeefTV.exe 旁边随包发行的资源：升级要整组换，回滚要整组还原。
+// windowsSidecarEntries 是 LuckyTV.exe 旁边随包发行的资源：升级要整组换，回滚要整组还原。
 var windowsSidecarEntries = []string{pluginDirName, "agent-host", cliDirName, "media-runtime"}
 
 func restoreWindows(req HelperRequest) error {
@@ -124,7 +124,7 @@ func restoreWindows(req HelperRequest) error {
 }
 
 func restoreWindowsExecutable(targetExe, backupExe string) error {
-	failedExe := targetExe + ".beeftv-failed"
+	failedExe := targetExe + ".luckytv-failed"
 	err := retryIO(func() error {
 		if pathExists(targetExe) {
 			_ = os.RemoveAll(failedExe)
@@ -173,7 +173,7 @@ func RestoreBackup(req HelperRequest) error {
 			return fmt.Errorf("没有可还原的备份")
 		}
 		if pathExists(req.TargetPath) {
-			failed := req.TargetPath + ".beeftv-failed"
+			failed := req.TargetPath + ".luckytv-failed"
 			_ = os.RemoveAll(failed)
 			_ = renamePath(req.TargetPath, failed)
 		}
@@ -240,14 +240,14 @@ func relaunchTarget(req HelperRequest) error {
 	}
 	switch {
 	case req.Platform == "linux-amd64":
-		cmd := exec.Command(filepath.Join(req.TargetPath, "BeefTV"), args...)
+		cmd := exec.Command(filepath.Join(req.TargetPath, "LuckyTV"), args...)
 		cmd.Dir = req.TargetPath
 		if err := cmd.Start(); err != nil {
 			return err
 		}
 		return cmd.Process.Release()
 	case strings.HasPrefix(req.Platform, "darwin"):
-		cmd := exec.Command(filepath.Join(req.TargetPath, "Contents", "MacOS", "BeefTV"), args...)
+		cmd := exec.Command(filepath.Join(req.TargetPath, "Contents", "MacOS", "LuckyTV"), args...)
 		cmd.Dir = filepath.Dir(req.TargetPath)
 		if err := cmd.Start(); err != nil {
 			return err

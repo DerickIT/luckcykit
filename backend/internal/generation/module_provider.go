@@ -11,10 +11,10 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/channelurl"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/pluginhost"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/channelurl"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/pluginhost"
+	"luckytv/backend/internal/protocol"
 
 	"github.com/google/uuid"
 )

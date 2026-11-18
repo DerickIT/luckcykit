@@ -3,7 +3,7 @@ package taskdelivery
 import (
 	"errors"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 var (

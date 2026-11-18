@@ -6,22 +6,22 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/operations"
 )
 
-func TestAgentModelCatalogBeefTVVideoContractAndAudioPayload(t *testing.T) {
+func TestAgentModelCatalogLuckyTVVideoContractAndAudioPayload(t *testing.T) {
 	for _, tc := range []struct {
 		name, baseURL                     string
 		configured, audioDefault, sourced bool
 	}{
-		{name: "missing profile", baseURL: "https://beeftv.app"},
-		{name: "saved false", baseURL: "https://beeftv.app/v1", configured: true},
-		{name: "saved true", baseURL: "https://beeftv.app/v1", configured: true, audioDefault: true},
+		{name: "missing profile", baseURL: "https://luckytv.app"},
+		{name: "saved false", baseURL: "https://luckytv.app/v1", configured: true},
+		{name: "saved true", baseURL: "https://luckytv.app/v1", configured: true, audioDefault: true},
 		{name: "custom endpoint", baseURL: "https://custom.example", configured: true},
-		{name: "versioned gateway contract", baseURL: "https://beeftv.app/v1", configured: true, sourced: true},
+		{name: "versioned gateway contract", baseURL: "https://luckytv.app/v1", configured: true, sourced: true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			svc, _ := newModelCatalogTestService(t)
@@ -35,7 +35,7 @@ func TestAgentModelCatalogBeefTVVideoContractAndAudioPayload(t *testing.T) {
 			if tc.sourced {
 				profile["videoCapabilitiesVersion"] = "gateway-v2"
 			}
-			channelID := "beeftv"
+			channelID := "luckytv"
 			if tc.name == "custom endpoint" {
 				channelID = "custom"
 			}
@@ -76,7 +76,7 @@ func TestAgentModelCatalogBeefTVVideoContractAndAudioPayload(t *testing.T) {
 				t.Fatalf("does not match generation contract: %#v", video)
 			}
 			for _, audio := range []bool{video.GenerateAudio.Default, true, false} {
-				payload, err := generation.BeefTVVideoRequestBody(generation.Input{Mode: "video", Prompt: "synthetic scene", Config: generation.Config{Model: "kling-video-v3", VideoSeconds: strconv.Itoa(video.Duration.Default), VQuality: video.DefaultResolution, Size: video.DefaultRatio, VideoGenerateAudio: strconv.FormatBool(audio)}})
+				payload, err := generation.LuckyTVVideoRequestBody(generation.Input{Mode: "video", Prompt: "synthetic scene", Config: generation.Config{Model: "kling-video-v3", VideoSeconds: strconv.Itoa(video.Duration.Default), VQuality: video.DefaultResolution, Size: video.DefaultRatio, VideoGenerateAudio: strconv.FormatBool(audio)}})
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -91,7 +91,7 @@ func TestAgentModelCatalogBeefTVVideoContractAndAudioPayload(t *testing.T) {
 func TestAgentModelCatalogDesktopUsesActualSnapshotWithoutCredentials(t *testing.T) {
 	svc, _ := newModelCatalogTestService(t)
 	svc.mode = serviceModeLocal
-	body := []byte(`{"channels":[{"id":"beeftv","name":"BeefTV","credentialRef":"beeftv","apiKey":"private-key","baseUrl":"https://private-provider.test/v1","headers":[{"name":"Authorization","value":"private-header"}],"enabled":true,"models":["gemini-native","image-model"],"modelProfiles":[{"model":"gemini-native","displayName":"Native Gemini","capability":"text","protocol":"chat-completion"},{"model":"image-model","displayName":"Reference Image","capability":"image","protocol":"openai-image"}]},{"id":"disabled","enabled":false,"models":["hidden"]}]}`)
+	body := []byte(`{"channels":[{"id":"luckytv","name":"LuckyTV","credentialRef":"luckytv","apiKey":"private-key","baseUrl":"https://private-provider.test/v1","headers":[{"name":"Authorization","value":"private-header"}],"enabled":true,"models":["gemini-native","image-model"],"modelProfiles":[{"model":"gemini-native","displayName":"Native Gemini","capability":"text","protocol":"chat-completion"},{"model":"image-model","displayName":"Reference Image","capability":"image","protocol":"openai-image"}]},{"id":"disabled","enabled":false,"models":["hidden"]}]}`)
 	if err := svc.SaveLocalModelConfig(body); err != nil {
 		t.Fatal(err)
 	}
@@ -103,7 +103,7 @@ func TestAgentModelCatalogDesktopUsesActualSnapshotWithoutCredentials(t *testing
 		t.Fatalf("catalog=%#v", catalog)
 	}
 	ch := catalog.Channels[0]
-	if ch.ID != "beeftv" || ch.Name != "BeefTV" || len(ch.Models) != 2 || ch.Models[0].ModelKey != "gemini-native" || !ch.Models[0].Available || ch.Models[1].Capability != "image" {
+	if ch.ID != "luckytv" || ch.Name != "LuckyTV" || len(ch.Models) != 2 || ch.Models[0].ModelKey != "gemini-native" || !ch.Models[0].Available || ch.Models[1].Capability != "image" {
 		t.Fatalf("channel=%#v", ch)
 	}
 	registry := operations.NewRegistry(svc, operations.NewStore(svc.repo.DB()))
@@ -138,11 +138,11 @@ func TestAgentModelCatalogDesktopUsesActualSnapshotWithoutCredentials(t *testing
 	}
 }
 
-// BeefTV publishes image models without a prompt limit as promptMaxChars 0.
+// LuckyTV publishes image models without a prompt limit as promptMaxChars 0.
 func TestAgentModelCatalogKeepsUnlimitedPromptImageModelsPriced(t *testing.T) {
 	svc, _ := newModelCatalogTestService(t)
 	svc.mode = serviceModeLocal
-	body := []byte(`{"channels":[{"id":"beeftv","name":"BeefTV","credentialRef":"beeftv","enabled":true,"models":["gpt-image-2"],"modelProfiles":[{"model":"gpt-image-2","capability":"image","protocol":"openai-image",` +
+	body := []byte(`{"channels":[{"id":"luckytv","name":"LuckyTV","credentialRef":"luckytv","enabled":true,"models":["gpt-image-2"],"modelProfiles":[{"model":"gpt-image-2","capability":"image","protocol":"openai-image",` +
 		`"capabilityConfig":{"version":1,"image":{"references":{"promptMaxChars":0,"maxImages":16,"maxImageBytes":0,"maskSupported":true},"size":{"parameter":"size","values":["1024x1024","2048x2048"],"default":"1024x1024","allowCustom":true},"quality":{"supported":true,"values":["low","high"],"default":"low"},"transparentBackground":{"supported":false},"responseFormat":{"supported":false},"outputFormat":{"supported":true},"maxOutputs":4}},` +
 		`"pricing":{"mode":"per_request","per_request_cny":0.35,"display_kind":"image","image_price_table":{"output":{"low":{"1K":0.35,"2K":0.7}},"reference":0.15,"default_quality":"low","default_size":"1K"}}}]}]}`)
 	if err := svc.SaveLocalModelConfig(body); err != nil {
@@ -156,7 +156,7 @@ func TestAgentModelCatalogKeepsUnlimitedPromptImageModelsPriced(t *testing.T) {
 	if len(catalog.Channels) != 1 || len(catalog.Channels[0].Models) != 1 || catalog.Channels[0].Models[0].ModelKey != "gpt-image-2" {
 		t.Fatalf("the image model left the assistant catalog: %#v", catalog)
 	}
-	got := operations.EstimateGenerationCost(session, []operations.EstimateTarget{{ModelKey: "beeftv::gpt-image-2", Kind: "image", Parameters: map[string]string{"count": "2"}}})
+	got := operations.EstimateGenerationCost(session, []operations.EstimateTarget{{ModelKey: "luckytv::gpt-image-2", Kind: "image", Parameters: map[string]string{"count": "2"}}})
 	if got.Items[0].Amount == nil || *got.Items[0].Amount != 0.7 {
 		t.Fatalf("estimate: %+v", got.Items[0])
 	}
@@ -195,7 +195,7 @@ func TestAgentModelCatalogPreservesDesktopGenerationProfiles(t *testing.T) {
 	profile := func(name, kind, protocol string, config any) map[string]any {
 		return map[string]any{"model": name, "displayName": name, "capability": kind, "protocol": protocol, "capabilityConfig": config}
 	}
-	body, err := json.Marshal(map[string]any{"channels": []any{map[string]any{"id": "beeftv", "name": "BeefTV", "enabled": true, "models": []string{"seedance-2.0-fast", "gpt-image-2.5"}, "modelProfiles": []any{profile("seedance-2.0-fast", "video", "new-api-channel-2", video), profile("gpt-image-2.5", "image", "openai-image", image)}}}})
+	body, err := json.Marshal(map[string]any{"channels": []any{map[string]any{"id": "luckytv", "name": "LuckyTV", "enabled": true, "models": []string{"seedance-2.0-fast", "gpt-image-2.5"}, "modelProfiles": []any{profile("seedance-2.0-fast", "video", "new-api-channel-2", video), profile("gpt-image-2.5", "image", "openai-image", image)}}}})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -229,7 +229,7 @@ func TestAgentModelCatalogPreservesDesktopGenerationProfiles(t *testing.T) {
 func TestAgentCatalogFiltersCapabilityAndExposesOnlyValidatedQuote(t *testing.T) {
 	svc, _ := newModelCatalogTestService(t)
 	svc.mode = serviceModeLocal
-	body := []byte(`{"channels":[{"id":"beeftv","enabled":true,"models":["text-model","video-model","unknown-price"],"modelProfiles":[{"model":"text-model","capability":"text","protocol":"chat-completion"},{"model":"video-model","capability":"video","protocol":"openai-videos","videoPricing":{"currency":"CNY","mode":"seconds","rates":{"720p":{"output":0.25,"reference_video":0,"apiKey":"private-rate"}},"token":"private-quote"}},{"model":"unknown-price","capability":"video","protocol":"openai-videos","videoPricing":{"currency":"USD","mode":"seconds","rates":{"720p":{"output":1,"reference_video":0}}}}]}]}`)
+	body := []byte(`{"channels":[{"id":"luckytv","enabled":true,"models":["text-model","video-model","unknown-price"],"modelProfiles":[{"model":"text-model","capability":"text","protocol":"chat-completion"},{"model":"video-model","capability":"video","protocol":"openai-videos","videoPricing":{"currency":"CNY","mode":"seconds","rates":{"720p":{"output":0.25,"reference_video":0,"apiKey":"private-rate"}},"token":"private-quote"}},{"model":"unknown-price","capability":"video","protocol":"openai-videos","videoPricing":{"currency":"USD","mode":"seconds","rates":{"720p":{"output":1,"reference_video":0}}}}]}]}`)
 	if err := svc.SaveLocalModelConfig(body); err != nil {
 		t.Fatal(err)
 	}
@@ -305,10 +305,10 @@ func TestAgentModelCatalogCapabilityDeclaredMatchesWebSourceRules(t *testing.T) 
 				},
 			},
 			map[string]any{
-				"id":      "beeftv",
-				"name":    "BeefTV",
+				"id":      "luckytv",
+				"name":    "LuckyTV",
 				"scope":   "system",
-				"baseUrl": "https://beeftv.app/v1",
+				"baseUrl": "https://luckytv.app/v1",
 				"enabled": true,
 				"models":  []string{"empty-oprefs", "minimax-h3-max", "minimax-h3"},
 				"modelProfiles": []any{
@@ -376,26 +376,26 @@ func TestAgentModelCatalogCapabilityDeclaredMatchesWebSourceRules(t *testing.T) 
 	managedByKey := map[string]bool{}
 	for _, ch := range catalog.Channels {
 		for _, m := range ch.Models {
-			if m.CapabilityDeclared == nil || m.ManagedBeefTV == nil {
+			if m.CapabilityDeclared == nil || m.ManagedLuckyTV == nil {
 				t.Fatalf("missing internal flags for %s::%s", ch.ID, m.ModelKey)
 			}
 			key := ch.ID + "::" + m.ModelKey
 			declaredByKey[key] = *m.CapabilityDeclared
-			managedByKey[key] = *m.ManagedBeefTV
-			if key == "beeftv::empty-oprefs" {
+			managedByKey[key] = *m.ManagedLuckyTV
+			if key == "luckytv::empty-oprefs" {
 				videoMap, _ := m.CapabilityConfig["video"].(map[string]any)
 				if _, ok := videoMap["operationReferences"]; !ok {
 					t.Fatalf("expected empty operationReferences map preserved on %s, got %#v", key, videoMap)
 				}
 			}
-			if key == "beeftv::minimax-h3-max" {
+			if key == "luckytv::minimax-h3-max" {
 				videoMap, _ := m.CapabilityConfig["video"].(map[string]any)
 				opRefs, ok := videoMap["operationReferences"].(map[string]any)
 				if !ok || len(opRefs) != 0 || videoMap["middleFrame"] != false {
 					t.Fatalf("unversioned user profile overwritten on %s: %#v", key, videoMap)
 				}
 			}
-			if key == "beeftv::minimax-h3" {
+			if key == "luckytv::minimax-h3" {
 				videoMap, _ := m.CapabilityConfig["video"].(map[string]any)
 				opRefs, _ := videoMap["operationReferences"].(map[string]any)
 				i2v, _ := opRefs["image_to_video"].(map[string]any)
@@ -410,16 +410,16 @@ func TestAgentModelCatalogCapabilityDeclaredMatchesWebSourceRules(t *testing.T) 
 		"custom::user-cap":       true,
 		"custom::versioned-cap":  true,
 		"sys::sys-cap":           true,
-		"beeftv::empty-oprefs":   true,
-		"beeftv::minimax-h3-max": true,
-		"beeftv::minimax-h3":     true,
+		"luckytv::empty-oprefs":   true,
+		"luckytv::minimax-h3-max": true,
+		"luckytv::minimax-h3":     true,
 	}
 	for key, expected := range want {
 		if got, ok := declaredByKey[key]; !ok || got != expected {
 			t.Fatalf("%s CapabilityDeclared = %v (present=%v), want %v", key, got, ok, expected)
 		}
 	}
-	if managedByKey["custom::versioned-cap"] || managedByKey["sys::sys-cap"] || !managedByKey["beeftv::empty-oprefs"] {
-		t.Fatalf("ManagedBeefTV flags = %#v", managedByKey)
+	if managedByKey["custom::versioned-cap"] || managedByKey["sys::sys-cap"] || !managedByKey["luckytv::empty-oprefs"] {
+		t.Fatalf("ManagedLuckyTV flags = %#v", managedByKey)
 	}
 }

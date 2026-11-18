@@ -34,7 +34,7 @@ describe('请求效率门禁（Request Efficiency Gate）', () => {
           messages: [
             {
               role: 'developer',
-              content: '<beeftv_skill_catalog>\ncat\n</beeftv_skill_catalog>\n\n<instructions>\ninstr\n</instructions>\n\n<beeftv_studio>\n画布版本 1\n</beeftv_studio>',
+              content: '<luckytv_skill_catalog>\ncat\n</luckytv_skill_catalog>\n\n<instructions>\ninstr\n</instructions>\n\n<luckytv_studio>\n画布版本 1\n</luckytv_studio>',
             },
             { role: 'user', content: 'turn 1' },
           ],
@@ -51,7 +51,7 @@ describe('请求效率门禁（Request Efficiency Gate）', () => {
           messages: [
             {
               role: 'developer',
-              content: '<beeftv_skill_catalog>\ncat\n</beeftv_skill_catalog>\n\n<instructions>\ninstr\n</instructions>\n\n<beeftv_studio>\n画布版本 2\n</beeftv_studio>',
+              content: '<luckytv_skill_catalog>\ncat\n</luckytv_skill_catalog>\n\n<instructions>\ninstr\n</instructions>\n\n<luckytv_studio>\n画布版本 2\n</luckytv_studio>',
             },
             { role: 'user', content: 'turn 1' },
             { role: 'assistant', content: 'ok' },
@@ -74,7 +74,7 @@ describe('请求效率门禁（Request Efficiency Gate）', () => {
     expect(report.overallPrefixHitRatio).toBe(0);
     expect(report.violations.some((v) => v.includes('头部 system 仍包含动态区块'))).toBe(true);
     expect(report.violations.some((v) => v.includes('排在 <instructions>'))).toBe(true);
-    expect(report.violations.some((v) => v.includes('缺少非 system 的 <beeftv_studio>'))).toBe(true);
+    expect(report.violations.some((v) => v.includes('缺少非 system 的 <luckytv_studio>'))).toBe(true);
     expect(report.violations.some((v) => v.includes('会话内头部 system 文本发生变化'))).toBe(true);
     expect(report.violations.some((v) => v.includes('缺少预期评测场景请求记录: S1'))).toBe(true);
     expect(report.violations.some((v) => v.includes('超过上限'))).toBe(true);

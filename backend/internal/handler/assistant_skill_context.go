@@ -8,8 +8,8 @@ import (
 	"net/url"
 
 	"github.com/gin-gonic/gin"
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/assistantturns"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/assistantturns"
 )
 
 func skillContextFailure(c *gin.Context, err error) {

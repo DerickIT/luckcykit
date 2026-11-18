@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"strings"
 
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
 )
 
 // The private recipe freezes generation parameters, while channel identity
@@ -95,8 +95,8 @@ func ChannelID(host CompileHost, input map[string]any, logical string) (string, 
 	if config == nil {
 		return "", BadRequest("原生成步骤缺少模型配置")
 	}
-	if beeftv.IsManagedChannel(stringValue(config["channelId"]), stringValue(config["credentialRef"]), stringValue(config["baseUrl"])) {
-		return "@beeftv", nil
+	if luckytv.IsManagedChannel(stringValue(config["channelId"]), stringValue(config["credentialRef"]), stringValue(config["baseUrl"])) {
+		return "@luckytv", nil
 	}
 	snapshot, e := host.ProviderConfig()
 	if e != nil {
@@ -135,7 +135,7 @@ func RefreshCredentials(host CompileHost, input map[string]any, channelID string
 			return e
 		}
 		if key == "" {
-			return BadRequest("BeefTV 连接已断开，请先在设置中重新连接")
+			return BadRequest("LuckyTV 连接已断开，请先在设置中重新连接")
 		}
 		config["apiKey"] = key
 		config["baseUrl"] = base

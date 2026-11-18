@@ -1,6 +1,6 @@
 package app
 
-import "infinite-canvas/backend/internal/generation"
+import "luckytv/backend/internal/generation"
 
 type canvasGenerationInput = generation.Input
 type canvasTextOptions = generation.TextOptions
@@ -30,11 +30,11 @@ const defaultVideoPollInterval = generation.DefaultVideoPollInterval
 const videoPollEventRetrying = generation.VideoPollEventRetrying
 const videoPollEventRecovered = generation.VideoPollEventRecovered
 
-type beefTVSeedanceMediaGroup = generation.BeefTVSeedanceMediaGroup
+type luckyTVSeedanceMediaGroup = generation.LuckyTVSeedanceMediaGroup
 
-const beefTVSeedanceImageMaxBytes = generation.BeefTVSeedanceImageMaxBytes
-const beefTVSeedanceVideoMaxBytes = generation.BeefTVSeedanceVideoMaxBytes
-const beefTVSeedanceUploadTimeout = generation.BeefTVSeedanceUploadTimeout
+const luckyTVSeedanceImageMaxBytes = generation.LuckyTVSeedanceImageMaxBytes
+const luckyTVSeedanceVideoMaxBytes = generation.LuckyTVSeedanceVideoMaxBytes
+const luckyTVSeedanceUploadTimeout = generation.LuckyTVSeedanceUploadTimeout
 
-var errBeefTVSeedanceUploadUnavailable = generation.ErrBeefTVSeedanceUploadUnavailable
-var errBeefTVSeedanceUploadIncomplete = generation.ErrBeefTVSeedanceUploadIncomplete
+var errLuckyTVSeedanceUploadUnavailable = generation.ErrLuckyTVSeedanceUploadUnavailable
+var errLuckyTVSeedanceUploadIncomplete = generation.ErrLuckyTVSeedanceUploadIncomplete

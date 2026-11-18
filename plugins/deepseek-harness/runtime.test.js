@@ -20,7 +20,7 @@ register(`data:text/javascript,${encodeURIComponent(`export async function resol
 }`)}`)
 const host = await import('./host.js')
 
-const bundledExecutable = fileURLToPath(new URL('./runtime/Contents/MacOS/BeefTV', import.meta.url))
+const bundledExecutable = fileURLToPath(new URL('./runtime/Contents/MacOS/LuckyTV', import.meta.url))
 
 test('runtime readiness only accepts loopback bridges and complete credentials', () => {
   assert.throws(() => runtimeRecord({ bridgeURL: 'https://example.com', bridgeToken: 'x' }))
@@ -29,10 +29,10 @@ test('runtime readiness only accepts loopback bridges and complete credentials',
 })
 
 test('embedded document config carries no runtime credentials and escapes script delimiters', () => {
-  const html = embeddedDocument('<html><head><base href="/" /></head><body></body></html>', '/beeftv/app/abc', '</script>')
-  assert.ok(html.includes('"apiBase":"/beeftv/app/abc/api"'))
+  const html = embeddedDocument('<html><head><base href="/" /></head><body></body></html>', '/luckytv/app/abc', '</script>')
+  assert.ok(html.includes('"apiBase":"/luckytv/app/abc/api"'))
   assert.ok(!html.includes('"parentOrigin":"</script>"'))
-  assert.ok(html.includes('<base href="/beeftv/app/abc/">'))
+  assert.ok(html.includes('<base href="/luckytv/app/abc/">'))
   assert.ok(!html.includes('<base href="/" />'))
   assert.ok(html.includes('html .app-workspace-shell:has(.assets-library-page) .app-workspace-main-row{z-index:auto}'))
 })
@@ -47,27 +47,27 @@ test('generation submission and the business gateway require DSH approval', () =
     { id: 'canvas.generation.propose', readOnly: true, replay: 'safe' },
     { id: 'canvas.search', readOnly: true, replay: 'safe' },
   ]
-  assert.equal(requiresGenerationApproval('mcp__beeftv__canvas_generation_submit_ab092b275e46'), true)
-  assert.equal(requiresGenerationApproval('mcp__beeftv__business_call_ab092b275e46'), true)
-  assert.equal(requiresGenerationApproval('mcp__beeftv__canvas_generation_propose_ab092b275e46', {}, [], catalog), false)
-  assert.equal(requiresGenerationApproval('mcp__beeftv__canvas_search_ab092b275e46', {}, [], catalog), false)
+  assert.equal(requiresGenerationApproval('mcp__luckytv__canvas_generation_submit_ab092b275e46'), true)
+  assert.equal(requiresGenerationApproval('mcp__luckytv__business_call_ab092b275e46'), true)
+  assert.equal(requiresGenerationApproval('mcp__luckytv__canvas_generation_propose_ab092b275e46', {}, [], catalog), false)
+  assert.equal(requiresGenerationApproval('mcp__luckytv__canvas_search_ab092b275e46', {}, [], catalog), false)
   assert.equal(requiresGenerationApproval('mcp__other__canvas_generation_submit_ab092b275e46'), false)
 })
 
 test('a missing operation catalog fails closed for every tool but the known free reads', () => {
   // 切换或释放窗口里 current 为空、目录读不到：未来新增的付费操作和普通读取都不能直接放行。
-  assert.equal(requiresGenerationApproval('mcp__beeftv__canvas_generation_extend_ab092b275e46', {}), true)
-  assert.equal(requiresGenerationApproval('mcp__beeftv__canvas_generation_extend', {}), true)
-  assert.equal(requiresGenerationApproval('mcp__beeftv__canvas_get_ab092b275e46', {}), true)
-  assert.equal(requiresGenerationApproval('mcp__beeftv__business_call_ab092b275e46', { tool: 'business_get_assets' }), true)
+  assert.equal(requiresGenerationApproval('mcp__luckytv__canvas_generation_extend_ab092b275e46', {}), true)
+  assert.equal(requiresGenerationApproval('mcp__luckytv__canvas_generation_extend', {}), true)
+  assert.equal(requiresGenerationApproval('mcp__luckytv__canvas_get_ab092b275e46', {}), true)
+  assert.equal(requiresGenerationApproval('mcp__luckytv__business_call_ab092b275e46', { tool: 'business_get_assets' }), true)
   // 已知不产生费用的工具照旧放行。
-  assert.equal(requiresGenerationApproval('mcp__beeftv__business_list_ab092b275e46', {}), false)
-  assert.equal(requiresGenerationApproval('mcp__beeftv__canvas_generation_propose_ab092b275e46', {}), false)
+  assert.equal(requiresGenerationApproval('mcp__luckytv__business_list_ab092b275e46', {}), false)
+  assert.equal(requiresGenerationApproval('mcp__luckytv__canvas_generation_propose_ab092b275e46', {}), false)
   // 目录存在但为空，说明目录已经加载，按目录判断而不是按不可用处理。
-  assert.equal(requiresGenerationApproval('mcp__beeftv__canvas_get_ab092b275e46', {}, [], []), false)
+  assert.equal(requiresGenerationApproval('mcp__luckytv__canvas_get_ab092b275e46', {}, [], []), false)
   // 审批卡不能把目录不可用说成可能免费。
-  assert.equal(approvalReason('mcp__beeftv__canvas_generation_extend_ab092b275e46', {}), unknownCatalogReason)
-  assert.equal(approvalReason('mcp__beeftv__business_call_ab092b275e46', { tool: 'business_get_assets' }), unknownCatalogReason)
+  assert.equal(approvalReason('mcp__luckytv__canvas_generation_extend_ab092b275e46', {}), unknownCatalogReason)
+  assert.equal(approvalReason('mcp__luckytv__business_call_ab092b275e46', { tool: 'business_get_assets' }), unknownCatalogReason)
 })
 
 test('a catalog that marks paid generators covers regenerate with or without the hash suffix', () => {
@@ -76,29 +76,29 @@ test('a catalog that marks paid generators covers regenerate with or without the
     { id: 'canvas.generation.submit', readOnly: false, replay: 'safe', submitsGeneration: true },
     { id: 'canvas.generation.regenerate', readOnly: false, replay: 'safe', submitsGeneration: true },
   ]
-  assert.equal(requiresGenerationApproval('mcp__beeftv__canvas_generation_regenerate_ab092b275e46', {}, [], operations), true)
-  assert.equal(requiresGenerationApproval('mcp__beeftv__canvas_generation_regenerate', {}, [], operations), true)
-  assert.equal(requiresGenerationApproval('mcp__beeftv__canvas_generation_submit_ab092b275e46', {}, [], operations), true)
-  assert.equal(requiresGenerationApproval('mcp__beeftv__canvas_get_ab092b275e46', {}, [], operations), false)
+  assert.equal(requiresGenerationApproval('mcp__luckytv__canvas_generation_regenerate_ab092b275e46', {}, [], operations), true)
+  assert.equal(requiresGenerationApproval('mcp__luckytv__canvas_generation_regenerate', {}, [], operations), true)
+  assert.equal(requiresGenerationApproval('mcp__luckytv__canvas_generation_submit_ab092b275e46', {}, [], operations), true)
+  assert.equal(requiresGenerationApproval('mcp__luckytv__canvas_get_ab092b275e46', {}, [], operations), false)
   // 旧后端没有 submitsGeneration 字段时，仍然按工具名认 submit。
   const legacy = [{ id: 'canvas.generation.submit', readOnly: false }, { id: 'canvas.generation.regenerate', readOnly: false }]
-  assert.equal(requiresGenerationApproval('mcp__beeftv__canvas_generation_submit_ab092b275e46', {}, [], legacy), true)
-  assert.equal(requiresGenerationApproval('mcp__beeftv__canvas_generation_regenerate_ab092b275e46', {}, [], legacy), true)
+  assert.equal(requiresGenerationApproval('mcp__luckytv__canvas_generation_submit_ab092b275e46', {}, [], legacy), true)
+  assert.equal(requiresGenerationApproval('mcp__luckytv__canvas_generation_regenerate_ab092b275e46', {}, [], legacy), true)
   // 目录读不到（切换或释放窗口）时，已知付费操作仍按名审批，不能 fail open。
-  assert.equal(requiresGenerationApproval('mcp__beeftv__canvas_generation_regenerate_ab092b275e46', {}), true)
+  assert.equal(requiresGenerationApproval('mcp__luckytv__canvas_generation_regenerate_ab092b275e46', {}), true)
   // 目录只写了 submitsGeneration: false 的普通写操作不弹付费审批。
   const explicit = [{ id: 'canvas.node.update', readOnly: false, submitsGeneration: false }]
-  assert.equal(requiresGenerationApproval('mcp__beeftv__canvas_node_update_ab092b275e46', {}, [], explicit), false)
+  assert.equal(requiresGenerationApproval('mcp__luckytv__canvas_node_update_ab092b275e46', {}, [], explicit), false)
   // 目录里有 submitsGeneration 字段但 submit 条目缺失或漏标时，submit 仍按工具名审批。
-  assert.equal(requiresGenerationApproval('mcp__beeftv__canvas_generation_submit_ab092b275e46', {}, [], explicit), true)
+  assert.equal(requiresGenerationApproval('mcp__luckytv__canvas_generation_submit_ab092b275e46', {}, [], explicit), true)
   // 未来新增的付费操作不靠名字兜底：目录标了 submitsGeneration 就必须审批。
   const future = [{ id: 'canvas.generation.extend', readOnly: false, submitsGeneration: true }]
-  assert.equal(requiresGenerationApproval('mcp__beeftv__canvas_generation_extend_ab092b275e46', {}, [], future), true)
-  assert.equal(requiresGenerationApproval('mcp__beeftv__canvas_generation_extend', {}, [], future), true)
+  assert.equal(requiresGenerationApproval('mcp__luckytv__canvas_generation_extend_ab092b275e46', {}, [], future), true)
+  assert.equal(requiresGenerationApproval('mcp__luckytv__canvas_generation_extend', {}, [], future), true)
 })
 
 test('only trusted catalog metadata exempts a read-only business call from additional approval', () => {
-  const name = 'mcp__beeftv__business_call_ab092b275e46'
+  const name = 'mcp__luckytv__business_call_ab092b275e46'
   const catalog = [
     { id: 'business_get_assets', readOnly: true, submitsGeneration: false },
     { id: 'business_post_tasks', readOnly: false, submitsGeneration: true },
@@ -120,21 +120,21 @@ test('paid review reads ask for approval and name only the inspected segment and
     { id: 'media.review', readOnly: true, replay: 'unsafe' },
     { id: 'canvas.create', readOnly: false, replay: 'unsafe' },
   ]
-  const review = 'mcp__beeftv__media_review_ab092b275e46'
+  const review = 'mcp__luckytv__media_review_ab092b275e46'
   assert.equal(requiresGenerationApproval(review, { startMs: 0, endMs: 5000 }, [], operations), true)
-  assert.equal(requiresGenerationApproval('mcp__beeftv__canvas_get_ab092b275e46', {}, [], operations), false)
+  assert.equal(requiresGenerationApproval('mcp__luckytv__canvas_get_ab092b275e46', {}, [], operations), false)
   // A catalog without replay metadata still asks for the known paid review, never fails open.
   assert.equal(requiresGenerationApproval(review, {}, [], []), true)
   assert.equal(requiresGenerationApproval(review, {}, [], [{ id: 'media.review', readOnly: true }]), true)
   assert.equal(requiresGenerationApproval(review, {}, [], [{ id: 'media.review' }]), true)
   assert.equal(requiresGenerationApproval(review, {}, [], [{ id: 'media.review', readOnly: false }]), true)
-  assert.equal(requiresGenerationApproval('mcp__beeftv__canvas_get_ab092b275e46', {}, [], [{ id: 'canvas.get', readOnly: true }]), false)
+  assert.equal(requiresGenerationApproval('mcp__luckytv__canvas_get_ab092b275e46', {}, [], [{ id: 'canvas.get', readOnly: true }]), false)
   assert.equal(approvalReason(review, { startMs: 1500, endMs: 6500 }, [], new Map(), operations), '审片会调用审片模型，可能收费。片段：1.5–6.5 秒。')
   assert.equal(approvalReason(review, { startMs: 5000, endMs: 2000, model: 'review-model' }, [], new Map(), operations), '审片会调用审片模型，可能收费。模型：review-model。')
-  assert.match(approvalReason('mcp__beeftv__canvas_create_ab092b275e46', {}, [], new Map(), operations), /未识别的业务操作/)
+  assert.match(approvalReason('mcp__luckytv__canvas_create_ab092b275e46', {}, [], new Map(), operations), /未识别的业务操作/)
 })
 
-// The shape canvas.generation.propose returns through the BeefTV MCP server.
+// The shape canvas.generation.propose returns through the LuckyTV MCP server.
 const imageTarget = (nodeId, count, amount) => ({
   kind: 'image', model: 'dola-seedream-5-0-flash-260915', nodeId, parameters: { count, size: '2K' }, estimate: { amount, text: `预计 ¥${amount}` },
 })
@@ -150,7 +150,7 @@ function proposeResult(proposalId, quote = {}) {
 
 test('the approval card names the model, amount and price of the nodes this submission sends', () => {
   const quotes = new Map()
-  const propose = 'mcp__beeftv__canvas_generation_propose_ab092b275e46'
+  const propose = 'mcp__luckytv__canvas_generation_propose_ab092b275e46'
   rememberQuote(quotes, propose, proposeResult('gp-image', {
     targets: [imageTarget('shot-1', '2', 0.0244), imageTarget('shot-2', undefined, 0.0122)],
     estimate: { text: '预计费用：¥0.0366。' },
@@ -159,12 +159,12 @@ test('the approval card names the model, amount and price of the nodes this subm
     kind: 'video', estimate: {},
     targets: [{ kind: 'video', model: 'seedance-2.0-fast', nodeId: 'clip-1' }, { kind: 'video', model: 'seedance-2.0-fast', nodeId: 'clip-2' }],
   }))
-  const submit = 'mcp__beeftv__canvas_generation_submit_ab092b275e46'
+  const submit = 'mcp__luckytv__canvas_generation_submit_ab092b275e46'
   const reason = args => approvalReason(submit, args, [], quotes)
-  assert.equal(reason({ proposalId: 'gp-image', nodeIds: ['shot-1', 'shot-2'] }), 'BeefTV 将生成 3 张图片（dola-seedream-5-0-flash-260915）。预计费用：¥0.0366。')
+  assert.equal(reason({ proposalId: 'gp-image', nodeIds: ['shot-1', 'shot-2'] }), 'LuckyTV 将生成 3 张图片（dola-seedream-5-0-flash-260915）。预计费用：¥0.0366。')
   // Retrying one failed node shows that node's own quote, not the whole proposal's total.
-  assert.equal(reason({ proposalId: 'gp-image', nodeIds: ['shot-2'] }), 'BeefTV 将生成 1 张图片（dola-seedream-5-0-flash-260915）。预计费用：¥0.0122。')
-  assert.equal(reason({ proposalId: 'gp-video', nodeIds: ['clip-1', 'clip-2'] }), 'BeefTV 将生成 2 段视频（seedance-2.0-fast）。费用按所选渠道实际计费。')
+  assert.equal(reason({ proposalId: 'gp-image', nodeIds: ['shot-2'] }), 'LuckyTV 将生成 1 张图片（dola-seedream-5-0-flash-260915）。预计费用：¥0.0122。')
+  assert.equal(reason({ proposalId: 'gp-video', nodeIds: ['clip-1', 'clip-2'] }), 'LuckyTV 将生成 2 段视频（seedance-2.0-fast）。费用按所选渠道实际计费。')
   for (const args of [{ proposalId: 'gp-unseen', nodeIds: ['shot-1'] }, { proposalId: 'gp-image', nodeIds: ['shot-1', 'other'] }, { proposalId: 'gp-image' }]) {
     assert.match(reason(args), /和已有报价对不上，无法显示费用/)
   }
@@ -172,27 +172,27 @@ test('the approval card names the model, amount and price of the nodes this subm
 
 test('the regenerate card says it redos in place and keeps the old result', () => {
   const quotes = new Map()
-  const propose = 'mcp__beeftv__canvas_generation_propose_ab092b275e46'
+  const propose = 'mcp__luckytv__canvas_generation_propose_ab092b275e46'
   rememberQuote(quotes, propose, proposeResult('gp-image', {
     targets: [imageTarget('shot-1', '2', 0.0244), imageTarget('shot-2', undefined, 0.0122)],
     estimate: { text: '预计费用：¥0.0366。' },
   }))
-  const regenerate = 'mcp__beeftv__canvas_generation_regenerate_ab092b275e46'
+  const regenerate = 'mcp__luckytv__canvas_generation_regenerate_ab092b275e46'
   assert.equal(approvalReason(regenerate, { proposalId: 'gp-image', nodeIds: ['shot-1', 'shot-2'] }, [], quotes),
-    'BeefTV 将在原节点重新生成并计费，原有结果（如有）会留在素材库。生成 3 张图片（dola-seedream-5-0-flash-260915）。预计费用：¥0.0366。')
+    'LuckyTV 将在原节点重新生成并计费，原有结果（如有）会留在素材库。生成 3 张图片（dola-seedream-5-0-flash-260915）。预计费用：¥0.0366。')
   assert.equal(approvalReason(regenerate, { proposalId: 'gp-image', nodeIds: ['shot-2'] }, [], quotes),
-    'BeefTV 将在原节点重新生成并计费，原有结果（如有）会留在素材库。生成 1 张图片（dola-seedream-5-0-flash-260915）。预计费用：¥0.0122。')
+    'LuckyTV 将在原节点重新生成并计费，原有结果（如有）会留在素材库。生成 1 张图片（dola-seedream-5-0-flash-260915）。预计费用：¥0.0122。')
   const noQuote = approvalReason(regenerate, { proposalId: 'gp-unseen', nodeIds: ['shot-1'] }, [], quotes)
-  assert.equal(noQuote, 'BeefTV 将在原节点重新生成并计费，原有结果（如有）会留在素材库。费用按所选渠道实际计费。')
+  assert.equal(noQuote, 'LuckyTV 将在原节点重新生成并计费，原有结果（如有）会留在素材库。费用按所选渠道实际计费。')
   // 没有报价时只说明计费方式，不能说已经扣费。
   assert.doesNotMatch(noQuote, /已扣费|已经扣费/)
 })
 
 test('only successful propose results are kept as quotes, and only the most recent ones', () => {
   const quotes = new Map()
-  const propose = 'mcp__beeftv__canvas_generation_propose_ab092b275e46'
+  const propose = 'mcp__luckytv__canvas_generation_propose_ab092b275e46'
   rememberQuote(quotes, propose, { ...proposeResult('gp-failed'), isError: true })
-  rememberQuote(quotes, 'mcp__beeftv__canvas_get_ab092b275e46', proposeResult('gp-read'))
+  rememberQuote(quotes, 'mcp__luckytv__canvas_get_ab092b275e46', proposeResult('gp-read'))
   rememberQuote(quotes, 'mcp__other__canvas_generation_propose_ab092b275e46', proposeResult('gp-foreign'))
   rememberQuote(quotes, propose, { content: [{ type: 'text', text: 'not json' }] })
   assert.equal(quotes.size, 0)
@@ -272,10 +272,10 @@ function mockRuntimeProcesses(context, { unavailableAttempts = 0, available, lau
 test('local connection opens the canonical App and attaches without starting an owner', async context => {
   const calls = mockRuntimeProcesses(context)
   const connected = await runtime.startLocalRuntime()
-  assert.deepEqual(calls[0], { command: '/usr/bin/open', args: ['-a', '/Applications/BeefTV.app'] })
+  assert.deepEqual(calls[0], { command: '/usr/bin/open', args: ['-a', '/Applications/LuckyTV.app'] })
   assert.deepEqual(calls[1].args, ['--harness-runtime', '--harness-attach-only'])
-  assert.equal(calls[1].command, '/Applications/BeefTV.app/Contents/MacOS/BeefTV')
-  assert.equal(connected.cli, '/Applications/BeefTV.app/Contents/MacOS/cli/beeftv')
+  assert.equal(calls[1].command, '/Applications/LuckyTV.app/Contents/MacOS/LuckyTV')
+  assert.equal(connected.cli, '/Applications/LuckyTV.app/Contents/MacOS/cli/luckytv')
   assert.equal(connected.owned, false)
   connected.close()
 })
@@ -290,14 +290,14 @@ test('local connection waits for the native App to publish its control socket', 
 
 test('local connection reports an App launch failure without falling back to a headless owner', async context => {
   const calls = mockRuntimeProcesses(context, { launchError: new Error('launch failed') })
-  await assert.rejects(() => runtime.startLocalRuntime(), /无法打开本机 BeefTV/)
+  await assert.rejects(() => runtime.startLocalRuntime(), /无法打开本机 LuckyTV/)
   assert.equal(calls.length, 1)
 })
 
 test('a desktop App older than the first harness release is never opened or started', async context => {
   const calls = mockRuntimeProcesses(context, { appVersion: '2.1.6' })
   assert.deepEqual(await runtime.localAppStatus(), {
-    compatible: false, version: '2.1.6', message: '本机 BeefTV 版本为 2.1.6，需要 2.2.0 或更高版本。请升级后重新连接。',
+    compatible: false, version: '2.1.6', message: '本机 LuckyTV 版本为 2.1.6，需要 2.2.0 或更高版本。请升级后重新连接。',
   })
   await assert.rejects(() => runtime.startLocalRuntime(), /版本为 2\.1\.6，需要 2\.2\.0/)
   await assert.rejects(() => runtime.attachLocalRuntime(), /版本为 2\.1\.6，需要 2\.2\.0/)
@@ -313,7 +313,7 @@ test('the version gate accepts the first harness release and later versions only
   }
   await context.test('missing App', async subtest => {
     mockRuntimeProcesses(subtest, { installed: false })
-    assert.match((await runtime.localAppStatus()).message, /未找到本机 BeefTV/)
+    assert.match((await runtime.localAppStatus()).message, /未找到本机 LuckyTV/)
   })
 })
 
@@ -326,7 +326,7 @@ test('the standalone workspace only starts the runtime bundled with the plugin',
 
 test('a missing bundled runtime is reported without falling back to the desktop App', async context => {
   const calls = mockRuntimeProcesses(context, { bundled: false })
-  await assert.rejects(() => runtime.startRuntime('/tmp/standalone-workspace'), /插件缺少内置的 BeefTV 运行时/)
+  await assert.rejects(() => runtime.startRuntime('/tmp/standalone-workspace'), /插件缺少内置的 LuckyTV 运行时/)
   assert.deepEqual(calls, [])
 })
 
@@ -356,7 +356,7 @@ async function workspaceServer(context) {
       if (op === 'agent.guide') return send(200, state.guide || { name: 'guide', version: '1', contentHash: 'x', text: 'GUIDE TEXT' })
       return send(404)
     }
-    if (req.headers['x-beeftv-harness-page']) {
+    if (req.headers['x-luckytv-harness-page']) {
       state.proxied.push({ method: req.method, url: req.url, headers: req.headers })
       return send(200, { proxied: true })
     }
@@ -387,16 +387,16 @@ async function startHost(context, options = {}) {
   const workspace = await workspaceServer(context)
   workspace.extraOps = options.extraOps || []
   const calls = mockRuntimeProcesses(context, { available: () => workspace.available, bridgeURL: workspace.url, ...options })
-  const home = await fsPromises.mkdtemp(join(tmpdir(), 'beeftv-dsh-'))
+  const home = await fsPromises.mkdtemp(join(tmpdir(), 'luckytv-dsh-'))
   const previousHome = process.env.DSH_HOME
   process.env.DSH_HOME = home
   if (options.initialSettings || options.rawSettings) {
-    const settingsDir = join(home, 'storages', 'beeftv')
+    const settingsDir = join(home, 'storages', 'luckytv')
     await fsPromises.mkdir(settingsDir, { recursive: true })
     await fsPromises.writeFile(join(settingsDir, 'connection.json'), options.rawSettings ?? JSON.stringify(options.initialSettings))
   }
   if (options.pluginSettings || options.awaiting || options.rawAwaiting) {
-    const settingsDir = join(home, 'storages', 'beeftv')
+    const settingsDir = join(home, 'storages', 'luckytv')
     await fsPromises.mkdir(settingsDir, { recursive: true })
     if (options.pluginSettings) await fsPromises.writeFile(join(settingsDir, 'settings.json'), JSON.stringify(options.pluginSettings))
     if (options.awaiting) await fsPromises.writeFile(join(settingsDir, 'awaiting.json'), JSON.stringify(options.awaiting))
@@ -467,31 +467,31 @@ async function startHost(context, options = {}) {
 
 test('Host rejects context from missing or previous connection IDs and reattaches a returning App without reopening it', async context => {
   const { call, calls, workspace, prompt } = await startHost(context)
-  const initial = (await call('GET', '/beeftv/status')).body
+  const initial = (await call('GET', '/luckytv/status')).body
   assert.equal(initial.connectionId, null)
   assert.equal(initial.localApp.compatible, true)
-  const first = (await call('POST', '/beeftv/connect', { mode: 'standalone' })).body.connectionId
+  const first = (await call('POST', '/luckytv/connect', { mode: 'standalone' })).body.connectionId
   assert.match(first, /^[a-f0-9-]{36}$/)
   const view = { sessionId: 'session', connectionId: first, context: { route: '/canvas/old' } }
-  assert.equal((await call('POST', '/beeftv/context', view)).status, 200)
+  assert.equal((await call('POST', '/luckytv/context', view)).status, 200)
   assert.match(prompt({ agent: { id: 'session' } }), /\/canvas\/old/)
-  const second = (await call('POST', '/beeftv/connect', { mode: 'local' })).body.connectionId
+  const second = (await call('POST', '/luckytv/connect', { mode: 'local' })).body.connectionId
   assert.notEqual(second, first)
   assert.equal(prompt({ agent: { id: 'session' } }), '')
-  assert.equal((await call('POST', '/beeftv/context', view)).status, 409)
-  assert.equal((await call('POST', '/beeftv/context', { ...view, connectionId: undefined })).status, 409)
+  assert.equal((await call('POST', '/luckytv/context', view)).status, 409)
+  assert.equal((await call('POST', '/luckytv/context', { ...view, connectionId: undefined })).status, 409)
   assert.equal(prompt({ agent: { id: 'session' } }), '')
-  assert.equal((await call('POST', '/beeftv/context', { ...view, connectionId: second, context: { route: '/canvas/new' } })).status, 200)
+  assert.equal((await call('POST', '/luckytv/context', { ...view, connectionId: second, context: { route: '/canvas/new' } })).status, 200)
   assert.match(prompt({ agent: { id: 'session' } }), /\/canvas\/new/)
-  assert.equal((await call('POST', '/beeftv/context', view)).status, 409)
+  assert.equal((await call('POST', '/luckytv/context', view)).status, 409)
   assert.match(prompt({ agent: { id: 'session' } }), /\/canvas\/new/)
-  assert.equal((await call('POST', '/beeftv/connect', { mode: 'local' })).body.connectionId, second)
-  assert.equal((await call('GET', '/beeftv/status')).body.workspace.id, 'verified-workspace')
+  assert.equal((await call('POST', '/luckytv/connect', { mode: 'local' })).body.connectionId, second)
+  assert.equal((await call('GET', '/luckytv/status')).body.workspace.id, 'verified-workspace')
   workspace.available = false
-  assert.equal((await call('GET', '/beeftv/status')).body.connected, false)
+  assert.equal((await call('GET', '/luckytv/status')).body.connected, false)
   assert.equal(prompt({ agent: { id: 'session' } }), '')
   workspace.available = true
-  const restored = (await call('GET', '/beeftv/status')).body
+  const restored = (await call('GET', '/luckytv/status')).body
   assert.equal(restored.connected, true)
   assert.notEqual(restored.connectionId, second)
   assert.equal(calls.filter(call => call.command === '/usr/bin/open').length, 1)
@@ -500,11 +500,11 @@ test('Host rejects context from missing or previous connection IDs and reattache
 
 test('Host refuses workspace paths that could reach Harness-managed routes', async context => {
   const { call, workspace } = await startHost(context)
-  const app = new URL((await call('POST', '/beeftv/connect', { mode: 'standalone' })).body.appURL).pathname.replace(/\/$/, '')
+  const app = new URL((await call('POST', '/luckytv/connect', { mode: 'standalone' })).body.appURL).pathname.replace(/\/$/, '')
   const managed = [
     ['GET', '/api/assistant/sessions'], ['GET', '/api/%61ssistant/sessions'], ['GET', '/api/ops/clients'],
     ['POST', '/api/agent-clients'], ['DELETE', '/api/agent-clients/test-client'], ['POST', '/api/agent-clients/integrations'],
-    ['POST', '/API/Agent-Clients'], ['POST', '/beeftv/app/api/agent-clients'],
+    ['POST', '/API/Agent-Clients'], ['POST', '/luckytv/app/api/agent-clients'],
   ]
   for (const [method, path] of managed) assert.equal((await call(method, `${app}${path}`, method === 'GET' ? undefined : {})).status, 403, path)
   const ambiguous = [
@@ -518,8 +518,8 @@ test('Host refuses workspace paths that could reach Harness-managed routes', asy
   assert.deepEqual(forwarded, { status: 200, body: { code: 0, data: { proxied: true } } })
   assert.equal(workspace.proxied.length, 1)
   assert.equal(workspace.proxied[0].url, '/api/workspace/bootstrap?view=canvas%2Fmain')
-  assert.equal(workspace.proxied[0].headers['x-beeftv-harness-page'], '1')
-  assert.equal(workspace.proxied[0].headers['x-beeftv-harness-token'], 'test-bridge')
+  assert.equal(workspace.proxied[0].headers['x-luckytv-harness-page'], '1')
+  assert.equal(workspace.proxied[0].headers['x-luckytv-harness-token'], 'test-bridge')
 })
 
 test('paid submissions ask with the quote unless the user chose the full-access preset', async context => {
@@ -539,14 +539,14 @@ test('paid submissions ask with the quote unless the user chose the full-access 
       { id: 'canvas.generation.extend', submitsGeneration: true },
     ],
   })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
-  listeners.get('tools/result')({ name: 'mcp__beeftv__canvas_generation_propose_ab092b275e46', arguments: {} }, proposeResult('gp-1'))
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
+  listeners.get('tools/result')({ name: 'mcp__luckytv__canvas_generation_propose_ab092b275e46', arguments: {} }, proposeResult('gp-1'))
   const preExecute = listeners.get('tools/pre-execute')
   const submit = session => ({
-    name: 'mcp__beeftv__canvas_generation_submit_ab092b275e46', arguments: { proposalId: 'gp-1', nodeIds: ['node-1'] }, agent: { session: { id: session } },
+    name: 'mcp__luckytv__canvas_generation_submit_ab092b275e46', arguments: { proposalId: 'gp-1', nodeIds: ['node-1'] }, agent: { session: { id: session } },
   })
   const allow = async () => ({ kind: 'allow' })
-  const asked = { kind: 'ask', reason: 'BeefTV 将生成 1 张图片（dola-seedream-5-0-flash-260915）。预计费用：¥0.0122。' }
+  const asked = { kind: 'ask', reason: 'LuckyTV 将生成 1 张图片（dola-seedream-5-0-flash-260915）。预计费用：¥0.0122。' }
   assert.deepEqual(await preExecute(submit('workspace-session'), allow), asked)
   assert.deepEqual(await preExecute(submit('full-access-session'), allow), { kind: 'allow' })
   assert.deepEqual(await preExecute(submit('unattended-session'), allow), asked)
@@ -555,26 +555,26 @@ test('paid submissions ask with the quote unless the user chose the full-access 
   const regenerate = session => ({
     name: regenerateName, arguments: { proposalId: 'gp-1', nodeIds: ['node-1'] }, agent: { session: { id: session } },
   })
-  const regenerateAsked = { kind: 'ask', reason: 'BeefTV 将在原节点重新生成并计费，原有结果（如有）会留在素材库。生成 1 张图片（dola-seedream-5-0-flash-260915）。预计费用：¥0.0122。' }
+  const regenerateAsked = { kind: 'ask', reason: 'LuckyTV 将在原节点重新生成并计费，原有结果（如有）会留在素材库。生成 1 张图片（dola-seedream-5-0-flash-260915）。预计费用：¥0.0122。' }
   assert.deepEqual(await preExecute(regenerate('workspace-session'), allow), regenerateAsked)
   assert.deepEqual(await preExecute(regenerate('full-access-session'), allow), { kind: 'allow' })
   assert.deepEqual(await preExecute(regenerate('unattended-session'), allow), regenerateAsked)
   // 没有报价时只说计费方式，不编造金额。
   assert.deepEqual(await preExecute({ ...regenerate('workspace-session'), arguments: { proposalId: 'gp-unseen', nodeIds: ['node-2'] } }, allow), {
-    kind: 'ask', reason: 'BeefTV 将在原节点重新生成并计费，原有结果（如有）会留在素材库。费用按所选渠道实际计费。',
+    kind: 'ask', reason: 'LuckyTV 将在原节点重新生成并计费，原有结果（如有）会留在素材库。费用按所选渠道实际计费。',
   })
   // 目录里未来新增的付费操作不靠 submit/regenerate 名字兜底，也必须走审批；
   // 这条同时覆盖 connection 保存的 generationTools 与 Host 的传递。
   const extend = session => ({
-    name: 'mcp__beeftv__canvas_generation_extend_ab092b275e46', arguments: {}, agent: { session: { id: session } },
+    name: 'mcp__luckytv__canvas_generation_extend_ab092b275e46', arguments: {}, agent: { session: { id: session } },
   })
-  const extendAsked = { kind: 'ask', reason: 'BeefTV 将提交生成或未识别的业务操作，可能修改工作区或产生费用，请核对本次操作。' }
+  const extendAsked = { kind: 'ask', reason: 'LuckyTV 将提交生成或未识别的业务操作，可能修改工作区或产生费用，请核对本次操作。' }
   assert.deepEqual(await preExecute(extend('workspace-session'), allow), extendAsked)
   assert.deepEqual(await preExecute(extend('full-access-session'), allow), { kind: 'allow' })
   assert.deepEqual(await preExecute(extend('unattended-session'), allow), extendAsked)
   // A call DSH already denies stays denied, and reads keep DSH's decision in every mode.
   assert.deepEqual(await preExecute(submit('full-access-session'), async () => ({ kind: 'deny', reason: 'sandbox' })), { kind: 'deny', reason: 'sandbox' })
-  const read = { name: 'mcp__beeftv__canvas_get_ab092b275e46', arguments: {}, agent: { session: { id: 'workspace-session' } } }
+  const read = { name: 'mcp__luckytv__canvas_get_ab092b275e46', arguments: {}, agent: { session: { id: 'workspace-session' } } }
   assert.deepEqual(await preExecute(read, allow), { kind: 'allow' })
 })
 
@@ -585,29 +585,29 @@ test('a call during the switching window asks even when the operation catalog is
     services: { permissionPresets },
     extraOps: [{ id: 'canvas.generation.extend', submitsGeneration: true }],
   })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const preExecute = listeners.get('tools/pre-execute')
   const allow = async () => ({ kind: 'allow' })
   const toolCall = (name, session) => ({ name, arguments: {}, agent: { session: { id: session } } })
-  const extend = session => toolCall('mcp__beeftv__canvas_generation_extend_ab092b275e46', session)
+  const extend = session => toolCall('mcp__luckytv__canvas_generation_extend_ab092b275e46', session)
   // 连接在线时按目录判断：未来付费操作要审批，普通读取不拦。
   assert.equal((await preExecute(extend('workspace-session'), allow)).kind, 'ask')
-  assert.deepEqual(await preExecute(toolCall('mcp__beeftv__canvas_get_ab092b275e46', 'workspace-session'), allow), { kind: 'allow' })
+  assert.deepEqual(await preExecute(toolCall('mcp__luckytv__canvas_get_ab092b275e46', 'workspace-session'), allow), { kind: 'allow' })
   // 健康检查失败后 current 被清空，目录读不到；此时未知操作不能当成免审批。
   workspace.available = false
-  assert.equal((await call('GET', '/beeftv/status')).body.connected, false)
+  assert.equal((await call('GET', '/luckytv/status')).body.connected, false)
   assert.deepEqual(await preExecute(extend('workspace-session'), allow), { kind: 'ask', reason: unknownCatalogReason })
-  assert.deepEqual(await preExecute(toolCall('mcp__beeftv__canvas_get_ab092b275e46', 'workspace-session'), allow), { kind: 'ask', reason: unknownCatalogReason })
+  assert.deepEqual(await preExecute(toolCall('mcp__luckytv__canvas_get_ab092b275e46', 'workspace-session'), allow), { kind: 'ask', reason: unknownCatalogReason })
   // 已知不产生费用的工具照旧放行；完全权限照旧直接执行。
-  assert.deepEqual(await preExecute(toolCall('mcp__beeftv__business_list_ab092b275e46', 'workspace-session'), allow), { kind: 'allow' })
+  assert.deepEqual(await preExecute(toolCall('mcp__luckytv__business_list_ab092b275e46', 'workspace-session'), allow), { kind: 'allow' })
   assert.deepEqual(await preExecute(extend('full-access-session'), allow), { kind: 'allow' })
 })
 
 test('without the DSH permission presets, paid submissions still ask', async context => {
   const { call, listeners } = await startHost(context)
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const decision = await listeners.get('tools/pre-execute')(
-    { name: 'mcp__beeftv__canvas_generation_submit_ab092b275e46', arguments: { proposalId: 'gp-unseen', nodeIds: ['n'] }, agent: { session: { id: 's' } } },
+    { name: 'mcp__luckytv__canvas_generation_submit_ab092b275e46', arguments: { proposalId: 'gp-unseen', nodeIds: ['n'] }, agent: { session: { id: 's' } } },
     async () => ({ kind: 'allow' }),
   )
   assert.equal(decision.kind, 'ask')
@@ -618,11 +618,11 @@ test('paid media review asks with its segment unless the user chose full access'
   const presets = new Map([['workspace-session', 'workspace-write'], ['full-access-session', 'danger-full-access']])
   const permissionPresets = { current: session => presets.get(session.id) }
   const { call, listeners } = await startHost(context, { services: { permissionPresets } })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const preExecute = listeners.get('tools/pre-execute')
   const allow = async () => ({ kind: 'allow' })
   const review = session => ({
-    name: 'mcp__beeftv__media_review_ab092b275e46',
+    name: 'mcp__luckytv__media_review_ab092b275e46',
     arguments: { canvasId: 'canvas', expectedVersion: 'v1', startMs: 12000, endMs: 24000, question: '动作连贯吗' },
     agent: { session: { id: session } },
   })
@@ -631,23 +631,23 @@ test('paid media review asks with its segment unless the user chose full access'
   })
   assert.deepEqual(await preExecute(review('full-access-session'), allow), { kind: 'allow' })
   // Ordinary reads do not grow an approval prompt.
-  const read = { name: 'mcp__beeftv__canvas_get_ab092b275e46', arguments: {}, agent: { session: { id: 'workspace-session' } } }
+  const read = { name: 'mcp__luckytv__canvas_get_ab092b275e46', arguments: {}, agent: { session: { id: 'workspace-session' } } }
   assert.deepEqual(await preExecute(read, allow), { kind: 'allow' })
 })
 
 test('a standalone workspace offers the local App once and remembers 暂不', async context => {
   const { call, home } = await startHost(context)
-  const standalone = (await call('POST', '/beeftv/connect', { mode: 'standalone' })).body
+  const standalone = (await call('POST', '/luckytv/connect', { mode: 'standalone' })).body
   assert.equal(standalone.mode, 'standalone')
   assert.equal(standalone.localApp.compatible, true)
   assert.equal(standalone.localPromptDismissed, false)
-  const dismissed = await call('POST', '/beeftv/local-prompt', { dismissed: true })
+  const dismissed = await call('POST', '/luckytv/local-prompt', { dismissed: true })
   assert.equal(dismissed.status, 200)
   assert.equal(dismissed.body.localPromptDismissed, true)
-  assert.equal((await call('GET', '/beeftv/status')).body.localPromptDismissed, true)
-  const settings = JSON.parse(await fsPromises.readFile(join(home, 'storages', 'beeftv', 'connection.json'), 'utf8'))
+  assert.equal((await call('GET', '/luckytv/status')).body.localPromptDismissed, true)
+  const settings = JSON.parse(await fsPromises.readFile(join(home, 'storages', 'luckytv', 'connection.json'), 'utf8'))
   assert.deepEqual(settings, { mode: 'standalone', localPromptDismissed: true })
-  assert.equal((await call('POST', '/beeftv/local-prompt', { dismissed: false })).status, 503)
+  assert.equal((await call('POST', '/luckytv/local-prompt', { dismissed: false })).status, 503)
 })
 
 test('a standalone workspace notices a later local App and offers the switch', async context => {
@@ -655,15 +655,15 @@ test('a standalone workspace notices a later local App and offers the switch', a
   const now = { value: Date.now() }
   context.mock.method(Date, 'now', () => now.value)
   const { call, calls } = await startHost(context, { installedVersion: () => version })
-  const first = (await call('POST', '/beeftv/connect', { mode: 'standalone' })).body
+  const first = (await call('POST', '/luckytv/connect', { mode: 'standalone' })).body
   assert.equal(first.localApp.compatible, false)
   version = '2.2.0'
   const reads = calls.plistReads()
   // The 30-second gate keeps status polling from probing the App on every request.
-  assert.equal((await call('GET', '/beeftv/status')).body.localApp.compatible, false)
+  assert.equal((await call('GET', '/luckytv/status')).body.localApp.compatible, false)
   assert.equal(calls.plistReads(), reads)
   now.value += 30_000
-  assert.equal((await call('GET', '/beeftv/status')).body.localApp.compatible, true)
+  assert.equal((await call('GET', '/luckytv/status')).body.localApp.compatible, true)
 })
 
 test('a saved 暂不 is read before the first status answer', async context => {
@@ -671,12 +671,12 @@ test('a saved 暂不 is read before the first status answer', async context => {
     initialSettings: { mode: 'standalone', localPromptDismissed: true },
     readDelayMs: 150,
   })
-  assert.equal((await call('GET', '/beeftv/status')).body.localPromptDismissed, true)
+  assert.equal((await call('GET', '/luckytv/status')).body.localPromptDismissed, true)
 })
 
 test('a broken settings file is reported without connecting', async context => {
   const { call, calls } = await startHost(context, { rawSettings: '{broken' })
-  const response = await call('GET', '/beeftv/status')
+  const response = await call('GET', '/luckytv/status')
   assert.equal(response.status, 200)
   assert.equal(response.body.connected, false)
   assert.ok(response.body.error)
@@ -685,40 +685,40 @@ test('a broken settings file is reported without connecting', async context => {
 
 test('a failed dismissal keeps the prompt available', async context => {
   const { call, home } = await startHost(context)
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
-  const settingsDir = join(home, 'storages', 'beeftv')
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
+  const settingsDir = join(home, 'storages', 'luckytv')
   await fsPromises.rm(settingsDir, { recursive: true, force: true })
   await fsPromises.writeFile(settingsDir, 'not a directory')
-  assert.equal((await call('POST', '/beeftv/local-prompt', { dismissed: true })).status, 503)
-  assert.equal((await call('GET', '/beeftv/status')).body.localPromptDismissed, false)
+  assert.equal((await call('POST', '/luckytv/local-prompt', { dismissed: true })).status, 503)
+  assert.equal((await call('GET', '/luckytv/status')).body.localPromptDismissed, false)
 })
 
 test('workspace sync follows the catalog read-only flags instead of tool names', async context => {
   const { call, listeners } = await startHost(context)
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const onToolResult = listeners.get('tools/result')
-  const activity = async () => (await call('GET', '/beeftv/status')).body.activity
+  const activity = async () => (await call('GET', '/luckytv/status')).body.activity
   const result = canvasId => ({ content: [{ type: 'text', text: JSON.stringify({ result: { canvasId } }) }] })
-  onToolResult({ name: 'mcp__beeftv__canvas_get_ab092b275e46', arguments: { canvasId: 'read-only' } }, result('read-only'))
-  onToolResult({ name: 'mcp__beeftv__canvas_generation_propose_ab092b275e46', arguments: { canvasId: 'read-only' } }, result('read-only'))
-  onToolResult({ name: 'mcp__beeftv__media_review_ab092b275e46', arguments: { canvasId: 'read-only' } }, result('read-only'))
-  onToolResult({ name: 'mcp__beeftv__business_list_ab092b275e46', arguments: { query: 'business_get_assets' } }, result())
-  onToolResult({ name: 'mcp__beeftv__business_call_ab092b275e46', arguments: { tool: 'business_get_assets' } }, result())
+  onToolResult({ name: 'mcp__luckytv__canvas_get_ab092b275e46', arguments: { canvasId: 'read-only' } }, result('read-only'))
+  onToolResult({ name: 'mcp__luckytv__canvas_generation_propose_ab092b275e46', arguments: { canvasId: 'read-only' } }, result('read-only'))
+  onToolResult({ name: 'mcp__luckytv__media_review_ab092b275e46', arguments: { canvasId: 'read-only' } }, result('read-only'))
+  onToolResult({ name: 'mcp__luckytv__business_list_ab092b275e46', arguments: { query: 'business_get_assets' } }, result())
+  onToolResult({ name: 'mcp__luckytv__business_call_ab092b275e46', arguments: { tool: 'business_get_assets' } }, result())
   assert.equal(await activity(), null)
-  onToolResult({ name: 'mcp__beeftv__canvas_create_ab092b275e46', arguments: { title: 'New' } }, result('created-canvas'))
+  onToolResult({ name: 'mcp__luckytv__canvas_create_ab092b275e46', arguments: { title: 'New' } }, result('created-canvas'))
   assert.deepEqual(await activity(), { seq: 1, kind: 'canvas-created', canvasId: 'created-canvas' })
-  onToolResult({ name: 'mcp__beeftv__canvas_script_prepare_ab092b275e46', arguments: { canvasId: 'created-canvas' } }, { content: [{ type: 'text', text: '{"result":{"canvasId":"created-canvas","revision":2}}' }] })
+  onToolResult({ name: 'mcp__luckytv__canvas_script_prepare_ab092b275e46', arguments: { canvasId: 'created-canvas' } }, { content: [{ type: 'text', text: '{"result":{"canvasId":"created-canvas","revision":2}}' }] })
   assert.deepEqual(await activity(), { seq: 2, kind: 'canvas-updated', canvasId: 'created-canvas' })
-  onToolResult({ name: 'mcp__beeftv__canvas_unlisted_ab092b275e46', arguments: {} }, { content: [] })
+  onToolResult({ name: 'mcp__luckytv__canvas_unlisted_ab092b275e46', arguments: {} }, { content: [] })
   assert.deepEqual(await activity(), { seq: 3, kind: 'workspace-updated', canvasId: null })
 })
 
 test('Host reports an outdated desktop App for upgrade without starting it', async context => {
   const { call, calls } = await startHost(context, { appVersion: '2.1.6' })
-  const status = (await call('GET', '/beeftv/status')).body
+  const status = (await call('GET', '/luckytv/status')).body
   assert.equal(status.connected, false)
-  assert.deepEqual(status.localApp, { compatible: false, version: '2.1.6', message: '本机 BeefTV 版本为 2.1.6，需要 2.2.0 或更高版本。请升级后重新连接。' })
-  const refused = await call('POST', '/beeftv/connect', { mode: 'local' })
+  assert.deepEqual(status.localApp, { compatible: false, version: '2.1.6', message: '本机 LuckyTV 版本为 2.1.6，需要 2.2.0 或更高版本。请升级后重新连接。' })
+  const refused = await call('POST', '/luckytv/connect', { mode: 'local' })
   assert.equal(refused.status, 503)
   assert.equal(refused.body.error, status.localApp.message)
   assert.deepEqual(calls, [])
@@ -727,9 +727,9 @@ test('Host reports an outdated desktop App for upgrade without starting it', asy
 
 // ---- 生成完接着做、步数上限与后端说明 ----
 
-const submitName = 'mcp__beeftv__canvas_generation_submit_ab092b275e46'
+const submitName = 'mcp__luckytv__canvas_generation_submit_ab092b275e46'
 const submitResult = taskIds => ({ content: [{ type: 'text', text: JSON.stringify({ op: 'canvas.generation.submit', result: { taskIds } }) }] })
-const regenerateName = 'mcp__beeftv__canvas_generation_regenerate_ab092b275e46'
+const regenerateName = 'mcp__luckytv__canvas_generation_regenerate_ab092b275e46'
 const regenerateResult = taskIds => ({ content: [{ type: 'text', text: JSON.stringify({ op: 'canvas.generation.regenerate', result: { taskIds } }) }] })
 const pendingApprovalResult = () => ({
   content: [{ type: 'text', text: JSON.stringify({ op: 'canvas.generation.regenerate', result: { canvasId: 'canvas', status: 'pending_approval', approvalRequired: true, nodeIds: ['node-1'], taskId: 'approval-1' } }) }],
@@ -760,7 +760,7 @@ const succeededTask = taskId => ({ taskId, status: 'succeeded', outputs: [{ reso
 test('task results feed the wake text and never mistake pending downloads for completion', () => {
   assert.deepEqual(submittedTaskIds(submitName, submitResult(['a', 'a', 'b'])), ['a', 'b'])
   assert.deepEqual(submittedTaskIds(submitName, { ...submitResult(['a']), isError: true }), [])
-  assert.deepEqual(submittedTaskIds('mcp__beeftv__canvas_get_ab092b275e46', submitResult(['a'])), [])
+  assert.deepEqual(submittedTaskIds('mcp__luckytv__canvas_get_ab092b275e46', submitResult(['a'])), [])
   assert.equal(taskOutcome(succeededTask('t1'), 't1').state, 'succeeded')
   assert.equal(taskOutcome({ taskId: 't', status: 'succeeded', outputs: [], outcome: { phase: 'fetching' } }).state, 'pending')
   assert.equal(taskOutcome({ taskId: 't', status: 'failed', error: '素材下载失败' }).state, 'failed')
@@ -839,7 +839,7 @@ test('plugin settings keep defaults for bad files and reject invalid edits', () 
 })
 
 test('the backend guide replaces the fixed creation section and only adds DSH-specific lines', () => {
-  assert.match(guidedPrompt({ text: '后端使用说明' }, '内置说明'), /^后端使用说明\n.*mcp__beeftv__ 前缀/)
+  assert.match(guidedPrompt({ text: '后端使用说明' }, '内置说明'), /^后端使用说明\n.*mcp__luckytv__ 前缀/)
   assert.equal(guidedPrompt(null, '内置说明'), '内置说明')
   assert.equal(guidedPrompt({ text: 'x'.repeat(runtime.maximumGuideChars + 1) }, '内置说明'), '内置说明')
 })
@@ -847,7 +847,7 @@ test('the backend guide replaces the fixed creation section and only adds DSH-sp
 test('a successful generation submission waits with task.wait and wakes the same session once', async context => {
   const { call, listeners, workspace } = await startHost(context, { extraOps: [{ id: 'task.wait', readOnly: true }] })
   workspace.taskWait = ({ taskId }) => ({ status: 'succeeded', tasks: [succeededTask(taskId)] })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const { agent, wakes } = fakeAgent()
   listeners.get('tools/result')({ name: submitName, arguments: {}, agent }, submitResult(['t1']))
   await until(() => wakes.length === 1)
@@ -873,7 +873,7 @@ test('a successful regenerate waits with task.wait and wakes the same session on
     extraOps: [{ id: 'task.wait', readOnly: true }, { id: 'canvas.generation.regenerate', submitsGeneration: true }],
   })
   workspace.taskWait = ({ taskId }) => ({ status: 'succeeded', tasks: [succeededTask(taskId)] })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const { agent, wakes } = fakeAgent()
   listeners.get('tools/result')({ name: regenerateName, arguments: {}, agent }, regenerateResult(['r1']))
   await until(() => wakes.length === 1)
@@ -885,14 +885,14 @@ test('a regenerate waiting for backend approval neither waits nor wakes', async 
   const { call, listeners, workspace } = await startHost(context, {
     extraOps: [{ id: 'task.wait', readOnly: true }, { id: 'canvas.generation.regenerate', submitsGeneration: true }],
   })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const { agent, wakes } = fakeAgent()
   listeners.get('tools/result')({ name: regenerateName, arguments: {}, agent }, pendingApprovalResult())
   await sleep(120)
   assert.equal(wakes.length, 0)
   assert.equal(workspace.calls.some(item => item.op === 'task.wait' || item.op === 'task.get'), false)
   // 只是登记审批意图，画布没有变化：不能触发页面同步或跳转。
-  assert.equal((await call('GET', '/beeftv/status')).body.activity, null)
+  assert.equal((await call('GET', '/luckytv/status')).body.activity, null)
 })
 
 test('a pending task.wait keeps waiting, and a failed task is reported with its reason', async context => {
@@ -903,7 +903,7 @@ test('a pending task.wait keeps waiting, and a failed task is reported with its 
     if (calls === 1) return { status: 'pending', taskId }
     return { status: 'failed', tasks: [{ taskId, status: 'failed', error: '素材下载失败' }] }
   }
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const { agent, wakes } = fakeAgent()
   listeners.get('tools/result')({ name: submitName, arguments: {}, agent }, submitResult(['slow-1']))
   await until(() => wakes.length === 1)
@@ -914,7 +914,7 @@ test('a pending task.wait keeps waiting, and a failed task is reported with its 
 test('a busy session receives the completion inside the running turn', async context => {
   const { call, listeners, workspace } = await startHost(context, { extraOps: [{ id: 'task.wait', readOnly: true }] })
   workspace.taskWait = ({ taskId }) => ({ status: 'succeeded', tasks: [succeededTask(taskId)] })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const { agent, wakes, injected } = fakeAgent('session', 'running')
   listeners.get('tools/result')({ name: submitName, arguments: {}, agent }, submitResult(['busy-1']))
   await until(() => injected.length === 1)
@@ -925,7 +925,7 @@ test('a busy session receives the completion inside the running turn', async con
 test('three consecutive auto-wakes defer the fourth until the user writes again', async context => {
   const { call, listeners, workspace } = await startHost(context, { extraOps: [{ id: 'task.wait', readOnly: true }] })
   workspace.taskWait = ({ taskId }) => ({ status: 'succeeded', tasks: [succeededTask(taskId)] })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const { agent, wakes } = fakeAgent()
   for (const [index, taskId] of ['t1', 't2', 't3'].entries()) {
     listeners.get('tools/result')({ name: submitName, arguments: {}, agent }, submitResult([taskId]))
@@ -946,7 +946,7 @@ test('three consecutive auto-wakes defer the fourth until the user writes again'
 test('a failed wake delivery keeps the result for the next user message', async context => {
   const { call, listeners, workspace } = await startHost(context, { extraOps: [{ id: 'task.wait', readOnly: true }] })
   workspace.taskWait = ({ taskId }) => ({ status: 'succeeded', tasks: [succeededTask(taskId)] })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const { agent, wakes } = fakeAgent()
   const followup = agent.followup
   agent.followup = () => { throw new Error('会话已结束') }
@@ -962,14 +962,14 @@ test('a failed wake delivery keeps the result for the next user message', async 
 test('a completion queued in the old workspace never reaches the new workspace', async context => {
   const { call, listeners, workspace } = await startHost(context, { extraOps: [{ id: 'task.wait', readOnly: true }] })
   workspace.taskWait = ({ taskId }) => ({ status: 'succeeded', tasks: [succeededTask(taskId)] })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const { agent, wakes, injected, removed } = fakeAgent('session', 'running')
   listeners.get('tools/result')({ name: submitName, arguments: {}, agent }, submitResult(['old-1']))
   await until(() => injected.length === 1)
   // 模拟消息已经被 claim、撤回拿不回来；这时只能靠 pre-step 兜底。
   agent.inbox.remove = messageId => { removed.push(messageId); return false }
   workspace.workspaceId = 'another-workspace'
-  await call('POST', '/beeftv/connect', { mode: 'local' })
+  await call('POST', '/luckytv/connect', { mode: 'local' })
   assert.deepEqual(removed, [injected[0].id])
   listeners.get('agent/inbox/claimed')({ agent, message: injected[0] })
   const userMessage = { id: 'real-user-message', role: 'user', content: [{ type: 'text', text: '继续' }], source: { kind: 'user' } }
@@ -984,7 +984,7 @@ test('a completion queued in the old workspace never reaches the new workspace',
 test('a wake injected at the end of a busy turn is followed up when the agent goes idle', async context => {
   const { call, listeners, workspace } = await startHost(context, { extraOps: [{ id: 'task.wait', readOnly: true }] })
   workspace.taskWait = ({ taskId }) => ({ status: 'succeeded', tasks: [succeededTask(taskId)] })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const { agent, wakes, injected } = fakeAgent('session', 'running')
   listeners.get('tools/result')({ name: submitName, arguments: {}, agent }, submitResult(['busy-end-1']))
   await until(() => injected.length === 1)
@@ -997,13 +997,13 @@ test('a wake injected at the end of a busy turn is followed up when the agent go
 test('an idle wake is not redelivered after the workspace connection drops', async context => {
   const { call, listeners, workspace } = await startHost(context, { extraOps: [{ id: 'task.wait', readOnly: true }] })
   workspace.taskWait = ({ taskId }) => ({ status: 'succeeded', tasks: [succeededTask(taskId)] })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const { agent, wakes, injected } = fakeAgent('session', 'running')
   listeners.get('tools/result')({ name: submitName, arguments: {}, agent }, submitResult(['isolated-1']))
   await until(() => injected.length === 1)
   // 断线窗口里 current 为 null；旧工作区的完成通知不能在这时补投给会话。
   workspace.available = false
-  assert.equal((await call('GET', '/beeftv/status')).body.connected, false)
+  assert.equal((await call('GET', '/luckytv/status')).body.connected, false)
   agent.status = 'idle'
   listeners.get('agent/status')({ agent, status: 'idle' })
   await sleep(50)
@@ -1011,7 +1011,7 @@ test('an idle wake is not redelivered after the workspace connection drops', asy
   assert.equal(injected.length, 1)
   // 连回同一工作区后仍能补投，不把完成结果丢掉。
   workspace.available = true
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   listeners.get('agent/status')({ agent, status: 'idle' })
   await until(() => wakes.length === 1)
   assert.match(wakes[0].content[0].text, /isolated-1/)
@@ -1020,7 +1020,7 @@ test('an idle wake is not redelivered after the workspace connection drops', asy
 test('a synchronous discarded event during idle redelivery does not defer or double-count', async context => {
   const { call, listeners, workspace } = await startHost(context, { extraOps: [{ id: 'task.wait', readOnly: true }] })
   workspace.taskWait = ({ taskId }) => ({ status: 'succeeded', tasks: [succeededTask(taskId)] })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const { agent, wakes, injected } = fakeAgent('session', 'running')
   listeners.get('tools/result')({ name: submitName, arguments: {}, agent }, submitResult(['discarded-1']))
   await until(() => injected.length === 1)
@@ -1041,7 +1041,7 @@ test('a synchronous discarded event during idle redelivery does not defer or dou
 test('a workspace switch in progress does not let the old wake enter the next step', async context => {
   const { call, listeners, workspace } = await startHost(context, { extraOps: [{ id: 'task.wait', readOnly: true }] })
   workspace.taskWait = ({ taskId }) => ({ status: 'succeeded', tasks: [succeededTask(taskId)] })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const { agent, wakes, injected } = fakeAgent('session', 'running')
   listeners.get('tools/result')({ name: submitName, arguments: {}, agent }, submitResult(['switch-1']))
   await until(() => injected.length === 1)
@@ -1049,7 +1049,7 @@ test('a workspace switch in progress does not let the old wake enter the next st
   let releaseBootstrap
   workspace.bootstrapGate = new Promise(resolve => { releaseBootstrap = resolve })
   workspace.workspaceId = 'another-workspace'
-  const switching = call('POST', '/beeftv/connect', { mode: 'local' })
+  const switching = call('POST', '/luckytv/connect', { mode: 'local' })
   await sleep(50)
   const message = injected[0]
   const decision = await listeners.get('agent/pre-step')({ agent, turn: 2, messages: [message] }, async () => ({ kind: 'enter', messages: [message] }))
@@ -1062,17 +1062,17 @@ test('a workspace switch in progress does not let the old wake enter the next st
 test('a reconnect with an unknown old workspace defers the wake instead of dropping it', async context => {
   const { call, listeners, workspace } = await startHost(context, { extraOps: [{ id: 'task.wait', readOnly: true }] })
   workspace.taskWait = ({ taskId }) => ({ status: 'succeeded', tasks: [succeededTask(taskId)] })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const { agent, wakes, injected } = fakeAgent('session', 'running')
   listeners.get('tools/result')({ name: submitName, arguments: {}, agent }, submitResult(['reconnect-1']))
   await until(() => injected.length === 1)
   // 健康检查失败后 current 被清空，自动重连时旧工作区信息已不可用。
   workspace.available = false
-  assert.equal((await call('GET', '/beeftv/status')).body.connected, false)
+  assert.equal((await call('GET', '/luckytv/status')).body.connected, false)
   workspace.available = true
   let releaseBootstrap
   workspace.bootstrapGate = new Promise(resolve => { releaseBootstrap = resolve })
-  const reconnecting = call('POST', '/beeftv/connect', { mode: 'standalone' })
+  const reconnecting = call('POST', '/luckytv/connect', { mode: 'standalone' })
   await sleep(50)
   const decision = await listeners.get('agent/pre-step')({ agent, turn: 2, messages: [injected[0]] }, async () => ({ kind: 'enter', messages: [injected[0]] }))
   assert.deepEqual(decision.messages, [])
@@ -1090,8 +1090,8 @@ test('a reconnect with an unknown old workspace defers the wake instead of dropp
 
 test('a step-limit stop lets a real user message through and restarts the count', async context => {
   const { call, listeners } = await startHost(context, { pluginSettings: { autoContinue: true, stepLimit: 5 } })
-  const connectionId = (await call('POST', '/beeftv/connect', { mode: 'standalone' })).body.connectionId
-  await call('POST', '/beeftv/context', { sessionId: 'session', connectionId, context: { route: '/canvas/a' } })
+  const connectionId = (await call('POST', '/luckytv/connect', { mode: 'standalone' })).body.connectionId
+  await call('POST', '/luckytv/context', { sessionId: 'session', connectionId, context: { route: '/canvas/a' } })
   const { agent } = fakeAgent('session', 'running')
   for (let index = 0; index < 5; index++) {
     listeners.get('tools/result')({ name: 'mcp__other__read', arguments: {}, agent }, { content: [] })
@@ -1106,21 +1106,21 @@ test('away resolution queries at most 20 tasks per pass and keeps the rest for l
   const taskIds = Array.from({ length: 21 }, (_, index) => `task-${index}`)
   const { call, workspace, home } = await startHost(context, { awaiting: { sessions: {}, away: [{ workspaceId: 'verified-workspace', taskIds }] } })
   workspace.taskGet = ({ taskId }) => succeededTask(taskId)
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
-  assert.equal((await call('GET', '/beeftv/status')).body.awayNotice, '有 20 个生成在你离开时完成。')
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
+  assert.equal((await call('GET', '/luckytv/status')).body.awayNotice, '有 20 个生成在你离开时完成。')
   // 用户点“知道了”只关掉已看到的提示，第 21 个还没核对的任务要留在盘上。
-  assert.equal((await call('POST', '/beeftv/away-notice', { seen: true })).body.awayNotice, null)
-  const stored = JSON.parse(await fsPromises.readFile(join(home, 'storages', 'beeftv', 'awaiting.json'), 'utf8')).away
+  assert.equal((await call('POST', '/luckytv/away-notice', { seen: true })).body.awayNotice, null)
+  const stored = JSON.parse(await fsPromises.readFile(join(home, 'storages', 'luckytv', 'awaiting.json'), 'utf8')).away
   assert.deepEqual(stored[0], { workspaceId: 'verified-workspace', taskIds: [taskIds[20]], resolvedCount: 0 })
   // 再连回同一工作区时继续核对，提示不会漏掉第 21 个。
-  assert.equal((await call('POST', '/beeftv/connect', { mode: 'standalone' })).body.awayNotice, '有 1 个生成在你离开时完成。')
+  assert.equal((await call('POST', '/luckytv/connect', { mode: 'standalone' })).body.awayNotice, '有 1 个生成在你离开时完成。')
 })
 
 test('a step-limit rejection defers an injected completion instead of swallowing it', async context => {
   const { call, listeners, workspace } = await startHost(context, { extraOps: [{ id: 'task.wait', readOnly: true }], pluginSettings: { autoContinue: true, stepLimit: 5 } })
   workspace.taskWait = ({ taskId }) => ({ status: 'succeeded', tasks: [succeededTask(taskId)] })
-  const connectionId = (await call('POST', '/beeftv/connect', { mode: 'standalone' })).body.connectionId
-  await call('POST', '/beeftv/context', { sessionId: 'session', connectionId, context: { route: '/canvas/a' } })
+  const connectionId = (await call('POST', '/luckytv/connect', { mode: 'standalone' })).body.connectionId
+  await call('POST', '/luckytv/context', { sessionId: 'session', connectionId, context: { route: '/canvas/a' } })
   const { agent, wakes, injected } = fakeAgent('session', 'running')
   for (let index = 0; index < 5; index++) {
     listeners.get('tools/result')({ name: 'mcp__other__read', arguments: {}, agent }, { content: [] })
@@ -1148,7 +1148,7 @@ test('when task.wait is present but fails, the plugin falls back to task.get', a
   const { call, listeners, workspace } = await startHost(context, { extraOps: [{ id: 'task.wait', readOnly: true }] })
   workspace.taskWait = () => { throw new Error('unavailable') }
   workspace.taskGet = ({ taskId }) => succeededTask(taskId)
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const { agent, wakes } = fakeAgent()
   listeners.get('tools/result')({ name: submitName, arguments: {}, agent }, submitResult(['fallback-1']))
   await until(() => wakes.length === 1)
@@ -1159,7 +1159,7 @@ test('a user stop ends the wait and a late result never wakes the session', asyn
   const { call, listeners, workspace } = await startHost(context, { extraOps: [{ id: 'task.wait', readOnly: true }] })
   let release
   workspace.taskWait = () => new Promise(resolve => { release = resolve })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const { agent, wakes } = fakeAgent()
   listeners.get('tools/result')({ name: submitName, arguments: {}, agent }, submitResult(['late-1']))
   await until(() => typeof release === 'function')
@@ -1172,7 +1172,7 @@ test('a user stop ends the wait and a late result never wakes the session', asyn
 test('without task.wait the plugin polls task.get instead', async context => {
   const { call, listeners, workspace } = await startHost(context)
   workspace.taskGet = ({ taskId }) => succeededTask(taskId)
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const { agent, wakes } = fakeAgent()
   listeners.get('tools/result')({ name: submitName, arguments: {}, agent }, submitResult(['poll-1']))
   await until(() => wakes.length === 1)
@@ -1192,8 +1192,8 @@ test('a restart reports only generations that really finished, scoped to the sam
     if (taskId === 'c') return { taskId, status: 'failed', error: '素材下载失败' }
     return { taskId, status: 'running' }
   }
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
-  const status = (await call('GET', '/beeftv/status')).body
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
+  const status = (await call('GET', '/luckytv/status')).body
   // a 已成功、c 已失败，b 仍在跑；另一个工作区的任务不串台。
   assert.equal(status.awayNotice, '有 2 个生成在你离开时完成。')
   assert.deepEqual(workspace.calls.map(item => item.op).sort(), ['task.get', 'task.get', 'task.get'])
@@ -1201,14 +1201,14 @@ test('a restart reports only generations that really finished, scoped to the sam
   // 不自动续跑。
   assert.equal(workspace.calls.some(item => item.op === 'task.wait'), false)
   // 重连（健康检查）不能让已解析的提示消失。
-  assert.equal((await call('POST', '/beeftv/connect', { mode: 'standalone' })).body.awayNotice, '有 2 个生成在你离开时完成。')
-  const stored = JSON.parse(await fsPromises.readFile(join(home, 'storages', 'beeftv', 'awaiting.json'), 'utf8')).away
+  assert.equal((await call('POST', '/luckytv/connect', { mode: 'standalone' })).body.awayNotice, '有 2 个生成在你离开时完成。')
+  const stored = JSON.parse(await fsPromises.readFile(join(home, 'storages', 'luckytv', 'awaiting.json'), 'utf8')).away
   assert.equal(stored.filter(entry => entry.workspaceId === 'verified-workspace').reduce((sum, entry) => sum + (entry.resolvedCount || 0), 0), 2)
-  const cleared = (await call('POST', '/beeftv/away-notice', { seen: true })).body
+  const cleared = (await call('POST', '/luckytv/away-notice', { seen: true })).body
   assert.equal(cleared.awayNotice, null)
   await sleep(20)
-  assert.equal((await call('GET', '/beeftv/status')).body.awayNotice, null)
-  const remaining = JSON.parse(await fsPromises.readFile(join(home, 'storages', 'beeftv', 'awaiting.json'), 'utf8')).away
+  assert.equal((await call('GET', '/luckytv/status')).body.awayNotice, null)
+  const remaining = JSON.parse(await fsPromises.readFile(join(home, 'storages', 'luckytv', 'awaiting.json'), 'utf8')).away
   // 已经关掉的提示清掉已完成计数，但同一工作区里还没核对完的任务（b 仍在跑）继续留着。
   assert.deepEqual(remaining.map(entry => entry.workspaceId), ['verified-workspace', 'another-workspace'])
   assert.deepEqual(remaining[0], { workspaceId: 'verified-workspace', taskIds: ['b'], resolvedCount: 0 })
@@ -1217,7 +1217,7 @@ test('a restart reports only generations that really finished, scoped to the sam
 test('a deferred completion does not follow the user into another workspace', async context => {
   const { call, listeners, workspace } = await startHost(context, { extraOps: [{ id: 'task.wait', readOnly: true }] })
   workspace.taskWait = ({ taskId }) => ({ status: 'succeeded', tasks: [succeededTask(taskId)] })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const { agent, wakes } = fakeAgent()
   for (const [index, taskId] of ['t1', 't2', 't3'].entries()) {
     listeners.get('tools/result')({ name: submitName, arguments: {}, agent }, submitResult([taskId]))
@@ -1227,7 +1227,7 @@ test('a deferred completion does not follow the user into another workspace', as
   await sleep(100)
   assert.equal(wakes.length, 3)
   workspace.workspaceId = 'another-workspace'
-  await call('POST', '/beeftv/connect', { mode: 'local' })
+  await call('POST', '/luckytv/connect', { mode: 'local' })
   listeners.get('agent/inbox/claimed')({ agent, message: { id: 'real-user-message', source: { kind: 'user' } } })
   await sleep(100)
   assert.equal(wakes.length, 3)
@@ -1235,57 +1235,57 @@ test('a deferred completion does not follow the user into another workspace', as
 
 test('turning auto-continue off stops starting waits and saves the setting', async context => {
   const { call, listeners, workspace, home } = await startHost(context, { extraOps: [{ id: 'task.wait', readOnly: true }] })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
-  const settings = (await call('POST', '/beeftv/settings', { autoContinue: false })).body
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
+  const settings = (await call('POST', '/luckytv/settings', { autoContinue: false })).body
   assert.equal(settings.autoContinue, false)
   assert.equal(settings.stepLimit, 40)
-  assert.deepEqual(JSON.parse(await fsPromises.readFile(join(home, 'storages', 'beeftv', 'settings.json'), 'utf8')), { autoContinue: false, stepLimit: 40 })
+  assert.deepEqual(JSON.parse(await fsPromises.readFile(join(home, 'storages', 'luckytv', 'settings.json'), 'utf8')), { autoContinue: false, stepLimit: 40 })
   const { agent, wakes } = fakeAgent()
   listeners.get('tools/result')({ name: submitName, arguments: {}, agent }, submitResult(['quiet-1']))
   await sleep(100)
   assert.equal(wakes.length, 0)
   assert.equal(workspace.calls.some(item => item.op === 'task.wait'), false)
-  assert.equal((await call('POST', '/beeftv/settings', { stepLimit: 4 })).status, 503)
-  assert.equal((await call('POST', '/beeftv/settings', { stepLimit: 12 })).body.stepLimit, 12)
+  assert.equal((await call('POST', '/luckytv/settings', { stepLimit: 4 })).status, 503)
+  assert.equal((await call('POST', '/luckytv/settings', { stepLimit: 12 })).body.stepLimit, 12)
 })
 
-test('the step limit stops only turns that belong to BeefTV', async context => {
+test('the step limit stops only turns that belong to LuckyTV', async context => {
   const { call, listeners } = await startHost(context, { pluginSettings: { autoContinue: true, stepLimit: 5 } })
-  const connectionId = (await call('POST', '/beeftv/connect', { mode: 'standalone' })).body.connectionId
-  await call('POST', '/beeftv/context', { sessionId: 'beef-session', connectionId, context: { route: '/canvas/a' } })
+  const connectionId = (await call('POST', '/luckytv/connect', { mode: 'standalone' })).body.connectionId
+  await call('POST', '/luckytv/context', { sessionId: 'lucky-session', connectionId, context: { route: '/canvas/a' } })
   const other = fakeAgent('other-session')
   for (let index = 0; index < 10; index++) {
     listeners.get('tools/result')({ name: 'mcp__other__read', arguments: {}, agent: other.agent }, { content: [] })
   }
   const allow = async () => ({ kind: 'enter', messages: [] })
   assert.deepEqual(await listeners.get('agent/pre-step')({ agent: { id: 'other-session' }, turn: 1 }, allow), { kind: 'enter', messages: [] })
-  const beef = fakeAgent('beef-session')
+  const lucky = fakeAgent('lucky-session')
   for (let index = 0; index < 5; index++) {
-    listeners.get('tools/result')({ name: 'mcp__other__read', arguments: {}, agent: beef.agent }, { content: [] })
+    listeners.get('tools/result')({ name: 'mcp__other__read', arguments: {}, agent: lucky.agent }, { content: [] })
   }
   const preExecute = listeners.get('tools/pre-execute')
   // 单步内并行工具在达到上限后也要被拒绝，不能等下一个 pre-step。
-  const blocked = await preExecute({ name: 'mcp__other__read', arguments: {}, agent: beef.agent }, async () => ({ kind: 'allow' }))
+  const blocked = await preExecute({ name: 'mcp__other__read', arguments: {}, agent: lucky.agent }, async () => ({ kind: 'allow' }))
   assert.equal(blocked.kind, 'deny')
   assert.match(blocked.reason, /先停一下/)
   assert.equal((await preExecute({ name: 'mcp__other__read', arguments: {}, agent: other.agent }, async () => ({ kind: 'allow' }))).kind, 'allow')
-  assert.deepEqual(await listeners.get('agent/pre-step')({ agent: { id: 'beef-session' }, turn: 1 }, allow), { kind: 'reject' })
-  const status = (await call('GET', '/beeftv/status')).body
+  assert.deepEqual(await listeners.get('agent/pre-step')({ agent: { id: 'lucky-session' }, turn: 1 }, allow), { kind: 'reject' })
+  const status = (await call('GET', '/luckytv/status')).body
   assert.equal(status.stepNotice, '这一轮已经做了 5 步，先停一下。要继续请再说一句。')
   // DSH 的 pre-step rejection 以 blocked 收尾，这条提示不能在同一轮结束时被清掉。
-  listeners.get('session/event')({ id: 'beef-session' }, { type: 'turn/end', data: { reason: { kind: 'blocked' } } })
-  assert.equal((await call('GET', '/beeftv/status')).body.stepNotice, '这一轮已经做了 5 步，先停一下。要继续请再说一句。')
-  assert.equal((await call('POST', '/beeftv/step-notice', { seen: true })).body.stepNotice, null)
+  listeners.get('session/event')({ id: 'lucky-session' }, { type: 'turn/end', data: { reason: { kind: 'blocked' } } })
+  assert.equal((await call('GET', '/luckytv/status')).body.stepNotice, '这一轮已经做了 5 步，先停一下。要继续请再说一句。')
+  assert.equal((await call('POST', '/luckytv/step-notice', { seen: true })).body.stepNotice, null)
   // 另一轮重新计数。
-  listeners.get('session/event')({ id: 'beef-session' }, { type: 'turn/start', data: { turn: 2 } })
-  assert.deepEqual(await listeners.get('agent/pre-step')({ agent: { id: 'beef-session' }, turn: 2 }, allow), { kind: 'enter', messages: [] })
+  listeners.get('session/event')({ id: 'lucky-session' }, { type: 'turn/start', data: { turn: 2 } })
+  assert.deepEqual(await listeners.get('agent/pre-step')({ agent: { id: 'lucky-session' }, turn: 2 }, allow), { kind: 'enter', messages: [] })
 })
 
-test('a BeefTV tool call activates the step limit even without a reported view', async context => {
+test('a LuckyTV tool call activates the step limit even without a reported view', async context => {
   const { call, listeners } = await startHost(context, { pluginSettings: { autoContinue: true, stepLimit: 5 } })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const { agent } = fakeAgent('tool-session')
-  listeners.get('tools/result')({ name: 'mcp__beeftv__canvas_get_ab092b275e46', arguments: {}, agent }, { content: [] })
+  listeners.get('tools/result')({ name: 'mcp__luckytv__canvas_get_ab092b275e46', arguments: {}, agent }, { content: [] })
   for (let index = 0; index < 4; index++) {
     listeners.get('tools/result')({ name: 'mcp__other__read', arguments: {}, agent }, { content: [] })
   }
@@ -1297,7 +1297,7 @@ test('a saved auto-continue off is honored after restart', async context => {
     extraOps: [{ id: 'task.wait', readOnly: true }],
     pluginSettings: { autoContinue: false, stepLimit: 40 },
   })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const { agent, wakes } = fakeAgent()
   listeners.get('tools/result')({ name: submitName, arguments: {}, agent }, submitResult(['quiet-restart']))
   await sleep(150)
@@ -1307,7 +1307,7 @@ test('a saved auto-continue off is honored after restart', async context => {
 
 test('a failing awaiting.json write does not block a workspace switch', async context => {
   const { call, listeners, workspace } = await startHost(context, { extraOps: [{ id: 'task.wait', readOnly: true }] })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   workspace.taskWait = () => new Promise(resolve => setTimeout(() => resolve({ status: 'pending', taskId: 'disk-1' }), 30))
   const { agent } = fakeAgent()
   listeners.get('tools/result')({ name: submitName, arguments: {}, agent }, submitResult(['disk-1']))
@@ -1318,28 +1318,28 @@ test('a failing awaiting.json write does not block a workspace switch', async co
     return realWrite(path, ...rest)
   })
   syncBuiltinESMExports()
-  const switched = await call('POST', '/beeftv/connect', { mode: 'local' })
+  const switched = await call('POST', '/luckytv/connect', { mode: 'local' })
   assert.equal(switched.status, 200)
   assert.equal(switched.body.connected, true)
   assert.equal(switched.body.mode, 'local')
-  assert.equal((await call('GET', '/beeftv/status')).body.connected, true)
+  assert.equal((await call('GET', '/luckytv/status')).body.connected, true)
 })
 
 test('turning auto-continue off withdraws a completion already injected', async context => {
   const { call, listeners, workspace } = await startHost(context, { extraOps: [{ id: 'task.wait', readOnly: true }] })
   workspace.taskWait = ({ taskId }) => ({ status: 'succeeded', tasks: [succeededTask(taskId)] })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const { agent, wakes, injected, removed } = fakeAgent('session', 'running')
   listeners.get('tools/result')({ name: submitName, arguments: {}, agent }, submitResult(['stop-1']))
   await until(() => injected.length === 1)
-  await call('POST', '/beeftv/settings', { autoContinue: false })
+  await call('POST', '/luckytv/settings', { autoContinue: false })
   await until(() => removed.length === 1)
   assert.equal(removed[0], injected[0].id)
   assert.equal(wakes.length, 0)
 })
 
 test('a wait past its deadline moves the tasks to the away list', async context => {
-  const dir = await fsPromises.mkdtemp(join(tmpdir(), 'beeftv-await-'))
+  const dir = await fsPromises.mkdtemp(join(tmpdir(), 'luckytv-await-'))
   context.after(() => fsPromises.rm(dir, { recursive: true, force: true }))
   const runtime = { operations: [], baseURL: 'http://127.0.0.1:1/api', clientId: 'client', clientToken: 'token' }
   const runner = createAwaitRunner({
@@ -1353,7 +1353,7 @@ test('a wait past its deadline moves the tasks to the away list', async context 
 })
 
 test('plugin shutdown persists deferred completions as away entries', async context => {
-  const dir = await fsPromises.mkdtemp(join(tmpdir(), 'beeftv-await-stop-'))
+  const dir = await fsPromises.mkdtemp(join(tmpdir(), 'luckytv-await-stop-'))
   context.after(() => fsPromises.rm(dir, { recursive: true, force: true }))
   const awaitingPath = join(dir, 'awaiting.json')
   const runner = createAwaitRunner({ awaitingPath, runtimeOf: () => null })
@@ -1370,20 +1370,20 @@ test('plugin shutdown persists deferred completions as away entries', async cont
 test('plugin shutdown persists an injected but not entered completion', async context => {
   const { call, listeners, workspace, home, dispose } = await startHost(context, { extraOps: [{ id: 'task.wait', readOnly: true }] })
   workspace.taskWait = ({ taskId }) => ({ status: 'succeeded', tasks: [succeededTask(taskId)] })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const { agent, injected } = fakeAgent('session', 'running')
   listeners.get('tools/result')({ name: submitName, arguments: {}, agent }, submitResult(['pending-shutdown']))
   await until(() => injected.length === 1)
   await dispose()
-  const stored = JSON.parse(await fsPromises.readFile(join(home, 'storages', 'beeftv', 'awaiting.json'), 'utf8'))
+  const stored = JSON.parse(await fsPromises.readFile(join(home, 'storages', 'luckytv', 'awaiting.json'), 'utf8'))
   assert.ok(stored.away.some(entry => entry.taskIds.includes('pending-shutdown')))
 })
 
 test('a corrupt awaiting file is kept aside instead of being silently overwritten', async context => {
   const { call, home } = await startHost(context, { rawAwaiting: '{broken' })
-  assert.equal((await call('GET', '/beeftv/status')).status, 200)
+  assert.equal((await call('GET', '/luckytv/status')).status, 200)
   await sleep(50)
-  const files = await fsPromises.readdir(join(home, 'storages', 'beeftv'))
+  const files = await fsPromises.readdir(join(home, 'storages', 'luckytv'))
   assert.ok(files.some(name => name.startsWith('awaiting.json.corrupt-')))
 })
 
@@ -1396,45 +1396,45 @@ test('a connection settings write failure leaves the host disconnected and recov
     return realWrite(path, ...rest)
   })
   syncBuiltinESMExports()
-  const failed = await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  const failed = await call('POST', '/luckytv/connect', { mode: 'standalone' })
   assert.equal(failed.status, 503)
-  assert.equal((await call('GET', '/beeftv/status')).body.connected, false)
+  assert.equal((await call('GET', '/luckytv/status')).body.connected, false)
   failWrites = false
-  const recovered = await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  const recovered = await call('POST', '/luckytv/connect', { mode: 'standalone' })
   assert.equal(recovered.status, 200)
   assert.equal(recovered.body.connected, true)
 })
 
 test('a submit result that arrives after a workspace switch is kept for the original workspace', async context => {
   const { call, listeners, workspace, home } = await startHost(context, { extraOps: [{ id: 'task.wait', readOnly: true }] })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const { agent } = fakeAgent()
   const exec = { name: submitName, arguments: {}, agent }
   await listeners.get('tools/pre-execute')(exec, async () => ({ kind: 'allow' }))
   await listeners.get('tools/execute')(exec, async () => submitResult(['switched-1']))
-  await call('POST', '/beeftv/connect', { mode: 'local' })
+  await call('POST', '/luckytv/connect', { mode: 'local' })
   workspace.calls.length = 0
   listeners.get('tools/result')(exec, submitResult(['switched-1']))
   await sleep(100)
   assert.equal(workspace.calls.some(item => item.op === 'task.wait'), false)
-  const stored = JSON.parse(await fsPromises.readFile(join(home, 'storages', 'beeftv', 'awaiting.json'), 'utf8'))
+  const stored = JSON.parse(await fsPromises.readFile(join(home, 'storages', 'luckytv', 'awaiting.json'), 'utf8'))
   assert.ok(stored.away.some(entry => entry.taskIds.includes('switched-1')))
 })
 
 test('a submit approved after a workspace switch is recorded for the workspace that runs it', async context => {
   const { call, listeners, workspace, home } = await startHost(context, { extraOps: [{ id: 'task.wait', readOnly: true }] })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const { agent } = fakeAgent()
   const exec = { name: submitName, arguments: {}, agent }
   // 审批卡停在旧连接上，批准后真正下发时已经切到新工作区。
   await listeners.get('tools/pre-execute')(exec, async () => ({ kind: 'ask', reason: '批准生成' }))
-  await call('POST', '/beeftv/connect', { mode: 'local' })
+  await call('POST', '/luckytv/connect', { mode: 'local' })
   workspace.calls.length = 0
   await listeners.get('tools/execute')(exec, async () => submitResult(['approved-1']))
   listeners.get('tools/result')(exec, submitResult(['approved-1']))
   await sleep(100)
   assert.equal(workspace.calls.some(item => item.op === 'task.wait' && item.params.taskId === 'approved-1'), true)
-  const stored = JSON.parse(await fsPromises.readFile(join(home, 'storages', 'beeftv', 'awaiting.json'), 'utf8'))
+  const stored = JSON.parse(await fsPromises.readFile(join(home, 'storages', 'luckytv', 'awaiting.json'), 'utf8'))
   assert.equal(stored.away.some(entry => entry.taskIds.includes('approved-1')), false)
 })
 
@@ -1445,10 +1445,10 @@ test('a submit dispatched while the old MCP is still registered stays with that 
     // 只有第一次释放旧连接时挂住；测试收尾再释放新连接必须立即完成。
     mcpDispose: () => releaseDispose ? Promise.resolve() : new Promise(resolve => { releaseDispose = resolve }),
   })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
-  const switching = call('POST', '/beeftv/connect', { mode: 'local' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
+  const switching = call('POST', '/luckytv/connect', { mode: 'local' })
   // 切换先把 current 清空，旧 MCP 的 dispose 还没完成；这时下发的调用仍由旧连接执行。
-  while ((await call('GET', '/beeftv/status')).body.connected) await sleep(10)
+  while ((await call('GET', '/luckytv/status')).body.connected) await sleep(10)
   while (!releaseDispose) await sleep(10)
   const { agent } = fakeAgent()
   const exec = { name: submitName, arguments: {}, agent }
@@ -1459,18 +1459,18 @@ test('a submit dispatched while the old MCP is still registered stays with that 
   listeners.get('tools/result')(exec, submitResult(['switch-window-1']))
   await sleep(100)
   assert.equal(workspace.calls.some(item => item.op === 'task.wait'), false)
-  const stored = JSON.parse(await fsPromises.readFile(join(home, 'storages', 'beeftv', 'awaiting.json'), 'utf8'))
+  const stored = JSON.parse(await fsPromises.readFile(join(home, 'storages', 'luckytv', 'awaiting.json'), 'utf8'))
   assert.ok(stored.away.some(entry => entry.taskIds.includes('switch-window-1')))
 })
 
 test('a single-step batch cannot exceed the tool limit', async context => {
   const { call, listeners } = await startHost(context, { pluginSettings: { autoContinue: true, stepLimit: 5 } })
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   const preExecute = listeners.get('tools/pre-execute')
   const kinds = []
   for (let index = 0; index < 8; index++) {
     const decision = await preExecute({
-      name: 'mcp__beeftv__canvas_get_ab092b275e46', arguments: {}, agent: { id: 'batch-session', status: 'running' },
+      name: 'mcp__luckytv__canvas_get_ab092b275e46', arguments: {}, agent: { id: 'batch-session', status: 'running' },
     }, async () => ({ kind: 'allow' }))
     kinds.push(decision.kind)
   }
@@ -1482,18 +1482,18 @@ test('closing the away notice while disconnected keeps other workspace counts', 
     awaiting: { sessions: {}, away: [{ workspaceId: 'verified-workspace', taskIds: ['a'] }] },
   })
   workspace.taskGet = ({ taskId }) => succeededTask(taskId)
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
-  assert.equal((await call('GET', '/beeftv/status')).body.awayNotice, '有 1 个生成在你离开时完成。')
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
+  assert.equal((await call('GET', '/luckytv/status')).body.awayNotice, '有 1 个生成在你离开时完成。')
   workspace.available = false
-  assert.equal((await call('GET', '/beeftv/status')).body.connected, false)
-  assert.equal((await call('POST', '/beeftv/away-notice', { seen: true })).status, 200)
-  const stored = JSON.parse(await fsPromises.readFile(join(home, 'storages', 'beeftv', 'awaiting.json'), 'utf8'))
+  assert.equal((await call('GET', '/luckytv/status')).body.connected, false)
+  assert.equal((await call('POST', '/luckytv/away-notice', { seen: true })).status, 200)
+  const stored = JSON.parse(await fsPromises.readFile(join(home, 'storages', 'luckytv', 'awaiting.json'), 'utf8'))
   assert.deepEqual(stored.away.map(entry => ({ taskIds: entry.taskIds, resolvedCount: entry.resolvedCount })), [{ taskIds: [], resolvedCount: 1 }])
 })
 
 test('concurrent settings saves do not roll back a successful update', async context => {
   const { call, home } = await startHost(context)
-  await call('POST', '/beeftv/connect', { mode: 'standalone' })
+  await call('POST', '/luckytv/connect', { mode: 'standalone' })
   let writes = 0
   const realWrite = fsPromises.writeFile
   context.mock.method(fsPromises, 'writeFile', async (path, ...rest) => {
@@ -1501,27 +1501,27 @@ test('concurrent settings saves do not roll back a successful update', async con
     return realWrite(path, ...rest)
   })
   syncBuiltinESMExports()
-  const first = call('POST', '/beeftv/settings', { autoContinue: false })
+  const first = call('POST', '/luckytv/settings', { autoContinue: false })
   await sleep(20)
-  const second = call('POST', '/beeftv/settings', { stepLimit: 12 })
+  const second = call('POST', '/luckytv/settings', { stepLimit: 12 })
   const [failed, saved] = await Promise.all([first, second])
   assert.equal(failed.status, 503)
   assert.equal(saved.status, 200)
   assert.equal(saved.body.stepLimit, 12)
-  const stored = JSON.parse(await fsPromises.readFile(join(home, 'storages', 'beeftv', 'settings.json'), 'utf8'))
+  const stored = JSON.parse(await fsPromises.readFile(join(home, 'storages', 'luckytv', 'settings.json'), 'utf8'))
   assert.deepEqual(stored, { autoContinue: true, stepLimit: 12 })
 })
 
 test('a backend agent.guide replaces the fixed section; without it the fixed text stays', async context => {
   const guided = await startHost(context, { extraOps: [{ id: 'agent.guide', readOnly: true }] })
   guided.workspace.guide = { name: 'agent.guide', version: '2', contentHash: 'abc', text: '后端使用说明：先读画布。' }
-  await guided.call('POST', '/beeftv/connect', { mode: 'standalone' })
-  const text = guided.section('beeftv-creation')
+  await guided.call('POST', '/luckytv/connect', { mode: 'standalone' })
+  const text = guided.section('luckytv-creation')
   assert.match(text, /^后端使用说明：先读画布。/)
-  assert.match(text, /mcp__beeftv__ 前缀/)
+  assert.match(text, /mcp__luckytv__ 前缀/)
   assert.doesNotMatch(text, /长程视频创作与工作区定制按以下规范完成/)
 
   const fixed = await startHost(context)
-  await fixed.call('POST', '/beeftv/connect', { mode: 'standalone' })
-  assert.match(fixed.section('beeftv-creation'), /长程视频创作与工作区定制按以下规范完成/)
+  await fixed.call('POST', '/luckytv/connect', { mode: 'standalone' })
+  assert.match(fixed.section('luckytv-creation'), /长程视频创作与工作区定制按以下规范完成/)
 })

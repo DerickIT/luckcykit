@@ -46,7 +46,7 @@ describe("desktop update UI contract", () => {
         expect(update).not.toContain("github.com");
         expect(update).not.toContain("desktop-update.json");
         expect(update).not.toContain("Wails");
-        expect(update).not.toContain("BeefAPI");
+        expect(update).not.toContain("LuckyAPI");
     });
 
     test("frontend update client never fetches a release origin", () => {

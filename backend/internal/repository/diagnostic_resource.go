@@ -1,6 +1,6 @@
 package repository
 
-import "infinite-canvas/backend/internal/model"
+import "luckytv/backend/internal/model"
 
 // Only output representations owned through both the task and asset are
 // eligible. Resources are independently owner-scoped before local inspection.

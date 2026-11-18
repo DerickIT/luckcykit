@@ -3,8 +3,8 @@ package app
 import (
 	"context"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/protocol"
 )
 
 var emptyProtocolRegistry, _ = protocol.NewRegistry()

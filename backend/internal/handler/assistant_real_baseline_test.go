@@ -12,13 +12,13 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/app"
+	"luckytv/backend/internal/app"
 )
 
 // 真实宿主 + 真实 Go 业务层的效率测量（不用模拟器）。
 //
-// 默认用脚本化的假模型，只验证测量工具本身能跑通；设置 BEEFTV_REAL_BASELINE_URL / _KEY / _MODEL
-// 后改走真实模型，需要调用方自己承担费用。结果写到 BEEFTV_REAL_BASELINE_OUT（默认临时目录）。
+// 默认用脚本化的假模型，只验证测量工具本身能跑通；设置 LUCKYTV_REAL_BASELINE_URL / _KEY / _MODEL
+// 后改走真实模型，需要调用方自己承担费用。结果写到 LUCKYTV_REAL_BASELINE_OUT（默认临时目录）。
 // 付费生成只登记方案，不会提交；模型目录来自下面写入的本地配置。
 func TestAssistantEfficiencyBaselineOnRealBackend(t *testing.T) {
 	if testing.Short() {
@@ -66,14 +66,14 @@ func TestAssistantEfficiencyBaselineOnRealBackend(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	out := os.Getenv("BEEFTV_REAL_BASELINE_OUT")
+	out := os.Getenv("LUCKYTV_REAL_BASELINE_OUT")
 	if out == "" {
 		out = t.TempDir()
 	}
 	provider := map[string]any{"fake": true}
-	if url := os.Getenv("BEEFTV_REAL_BASELINE_URL"); url != "" {
-		// 密钥不进配置文件：驱动直接读继承的环境变量 BEEFTV_REAL_BASELINE_KEY。
-		provider = map[string]any{"baseUrl": url, "model": os.Getenv("BEEFTV_REAL_BASELINE_MODEL"), "api": "openai-completions"}
+	if url := os.Getenv("LUCKYTV_REAL_BASELINE_URL"); url != "" {
+		// 密钥不进配置文件：驱动直接读继承的环境变量 LUCKYTV_REAL_BASELINE_KEY。
+		provider = map[string]any{"baseUrl": url, "model": os.Getenv("LUCKYTV_REAL_BASELINE_MODEL"), "api": "openai-completions"}
 	}
 	scenarios := []map[string]any{
 		{"id": "new-short", "canvasId": "base-new", "messages": []string{"帮我做一个15秒的竖屏短片：雨夜街头，一个撑伞的女孩走过霓虹灯，分2个镜头。用最便宜的模型出方案。"}},

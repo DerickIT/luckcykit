@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/environment"
+	"luckytv/backend/internal/environment"
 )
 
 func TestEnvironmentRouteRequiresDesktopTrustAndIgnoresExternalPaths(t *testing.T) {

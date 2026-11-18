@@ -10,10 +10,10 @@ import (
 	"gorm.io/driver/sqlite"
 
 	"gorm.io/gorm"
-	"infinite-canvas/backend/internal/database"
+	"luckytv/backend/internal/database"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 )
 
 func newTimelineTaskTestService(t *testing.T) (*Service, *gorm.DB) {

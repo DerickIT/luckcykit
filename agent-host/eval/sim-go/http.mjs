@@ -42,7 +42,7 @@ function sendError(res, error) {
 
 // 带对 host token 的请求算内置宿主；外部 Agent 用 owner token，不会碰到这个值。
 function requestIsHost(state, req) {
-  return Boolean(state.hostToken) && req.headers['x-beeftv-agent-token'] === state.hostToken;
+  return Boolean(state.hostToken) && req.headers['x-luckytv-agent-token'] === state.hostToken;
 }
 
 export function createSimServer(state) {
@@ -52,7 +52,7 @@ export function createSimServer(state) {
       const pathname = url.pathname.replace(/\/+$/, '') || '/';
 
       if (state.hostToken) {
-        const gotToken = req.headers['x-beeftv-agent-token'];
+        const gotToken = req.headers['x-luckytv-agent-token'];
         if (gotToken !== undefined && gotToken !== state.hostToken) {
           sendEnvelope(res, 403, 403, null, 'unauthorized', 'unauthorized');
           return;
@@ -68,7 +68,7 @@ export function createSimServer(state) {
       if (req.method === 'POST' && (pathname.startsWith('/api/ops/') || pathname.startsWith('/ops/'))) {
         const opIdName = decodeURIComponent(pathname.replace(/^(\/api)?\/ops\//, ''));
         const body = await readJsonBody(req);
-        const turnId = String(req.headers['x-beeftv-agent-turn'] || body.turnId || '').trim();
+        const turnId = String(req.headers['x-luckytv-agent-turn'] || body.turnId || '').trim();
         const opKey = String(body.opId || body.operationId || body.params?.operationId || '').trim();
         const params = body.params !== undefined ? body.params : body;
         const data = await executeHttpOp(state, opIdName, params, opKey, turnId, { host: requestIsHost(state, req) });
@@ -79,7 +79,7 @@ export function createSimServer(state) {
       if (req.method === 'POST' && pathname === '/api/canvas/operations') {
         const body = await readJsonBody(req);
         const opIdName = String(body.op || body.operation || body.id || '').trim();
-        const turnId = String(req.headers['x-beeftv-agent-turn'] || body.turnId || '').trim();
+        const turnId = String(req.headers['x-luckytv-agent-turn'] || body.turnId || '').trim();
         const opKey = String(body.opId || body.operationId || body.params?.operationId || '').trim();
         const params = body.params !== undefined ? body.params : body;
         const data = await executeHttpOp(state, opIdName, params, opKey, turnId, { host: requestIsHost(state, req) });

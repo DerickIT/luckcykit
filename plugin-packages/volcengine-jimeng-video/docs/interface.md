@@ -86,18 +86,18 @@
 
 线协议按即梦官方视频接口收敛：创建正文只发 req_key、prompt、image_urls、aspect_ratio、frames、resolution；官方用 frames=24*秒数+1 表达时长（121=5 秒、241=10 秒），只提供 5 秒和 10 秒两档，其他秒数取最近一档。req_json 是查询请求的配置串，只在 poll 发送。业务成功码为 code=10000，插件显式声明 successCodes，不会把完成的任务判成失败。分辨率由 req_key 决定，resolution 仅作为透传不被推导。
 
-<!-- BEEFTV_PLUGIN_MANIFEST_START -->
+<!-- LUCKYTV_PLUGIN_MANIFEST_START -->
 ## Manifest 完整接口定义
 
 以下 JSON 与插件包内实际 `manifest.json` 逐字段一致，覆盖插件身份、权限、配置、鉴权、参数、校验、创建、Agent、查询、取消、结果下载、响应和 Agent 响应映射。`documentation` 字段的值就是当前完整文档；为避免文档在自身内部无限递归，JSON 中仅用等义占位文本表示正文。
 
 ```json
 {
-  "apiVersion": "beeftv.plugin/v2",
+  "apiVersion": "luckytv.plugin/v2",
   "id": "volcengine-jimeng-video",
   "name": "Volcengine Jimeng Video",
   "version": "2.0.0",
-  "author": "BeefTV Contributors",
+  "author": "LuckyTV Contributors",
   "description": "Volcengine Jimeng Video 独立请求协议插件。",
   "documentation": "<当前插件的完整 documentation，由 README.md 与 docs/interface.md 拼接而成；为避免 JSON 递归，此处不重复展开正文。>",
   "permissions": [
@@ -382,4 +382,4 @@
   }
 }
 ```
-<!-- BEEFTV_PLUGIN_MANIFEST_END -->
+<!-- LUCKYTV_PLUGIN_MANIFEST_END -->

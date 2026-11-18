@@ -3,7 +3,7 @@ package handler
 import (
 	"strings"
 
-	"infinite-canvas/backend/internal/beeftv"
+	"luckytv/backend/internal/luckytv"
 )
 
 func externalSecretField(k string) bool {
@@ -12,7 +12,7 @@ func externalSecretField(k string) bool {
 }
 
 // External discovery never returns reusable provider credentials, including
-// user-owned custom channels rather than only the managed BeefTV channel.
+// user-owned custom channels rather than only the managed LuckyTV channel.
 func redactExternalConfig(config map[string]any) map[string]any {
 	if config == nil {
 		return nil
@@ -68,8 +68,8 @@ func markExternalCredentialState(redacted, stored map[string]any) map[string]any
 			continue
 		}
 		id, _ := channel["id"].(string)
-		// 托管渠道的标记由 beeftv.RedactConfig 按托管状态给，这里不能替它下结论。
-		if id == beeftv.ChannelID {
+		// 托管渠道的标记由 luckytv.RedactConfig 按托管状态给，这里不能替它下结论。
+		if id == luckytv.ChannelID {
 			continue
 		}
 		source, ok := storedByID[id]

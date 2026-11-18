@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func TestRunClaudeTextTaskUsesMessagesAndAPIKeyHeader(t *testing.T) {

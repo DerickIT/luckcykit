@@ -74,18 +74,18 @@
 
 字段对应与固定成功样例移植自 LiteLLM 的 MIT 部分（`litellm/llms/runwayml/videos/transformation.py` 及其单测，提交 `dddbaa803d6e9fcc862ea7a5412f771cb1ae040e`），完整 MIT 声明随本插件包分发，见插件目录内的 `LICENSE`（仓库根目录的 `THIRD_PARTY_NOTICES.md` 记录同一份声明）；这里只重写为声明式模板与 Go 测试，不引入 Python 运行时。
 
-<!-- BEEFTV_PLUGIN_MANIFEST_START -->
+<!-- LUCKYTV_PLUGIN_MANIFEST_START -->
 ## Manifest 完整接口定义
 
 以下 JSON 与插件包内实际 `manifest.json` 逐字段一致，覆盖插件身份、权限、配置、鉴权、参数、校验、创建、Agent、查询、取消、结果下载、响应和 Agent 响应映射。`documentation` 字段的值就是当前完整文档；为避免文档在自身内部无限递归，JSON 中仅用等义占位文本表示正文。
 
 ```json
 {
-  "apiVersion": "beeftv.plugin/v2",
+  "apiVersion": "luckytv.plugin/v2",
   "id": "runway-video",
   "name": "Runway Video",
   "version": "2.0.1",
-  "author": "BeefTV Contributors",
+  "author": "LuckyTV Contributors",
   "description": "Runway Video 独立请求协议插件。",
   "documentation": "<当前插件的完整 documentation，由 README.md 与 docs/interface.md 拼接而成；为避免 JSON 递归，此处不重复展开正文。>",
   "permissions": [
@@ -697,4 +697,4 @@
   }
 }
 ```
-<!-- BEEFTV_PLUGIN_MANIFEST_END -->
+<!-- LUCKYTV_PLUGIN_MANIFEST_END -->

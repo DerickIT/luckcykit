@@ -15,7 +15,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/signer/v4"
-	"infinite-canvas/backend/internal/outbound"
+	"luckytv/backend/internal/outbound"
 )
 
 // Check uploads a unique tiny PNG, verifies anonymous reads, and removes it.
@@ -52,7 +52,7 @@ func check(ctx context.Context, config Config, tempDir string, client *http.Clie
 		return errors.New("无法写入存储测试文件，请检查本地磁盘")
 	}
 	digest := sha256.Sum256(content.Bytes())
-	key := fmt.Sprintf("beeftv/references/%x", digest)
+	key := fmt.Sprintf("luckytv/references/%x", digest)
 	// PUT can succeed even when the read check or its response fails.
 	defer func() {
 		cleanupCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 15*time.Second)

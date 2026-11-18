@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"infinite-canvas/backend/internal/kernel"
+	"luckytv/backend/internal/kernel"
 )
 
 func validateBaseURL(raw string) (*url.URL, error) {

@@ -2,7 +2,7 @@ package app
 
 import (
 	"fmt"
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/operations"
 	"math"
 	"strings"
 )

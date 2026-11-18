@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"strings"
 
-	"infinite-canvas/backend/internal/channelurl"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/channelurl"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
 )
 
 var opaqueVideoAssetPattern = regexp.MustCompile(`^asset://[A-Za-z0-9_-]+$`)
@@ -92,7 +92,7 @@ func applySeedanceDocumentedVideoPixelFloor(config TaskConfig, refs *VideoRefere
 	if !isSeedance2Family(config.InterfaceType, config.Model) {
 		return
 	}
-	if model.IsVolcengineArkVideoProtocol(model.ChannelInterfaceType(config.InterfaceType)) || seedanceMaterialLibraryHost(config.BaseURL) || strings.EqualFold(strings.TrimSpace(config.ChannelID), "beeftv") {
+	if model.IsVolcengineArkVideoProtocol(model.ChannelInterfaceType(config.InterfaceType)) || seedanceMaterialLibraryHost(config.BaseURL) || strings.EqualFold(strings.TrimSpace(config.ChannelID), "luckytv") {
 		refs.MinVideoPixels = documentedSeedanceVideoMinPixels
 	}
 }
@@ -103,7 +103,7 @@ func seedanceMaterialLibraryHost(baseURL string) bool {
 		return false
 	}
 	switch strings.ToLower(u.Hostname()) {
-	case "beeftv.app", "www.whatstoken.ai", "whatstoken.ai":
+	case "luckytv.app", "www.whatstoken.ai", "whatstoken.ai":
 		return true
 	default:
 		return false

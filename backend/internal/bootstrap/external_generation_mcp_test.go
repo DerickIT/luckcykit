@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/model"
 )
 
 // Official MCP transport and real task admission; the worker is never started,
@@ -38,14 +38,14 @@ func TestExternalMCPGenerationApprovalAndReceipt(t *testing.T) {
 	defer server.Close()
 	ctx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
 	defer cancel()
-	bin := filepath.Join(t.TempDir(), "beeftv")
-	build := exec.CommandContext(ctx, "go", "build", "-o", bin, "./cmd/beeftv")
+	bin := filepath.Join(t.TempDir(), "luckytv")
+	build := exec.CommandContext(ctx, "go", "build", "-o", bin, "./cmd/luckytv")
 	build.Dir = filepath.Join("..", "..")
 	if out, err := build.CombinedOutput(); err != nil {
 		t.Fatal(err, string(out))
 	}
 	command := exec.CommandContext(ctx, bin, "mcp", "serve")
-	command.Env = append(os.Environ(), "BEEFTV_BASE_URL="+server.URL+"/api", "BEEFTV_CLIENT_ID="+reg.ID, "BEEFTV_CLIENT_TOKEN="+token, "BEEFTV_CLIENT_TOKEN_FILE=", "BEEFTV_OWNER_TOKEN=", "BEEFTV_DESKTOP_TOKEN=")
+	command.Env = append(os.Environ(), "LUCKYTV_BASE_URL="+server.URL+"/api", "LUCKYTV_CLIENT_ID="+reg.ID, "LUCKYTV_CLIENT_TOKEN="+token, "LUCKYTV_CLIENT_TOKEN_FILE=", "LUCKYTV_OWNER_TOKEN=", "LUCKYTV_DESKTOP_TOKEN=")
 	client := mcp.NewClient(&mcp.Implementation{Name: "generation-fixture", Version: "1"}, nil)
 	session, err := client.Connect(ctx, &mcp.CommandTransport{Command: command}, nil)
 	if err != nil {

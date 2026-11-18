@@ -6,8 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/operations"
 
 	"github.com/gin-gonic/gin"
 )

@@ -3,7 +3,7 @@ package task
 import (
 	"strings"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 // Outcome 是只读投影，不持有状态，也不授权任何提交。

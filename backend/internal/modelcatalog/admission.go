@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"strings"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
 )
 
 const (
-	managedChannelID             = "beeftv"
-	managedCredentialRef         = "beeftv"
+	managedChannelID             = "luckytv"
+	managedCredentialRef         = "luckytv"
 	defaultManagedAssistantModel = "deepseek-v4.1-flash"
 )
 

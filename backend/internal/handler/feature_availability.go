@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"infinite-canvas/backend/internal/platform"
+	"luckytv/backend/internal/platform"
 
 	"github.com/gin-gonic/gin"
 )

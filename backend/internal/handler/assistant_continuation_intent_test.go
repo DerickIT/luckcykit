@@ -7,8 +7,8 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"infinite-canvas/backend/internal/assistantturns"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/assistantturns"
+	"luckytv/backend/internal/model"
 )
 
 func TestAssistantNewIntentStopsRunningContinuationBeforeAdmission(t *testing.T) {
@@ -34,7 +34,7 @@ func TestAssistantNewIntentStopsRunningContinuationBeforeAdmission(t *testing.T)
 							}
 							// The actual host completes the Go turn BEFORE awaiting
 							// official Durable stop and returning its cancellation result.
-							completed := env.callWithHeaders(t, http.MethodPost, "/assistant/runtime/turns/"+row.TurnID+"/complete", `{}`, map[string]string{"X-Beeftv-Agent-Token": assistantTestHostToken})
+							completed := env.callWithHeaders(t, http.MethodPost, "/assistant/runtime/turns/"+row.TurnID+"/complete", `{}`, map[string]string{"X-Luckytv-Agent-Token": assistantTestHostToken})
 							if completed.Code != http.StatusOK {
 								w.WriteHeader(http.StatusInternalServerError)
 								return
@@ -102,7 +102,7 @@ func TestAssistantNewIntentStopsRunningContinuationBeforeAdmission(t *testing.T)
 					if failed.Code != http.StatusServiceUnavailable || admitted.Load() != 0 {
 						t.Fatalf("unknown cancel admitted new input: %d %s", failed.Code, failed.Body.String())
 					}
-					if action == "chat" && failed.Header().Get("X-Beeftv-Turn-Admission") != "rejected" {
+					if action == "chat" && failed.Header().Get("X-Luckytv-Turn-Admission") != "rejected" {
 						t.Fatal("new message must remain retryable before turn admission")
 					}
 					var stored model.AssistantContinuation

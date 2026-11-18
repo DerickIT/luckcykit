@@ -109,7 +109,7 @@ describe("native media save", () => {
         expect(timeline).toContain("disabled={finalizingExport}");
         const saveGo = readFileSync(resolve(import.meta.dir, "../../backend/internal/bootstrap/owned_media_save.go"), "utf8");
         expect(saveGo).toContain("os.Rename(tmpPath, dest)");
-        expect(saveGo).not.toContain(".beeftv-old");
+        expect(saveGo).not.toContain(".luckytv-old");
         expect(saveGo).toContain("32 << 20");
     });
 

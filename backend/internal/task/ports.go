@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
 )
 
 // Store is the durable task ledger. Callers pass user identity on every read

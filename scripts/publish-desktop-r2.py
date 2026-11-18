@@ -24,16 +24,16 @@ import uuid
 from desktop_cos_store import COSStore, PublishError, fingerprint
 
 PLATFORMS = {"darwin-arm64", "darwin-amd64", "windows-amd64", "linux-amd64"}
-PREFIX = "beeftv"
+PREFIX = "luckytv"
 LATEST = f"{PREFIX}/desktop-update.json"
 LATEST_V2 = f"{PREFIX}/desktop-update-v2.json"
 IMMUTABLE = "public, max-age=31536000, immutable"
 REVALIDATE = "no-store, max-age=0"
 MAX_MANIFEST = 2 * 1024 * 1024
-GITHUB_LATEST_FEED = "https://github.com/glanderness/BeefTV/releases/latest/download/desktop-update.json"
-COS_PUBLIC_BASE = "https://beeftv-components-1481187348.cos.ap-guangzhou.myqcloud.com/beeftv"
-R2_PUBLIC_BASE = "https://updates.beefapi.com/beeftv"
-CNB_PUBLIC_BASE = "https://cnb.cool/beeftv-downloads/desktop/-/releases/download"
+GITHUB_LATEST_FEED = "https://github.com/glanderness/LuckyTV/releases/latest/download/desktop-update.json"
+COS_PUBLIC_BASE = "https://luckytv-components-1481187348.cos.ap-guangzhou.myqcloud.com/luckytv"
+R2_PUBLIC_BASE = "https://updates.luckyapi.com/luckytv"
+CNB_PUBLIC_BASE = "https://cnb.cool/luckytv-downloads/desktop/-/releases/download"
 PROBE_BYTES = 1024
 
 
@@ -56,7 +56,7 @@ def run(command):
 def signed_payload(path, verifier):
     if Path(path).stat().st_size > MAX_MANIFEST:
         raise PublishError("Manifest is too large")
-    # The Go verifier reads BEEFTV_UPDATER_PUBLIC_KEY itself; no key in argv/logs.
+    # The Go verifier reads LUCKYTV_UPDATER_PUBLIC_KEY itself; no key in argv/logs.
     result = run([str(verifier), "verify", "--envelope", str(path)])
     if result.returncode:
         raise PublishError("Manifest signature or schema verification failed")
@@ -108,10 +108,10 @@ class S3:
     def check_conditions(self):
         """Detect S3 implementations that ignore conditional PUT headers."""
         key = f"{PREFIX}/.publication-probes/{uuid.uuid4().hex}"
-        with tempfile.TemporaryDirectory(prefix="beeftv-store-probe-") as directory:
+        with tempfile.TemporaryDirectory(prefix="luckytv-store-probe-") as directory:
             first, second, readback = (Path(directory) / name for name in ("first", "second", "readback"))
-            first.write_bytes(b"BeefTV conditional-write probe A")
-            second.write_bytes(b"BeefTV conditional-write probe B")
+            first.write_bytes(b"LuckyTV conditional-write probe A")
+            second.write_bytes(b"LuckyTV conditional-write probe B")
             try:
                 if not self.put(key, first, REVALIDATE):
                     raise PublishError("Cannot create conditional-write probe")
@@ -120,7 +120,7 @@ class S3:
                     raise PublishError("Conditional-write probe readback failed")
                 if self.put(key, second, REVALIDATE):
                     raise PublishError("Storage ignores If-None-Match; publication is blocked")
-                if self.put(key, second, REVALIDATE, etag='"beeftv-invalid-etag"'):
+                if self.put(key, second, REVALIDATE, etag='"luckytv-invalid-etag"'):
                     raise PublishError("Storage ignores If-Match; activation is blocked")
                 if self.get(key, readback) != etag or fingerprint(readback) != fingerprint(first):
                     raise PublishError("Rejected conditional writes changed stored bytes")
@@ -157,7 +157,7 @@ class PublicHTTP:
         reusable = expected_size > PROBE_BYTES and not urlsplit(url).path.endswith(".json")
         prior = self.verified.get(url) if reusable and self.verified is not None else None
         try:
-            headers = {"Cache-Control": "no-cache", "User-Agent": f"BeefTV-Desktop-Updater/{version}"}
+            headers = {"Cache-Control": "no-cache", "User-Agent": f"LuckyTV-Desktop-Updater/{version}"}
             if prior is not None:
                 if (not isinstance(prior, dict) or prior.get("size") != expected_size
                         or prior.get("sha256") != expected_hash
@@ -168,7 +168,7 @@ class PublicHTTP:
                     raise PublishError("Public verification receipt does not match this asset")
                 # Prove the endpoint enforces the precondition, rather than
                 # accepting an implementation that echoes the supplied ETag.
-                mismatch = '"beeftv-mismatch-' + uuid.uuid4().hex + '"'
+                mismatch = '"luckytv-mismatch-' + uuid.uuid4().hex + '"'
                 rejection = urllib.request.Request(url, headers={**headers, "Range": "bytes=0-0", "If-Match": mismatch})
                 try:
                     with self.opener(rejection, timeout=60):
@@ -247,7 +247,7 @@ def write_verification_receipt(path, binding, objects):
 
 
 def require_github_release(payload, manifest, public):
-    result = run(["gh", "api", f"repos/glanderness/BeefTV/releases/tags/{payload['version']}"])
+    result = run(["gh", "api", f"repos/glanderness/LuckyTV/releases/tags/{payload['version']}"])
     if result.returncode:
         raise PublishError("Cannot verify published GitHub release")
     release = json.loads(result.stdout)
@@ -255,12 +255,12 @@ def require_github_release(payload, manifest, public):
             or not release.get("published_at") or release.get("tag_name") != payload["version"]
             or release.get("target_commitish") != payload["commit"]):
         raise PublishError("GitHub release is not published for this exact commit")
-    expected = {f"BeefTV-{payload['version']}-{platform}.zip" for platform in PLATFORMS}
+    expected = {f"LuckyTV-{payload['version']}-{platform}.zip" for platform in PLATFORMS}
     expected.add("desktop-update.json")
     uploaded = {asset.get("name") for asset in release.get("assets", []) if asset.get("state") == "uploaded"}
     if not expected.issubset(uploaded):
         raise PublishError("GitHub release assets are incomplete")
-    latest = run(["gh", "api", "repos/glanderness/BeefTV/releases/latest"])
+    latest = run(["gh", "api", "repos/glanderness/LuckyTV/releases/latest"])
     if latest.returncode or json.loads(latest.stdout).get("tag_name") != payload["version"]:
         raise PublishError("GitHub latest does not point to this version")
     public.check(GITHUB_LATEST_FEED, *fingerprint(manifest), version=payload["version"])
@@ -271,7 +271,7 @@ def require_terminal_publisher(original_lock):
         document = json.loads(original_lock)
         owner = document["owner"]
         repository, run_id, attempt = (owner[name] for name in ("GITHUB_REPOSITORY", "GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT"))
-        if (repository != "glanderness/BeefTV" or not re.fullmatch(r"[1-9][0-9]*", run_id)
+        if (repository != "glanderness/LuckyTV" or not re.fullmatch(r"[1-9][0-9]*", run_id)
                 or not re.fullmatch(r"[1-9][0-9]*", attempt)
                 or not re.fullmatch(r"[a-zA-Z0-9_-]+", owner.get("GITHUB_JOB", ""))):
             raise PublishError("Recovery requires the original official GitHub publisher identity")
@@ -312,7 +312,7 @@ class Publisher:
         if set(payload["platforms"]) != PLATFORMS:
             raise PublishError("Manifest must contain exactly all four desktop platforms")
         for platform, asset in payload["platforms"].items():
-            name = f"BeefTV-{payload['version']}-{platform}.zip"
+            name = f"LuckyTV-{payload['version']}-{platform}.zip"
             if "urls" in asset or "deltas" in asset or asset.get("url") != f"{self.public_base}/{payload['version']}/{name}":
                 raise PublishError("Manifest asset URL does not match immutable public version path")
             if type(asset["size"]) is not int or not 0 < asset["size"] <= 2 << 30:
@@ -329,7 +329,7 @@ class Publisher:
         url_counts = set()
         delta_key_sets = set()
         for platform, asset in payload["platforms"].items():
-            name = f"BeefTV-{payload['version']}-{platform}.zip"
+            name = f"LuckyTV-{payload['version']}-{platform}.zip"
             r2_url = f"{self.public_base}/{payload['version']}/{name}"
             cnb_url = f"{CNB_PUBLIC_BASE}/{payload['version']}/{name}"
             urls = asset.get("urls")
@@ -347,7 +347,7 @@ class Publisher:
             for from_ver, delta in deltas.items():
                 if version_tuple(from_ver) >= target_vtuple or not isinstance(delta, dict):
                     raise PublishError("Manifest v2 delta fromVersion must be an older stable version")
-                d_name = f"BeefTV-{payload['version']}-{platform}-from-{from_ver}.delta.zip"
+                d_name = f"LuckyTV-{payload['version']}-{platform}-from-{from_ver}.delta.zip"
                 d_r2_url = f"{self.public_base}/{payload['version']}/{d_name}"
                 d_cnb_url = f"{CNB_PUBLIC_BASE}/{payload['version']}/{d_name}"
                 expected_d_urls = [d_r2_url] if len(urls) == 1 else [d_cnb_url, d_r2_url]
@@ -363,7 +363,7 @@ class Publisher:
 
     def immutable_put(self, key, source):
         expected = fingerprint(source)
-        with tempfile.TemporaryDirectory(prefix="beeftv-release-check-") as directory:
+        with tempfile.TemporaryDirectory(prefix="luckytv-release-check-") as directory:
             previous = Path(directory) / "object"
             etag = self.store.get(key, previous)
             if etag is None:
@@ -384,7 +384,7 @@ class Publisher:
                     "windows-amd64": "-setup.exe", "linux-amd64": ".deb"}
         sources = []
         for platform, suffix in suffixes.items():
-            name = f"BeefTV-{payload['version']}-{platform}{suffix}"
+            name = f"LuckyTV-{payload['version']}-{platform}{suffix}"
             source = Path(assets_dir) / name
             if not source.is_file() or source.stat().st_size == 0:
                 raise PublishError(f"Installer missing: {name}")
@@ -400,7 +400,7 @@ class Publisher:
         payload = self.load(manifest)
         sources = []
         for platform, asset in payload["platforms"].items():
-            name = f"BeefTV-{payload['version']}-{platform}.zip"
+            name = f"LuckyTV-{payload['version']}-{platform}.zip"
             source = Path(assets_dir) / name
             if not source.is_file() or fingerprint(source) != (asset["size"], asset["sha256"]):
                 raise PublishError(f"Local archive missing or size/hash mismatch: {name}")
@@ -412,7 +412,7 @@ class Publisher:
                 raise PublishError("Staged manifest v2 metadata does not match manifest v1")
             for platform, asset in v2_payload["platforms"].items():
                 for from_ver, delta in (asset.get("deltas") or {}).items():
-                    d_name = f"BeefTV-{payload['version']}-{platform}-from-{from_ver}.delta.zip"
+                    d_name = f"LuckyTV-{payload['version']}-{platform}-from-{from_ver}.delta.zip"
                     d_source = Path(assets_dir) / d_name
                     if not d_source.is_file() or fingerprint(d_source) != (delta["size"], delta["sha256"]):
                         raise PublishError(f"Local delta archive missing or size/hash mismatch: {d_name}")
@@ -439,7 +439,7 @@ class Publisher:
             # A bridge may only follow the already activated canonical feed.
             self.public.check(f"{self.public_base}/desktop-update.json", *fingerprint(manifest),
                               version=payload["version"])
-        with tempfile.TemporaryDirectory(prefix="beeftv-release-latest-") as directory:
+        with tempfile.TemporaryDirectory(prefix="luckytv-release-latest-") as directory:
             previous = Path(directory) / "previous.json"
             etag = self.store.get(LATEST, previous)
             if etag is not None:
@@ -466,7 +466,7 @@ class Publisher:
         if getattr(self.store, "provider", "r2") != "r2" or self.feed_public_base != R2_PUBLIC_BASE:
             raise PublishError("Manifest v2 publication is only supported on canonical R2")
         payload = self.load_v2(manifest)
-        with tempfile.TemporaryDirectory(prefix="beeftv-release-latest-v2-") as directory:
+        with tempfile.TemporaryDirectory(prefix="luckytv-release-latest-v2-") as directory:
             active_v1 = Path(directory) / "active-v1.json"
             if self.store.get(LATEST, active_v1) is None:
                 raise PublishError("R2 canonical v1 feed must be active before publishing v2 feed")
@@ -586,7 +586,7 @@ def main():
     parser.add_argument("--public-base")
     args = parser.parse_args()
     args.region = args.region or ("auto" if args.provider == "r2" else "ap-guangzhou")
-    args.bucket = args.bucket or ("beeftv-releases" if args.provider == "r2" else "beeftv-components-1481187348")
+    args.bucket = args.bucket or ("luckytv-releases" if args.provider == "r2" else "luckytv-components-1481187348")
     args.public_base = args.public_base or (R2_PUBLIC_BASE if args.provider == "r2" else COS_PUBLIC_BASE)
     try:
         if args.verification_receipt and args.command not in ("stage", "activate"):
@@ -612,7 +612,7 @@ def main():
             print("Release storage conditional writes verified")
             return 0
         # Snapshot the verified envelope so a changed local file cannot be activated.
-        with tempfile.TemporaryDirectory(prefix="beeftv-release-manifest-") as directory:
+        with tempfile.TemporaryDirectory(prefix="luckytv-release-manifest-") as directory:
             manifest = Path(directory) / "desktop-update.json"
             if args.manifest.stat().st_size > MAX_MANIFEST:
                 raise PublishError("Manifest is too large")

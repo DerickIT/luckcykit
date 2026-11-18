@@ -12,10 +12,10 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
-	"infinite-canvas/backend/internal/supporttrace"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
+	"luckytv/backend/internal/supporttrace"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -247,7 +247,7 @@ func TestBundleSizeReductionUpdatesCoverageAndReferences(t *testing.T) {
 		c.ClientEvents = append(c.ClientEvents, clientEventRecord{ID: fmt.Sprintf("e-%03d", index), Message: hex.EncodeToString(raw)})
 	}
 	c.setCoverage("clientEvents", len(c.ClientEvents), 500, nil)
-	data, err := buildBoundedZIP("BeefTV", "DIAG_SIZE", manifest{SchemaVersion: SchemaVersion}, c, 60000)
+	data, err := buildBoundedZIP("LuckyTV", "DIAG_SIZE", manifest{SchemaVersion: SchemaVersion}, c, 60000)
 	if err != nil {
 		t.Fatal(err)
 	}

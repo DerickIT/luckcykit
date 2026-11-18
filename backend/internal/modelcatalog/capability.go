@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"strings"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	protocolPkg "infinite-canvas/backend/internal/protocol"
-	"infinite-canvas/backend/internal/providerpreset"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	protocolPkg "luckytv/backend/internal/protocol"
+	"luckytv/backend/internal/providerpreset"
 )
 
 func NormalizeCapability(value string) string {
@@ -174,9 +174,9 @@ func NormalizeModelCapabilityDraft(draft ModelCapabilityDraft, workflow ...Workf
 	baseURL := strings.TrimSpace(draft.BaseURL)
 	channelID := strings.TrimSpace(draft.ChannelID)
 
-	isBeefRoute := providerpreset.IsBeefTVEndpoint(baseURL) || (baseURL == "" && strings.EqualFold(channelID, "beeftv"))
-	if isBeefRoute {
-		if contract, ok := providerpreset.BeefTVVideoContract(modelName); ok {
+	isLuckyRoute := providerpreset.IsLuckyTVEndpoint(baseURL) || (baseURL == "" && strings.EqualFold(channelID, "luckytv"))
+	if isLuckyRoute {
+		if contract, ok := providerpreset.LuckyTVVideoContract(modelName); ok {
 			protocol = contract.Protocol
 			capability = "video"
 		} else if isSeedance2Family("newapi", modelName) && (protocol == "" || protocol == "openai" || protocol == "openai-response" || protocol == "chat-completion" || protocol == "openai-videos" || protocol == "newapi-channel-1" || protocol == "newapi-channel-2") {
@@ -235,13 +235,13 @@ func NormalizeModelCapabilityDraft(draft ModelCapabilityDraft, workflow ...Workf
 			result.Text = normalizedText.Text
 		}
 		if input.Image != nil {
-			fixedBeefImage := false
-			if strings.EqualFold(protocol, "openai-image") && isBeefRoute {
-				if contract, ok := providerpreset.BeefTVImageContract(modelName); ok && contract.FixedOutputs > 0 {
-					fixedBeefImage = true
+			fixedLuckyImage := false
+			if strings.EqualFold(protocol, "openai-image") && isLuckyRoute {
+				if contract, ok := providerpreset.LuckyTVImageContract(modelName); ok && contract.FixedOutputs > 0 {
+					fixedLuckyImage = true
 				}
 			}
-			if !fixedBeefImage {
+			if !fixedLuckyImage {
 				image := mergeDraftImageCapability(result.Image, input.Image)
 				normalizedImage, err := NormalizeModelCapabilityConfigForModel("image", protocol, modelName, &ModelCapabilityConfig{Version: 1, Image: image})
 				if err != nil {

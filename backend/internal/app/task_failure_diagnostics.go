@@ -1,8 +1,8 @@
 package app
 
 import (
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
 )
 
 func captureTaskFailureDiagnostics(task *model.Task, err error, source string) {

@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"infinite-canvas/backend/internal/depthruntime"
+	"luckytv/backend/internal/depthruntime"
 )
 
 func TestDepthSigningRoundTripAndTamper(t *testing.T) {

@@ -1,7 +1,7 @@
 package app
 
 import (
-	"infinite-canvas/backend/internal/mediaattempt"
+	"luckytv/backend/internal/mediaattempt"
 )
 
 func definiteImageInputRejection(err error) bool {

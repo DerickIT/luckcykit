@@ -8,9 +8,9 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
 
 	"github.com/gin-gonic/gin"
 )

@@ -1,6 +1,6 @@
 package diagnostics
 
-import "infinite-canvas/backend/internal/kernel"
+import "luckytv/backend/internal/kernel"
 
 func buildBoundedZIP(brand, id string, manifest manifest, c *collection, limit int) ([]byte, error) {
 	for {

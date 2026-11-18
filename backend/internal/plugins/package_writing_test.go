@@ -30,8 +30,8 @@ func TestInstallTellsHowToFixEveryOldManifestField(t *testing.T) {
 	src := t.TempDir()
 	writePluginFolder(t, src, map[string]string{
 		"client/index.js": "export function activate() {}\n",
-		"package.json": `{"name":"beeftv-plugin-old-style","version":"0.1.0","beeftv":{
-			"id":"beeftv-plugin-old-style","apiVersion":"beeftv.plugin/v2","client":"./client/index.js",
+		"package.json": `{"name":"luckytv-plugin-old-style","version":"0.1.0","luckytv":{
+			"id":"luckytv-plugin-old-style","apiVersion":"luckytv.plugin/v2","client":"./client/index.js",
 			"canvasNodes":[{"id":"note"}],
 			"contributes":{"skills":["./skills"],"canvasNodes":[{"type":"note","label":"便签","defaultTitle":"便签","defaultWidth":240,"defaultSize":{"width":240,"height":180}}]}}}`,
 	})
@@ -40,18 +40,18 @@ func TestInstallTellsHowToFixEveryOldManifestField(t *testing.T) {
 		t.Fatal("old manifest writing was installed")
 	}
 	for _, want := range []string{
-		"beeftv.id：插件 ID 取自 package.json 的 name",
-		"beeftv.apiVersion：不用写",
-		"beeftv.canvasNodes：写在 beeftv.contributes.canvasNodes",
-		"beeftv.contributes.skills：技能写在 package.json 的 pi.skills",
-		"beeftv.contributes.canvasNodes[0].type：节点类型就是 id",
-		"beeftv.contributes.canvasNodes[0].defaultWidth：用 defaultSize",
+		"luckytv.id：插件 ID 取自 package.json 的 name",
+		"luckytv.apiVersion：不用写",
+		"luckytv.canvasNodes：写在 luckytv.contributes.canvasNodes",
+		"luckytv.contributes.skills：技能写在 package.json 的 pi.skills",
+		"luckytv.contributes.canvasNodes[0].type：节点类型就是 id",
+		"luckytv.contributes.canvasNodes[0].defaultWidth：用 defaultSize",
 	} {
 		if !strings.Contains(err.Error(), want) {
 			t.Fatalf("error does not say %q:\n%s", want, err)
 		}
 	}
-	if _, installed := rt.plugins["beeftv-plugin-old-style"]; installed {
+	if _, installed := rt.plugins["luckytv-plugin-old-style"]; installed {
 		t.Fatal("rejected package was registered")
 	}
 }
@@ -65,7 +65,7 @@ func TestReinstallFromFolderLoadsChangedCode(t *testing.T) {
 	svc.SetPackageFetcher(copyPackageFetcher)
 	src := t.TempDir()
 	writePluginFolder(t, src, map[string]string{
-		"package.json":    `{"name":"beeftv-plugin-dev-loop","version":"0.1.0","beeftv":{"name":"开发中","client":"./client/index.js"}}`,
+		"package.json":    `{"name":"luckytv-plugin-dev-loop","version":"0.1.0","luckytv":{"name":"开发中","client":"./client/index.js"}}`,
 		"client/index.js": "export function activate() { return 1 }\n",
 	})
 	first, err := svc.InstallPackage(src, "")
@@ -86,7 +86,7 @@ func TestReinstallFromFolderLoadsChangedCode(t *testing.T) {
 	}
 
 	writePluginFolder(t, src, map[string]string{
-		"package.json":    `{"name":"beeftv-plugin-dev-loop","version":"0.1.0","beeftv":{"id":"beeftv-plugin-dev-loop","client":"./client/index.js"}}`,
+		"package.json":    `{"name":"luckytv-plugin-dev-loop","version":"0.1.0","luckytv":{"id":"luckytv-plugin-dev-loop","client":"./client/index.js"}}`,
 		"client/index.js": "export function activate() { return 3 }\n",
 	})
 	if _, err := svc.UpdatePackage(first.Manifest.ID, ""); err == nil {

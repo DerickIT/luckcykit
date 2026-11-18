@@ -18,20 +18,20 @@ var (
 )
 
 const (
-	DefaultFeedURL  = "https://updates.beefapi.com/beeftv/desktop-update-v2.json"
-	LegacyFeedURL   = "https://updates.beefapi.com/beeftv/desktop-update.json"
-	helperFlag      = "--beeftv-update-helper"
-	appBundleName   = "BeefTV.app"
-	linuxBundleName = "BeefTV-linux"
-	windowsExeName  = "BeefTV.exe"
+	DefaultFeedURL  = "https://updates.luckyapi.com/luckytv/desktop-update-v2.json"
+	LegacyFeedURL   = "https://updates.luckyapi.com/luckytv/desktop-update.json"
+	helperFlag      = "--luckytv-update-helper"
+	appBundleName   = "LuckyTV.app"
+	linuxBundleName = "LuckyTV-linux"
+	windowsExeName  = "LuckyTV.exe"
 	pluginDirName   = "plugin-packages"
 	// 随包 CLI：外部 Agent 的接入入口，升级包里必须带上，否则升级一次就断了接入。
 	// 它必须待在自己的 cli 目录里：macOS 与 Windows 的文件名都不分大小写，
-	// beeftv 直接放在主程序旁边会和 BeefTV / BeefTV.exe 撞成同一个文件。
+	// luckytv 直接放在主程序旁边会和 LuckyTV / LuckyTV.exe 撞成同一个文件。
 	cliDirName                = "cli"
-	darwinCLIName             = "beeftv"
-	windowsCLIName            = "beeftv.exe"
-	pluginExtension           = ".beeftv-plugin"
+	darwinCLIName             = "luckytv"
+	windowsCLIName            = "luckytv.exe"
+	pluginExtension           = ".luckytv-plugin"
 	payloadSchema             = 1
 	payloadSchemaV2           = 2
 	maxFeedBytes              = 1 << 20

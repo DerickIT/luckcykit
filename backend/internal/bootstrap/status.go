@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"sync/atomic"
 
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/buildinfo"
-	"infinite-canvas/backend/internal/database"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/buildinfo"
+	"luckytv/backend/internal/database"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"

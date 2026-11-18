@@ -2,7 +2,7 @@ package repository
 
 import (
 	"errors"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 	"slices"
 	"time"
 

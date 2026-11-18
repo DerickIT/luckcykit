@@ -14,15 +14,15 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	localasset "infinite-canvas/backend/internal/asset"
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/outbound"
-	"infinite-canvas/backend/internal/repository"
-	"infinite-canvas/backend/internal/topaz"
-	"infinite-canvas/backend/internal/workspace"
+	localasset "luckytv/backend/internal/asset"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/outbound"
+	"luckytv/backend/internal/repository"
+	"luckytv/backend/internal/topaz"
+	"luckytv/backend/internal/workspace"
 )
 
 const (
@@ -180,7 +180,7 @@ func ReconcileProviderCancellation(ctx context.Context, repo *repository.Reposit
 			kind = "upscale"
 		}
 		qCtx := WithRequestKind(queryCtx, "poll")
-		var projection beeftv.MediaTask
+		var projection luckytv.MediaTask
 		projection, err = managedMediaClient(qCtx, input.Config).Query(qCtx, taskRef, kind)
 		if err == nil {
 			providerStatus = projection.Status
@@ -409,7 +409,7 @@ func stringAnyValue(value any) string {
 	}
 }
 
-func ResolveManagedBeefTVSecrets(input map[string]any, beef *beeftv.Service, readLocalConfig func() ([]byte, error)) (map[string]any, error) {
+func ResolveManagedLuckyTVSecrets(input map[string]any, lucky *luckytv.Service, readLocalConfig func() ([]byte, error)) (map[string]any, error) {
 	if input == nil {
 		return input, nil
 	}
@@ -420,12 +420,12 @@ func ResolveManagedBeefTVSecrets(input map[string]any, beef *beeftv.Service, rea
 	channelID := strings.TrimSpace(stringAnyValue(config["channelId"]))
 	credentialRef := strings.TrimSpace(stringAnyValue(config["credentialRef"]))
 	baseURL := strings.TrimSpace(stringAnyValue(config["baseUrl"]))
-	explicitManaged := credentialRef == beeftv.CredentialRef || channelID == beeftv.ChannelID
-	if !explicitManaged && !beeftv.IsManagedChannel(channelID, credentialRef, baseURL) && !HasLegacyBeefTVKey(channelID, baseURL, beef, readLocalConfig) {
+	explicitManaged := credentialRef == luckytv.CredentialRef || channelID == luckytv.ChannelID
+	if !explicitManaged && !luckytv.IsManagedChannel(channelID, credentialRef, baseURL) && !HasLegacyLuckyTVKey(channelID, baseURL, lucky, readLocalConfig) {
 		return input, nil
 	}
 	incomingKey := strings.TrimSpace(stringAnyValue(config["apiKey"]))
-	apiKey, resolvedBase, accountID, tokenID, err := LookupBeefTVCredential(beef, readLocalConfig)
+	apiKey, resolvedBase, accountID, tokenID, err := LookupLuckyTVCredential(lucky, readLocalConfig)
 	if err != nil {
 		if !explicitManaged && incomingKey != "" {
 			return input, nil
@@ -450,14 +450,14 @@ func ResolveManagedBeefTVSecrets(input map[string]any, beef *beeftv.Service, rea
 			next[key] = value
 		}
 	}
-	if channelID == beeftv.ChannelID {
+	if channelID == luckytv.ChannelID {
 		delete(next, "channelId")
 	}
 	next["apiKey"] = apiKey
-	if strings.TrimSpace(stringAnyValue(next["baseUrl"])) == "" || channelID == beeftv.ChannelID || credentialRef == beeftv.CredentialRef {
+	if strings.TrimSpace(stringAnyValue(next["baseUrl"])) == "" || channelID == luckytv.ChannelID || credentialRef == luckytv.CredentialRef {
 		next["baseUrl"] = resolvedBase
 	}
-	next["credentialRef"] = beeftv.CredentialRef
+	next["credentialRef"] = luckytv.CredentialRef
 	if accountID != "" {
 		next["managedAccountId"] = accountID
 	}
@@ -468,10 +468,10 @@ func ResolveManagedBeefTVSecrets(input map[string]any, beef *beeftv.Service, rea
 	return input, nil
 }
 
-func LookupBeefTVCredential(beef *beeftv.Service, readLocalConfig func() ([]byte, error)) (apiKey, baseURL, accountID, tokenID string, err error) {
-	if beef != nil {
-		if beef.HasManagedCredential() {
-			cred, resolveErr := beef.Resolve()
+func LookupLuckyTVCredential(lucky *luckytv.Service, readLocalConfig func() ([]byte, error)) (apiKey, baseURL, accountID, tokenID string, err error) {
+	if lucky != nil {
+		if lucky.HasManagedCredential() {
+			cred, resolveErr := lucky.Resolve()
 			if resolveErr != nil {
 				var structured *kernel.AppError
 				if errors.As(resolveErr, &structured) {
@@ -500,10 +500,10 @@ func LookupBeefTVCredential(beef *beeftv.Service, readLocalConfig func() ([]byte
 		return "", "", "", "", nil
 	}
 	for _, channel := range config.Channels {
-		if channel.ID == beeftv.ChannelID && strings.TrimSpace(channel.APIKey) != "" {
+		if channel.ID == luckytv.ChannelID && strings.TrimSpace(channel.APIKey) != "" {
 			base := strings.TrimSpace(channel.BaseURL)
 			if base == "" {
-				base = beeftv.ProductionOrigin
+				base = luckytv.ProductionOrigin
 			}
 			return channel.APIKey, base, "", "", nil
 		}
@@ -511,24 +511,24 @@ func LookupBeefTVCredential(beef *beeftv.Service, readLocalConfig func() ([]byte
 	return "", "", "", "", nil
 }
 
-func HasLegacyBeefTVKey(channelID, baseURL string, beef *beeftv.Service, readLocalConfig func() ([]byte, error)) bool {
-	if !beeftv.IsManagedChannel(channelID, "", baseURL) {
+func HasLegacyLuckyTVKey(channelID, baseURL string, lucky *luckytv.Service, readLocalConfig func() ([]byte, error)) bool {
+	if !luckytv.IsManagedChannel(channelID, "", baseURL) {
 		return false
 	}
-	apiKey, _, _, _, err := LookupBeefTVCredential(beef, readLocalConfig)
+	apiKey, _, _, _, err := LookupLuckyTVCredential(lucky, readLocalConfig)
 	return err == nil && apiKey != ""
 }
 
-func ResolveChannelModelsRequest(input *ChannelModelsRequest, beef *beeftv.Service, readLocalConfig func() ([]byte, error)) error {
+func ResolveChannelModelsRequest(input *ChannelModelsRequest, lucky *luckytv.Service, readLocalConfig func() ([]byte, error)) error {
 	if input == nil {
 		return nil
 	}
-	explicitManaged := strings.TrimSpace(input.CredentialRef) == beeftv.CredentialRef || strings.TrimSpace(input.ChannelID) == beeftv.ChannelID
-	if !explicitManaged && !beeftv.IsManagedChannel(input.ChannelID, input.CredentialRef, input.BaseURL) {
+	explicitManaged := strings.TrimSpace(input.CredentialRef) == luckytv.CredentialRef || strings.TrimSpace(input.ChannelID) == luckytv.ChannelID
+	if !explicitManaged && !luckytv.IsManagedChannel(input.ChannelID, input.CredentialRef, input.BaseURL) {
 		return nil
 	}
 	incomingKey := strings.TrimSpace(input.APIKey)
-	apiKey, baseURL, _, _, err := LookupBeefTVCredential(beef, readLocalConfig)
+	apiKey, baseURL, _, _, err := LookupLuckyTVCredential(lucky, readLocalConfig)
 	if err != nil {
 		if !explicitManaged && incomingKey != "" {
 			return nil
@@ -540,18 +540,18 @@ func ResolveChannelModelsRequest(input *ChannelModelsRequest, beef *beeftv.Servi
 	}
 	input.APIKey = apiKey
 	input.BaseURL = baseURL
-	input.CredentialRef = beeftv.CredentialRef
+	input.CredentialRef = luckytv.CredentialRef
 	return nil
 }
 
-func ResolveCustomRelayKey(targetURL, incoming string, beef *beeftv.Service, readLocalConfig func() ([]byte, error)) (string, error) {
+func ResolveCustomRelayKey(targetURL, incoming string, lucky *luckytv.Service, readLocalConfig func() ([]byte, error)) (string, error) {
 	if strings.TrimSpace(incoming) != "" {
 		return incoming, nil
 	}
-	if beef != nil && beef.HasManagedCredential() && !SameCredentialOrigin(targetURL, beef.Origin()) {
+	if lucky != nil && lucky.HasManagedCredential() && !SameCredentialOrigin(targetURL, lucky.Origin()) {
 		return incoming, nil
 	}
-	apiKey, baseURL, _, _, err := LookupBeefTVCredential(beef, readLocalConfig)
+	apiKey, baseURL, _, _, err := LookupLuckyTVCredential(lucky, readLocalConfig)
 	if err != nil {
 		return "", err
 	}
@@ -573,16 +573,16 @@ func SameCredentialOrigin(targetURL, baseURL string) bool {
 	return strings.EqualFold(target.Scheme, base.Scheme) && strings.EqualFold(target.Host, base.Host)
 }
 
-func NoteBeefTVProviderError(beef *beeftv.Service, message string) {
-	if beef == nil {
+func NoteLuckyTVProviderError(lucky *luckytv.Service, message string) {
+	if lucky == nil {
 		return
 	}
 	normalized := strings.ToLower(message)
 	if strings.Contains(normalized, "unauthorized") || strings.Contains(message, "连接已失效") {
-		beef.MarkRevoked()
+		lucky.MarkRevoked()
 	}
 	if strings.Contains(message, "额度不足") || strings.Contains(normalized, "insufficient") || strings.Contains(message, "余额不足") {
-		beef.MarkZeroBalance()
+		lucky.MarkZeroBalance()
 	}
 }
 
@@ -635,7 +635,7 @@ func ValidatePortraitTaskQuote(dataDir string, input map[string]any, lookupCred 
 	if err != nil || json.Unmarshal(body, &snapshot) != nil {
 		return unavailable()
 	}
-	managed := strings.TrimSpace(stringAnyValue(config["credentialRef"])) == beeftv.CredentialRef
+	managed := strings.TrimSpace(stringAnyValue(config["credentialRef"])) == luckytv.CredentialRef
 	resolution := strings.ToLower(strings.TrimSpace(request.VQuality))
 	if resolution != "" {
 		resolution = modelcatalog.NormalizeVideoResolution(resolution)
@@ -645,11 +645,11 @@ func ValidatePortraitTaskQuote(dataDir string, input map[string]any, lookupCred 
 	}
 	matches, quoted := 0, false
 	for _, channel := range snapshot.Channels {
-		if !channel.Enabled || (managed && channel.ID != beeftv.ChannelID) {
+		if !channel.Enabled || (managed && channel.ID != luckytv.ChannelID) {
 			continue
 		}
 		base, key := channel.BaseURL, channel.APIKey
-		if channel.ID == beeftv.ChannelID && lookupCred != nil {
+		if channel.ID == luckytv.ChannelID && lookupCred != nil {
 			resolvedKey, resolvedBase, _, _, lookupErr := lookupCred()
 			if lookupErr != nil {
 				continue
@@ -671,7 +671,7 @@ func ValidatePortraitTaskQuote(dataDir string, input map[string]any, lookupCred 
 			if profile.Model != modelID {
 				continue
 			}
-			pricing, valid := beeftv.NormalizeCatalogVideoPricing(profile.VideoPricing)
+			pricing, valid := luckytv.NormalizeCatalogVideoPricing(profile.VideoPricing)
 			if valid && pricing["mode"] == "tokens" {
 				rates := pricing["rates"].(map[string]any)
 				_, quoted = rates[resolution]
@@ -709,7 +709,7 @@ func UpscaleConfig(name string, lookupCred func() (string, string, string, strin
 	if key == "" {
 		return Config{}, BadAuthRequest("请先连接官方算力账号")
 	}
-	return Config{BaseURL: base, APIKey: key, CredentialRef: beeftv.CredentialRef, Model: name, InterfaceType: "newapi"}, nil
+	return Config{BaseURL: base, APIKey: key, CredentialRef: luckytv.CredentialRef, Model: name, InterfaceType: "newapi"}, nil
 }
 
 func fetchUpstreamUpscaleModes(ctx context.Context, lookupCred func() (string, string, string, string, error), bindRuntime func(context.Context, CallMeta) context.Context) ([]topaz.Mode, int) {
@@ -821,7 +821,7 @@ func BuildMediaUpscaleTaskPayload(ctx context.Context, user string, request topa
 		return Input{}, nil, err
 	}
 	config := payload["config"].(map[string]any)
-	config["credentialRef"] = beeftv.CredentialRef
+	config["credentialRef"] = luckytv.CredentialRef
 	payload["metadata"] = map[string]any{"clientOperationId": request.ClientOperationID, "nodeId": request.NodeID, "source": "canvas", "operation": "media.upscale.topaz"}
 	return input, payload, nil
 }

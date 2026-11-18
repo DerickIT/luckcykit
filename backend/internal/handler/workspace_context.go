@@ -3,7 +3,7 @@ package handler
 import (
 	"errors"
 
-	"infinite-canvas/backend/internal/workspace"
+	"luckytv/backend/internal/workspace"
 
 	"github.com/gin-gonic/gin"
 )

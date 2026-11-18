@@ -165,10 +165,10 @@ export function createAwaitRunner({ awaitingPath, runtimeOf, awaitMaximumMs = de
     let messageId = null
     if (agent && typeof agent.followup === 'function' && typeof agent.inject === 'function') {
       const message = {
-        id: `beeftv-await-${randomUUID()}`,
+        id: `luckytv-await-${randomUUID()}`,
         role: 'user',
         content: [{ type: 'text', text: awaitWakeText(action.outcomes) }],
-        source: { kind: 'beeftv-await' },
+        source: { kind: 'luckytv-await' },
       }
       try {
         // 空闲时开新一轮；忙时插进当前轮，不打断正在执行的步骤。

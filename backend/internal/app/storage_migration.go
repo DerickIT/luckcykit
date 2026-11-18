@@ -1,6 +1,6 @@
 package app
 
-import "infinite-canvas/backend/internal/resource"
+import "luckytv/backend/internal/resource"
 
 type StorageMigrationSummary = resource.StorageMigrationSummary
 

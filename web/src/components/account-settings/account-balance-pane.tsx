@@ -2,18 +2,18 @@ import { App, Button, InputNumber } from "antd";
 import { AlipayCircleOutlined, CreditCardOutlined, WechatOutlined } from "@ant-design/icons";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { useBeefTVConnection } from "@/components/layout/beeftv-connection-provider";
+import { useLuckyTVConnection } from "@/components/layout/luckytv-connection-provider";
 import { AppModal } from "@/components/ui/product/app-modal";
 import {
-    beefTVConnectionLabel,
-    getBeefTVConnectionEpoch,
-    getBeefTVTopUpInfo,
-    isBeefTVAuthenticated,
-    reconcileBeefTVTopUp,
-    startBeefTVTopUpCheckout,
-    type BeefTVTopUpCheckoutResult,
-    type BeefTVTopUpInfo,
-} from "@/services/api/beeftv-connection";
+    luckyTVConnectionLabel,
+    getLuckyTVConnectionEpoch,
+    getLuckyTVTopUpInfo,
+    isLuckyTVAuthenticated,
+    reconcileLuckyTVTopUp,
+    startLuckyTVTopUpCheckout,
+    type LuckyTVTopUpCheckoutResult,
+    type LuckyTVTopUpInfo,
+} from "@/services/api/luckytv-connection";
 
 type PaymentMethodKey = "wxpay" | "alipay" | "card";
 type PaymentOption = { key: PaymentMethodKey; label: string; icon: typeof WechatOutlined };
@@ -30,16 +30,16 @@ const ALL_PAYMENT_OPTIONS: readonly PaymentOption[] = [
 const formatMoney = (value: number) => value.toLocaleString("zh-CN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 function pendingTopUpStorageKey(accountId?: string) {
-    return accountId ? `beeftv:pending-topup:${accountId}` : "";
+    return accountId ? `luckytv:pending-topup:${accountId}` : "";
 }
 
-function readStoredPendingOrder(accountId?: string): BeefTVTopUpCheckoutResult | null {
+function readStoredPendingOrder(accountId?: string): LuckyTVTopUpCheckoutResult | null {
     const key = pendingTopUpStorageKey(accountId);
     if (!key || typeof window === "undefined") return null;
     try {
         const raw = window.sessionStorage.getItem(key);
         if (!raw) return null;
-        const parsed = JSON.parse(raw) as Partial<BeefTVTopUpCheckoutResult>;
+        const parsed = JSON.parse(raw) as Partial<LuckyTVTopUpCheckoutResult>;
         if (typeof parsed?.tradeNo !== "string" || !parsed.tradeNo.trim() || !parsed.amount?.value || !parsed.credit?.value) {
             return null;
         }
@@ -57,7 +57,7 @@ function readStoredPendingOrder(accountId?: string): BeefTVTopUpCheckoutResult |
     }
 }
 
-function writeStoredPendingOrder(accountId: string | undefined, order: BeefTVTopUpCheckoutResult | null) {
+function writeStoredPendingOrder(accountId: string | undefined, order: LuckyTVTopUpCheckoutResult | null) {
     const key = pendingTopUpStorageKey(accountId);
     if (!key || typeof window === "undefined") return;
     try {
@@ -78,12 +78,12 @@ function formatBalanceDisplay(connected: boolean, balance?: string, balanceCny?:
 
 export function AccountBalancePane() {
     const { message } = App.useApp();
-    const account = useBeefTVConnection();
+    const account = useLuckyTVConnection();
     const { connection, busy, balanceRefreshFailed } = account;
-    const connected = isBeefTVAuthenticated(connection);
+    const connected = isLuckyTVAuthenticated(connection);
     const pending = connection?.state === "pending" || connection?.state === "connecting";
     const accountId = connection?.account?.id;
-    const name = connection?.account?.display_name || connection?.account?.username || connection?.account?.email || "BeefTV 账户";
+    const name = connection?.account?.display_name || connection?.account?.username || connection?.account?.email || "LuckyTV 账户";
 
     const accountRef = useRef(account);
     accountRef.current = account;
@@ -92,7 +92,7 @@ export function AccountBalancePane() {
     const accountIdRef = useRef(accountId);
     accountIdRef.current = accountId;
 
-    const [topUpInfo, setTopUpInfo] = useState<BeefTVTopUpInfo | null>(null);
+    const [topUpInfo, setTopUpInfo] = useState<LuckyTVTopUpInfo | null>(null);
     const [topUpState, setTopUpState] = useState<TopUpLoadState>("idle");
     const [reloadSeq, setReloadSeq] = useState(0);
     const [method, setMethod] = useState<PaymentMethodKey>("wxpay");
@@ -104,7 +104,7 @@ export function AccountBalancePane() {
     const [modalMode, setModalMode] = useState<"confirm" | "waiting">("confirm");
     const [submitting, setSubmitting] = useState(false);
     const [checkingOrder, setCheckingOrder] = useState(false);
-    const [pendingOrder, setPendingOrder] = useState<BeefTVTopUpCheckoutResult | null>(null);
+    const [pendingOrder, setPendingOrder] = useState<LuckyTVTopUpCheckoutResult | null>(null);
     const [orderHint, setOrderHint] = useState("");
     const reconcileBusy = useRef(false);
     const activeTradeNoRef = useRef<string | null>(null);
@@ -118,7 +118,7 @@ export function AccountBalancePane() {
         manualReconcileAbortRef.current = null;
     }, []);
 
-    const updatePendingOrder = useCallback((next: BeefTVTopUpCheckoutResult | null) => {
+    const updatePendingOrder = useCallback((next: LuckyTVTopUpCheckoutResult | null) => {
         activeTradeNoRef.current = next?.tradeNo ?? null;
         setPendingOrder(next);
         writeStoredPendingOrder(accountIdRef.current, next);
@@ -144,13 +144,13 @@ export function AccountBalancePane() {
     useEffect(() => {
         if (!connected) return;
         const controller = new AbortController();
-        const epoch = getBeefTVConnectionEpoch();
+        const epoch = getLuckyTVConnectionEpoch();
         const seq = accountRef.current.getMutationSeq();
         setTopUpState("loading");
         void accountRef.current.refreshBalance();
-        void getBeefTVTopUpInfo(controller.signal)
+        void getLuckyTVTopUpInfo(controller.signal)
             .then((info) => {
-                if (controller.signal.aborted || epoch !== getBeefTVConnectionEpoch()) return;
+                if (controller.signal.aborted || epoch !== getLuckyTVConnectionEpoch()) return;
                 setTopUpInfo(info);
                 setTopUpState("ready");
                 if (info.balanceCny) {
@@ -158,7 +158,7 @@ export function AccountBalancePane() {
                 }
             })
             .catch(() => {
-                if (!controller.signal.aborted && epoch === getBeefTVConnectionEpoch()) {
+                if (!controller.signal.aborted && epoch === getLuckyTVConnectionEpoch()) {
                     setTopUpInfo(null);
                     setTopUpState("error");
                 }
@@ -241,10 +241,10 @@ export function AccountBalancePane() {
         const controller = new AbortController();
         if (manual) manualReconcileAbortRef.current = controller;
         else autoReconcileAbortRef.current = controller;
-        const epoch = getBeefTVConnectionEpoch();
+        const epoch = getLuckyTVConnectionEpoch();
         try {
-            const result = await reconcileBeefTVTopUp(tradeNo, controller.signal);
-            if (controller.signal.aborted || epoch !== getBeefTVConnectionEpoch() || activeTradeNoRef.current !== tradeNo) {
+            const result = await reconcileLuckyTVTopUp(tradeNo, controller.signal);
+            if (controller.signal.aborted || epoch !== getLuckyTVConnectionEpoch() || activeTradeNoRef.current !== tradeNo) {
                 return;
             }
             if (result.connection) accountRef.current.applySummary(result.connection);
@@ -331,7 +331,7 @@ export function AccountBalancePane() {
                 : isCard
                     ? { paymentMethod: "card" as const, amountUsd: selectedAmount!.toFixed(2) }
                     : { paymentMethod: method, amount: selectedAmount! };
-            const created = await startBeefTVTopUpCheckout(payload);
+            const created = await startLuckyTVTopUpCheckout(payload);
             updatePendingOrder(created);
             setModalMode("waiting");
             if (!created.opened) {
@@ -369,9 +369,9 @@ export function AccountBalancePane() {
 
     return <>
         <div className="account-balance-identity">
-            <div><h3>{connected ? name : "登录 BeefTV"}</h3>
+            <div><h3>{connected ? name : "登录 LuckyTV"}</h3>
                 {connected && connection?.account?.email && name !== connection.account.email ? <p>{connection.account.email}</p> : null}
-                {connection?.state !== "connected" ? <p role="status" aria-live="polite">{beefTVConnectionLabel(connection)}</p> : null}
+                {connection?.state !== "connected" ? <p role="status" aria-live="polite">{luckyTVConnectionLabel(connection)}</p> : null}
             </div>
             {!connected ? <Button loading={busy} disabled={pending} onClick={() => void account.connect()}>{pending ? "等待授权" : "登录"}</Button> : null}
         </div>

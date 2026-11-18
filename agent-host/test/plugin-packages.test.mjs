@@ -25,10 +25,10 @@ function writePluginPackage(baseDir, dirName, { name, version = '1.0.0', extensi
     path.join(pkgDir, 'package.json'),
     JSON.stringify(
       {
-        name: name || `@beeftv-plugin/${dirName}`,
+        name: name || `@luckytv-plugin/${dirName}`,
         version,
         type: 'module',
-        keywords: ['beeftv-plugin', 'pi-package'],
+        keywords: ['luckytv-plugin', 'pi-package'],
         pi: piManifest,
       },
       null,
@@ -50,7 +50,7 @@ function writePluginPackage(baseDir, dirName, { name, version = '1.0.0', extensi
 }
 
 test('single-package resolution loads only explicitly enabled packages and ignores ~/.agents/skills and global settings (A9)', async (t) => {
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-plugin-a9-'));
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-plugin-a9-'));
   t.after(() => fs.rmSync(tmp, { recursive: true, force: true }));
 
   // Populate fake HOME with ~/.agents/skills and ~/.pi/agent/extensions + settings.json
@@ -82,7 +82,7 @@ test('single-package resolution loads only explicitly enabled packages and ignor
 
   // Create two local plugin packages, but only pass pkgEnabled in `packages`
   const pkgEnabled = writePluginPackage(tmp, 'enabled-pkg', {
-    name: '@beeftv-plugin/enabled-pkg',
+    name: '@luckytv-plugin/enabled-pkg',
     skillName: 'enabled-only-skill',
     extensionCode: `export default function (pi) {
       pi.registerTool({
@@ -98,7 +98,7 @@ test('single-package resolution loads only explicitly enabled packages and ignor
   });
 
   writePluginPackage(tmp, 'disabled-sibling-pkg', {
-    name: '@beeftv-plugin/disabled-sibling',
+    name: '@luckytv-plugin/disabled-sibling',
     skillName: 'disabled-sibling-skill',
     extensionCode: `export default function (pi) {
       pi.registerTool({
@@ -127,7 +127,7 @@ test('single-package resolution loads only explicitly enabled packages and ignor
 });
 
 test('broken plugins and tool name collisions are isolated and reported via onLoadError without breaking healthy plugins (A4)', async (t) => {
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-plugin-a4-'));
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-plugin-a4-'));
   t.after(() => fs.rmSync(tmp, { recursive: true, force: true }));
 
   const pkgSyntaxError = writePluginPackage(tmp, 'broken-syntax', {
@@ -217,15 +217,15 @@ test('broken plugins and tool name collisions are isolated and reported via onLo
   assert.deepEqual(betaOut.output, [{ type: 'text', text: '9' }]);
 });
 
-test('web-only BeefTV plugins never run their client in the agent host, while plain pi packages keep pi discovery', async (t) => {
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-plugin-web-only-'));
+test('web-only LuckyTV plugins never run their client in the agent host, while plain pi packages keep pi discovery', async (t) => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-plugin-web-only-'));
   t.after(() => fs.rmSync(tmp, { recursive: true, force: true }));
 
   const webOnly = path.join(tmp, 'web-only');
   fs.mkdirSync(path.join(webOnly, 'client'), { recursive: true });
   fs.writeFileSync(path.join(webOnly, 'package.json'), JSON.stringify({
-    name: 'beeftv-plugin-web-only', version: '1.0.0', type: 'module',
-    beeftv: { name: 'Web only', client: './client/index.js' },
+    name: 'luckytv-plugin-web-only', version: '1.0.0', type: 'module',
+    luckytv: { name: 'Web only', client: './client/index.js' },
   }));
   fs.writeFileSync(path.join(webOnly, 'client', 'index.js'), "throw new Error('web client loaded in agent host');\n");
 
@@ -252,7 +252,7 @@ test('web-only BeefTV plugins never run their client in the agent host, while pl
 });
 
 test('read-only mode blocks plugin tool from calling write operations via ctx.executeTool with scope_denied (A5)', async (t) => {
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-plugin-a5-'));
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-plugin-a5-'));
   t.after(() => fs.rmSync(tmp, { recursive: true, force: true }));
 
   const pkgWriter = writePluginPackage(tmp, 'writer-plugin', {
@@ -390,7 +390,7 @@ test('read-only mode blocks plugin tool from calling write operations via ctx.ex
     modelsPath: null,
     refreshOnCreate: false,
   });
-  runtime.registerProvider('beeftv', {
+  runtime.registerProvider('luckytv', {
     api: 'openai-completions',
     apiKey: 'synthetic',
     baseUrl: `${baseUrl}/v1`,
@@ -407,7 +407,7 @@ test('read-only mode blocks plugin tool from calling write operations via ctx.ex
     ],
   });
   const models = createModels();
-  models.setProvider(runtime.getProvider('beeftv'));
+  models.setProvider(runtime.getProvider('luckytv'));
   const bridge = createOperationBridge({
     opsUrl: baseUrl,
     hostToken: 'test-token',
@@ -423,7 +423,7 @@ test('read-only mode blocks plugin tool from calling write operations via ctx.ex
     sessionRoot: path.join(tmp, 'sessions'),
     workspaceRoot: path.join(tmp, 'workspace'),
     getModels: () => models,
-    getModelRef: () => ({ provider: 'beeftv', modelId: 'synthetic' }),
+    getModelRef: () => ({ provider: 'luckytv', modelId: 'synthetic' }),
     buildTools: bridge.buildTools,
     extensions: () => pluginLoaded.extensions,
     authorizeTurn: async ({ turnId }) => ({
@@ -460,7 +460,7 @@ test('read-only mode blocks plugin tool from calling write operations via ctx.ex
 });
 
 test('hot reload updates plugin tools on existing session for the very next turn without restarting agent-host (A1)', async (t) => {
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-plugin-a1-'));
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-plugin-a1-'));
   t.after(() => fs.rmSync(tmp, { recursive: true, force: true }));
 
   const pkgV1 = writePluginPackage(tmp, 'plugin-v1', {
@@ -521,7 +521,7 @@ test('hot reload updates plugin tools on existing session for the very next turn
             index: 0,
             id: 'call-v1',
             type: 'function',
-            function: { name: 'plugin_v1_greet', arguments: JSON.stringify({ who: 'beeftv' }) },
+            function: { name: 'plugin_v1_greet', arguments: JSON.stringify({ who: 'luckytv' }) },
           },
         ],
       });
@@ -552,7 +552,7 @@ test('hot reload updates plugin tools on existing session for the very next turn
     modelsPath: null,
     refreshOnCreate: false,
   });
-  runtime.registerProvider('beeftv', {
+  runtime.registerProvider('luckytv', {
     api: 'openai-completions',
     apiKey: 'synthetic',
     baseUrl: `http://127.0.0.1:${server.address().port}/v1`,
@@ -569,13 +569,13 @@ test('hot reload updates plugin tools on existing session for the very next turn
     ],
   });
   const models = createModels();
-  models.setProvider(runtime.getProvider('beeftv'));
+  models.setProvider(runtime.getProvider('luckytv'));
 
   const store = createDurableSessionStore({
     sessionRoot: path.join(tmp, 'sessions'),
     workspaceRoot: path.join(tmp, 'workspace'),
     getModels: () => models,
-    getModelRef: () => ({ provider: 'beeftv', modelId: 'synthetic' }),
+    getModelRef: () => ({ provider: 'luckytv', modelId: 'synthetic' }),
     buildTools: () => [],
     extensions: () => controller.getExtensions(),
     authorizeTurn: async ({ turnId }) => ({ turnId, canvasId: 'canvas', permissionMode: 'canvas', open: true }),
@@ -617,7 +617,7 @@ test('hot reload updates plugin tools on existing session for the very next turn
 });
 
 test('server.mjs loads enabled plugins from Go on startup, reports load-error, and supports POST /plugins/reload + GET /tools', async (t) => {
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-plugin-server-'));
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-plugin-server-'));
   t.after(() => fs.rmSync(tmp, { recursive: true, force: true }));
 
   const pkgGood = writePluginPackage(tmp, 'good-server-plugin', {
@@ -710,14 +710,14 @@ test('server.mjs loads enabled plugins from Go on startup, reports load-error, a
     stdio: ['ignore', 'pipe', 'pipe'],
     env: {
       ...process.env,
-      BEEFTV_OPS_URL: `http://127.0.0.1:${opsServer.address().port}/api`,
-      BEEFTV_AGENT_HOST_TOKEN: hostToken,
-      BEEFTV_AGENT_DATA_DIR: path.join(tmp, 'host-data'),
-      BEEFTV_AGENT_PORT: String(hostPort),
-      BEEFTV_AGENT_MODEL: 'test-model',
-      BEEFTV_AGENT_API: 'openai-completions',
-      BEEFTV_AGENT_BASE_URL: `http://127.0.0.1:${opsServer.address().port}/v1`,
-      BEEFTV_AGENT_API_KEY: 'test-key',
+      LUCKYTV_OPS_URL: `http://127.0.0.1:${opsServer.address().port}/api`,
+      LUCKYTV_AGENT_HOST_TOKEN: hostToken,
+      LUCKYTV_AGENT_DATA_DIR: path.join(tmp, 'host-data'),
+      LUCKYTV_AGENT_PORT: String(hostPort),
+      LUCKYTV_AGENT_MODEL: 'test-model',
+      LUCKYTV_AGENT_API: 'openai-completions',
+      LUCKYTV_AGENT_BASE_URL: `http://127.0.0.1:${opsServer.address().port}/v1`,
+      LUCKYTV_AGENT_API_KEY: 'test-key',
     },
   });
 
@@ -749,7 +749,7 @@ test('server.mjs loads enabled plugins from Go on startup, reports load-error, a
     assert.equal(loadErrorReports[0].pluginId, 'bad-server-plugin');
     assert.match(loadErrorReports[0].error, /bad startup plugin/);
 
-    const headers = { 'X-Beeftv-Agent-Token': hostToken, 'Content-Type': 'application/json' };
+    const headers = { 'X-Luckytv-Agent-Token': hostToken, 'Content-Type': 'application/json' };
     const pluginsRes = await fetch(`${baseUrl}/plugins`, { headers });
     assert.equal(pluginsRes.status, 200);
     const pluginsData = await pluginsRes.json();
@@ -787,14 +787,14 @@ test('server.mjs loads enabled plugins from Go on startup, reports load-error, a
   }
 });
 
-test('loads bundled beeftv-plugin-character-replacement extension tools and skill, and executes arrange + timeline splice', async () => {
+test('loads bundled luckytv-plugin-character-replacement extension tools and skill, and executes arrange + timeline splice', async () => {
   const pkgDir = path.resolve(
     path.dirname(new URL(import.meta.url).pathname),
-    '../../plugin-packages/beeftv-plugin-character-replacement',
+    '../../plugin-packages/luckytv-plugin-character-replacement',
   );
   const errors = [];
   const result = await loadPluginExtensionsFromPackages({
-    packages: [{ id: 'beeftv-plugin-character-replacement', packageDir: pkgDir }],
+    packages: [{ id: 'luckytv-plugin-character-replacement', packageDir: pkgDir }],
     onLoadError: (id, err) => errors.push({ id, err }),
   });
 

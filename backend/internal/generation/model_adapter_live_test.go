@@ -21,9 +21,9 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/providerpreset"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/providerpreset"
 )
 
 type auditLiveReceipts struct {
@@ -92,27 +92,27 @@ type auditLiveResult struct {
 // Explicit opt-in only: reads an existing managed credential, exercises the
 // production generation adapters and checks the live ledger before each call.
 // No account, credential, channel, workspace or production state is modified.
-func TestBeefTVModelAdapterLiveMatrix(t *testing.T) {
-	if os.Getenv("BEEFTV_MODEL_AUDIT_LIVE") != "1" {
+func TestLuckyTVModelAdapterLiveMatrix(t *testing.T) {
+	if os.Getenv("LUCKYTV_MODEL_AUDIT_LIVE") != "1" {
 		t.Skip("explicit paid model audit opt-in required")
 	}
-	dir := os.Getenv("BEEFTV_AUDIT_OUT")
+	dir := os.Getenv("LUCKYTV_AUDIT_OUT")
 	if dir == "" {
 		t.Fatal("audit output directory required")
 	}
-	limit, err := strconv.ParseFloat(os.Getenv("BEEFTV_AUDIT_MAX_CNY"), 64)
+	limit, err := strconv.ParseFloat(os.Getenv("LUCKYTV_AUDIT_MAX_CNY"), 64)
 	if err != nil || limit <= 0 || limit > 50 {
 		t.Fatal("explicit positive budget at most 50 CNY required")
 	}
-	executorPath := os.Getenv("BEEFTV_AUDIT_EXEC")
+	executorPath := os.Getenv("LUCKYTV_AUDIT_EXEC")
 	if executorPath == "" {
 		t.Fatal("explicit read-only billing executor required")
 	}
-	credentialDir := os.Getenv("BEEFTV_AUDIT_CREDENTIAL_DIR")
+	credentialDir := os.Getenv("LUCKYTV_AUDIT_CREDENTIAL_DIR")
 	if info, err := os.Stat(credentialDir); err != nil || !info.IsDir() {
 		t.Fatal("explicit existing credential directory required")
 	}
-	svc, err := beeftv.New(beeftv.Options{DataDir: credentialDir})
+	svc, err := luckytv.New(luckytv.Options{DataDir: credentialDir})
 	if err != nil {
 		t.Fatal("managed connection could not be opened")
 	}
@@ -152,7 +152,7 @@ func TestBeefTVModelAdapterLiveMatrix(t *testing.T) {
 		t.Fatal(err)
 	}
 	ledger := func() (float64, error) {
-		command := fmt.Sprintf("docker exec beeftv-postgres psql -U beeftv -d beeftv -At -c \"SELECT coalesce(sum(quota),0) FROM logs WHERE token_id=%s AND created_at>=%d AND type=2 AND quota>0;\"", credential.TokenID, start)
+		command := fmt.Sprintf("docker exec luckytv-postgres psql -U luckytv -d luckytv -At -c \"SELECT coalesce(sum(quota),0) FROM logs WHERE token_id=%s AND created_at>=%d AND type=2 AND quota>0;\"", credential.TokenID, start)
 		out, err := exec.Command(executorPath, command).Output()
 		if err != nil {
 			return 0, fmt.Errorf("billing ledger unavailable")
@@ -176,7 +176,7 @@ func TestBeefTVModelAdapterLiveMatrix(t *testing.T) {
 		}
 	}
 	for _, old := range last {
-		if strings.Contains(","+os.Getenv("BEEFTV_AUDIT_RETRY_UNSENT")+",", ","+old.Model+",") && strings.Contains(old.Detail, "读取 multipart 文件") {
+		if strings.Contains(","+os.Getenv("LUCKYTV_AUDIT_RETRY_UNSENT")+",", ","+old.Model+",") && strings.Contains(old.Detail, "读取 multipart 文件") {
 			continue
 		}
 		if old.Status == "started" || old.Uncertain {
@@ -185,7 +185,7 @@ func TestBeefTVModelAdapterLiveMatrix(t *testing.T) {
 	}
 	frame := h3SyntheticFrame(t, false)
 	var resumeMap map[string]string
-	_ = json.Unmarshal([]byte(os.Getenv("BEEFTV_AUDIT_RESUME_MAP")), &resumeMap)
+	_ = json.Unmarshal([]byte(os.Getenv("LUCKYTV_AUDIT_RESUME_MAP")), &resumeMap)
 	for name, id := range resumeMap {
 		old := last[name]
 		old.ProviderTask = id
@@ -200,12 +200,12 @@ func TestBeefTVModelAdapterLiveMatrix(t *testing.T) {
 	var wg sync.WaitGroup
 	for _, item := range catalog.Data {
 		recheckResponse := last[item.ID].Status == "succeeded" && last[item.ID].Protocol != "openai-response" && strings.Contains(strings.Join(item.Endpoints, ","), "openai-response")
-		recheckComplete := !last[item.ID].Uncertain && last[item.ID].Detail == "声明式协议已完成但没有返回结果" && strings.Contains(","+os.Getenv("BEEFTV_AUDIT_RECHECK_COMPLETE")+",", ","+item.ID+",")
-		speechCheck := os.Getenv("BEEFTV_AUDIT_SPEECH_FILE") != "" && last[item.ID].Status == "succeeded" && last[item.ID].Bytes == 0 && strings.Contains(strings.Join(item.Endpoints, ","), "audio.transcriptions")
-		recoverCached := strings.Contains(","+os.Getenv("BEEFTV_AUDIT_RECOVER_CACHED")+",", ","+item.ID+",")
-		resumeVideo := last[item.ID].ProviderTask != "" && strings.Contains(","+os.Getenv("BEEFTV_AUDIT_RESUME_VIDEO")+",", ","+item.ID+",")
-		retryUnsent := strings.Contains(","+os.Getenv("BEEFTV_AUDIT_RETRY_UNSENT")+",", ","+item.ID+",")
-		if (seen[item.ID] && !recoverCached && !resumeVideo && !retryUnsent && !speechCheck && !recheckResponse && !recheckComplete) || (os.Getenv("BEEFTV_AUDIT_ONLY") != "" && !strings.Contains(","+os.Getenv("BEEFTV_AUDIT_ONLY")+",", ","+item.ID+",")) {
+		recheckComplete := !last[item.ID].Uncertain && last[item.ID].Detail == "声明式协议已完成但没有返回结果" && strings.Contains(","+os.Getenv("LUCKYTV_AUDIT_RECHECK_COMPLETE")+",", ","+item.ID+",")
+		speechCheck := os.Getenv("LUCKYTV_AUDIT_SPEECH_FILE") != "" && last[item.ID].Status == "succeeded" && last[item.ID].Bytes == 0 && strings.Contains(strings.Join(item.Endpoints, ","), "audio.transcriptions")
+		recoverCached := strings.Contains(","+os.Getenv("LUCKYTV_AUDIT_RECOVER_CACHED")+",", ","+item.ID+",")
+		resumeVideo := last[item.ID].ProviderTask != "" && strings.Contains(","+os.Getenv("LUCKYTV_AUDIT_RESUME_VIDEO")+",", ","+item.ID+",")
+		retryUnsent := strings.Contains(","+os.Getenv("LUCKYTV_AUDIT_RETRY_UNSENT")+",", ","+item.ID+",")
+		if (seen[item.ID] && !recoverCached && !resumeVideo && !retryUnsent && !speechCheck && !recheckResponse && !recheckComplete) || (os.Getenv("LUCKYTV_AUDIT_ONLY") != "" && !strings.Contains(","+os.Getenv("LUCKYTV_AUDIT_ONLY")+",", ","+item.ID+",")) {
 			continue
 		}
 		wg.Add(1)
@@ -232,10 +232,10 @@ func TestBeefTVModelAdapterLiveMatrix(t *testing.T) {
 			if mode == "text" && hasResponse {
 				protocol = "openai-response"
 			}
-			if _, ok := providerpreset.BeefTVImageContract(id); ok {
+			if _, ok := providerpreset.LuckyTVImageContract(id); ok {
 				mode, protocol = "image", "openai-image"
 			}
-			if contract, ok := providerpreset.BeefTVVideoContract(id); ok {
+			if contract, ok := providerpreset.LuckyTVVideoContract(id); ok {
 				mode, protocol = "video", contract.Protocol
 			}
 			if id == "grok-imagine-video-1.5" || id == "kling-video-v3" {
@@ -319,7 +319,7 @@ func TestBeefTVModelAdapterLiveMatrix(t *testing.T) {
 					input.Config.VideoSeconds = "1"
 				}
 				input.ReferenceImages = []Media{{DataURL: frame, Width: 768, Height: 512}}
-				if v, ok := beeftv.NormalizeCatalogVideoCapability(videoRaw); ok {
+				if v, ok := luckytv.NormalizeCatalogVideoCapability(videoRaw); ok {
 					raw, _ := json.Marshal(v)
 					var profile modelcatalog.VideoCapabilityConfig
 					_ = json.Unmarshal(raw, &profile)
@@ -336,7 +336,7 @@ func TestBeefTVModelAdapterLiveMatrix(t *testing.T) {
 			var runErr error
 			if mode == "transcription" {
 				media := Media{DataURL: h3SyntheticAudio(), Name: "audit.wav"}
-				if path := os.Getenv("BEEFTV_AUDIT_SPEECH_FILE"); path != "" {
+				if path := os.Getenv("LUCKYTV_AUDIT_SPEECH_FILE"); path != "" {
 					data, err := os.ReadFile(path)
 					if err != nil {
 						t.Error("speech fixture unavailable")
@@ -364,7 +364,7 @@ func TestBeefTVModelAdapterLiveMatrix(t *testing.T) {
 					if mode == "transcription" {
 						record.Detail = sanitizeProviderText(stringField(result, "text"))
 					}
-					if (mode == "text" || os.Getenv("BEEFTV_AUDIT_SPEECH_FILE") != "") && record.Bytes == 0 {
+					if (mode == "text" || os.Getenv("LUCKYTV_AUDIT_SPEECH_FILE") != "") && record.Bytes == 0 {
 						record.Status = "empty_result"
 					}
 				} else {

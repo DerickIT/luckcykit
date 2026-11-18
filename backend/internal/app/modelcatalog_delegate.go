@@ -1,9 +1,9 @@
 package app
 
 import (
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/protocol"
 )
 
 func normalizeCapability(value string) string         { return modelcatalog.NormalizeCapability(value) }

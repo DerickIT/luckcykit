@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"testing"
 
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/model"
 )
 
 // 稳定 operationId 的跨回合重放不能把归属搬走：同一 opId 回读原结果时，

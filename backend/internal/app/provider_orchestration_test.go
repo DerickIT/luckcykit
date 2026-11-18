@@ -10,8 +10,8 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/platform"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/platform"
 )
 
 func TestProcessCanvasGenerationNoVariantSKUPostsOnceWithProviderKey(t *testing.T) {

@@ -3,9 +3,9 @@ package operations
 import (
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
-	"infinite-canvas/backend/internal/taskdelivery"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
+	"luckytv/backend/internal/taskdelivery"
 )
 
 // taskWaitDeliveryStore 只实现交付和读取需要的部分：产物结果行为内存表，

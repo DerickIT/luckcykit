@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/outbound"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/outbound"
 )
 
 // Capability JSON is owned by modelcatalog. generation aliases the same types

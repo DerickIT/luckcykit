@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"infinite-canvas/backend/internal/transcription"
+	"luckytv/backend/internal/transcription"
 )
 
 type transcribeMediaOpener struct {

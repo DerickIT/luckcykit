@@ -75,20 +75,20 @@ JSON 中的图片和 SSE 中的已完成图片使用同一结果合同。SSE 按
 
 官方 Ark 推理接入：Base URL 使用 /api/v3，API Key 来自方舟推理接入控制台，不可与 Agent Plan 专属 Key 混用。
 
-2.1.0 的清单版本为 `beeftv.plugin/v3`，依赖同时支持 provider `variables`、`defaultPathPrefix`、图片 `response.stream` 和 `detectImageMime` 的宿主；旧宿主加载时即拒绝该清单，不能忽略新字段后继续请求。新版宿主继续读取 v1/v2 插件，但新字段必须声明 v3。Agent Plan 使用自己的独立插件与地址。插件未安装或停用时，宿主在 POST 前拒绝，不退回手写请求器。
+2.1.0 的清单版本为 `luckytv.plugin/v3`，依赖同时支持 provider `variables`、`defaultPathPrefix`、图片 `response.stream` 和 `detectImageMime` 的宿主；旧宿主加载时即拒绝该清单，不能忽略新字段后继续请求。新版宿主继续读取 v1/v2 插件，但新字段必须声明 v3。Agent Plan 使用自己的独立插件与地址。插件未安装或停用时，宿主在 POST 前拒绝，不退回手写请求器。
 
-<!-- BEEFTV_PLUGIN_MANIFEST_START -->
+<!-- LUCKYTV_PLUGIN_MANIFEST_START -->
 ## Manifest 完整接口定义
 
 以下 JSON 与插件包内实际 `manifest.json` 逐字段一致，覆盖插件身份、权限、配置、鉴权、参数、校验、创建、Agent、查询、取消、结果下载、响应和 Agent 响应映射。`documentation` 字段的值就是当前完整文档；为避免文档在自身内部无限递归，JSON 中仅用等义占位文本表示正文。
 
 ```json
 {
-  "apiVersion": "beeftv.plugin/v3",
+  "apiVersion": "luckytv.plugin/v3",
   "id": "volcengine-ark-seedream",
   "name": "Volcengine Ark Seedream Images",
   "version": "2.1.0",
-  "author": "BeefTV Contributors",
+  "author": "LuckyTV Contributors",
   "description": "Volcengine Ark Seedream Images 独立请求协议插件。",
   "documentation": "<当前插件的完整 documentation，由 README.md 与 docs/interface.md 拼接而成；为避免 JSON 递归，此处不重复展开正文。>",
   "permissions": [
@@ -1808,4 +1808,4 @@ JSON 中的图片和 SSE 中的已完成图片使用同一结果合同。SSE 按
   }
 }
 ```
-<!-- BEEFTV_PLUGIN_MANIFEST_END -->
+<!-- LUCKYTV_PLUGIN_MANIFEST_END -->

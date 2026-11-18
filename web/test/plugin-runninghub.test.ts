@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
-import { appTargets, workflowTargets } from "../../plugin-packages/beeftv-plugin-runninghub/lib/targets.mjs";
-import * as provider from "../../plugin-packages/beeftv-plugin-runninghub/provider.mjs";
+import { appTargets, workflowTargets } from "../../plugin-packages/luckytv-plugin-runninghub/lib/targets.mjs";
+import * as provider from "../../plugin-packages/luckytv-plugin-runninghub/provider.mjs";
 
 const textToImage = {
     "3": { class_type: "KSampler", inputs: { seed: 42, positive: ["6", 0], negative: ["7", 0], latent_image: ["5", 0] } },

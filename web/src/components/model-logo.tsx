@@ -5,7 +5,7 @@ import { Cpu, Search, X } from "lucide-react";
 import { toc } from "@lobehub/icons/es/toc";
 
 import { cn } from "@/lib/utils";
-import { YSDUI_CHANNEL_ICON, YSDUI_CHANNEL_NAME, renderYsduiLogoSvg } from "../../../plugin-packages/beeftv-plugin-ysdui/client/index.js";
+import { YSDUI_CHANNEL_ICON, YSDUI_CHANNEL_NAME, renderYsduiLogoSvg } from "../../../plugin-packages/luckytv-plugin-ysdui/client/index.js";
 
 type LobeIconComponent = ComponentType<SVGProps<SVGSVGElement> & { size?: number | string }>;
 

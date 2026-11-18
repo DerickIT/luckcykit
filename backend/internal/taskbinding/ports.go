@@ -1,9 +1,9 @@
 package taskbinding
 
 import (
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
-	"infinite-canvas/backend/internal/writechange"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
+	"luckytv/backend/internal/writechange"
 )
 
 // Ports is the TX-bound workspace the bind algorithm may read and patch.

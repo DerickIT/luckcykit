@@ -1,8 +1,8 @@
 import { defaultModelCapabilityConfig, hasUserModelCapability, sanitizeServerImageCapability, versionedVideoCapability, type ModelCapabilityConfig, type VideoCapabilityConfig, type ImageCapabilityConfig } from "@/lib/model-capabilities";
-import { modelProtocolCapability, protocolForModelCatalog, protocolForBeefTVCatalog, type ModelProtocol } from "@/lib/model-protocols";
+import { modelProtocolCapability, protocolForModelCatalog, protocolForLuckyTVCatalog, type ModelProtocol } from "@/lib/model-protocols";
 import type { ModelChannel } from "@/stores/use-config-store";
-import { isBeefTVEndpoint } from "@/lib/beeftv-video-contracts";
-import { beefTVImageContract } from "@/lib/beeftv-image-contracts";
+import { isLuckyTVEndpoint } from "@/lib/luckytv-video-contracts";
+import { luckyTVImageContract } from "@/lib/luckytv-image-contracts";
 import { sanitizeVideoPriceQuote, seedancePortraitModel, type VideoPriceQuote } from "@/lib/seedance-portrait";
 import { sanitizeMediaCapabilities, type MediaCapabilities } from "@/lib/media-capabilities";
 
@@ -91,7 +91,7 @@ export function catalogModelMapping(
         .toLowerCase();
     const endpoints = (item.supportedEndpointTypes || []).map((value) => value.trim().toLowerCase()).filter(Boolean);
     if (item.mediaCapabilitiesVersion && item.mediaCapabilities?.audio) return { capability: "audio", protocol: "openai-audio" };
-    const imageContract = options.providerNameFallback ? beefTVImageContract(id) : undefined;
+    const imageContract = options.providerNameFallback ? luckyTVImageContract(id) : undefined;
     if (imageContract) return { capability: "image", protocol: imageContract.protocol };
     if (endpoints.some((endpoint) => endpoint === "audio.transcriptions" || endpoint === "audio-transcriptions" || endpoint === "transcriptions")) {
         return { skipGeneration: true };
@@ -138,10 +138,10 @@ function catalogIsSpeechOrMusic(id: string) {
     return catalogHasNameToken(id, ["speech", "tts", "music"]);
 }
 
-function isBeefTVCatalogChannel(channel: ModelChannel) {
-    if (channel.id === "beeftv" || channel.credentialRef === "beeftv") return true;
+function isLuckyTVCatalogChannel(channel: ModelChannel) {
+    if (channel.id === "luckytv" || channel.credentialRef === "luckytv") return true;
     try {
-        return isBeefTVEndpoint(channel.baseUrl || "");
+        return isLuckyTVEndpoint(channel.baseUrl || "");
     } catch {
         return false;
     }
@@ -152,12 +152,12 @@ export function mergeFetchedChannelModelProfiles(channel: ModelChannel, catalog:
     const next: ChannelModelProfile[] = [];
     for (const item of catalog) {
         const existing = existingByModel.get(item.id);
-        const managed = channel.id === "beeftv" || channel.credentialRef === "beeftv";
-        const mapped = catalogModelMapping(item, { providerNameFallback: isBeefTVCatalogChannel(channel) });
+        const managed = channel.id === "luckytv" || channel.credentialRef === "luckytv";
+        const mapped = catalogModelMapping(item, { providerNameFallback: isLuckyTVCatalogChannel(channel) });
         const catalogVideo = versionedVideoCapability(item.videoCapabilities, item.videoCapabilitiesVersion);
         const catalogImage = item.imageCapabilitiesVersion ? sanitizeServerImageCapability(item.imageCapabilities) : null;
-        const inferredProtocol = catalogVideo && managed ? "openai-videos" : mapped.protocol || (isBeefTVCatalogChannel(channel) ? protocolForBeefTVCatalog(item.supportedEndpointTypes) : protocolForModelCatalog(item.supportedEndpointTypes));
-        // BeefTV and compatible gateways may advertise generic OpenAI endpoints without modelType.
+        const inferredProtocol = catalogVideo && managed ? "openai-videos" : mapped.protocol || (isLuckyTVCatalogChannel(channel) ? protocolForLuckyTVCatalog(item.supportedEndpointTypes) : protocolForModelCatalog(item.supportedEndpointTypes));
+        // LuckyTV and compatible gateways may advertise generic OpenAI endpoints without modelType.
         // An explicit versioned contract still identifies the profile and its quote.
         const inferredCapability = (catalogVideo ? "video" : catalogImage ? "image" : undefined) || mapped.capability || item.modelType || modelProtocolCapability(inferredProtocol);
         const sourcedImage = inferredCapability === "image" ? catalogImage : null;
@@ -229,7 +229,7 @@ export function mergeFetchedChannelModelProfiles(channel: ModelChannel, catalog:
             ...(sourcedVideo ? { videoCapabilitiesVersion: item.videoCapabilitiesVersion ?? "" } : {}),
         });
     }
-    if (channel.id !== "beeftv" && channel.credentialRef !== "beeftv") return next;
+    if (channel.id !== "luckytv" && channel.credentialRef !== "luckytv") return next;
     const byModel = new Map(catalog.map(item => [item.id, item]));
     return next.map(profile => {
         const fields = catalogMediaFields(byModel.get(profile.model) as Record<string, unknown> | undefined);
@@ -244,7 +244,7 @@ export function applyFetchedChannelModelCatalog(
 ): ModelChannel {
     const unique = (models: string[]) => Array.from(new Set(models.map((model) => model.trim()).filter(Boolean)));
     const profiles = mergeFetchedChannelModelProfiles(channel, result.catalog);
-    if (channel.id === "beeftv") return { ...channel, models: unique(result.models), modelProfiles: profiles };
+    if (channel.id === "luckytv") return { ...channel, models: unique(result.models), modelProfiles: profiles };
     const existing = new Map((channel.modelProfiles || []).map((profile) => [profile.model, profile]));
     const catalogByModel = new Map(result.catalog.map((item) => [item.id, item]));
     // Refresh updates the catalog without silently enabling new models or removing manual ones.

@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"infinite-canvas/backend/internal/bootstrap"
+	"luckytv/backend/internal/bootstrap"
 )
 
 func TestSaveOwnedArchiveStreamsLargeResourceAndMetadata(t *testing.T) {
@@ -76,7 +76,7 @@ func TestSaveOwnedArchiveCancelAndInvalidReferencesKeepDestination(t *testing.T)
 			t.Fatal("existing destination changed")
 		}
 	}
-	leftovers, _ := filepath.Glob(filepath.Join(filepath.Dir(dest), ".beeftv-save-*"))
+	leftovers, _ := filepath.Glob(filepath.Join(filepath.Dir(dest), ".luckytv-save-*"))
 	if len(leftovers) != 0 {
 		t.Fatalf("temporary archive leaked: %v", leftovers)
 	}

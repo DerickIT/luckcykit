@@ -66,7 +66,7 @@ beforeAll(async () => {
     server = Bun.serve({ port: 0, hostname: "127.0.0.1", fetch(request) {
         return new URL(request.url).pathname === "/harness.js"
             ? new Response(script, { headers: { "content-type": "text/javascript" } })
-            : new Response('<html><script>window.__BEEFTV_HARNESS__={embedded:true}</script><script type="module" src="/harness.js"></script></html>', { headers: { "content-type": "text/html" } });
+            : new Response('<html><script>window.__LUCKYTV_HARNESS__={embedded:true}</script><script type="module" src="/harness.js"></script></html>', { headers: { "content-type": "text/html" } });
     } });
     const executablePath = [process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH, process.env.CHROME_PATH, "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "/usr/bin/google-chrome", "/usr/bin/chromium", "/usr/bin/chromium-browser"].find(path => path && existsSync(path));
     browser = await chromium.launch({ executablePath, headless: true });

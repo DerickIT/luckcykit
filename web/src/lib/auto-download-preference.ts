@@ -3,8 +3,8 @@ import { mediaFileExtension, sanitizeDownloadFileName } from "@/lib/canvas/canva
 import { scopedLocalStorage } from "@/lib/user-scope";
 import { ownedResourceIdFromMediaRef } from "@/services/api/resources";
 
-export const AUTO_DOWNLOAD_GENERATED_MEDIA_KEY = "beeftv.autoDownloadGeneratedMedia";
-export const AUTO_DOWNLOADED_TASK_IDS_SESSION_KEY = "beeftv.autoDownloadedTaskIds";
+export const AUTO_DOWNLOAD_GENERATED_MEDIA_KEY = "luckytv.autoDownloadGeneratedMedia";
+export const AUTO_DOWNLOADED_TASK_IDS_SESSION_KEY = "luckytv.autoDownloadedTaskIds";
 const MAX_TRACKED_TASK_IDS = 500;
 
 const inMemoryDownloadedTaskIds = new Set<string>();

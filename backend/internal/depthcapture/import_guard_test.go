@@ -21,7 +21,7 @@ func TestDepthCaptureDoesNotDependOnApp(t *testing.T) {
 		t.Fatalf("go list deps: %v\n%s", err, output)
 	}
 	for _, dependency := range strings.Fields(string(output)) {
-		if dependency == "infinite-canvas/backend/internal/app" {
+		if dependency == "luckytv/backend/internal/app" {
 			t.Fatal("depthcapture still depends on the application service kernel")
 		}
 	}

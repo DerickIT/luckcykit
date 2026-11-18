@@ -19,9 +19,9 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/operations"
 )
 
 func e2eModelConfig(baseURL string) []byte {
@@ -49,14 +49,14 @@ func e2eModelConfig(baseURL string) []byte {
 
 // 视频协议可切换，用来比较不同渠道协议下参数是否送达；默认与第一次真实运行一致。
 func videoProtocol() string {
-	if protocol := strings.TrimSpace(os.Getenv("BEEFTV_REAL_GEN_VIDEO_PROTOCOL")); protocol != "" {
+	if protocol := strings.TrimSpace(os.Getenv("LUCKYTV_REAL_GEN_VIDEO_PROTOCOL")); protocol != "" {
 		return protocol
 	}
 	return "openai-videos"
 }
 
 func textModelName() string {
-	if model := strings.TrimSpace(os.Getenv("BEEFTV_REAL_GEN_MODEL")); model != "" {
+	if model := strings.TrimSpace(os.Getenv("LUCKYTV_REAL_GEN_MODEL")); model != "" {
 		return model
 	}
 	return "deepseek-v4.1-flash"
@@ -75,8 +75,8 @@ func e2eValidateConfirmDelay(fake bool) error {
 	if fake {
 		return nil
 	}
-	if strings.TrimSpace(os.Getenv("BEEFTV_REAL_GEN_TEST_CONFIRM_DELAY_MS")) != "" {
-		return fmt.Errorf("BEEFTV_REAL_GEN_TEST_CONFIRM_DELAY_MS 只在假模式生效，真实模式拒绝启动")
+	if strings.TrimSpace(os.Getenv("LUCKYTV_REAL_GEN_TEST_CONFIRM_DELAY_MS")) != "" {
+		return fmt.Errorf("LUCKYTV_REAL_GEN_TEST_CONFIRM_DELAY_MS 只在假模式生效，真实模式拒绝启动")
 	}
 	return nil
 }
@@ -112,7 +112,7 @@ func buildE2EProtocolPackages(t *testing.T) string {
 		if err := writer.Close(); err != nil {
 			t.Fatal(err)
 		}
-		if err := os.WriteFile(filepath.Join(dir, id+".beeftv-plugin"), archive.Bytes(), 0600); err != nil {
+		if err := os.WriteFile(filepath.Join(dir, id+".luckytv-plugin"), archive.Bytes(), 0600); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -331,7 +331,7 @@ func registerE2EGenerationEndpoints(mux *http.ServeMux, env *assistantTestEnv, u
 	var confirmLocked atomic.Bool
 	gate := &e2eConfirmationGate{
 		maxTasks: maxTasks, maxVideoSeconds: maxVideoSeconds,
-		delay:  time.Duration(envInt("BEEFTV_REAL_GEN_TEST_CONFIRM_DELAY_MS", 0)) * time.Millisecond,
+		delay:  time.Duration(envInt("LUCKYTV_REAL_GEN_TEST_CONFIRM_DELAY_MS", 0)) * time.Millisecond,
 		locked: func() { confirmLocked.Store(true) }, unlocked: func() { confirmLocked.Store(false) },
 		scan: func() (int, error) {
 			summaries, err := env.service.TasksWithOptions(userID, app.TaskListOptions{Limit: 200, ProjectID: canvasID})
@@ -489,8 +489,8 @@ func registerE2EGenerationEndpoints(mux *http.ServeMux, env *assistantTestEnv, u
 		if resource.MimeType != "" {
 			w.Header().Set("Content-Type", resource.MimeType)
 		}
-		w.Header().Set("X-Beeftv-Resource-Id", resource.ID)
-		w.Header().Set("X-Beeftv-Resource-Kind", resource.Kind)
+		w.Header().Set("X-Luckytv-Resource-Id", resource.ID)
+		w.Header().Set("X-Luckytv-Resource-Kind", resource.Kind)
 		_, _ = io.Copy(w, reader)
 	})
 
@@ -678,7 +678,7 @@ func (p *e2eGenerationUpstream) serveFake(w http.ResponseWriter, r *http.Request
 			return
 		}
 		id := strings.TrimSuffix(rest, "/")
-		// 故意返回指向上游基址的绝对地址；真正的 BeefTV 必须经本地代理下载，才能用上真实密钥。
+		// 故意返回指向上游基址的绝对地址；真正的 LuckyTV 必须经本地代理下载，才能用上真实密钥。
 		contentURL := strings.TrimRight(p.rewriteSource, "/") + "/v1/videos/" + id + "/content"
 		p.writeJSON(w, http.StatusOK, map[string]any{"id": id, "status": "completed",
 			"url": contentURL, "video_url": contentURL, "metadata": map[string]any{"url": contentURL}})

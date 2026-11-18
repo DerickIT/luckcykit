@@ -1,7 +1,7 @@
 package agentconnect
 
 import (
-	"infinite-canvas/backend/internal/agentops"
+	"luckytv/backend/internal/agentops"
 )
 
 // Registry is the narrow credential surface needed at startup.

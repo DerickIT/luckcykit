@@ -97,9 +97,9 @@ jobs:
           }
 
           emit backend '^(backend/|agent-host/|plugin-packages/|plugins/|scripts/deadcode|\.github/workflows/quality\.yml$)'
-          emit web '^(web/|plugins/deepseek-harness/|plugin-packages/|scripts/(public-release-(export|audit)|audit-public-docs|verify-beeftv-local-release|build-beeftv-release)\.sh$|(backend/)?Dockerfile$|docker-compose.*\.yml$|\.github/workflows/(quality|publish-images)\.yml$)'
+          emit web '^(web/|plugins/deepseek-harness/|plugin-packages/|scripts/(public-release-(export|audit)|audit-public-docs|verify-luckytv-local-release|build-luckytv-release)\.sh$|(backend/)?Dockerfile$|docker-compose.*\.yml$|\.github/workflows/(quality|publish-images)\.yml$)'
           emit agent_host '^(agent-host/|plugins/deepseek-harness/|backend/internal/assistant|scripts/package-agent-host|\.github/workflows/quality\.yml$)'
-          emit windows_storage '^(backend/cmd/(desktop|beeftv)/|backend/internal/(desktopstorage|environment|database|diagnostics|supporttrace|assistantdiagnostics)/|scripts/.*windows|\.github/workflows/quality\.yml$)'
+          emit windows_storage '^(backend/cmd/(desktop|luckytv)/|backend/internal/(desktopstorage|environment|database|diagnostics|supporttrace|assistantdiagnostics)/|scripts/.*windows|\.github/workflows/quality\.yml$)'
           emit release_scripts '^(\.github/workflows/|scripts/|licenses/|VERSION$|CHANGELOG\.md$|NOTICE$|THIRD_PARTY_NOTICES\.md$)'
           emit docker '^((backend/)?Dockerfile$|docker-compose.*\.yml$|\.github/workflows/publish-images\.yml$)'
 
@@ -182,7 +182,7 @@ jobs:
           bun-version: 1.4.2
       - name: Select bundled Node runtime
         run: |
-          node -e 'const fs=require("fs"),p=require("path"); fs.appendFileSync(process.env.GITHUB_ENV, `BEEFTV_NODE_RUNTIME=${p.dirname(p.dirname(process.execPath))}\n`);'
+          node -e 'const fs=require("fs"),p=require("path"); fs.appendFileSync(process.env.GITHUB_ENV, `LUCKYTV_NODE_RUNTIME=${p.dirname(p.dirname(process.execPath))}\n`);'
       - name: Install agent host dependencies
         working-directory: agent-host
         run: bun install --frozen-lockfile
@@ -293,7 +293,7 @@ jobs:
         run: |
           go test ./internal/supporttrace ./internal/diagnostics ./internal/assistantdiagnostics -count=1
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          go test ./cmd/beeftv -run '^TestOfflineDiagnostics' -count=1
+          go test ./cmd/luckytv -run '^TestOfflineDiagnostics' -count=1
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
   released-windows-upgrades:
@@ -369,7 +369,7 @@ jobs:
               for name in ['manifest.json', 'README.md', 'docs', 'assets', 'web', 'backend', 'LICENSE']:
                   source = package / name
                   files.extend([source] if source.is_file() else [item for item in source.rglob('*') if item.is_file()])
-              with ZipFile(root / (package.name + '.beeftv-plugin'), 'w', ZIP_DEFLATED) as archive:
+              with ZipFile(root / (package.name + '.luckytv-plugin'), 'w', ZIP_DEFLATED) as archive:
                   for source in sorted(files):
                       archive.write(source, source.relative_to(package).as_posix())
           PY
@@ -380,7 +380,7 @@ jobs:
       - name: Local provider task persistence and restart matrix
         run: go test ./internal/app -run '^TestDBRuntime' -count=1 -json | tee matrix-evidence/runtime.jsonl
       - name: Actual CLI, MCP startup and native process lifecycle
-        run: go test ./cmd/beeftv ./internal/runtimeinfo ./internal/assistantruntime -count=1 -json | tee matrix-evidence/cli-mcp.jsonl
+        run: go test ./cmd/luckytv ./internal/runtimeinfo ./internal/assistantruntime -count=1 -json | tee matrix-evidence/cli-mcp.jsonl
       - name: Preserve per-test results and platform evidence
         if: always()
         uses: actions/upload-artifact@v4

@@ -1,8 +1,8 @@
 package app
 
 import (
-	"infinite-canvas/backend/internal/generation"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/generation"
+	localtask "luckytv/backend/internal/task"
 )
 
 type appReferenceProgressPort = localtask.ReferenceProgressPort

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Button, Select } from "antd";
-import { BeefTVConnectionChangedError } from "@/services/api/beeftv-connection";
+import { LuckyTVConnectionChangedError } from "@/services/api/luckytv-connection";
 import { getTranscriptionModels } from "@/services/api/timeline-tasks";
 import {
     attachLocalExecutorResult,
@@ -61,10 +61,10 @@ export function CanvasTranscriptionControls({
         try {
             const result = await getTranscriptionModels();
             if (!mountedRef.current || request !== requestRef.current) return;
-            setModels(result.map((item) => ({ value: item.id, label: `${item.displayName || item.id} · BeefTV` })));
+            setModels(result.map((item) => ({ value: item.id, label: `${item.displayName || item.id} · LuckyTV` })));
             if (!result.length) setStatus("当前连接没有可用的云端转写模型");
         } catch (error) {
-            if (mountedRef.current && request === requestRef.current && !(error instanceof BeefTVConnectionChangedError)) setStatus(error instanceof Error ? error.message : "读取转写模型失败");
+            if (mountedRef.current && request === requestRef.current && !(error instanceof LuckyTVConnectionChangedError)) setStatus(error instanceof Error ? error.message : "读取转写模型失败");
         } finally {
             if (mountedRef.current && request === requestRef.current) setLoading(false);
         }

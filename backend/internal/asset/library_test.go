@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -102,7 +102,7 @@ func TestLibraryDoesNotDependOnAppOrCanvas(t *testing.T) {
 	}
 	for _, dependency := range strings.Fields(string(output)) {
 		switch dependency {
-		case "infinite-canvas/backend/internal/app", "infinite-canvas/backend/internal/canvas":
+		case "luckytv/backend/internal/app", "luckytv/backend/internal/canvas":
 			t.Fatalf("asset library depends on %s", dependency)
 		}
 	}

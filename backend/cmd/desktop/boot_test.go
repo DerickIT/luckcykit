@@ -12,9 +12,9 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/bootstrap"
-	"infinite-canvas/backend/internal/diagnostics"
-	"infinite-canvas/backend/internal/runtimeinfo"
+	"luckytv/backend/internal/bootstrap"
+	"luckytv/backend/internal/diagnostics"
+	"luckytv/backend/internal/runtimeinfo"
 )
 
 func TestStartupStateAndRuntimeConfigEndpointDoNotBlockDuringSlowBoot(t *testing.T) {

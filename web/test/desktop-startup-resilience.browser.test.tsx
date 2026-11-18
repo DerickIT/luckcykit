@@ -12,7 +12,7 @@ let server: ReturnType<typeof Bun.serve>;
 beforeAll(async () => {
     const stubs: Record<string, string> = {
         "@/stores/use-user-store": 'import { create } from "zustand"; export const useUserStore = create(set => ({ hydrated: false, storageMode: "local", user: null, setUser: user => set({ user }), setHydrated: hydrated => set({ hydrated }) }));',
-        "@/stores/use-config-store": 'import { create } from "zustand"; export const createModelChannel = () => ({}); export const isSystemProxyBaseUrl = () => false; export const MANAGED_BEEFTV_CREDENTIAL_REF = ""; export const useConfigStore = create(set => ({ config: { channels: [{ id: "ch-1" }] }, updateConfig: () => {}, replaceConfig: config => set({ config }) })); export const normalizeConfigSnapshot = value => value;',
+        "@/stores/use-config-store": 'import { create } from "zustand"; export const createModelChannel = () => ({}); export const isSystemProxyBaseUrl = () => false; export const MANAGED_LUCKYTV_CREDENTIAL_REF = ""; export const useConfigStore = create(set => ({ config: { channels: [{ id: "ch-1" }] }, updateConfig: () => {}, replaceConfig: config => set({ config }) })); export const normalizeConfigSnapshot = value => value;',
         "@/stores/use-asset-store": 'import { create } from "zustand"; export const useAssetStore = Object.assign(create(() => ({ hydrated: true, cleanupImages: async () => {} })), { persist: { hasHydrated: () => true, onFinishHydration: () => () => {} } });',
         "@/stores/use-plugin-store": 'import { create } from "zustand"; export const usePluginStore = create(() => ({ hydrated: true, installations: [], setRuntimeStatuses: () => {}, setPluginStates: () => {} }));',
         "@/services/local-workspace-repository": `import { getActiveUserScope } from "@/lib/user-scope";
@@ -162,7 +162,7 @@ beforeAll(async () => {
                                                         state: "ready",
                                                         phase: "ready",
                                                         detail: "本地工作区已就绪",
-                                                        dataDir: "D:\\\\BeefTV-Workspace\\\\VeryLongDirectorySegment_For_MobileViewport_OverflowCheck",
+                                                        dataDir: "D:\\\\LuckyTV-Workspace\\\\VeryLongDirectorySegment_For_MobileViewport_OverflowCheck",
                                                         baseURL: location.origin + "/api",
                                                         launchToken: "win10-token",
                                                     };
@@ -172,16 +172,16 @@ beforeAll(async () => {
                                                         state: "starting",
                                                         phase: "migrate",
                                                         detail: "正在检查并升级数据库结构",
-                                                        dataDir: "D:\\\\BeefTV-Workspace",
+                                                        dataDir: "D:\\\\LuckyTV-Workspace",
                                                     };
                                                 }
                                                 return {
                                                     state: "failed",
                                                     phase: "lock",
                                                     reason: "workspace_locked",
-                                                    error: "当前数据目录正被另一个 BeefTV 窗口占用，请先关闭其他窗口或结束残留进程后重试。",
-                                                    dataDir: "D:\\\\BeefTV-Workspace\\\\VeryLongDirectorySegment_For_MobileViewport_OverflowCheck",
-                                                    diagnosticPath: "D:\\\\BeefTV-Workspace\\\\diagnostics\\\\startup-001.zip",
+                                                    error: "当前数据目录正被另一个 LuckyTV 窗口占用，请先关闭其他窗口或结束残留进程后重试。",
+                                                    dataDir: "D:\\\\LuckyTV-Workspace\\\\VeryLongDirectorySegment_For_MobileViewport_OverflowCheck",
+                                                    diagnosticPath: "D:\\\\LuckyTV-Workspace\\\\diagnostics\\\\startup-001.zip",
                                                 };
                                             },
                                             RetryStartup: async () => {
@@ -191,12 +191,12 @@ beforeAll(async () => {
                                                     state: "starting",
                                                     phase: "database",
                                                     detail: "正在打开本地数据库",
-                                                    dataDir: "D:\\\\BeefTV-Workspace",
+                                                    dataDir: "D:\\\\LuckyTV-Workspace",
                                                 };
                                             },
                                             ExportStartupDiagnostics: async (payload) => {
                                                 window.exportedPayloads.push(payload);
-                                                return "D:\\\\BeefTV-Workspace\\\\diagnostics\\\\exported-002.zip";
+                                                return "D:\\\\LuckyTV-Workspace\\\\diagnostics\\\\exported-002.zip";
                                             },
                                             OpenUpdateLogDirectory: async () => {
                                                 window.openDirCalls += 1;
@@ -224,7 +224,7 @@ beforeAll(async () => {
                                             phase: "migrate",
                                             reason: "desktop_startup_timeout",
                                             message: "本地工作区启动等待超时，请检查磁盘读写与安全软件设置后重新加载。",
-                                            dataDir: "D:\\\\BeefTV-Workspace",
+                                            dataDir: "D:\\\\LuckyTV-Workspace",
                                         }),
                                     );
                                     mountStandaloneStartupError({
@@ -312,7 +312,7 @@ test("desktop boot failure avoids importing application stores, prevents cross-s
 
         const bodyText = await page.locator('[data-slot="workspace-startup-error"]').innerText();
         expect(bodyText).toContain("workspace_locked");
-        expect(bodyText).toContain("D:\\BeefTV-Workspace");
+        expect(bodyText).toContain("D:\\LuckyTV-Workspace");
         expect(bodyText).toContain("startup-001.zip");
         expect(bodyText).toContain("原有本地项目、画布与模型配置均保留在原目录，未被覆盖。");
 

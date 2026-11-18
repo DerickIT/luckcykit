@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"infinite-canvas/backend/internal/providerpreset"
+	"luckytv/backend/internal/providerpreset"
 )
 
 // Only the managed gateway can attest that its reference preparation failed
@@ -15,7 +15,7 @@ func gatewayReferenceNotSubmitted(req *http.Request, resp *http.Response, body [
 	if req == nil || req.URL == nil || resp == nil || resp.Request == nil || resp.Request.URL == nil || req.Method != http.MethodPost || resp.StatusCode != http.StatusServiceUnavailable || len(body) > 16384 {
 		return false
 	}
-	if !providerpreset.IsBeefTVEndpoint(req.URL.String()) || !providerpreset.IsBeefTVEndpoint(resp.Request.URL.String()) {
+	if !providerpreset.IsLuckyTVEndpoint(req.URL.String()) || !providerpreset.IsLuckyTVEndpoint(resp.Request.URL.String()) {
 		return false
 	}
 	if !strings.HasSuffix(req.URL.Path, "/images/edits") && !strings.HasSuffix(req.URL.Path, "/images/generations") {

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"gorm.io/gorm"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 // 读投影只取小字段；完整冻结请求由恢复路径按原任务、用户和 attempt 单独读取。
@@ -74,7 +74,7 @@ func (r *Repository) FailedImagesForRecovery(afterID string, limit int) ([]model
 	// The service verifies the exact managed identity before any API query.
 	err := r.db.Where("tasks.id > ? AND tasks.type = ? AND tasks.status = ?", afterID, "canvas_image", model.TaskStatusFailed).
 		Where("NOT "+upscaleTaskPredicate).
-		Where(`((recovery_outcome IS NULL OR recovery_outcome = '') OR LOWER(TRIM(beef_usage_state)) IN ? OR LOWER(TRIM(beef_billing_state)) IN ? OR (recovery_outcome = 'unrecoverable' AND (input_json LIKE '%"credentialRef"%' OR EXISTS (SELECT 1 FROM route_attempts a WHERE a.task_id = tasks.id AND a.route_run = tasks.route_run AND a.channel_id = 'beeftv') OR EXISTS (SELECT 1 FROM image_submissions s WHERE s.task_id = tasks.id AND s.query_cipher <> '')))) AND (next_poll_at IS NULL OR next_poll_at <= ?)`, model.PendingMediaUsageStates(), model.PendingMediaBillingStates(), time.Now()).
+		Where(`((recovery_outcome IS NULL OR recovery_outcome = '') OR LOWER(TRIM(lucky_usage_state)) IN ? OR LOWER(TRIM(lucky_billing_state)) IN ? OR (recovery_outcome = 'unrecoverable' AND (input_json LIKE '%"credentialRef"%' OR EXISTS (SELECT 1 FROM route_attempts a WHERE a.task_id = tasks.id AND a.route_run = tasks.route_run AND a.channel_id = 'luckytv') OR EXISTS (SELECT 1 FROM image_submissions s WHERE s.task_id = tasks.id AND s.query_cipher <> '')))) AND (next_poll_at IS NULL OR next_poll_at <= ?)`, model.PendingMediaUsageStates(), model.PendingMediaBillingStates(), time.Now()).
 		Where(`image_job_id <> '' OR stage = 'submission_unknown' OR EXISTS (SELECT 1 FROM api_call_logs l WHERE l.task_id = tasks.id AND l.user_id = tasks.user_id AND l.capability = 'image' AND l.request_kind = 'create' AND l.method = 'POST') OR (SELECT a.dispatch_state FROM route_attempts a WHERE a.task_id = tasks.id AND a.route_run = tasks.route_run ORDER BY a.attempt_number DESC, a.id ASC LIMIT 1) IN ('accepted', 'submission_unknown')`).
 		Order("tasks.id ASC").Limit(limit).Find(&tasks).Error
 	return tasks, err
@@ -90,13 +90,13 @@ func (r *Repository) FinishFailedImageRecovery(task model.Task, outcome *string,
 	if strings.TrimSpace(task.ImageJobID) != "" {
 		updates["image_job_id"] = strings.TrimSpace(task.ImageJobID)
 	}
-	if task.BeefBillingState != nil {
-		updates["beef_billing_state"] = *task.BeefBillingState
+	if task.LuckyBillingState != nil {
+		updates["lucky_billing_state"] = *task.LuckyBillingState
 	}
-	if task.BeefReconcileDeadline != nil {
-		updates["beef_reconcile_deadline"] = *task.BeefReconcileDeadline
-	} else if task.BeefBillingState != nil && strings.TrimSpace(*task.BeefBillingState) != "" {
-		updates["beef_reconcile_deadline"] = nil
+	if task.LuckyReconcileDeadline != nil {
+		updates["lucky_reconcile_deadline"] = *task.LuckyReconcileDeadline
+	} else if task.LuckyBillingState != nil && strings.TrimSpace(*task.LuckyBillingState) != "" {
+		updates["lucky_reconcile_deadline"] = nil
 	}
 	result := taskLeaseWriter(r.db.Model(&model.Task{}), task.LeaseOwner).
 		Where("id = ? AND user_id = ? AND status = ? AND route_run = ?", task.ID, task.UserID, model.TaskStatusFailed, task.RouteRun).
@@ -122,7 +122,7 @@ func (r *Repository) UpdateTaskImageJobID(taskID string, jobID string) error {
 	}).Error
 }
 
-func (r *Repository) UpdateTaskBeefImageSettlement(taskID string, billingState *string, reconcileDeadline *string) error {
+func (r *Repository) UpdateTaskLuckyImageSettlement(taskID string, billingState *string, reconcileDeadline *string) error {
 	taskID = strings.TrimSpace(taskID)
 	if taskID == "" || (billingState == nil && reconcileDeadline == nil) {
 		return nil
@@ -130,17 +130,17 @@ func (r *Repository) UpdateTaskBeefImageSettlement(taskID string, billingState *
 	updates := map[string]any{"updated_at": time.Now()}
 	if billingState != nil {
 		normalized := strings.ToLower(strings.TrimSpace(*billingState))
-		updates["beef_billing_state"] = normalized
+		updates["lucky_billing_state"] = normalized
 		if normalized != "" && reconcileDeadline == nil {
-			updates["beef_reconcile_deadline"] = nil
+			updates["lucky_reconcile_deadline"] = nil
 		}
 	}
 	if reconcileDeadline != nil {
 		trimmed := strings.TrimSpace(*reconcileDeadline)
 		if trimmed == "" {
-			updates["beef_reconcile_deadline"] = nil
+			updates["lucky_reconcile_deadline"] = nil
 		} else {
-			updates["beef_reconcile_deadline"] = trimmed
+			updates["lucky_reconcile_deadline"] = trimmed
 		}
 	}
 	return r.db.Model(&model.Task{}).Where("id = ?", taskID).Updates(updates).Error

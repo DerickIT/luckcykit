@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"infinite-canvas/backend/internal/modelcatalog"
+	"luckytv/backend/internal/modelcatalog"
 
 	"github.com/gin-gonic/gin"
 )

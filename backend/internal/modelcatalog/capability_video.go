@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"strings"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/providerpreset"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/providerpreset"
 )
 
 func videoDurationSupported(value *VideoCapabilityConfig) bool {
@@ -122,7 +122,7 @@ func defaultVideoCapabilityConfig(protocol string, modelName string) *VideoCapab
 	}
 	if protocol == string(model.ChannelInterfaceNewAPIChannel2) {
 		video.Watermark = VideoBooleanConfig{Supported: true, Default: false}
-		if contract, ok := providerpreset.BeefTVVideoContract(modelName); ok && contract.Protocol == protocol && contract.RequiresHTTPReferences && len(contract.Operations) > 0 {
+		if contract, ok := providerpreset.LuckyTVVideoContract(modelName); ok && contract.Protocol == protocol && contract.RequiresHTTPReferences && len(contract.Operations) > 0 {
 			video.Operations = append([]string(nil), contract.Operations...)
 			for kind, limit := range contract.MaxReferences {
 				switch kind {

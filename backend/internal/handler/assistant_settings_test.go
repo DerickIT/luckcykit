@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/agentops"
+	"luckytv/backend/internal/agentops"
 )
 
 func readAssistantSkillScriptAutoRun(t *testing.T, env *assistantTestEnv) bool {
@@ -62,7 +62,7 @@ func TestAssistantSettingsWriteRejectsUntrustedCallers(t *testing.T) {
 		t.Fatal(err)
 	}
 	readOnly := env.callWithHeaders(t, http.MethodPatch, "/assistant/settings", `{"skillScriptAutoRun":true}`, map[string]string{
-		"X-Beeftv-Client": registration.ID,
+		"X-Luckytv-Client": registration.ID,
 		"Authorization":   "Bearer " + token,
 	})
 	if readOnly.Code != http.StatusForbidden || !strings.Contains(readOnly.Body.String(), "read_only_client") {

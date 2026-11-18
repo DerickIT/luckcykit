@@ -5,11 +5,11 @@ import (
 	"strings"
 
 	"gorm.io/gorm"
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/repository"
-	localtask "infinite-canvas/backend/internal/task"
-	"infinite-canvas/backend/internal/taskdelivery"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/repository"
+	localtask "luckytv/backend/internal/task"
+	"luckytv/backend/internal/taskdelivery"
 )
 
 const taskStageRequestNotSent = "请求尚未提交"

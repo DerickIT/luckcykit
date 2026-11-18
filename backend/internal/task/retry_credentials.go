@@ -2,8 +2,8 @@ package task
 
 import (
 	"encoding/json"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
 )
 
 type retryCredentialRefresh struct {

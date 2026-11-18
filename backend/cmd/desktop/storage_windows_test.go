@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"golang.org/x/sys/windows"
-	"infinite-canvas/backend/internal/desktopstorage"
+	"luckytv/backend/internal/desktopstorage"
 )
 
 func TestWindowsOpenDesktopMigratesWithBusyScratch(t *testing.T) {

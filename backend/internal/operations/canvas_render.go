@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"strings"
 
-	"infinite-canvas/backend/internal/editing"
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/editing"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
 )
 
 // TimelineRenderAdmission must use the operation's transaction for admission.

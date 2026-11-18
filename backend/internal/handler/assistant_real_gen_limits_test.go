@@ -9,19 +9,19 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/operations"
 )
 
 func TestE2EGenerationRejectsConfirmDelayInRealMode(t *testing.T) {
-	t.Setenv("BEEFTV_REAL_GEN_TEST_CONFIRM_DELAY_MS", "1")
+	t.Setenv("LUCKYTV_REAL_GEN_TEST_CONFIRM_DELAY_MS", "1")
 	if err := e2eValidateConfirmDelay(false); err == nil {
 		t.Fatal("真实模式不应接受测试延迟")
 	}
 	if err := e2eValidateConfirmDelay(true); err != nil {
 		t.Fatalf("假模式应允许测试延迟: %v", err)
 	}
-	t.Setenv("BEEFTV_REAL_GEN_TEST_CONFIRM_DELAY_MS", "")
+	t.Setenv("LUCKYTV_REAL_GEN_TEST_CONFIRM_DELAY_MS", "")
 	if err := e2eValidateConfirmDelay(false); err != nil {
 		t.Fatalf("未设置测试延迟时真实模式不应失败: %v", err)
 	}

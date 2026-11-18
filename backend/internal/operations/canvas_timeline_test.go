@@ -2,9 +2,9 @@ package operations
 
 import (
 	"encoding/json"
-	"infinite-canvas/backend/internal/canvas"
-	"infinite-canvas/backend/internal/editing"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/canvas"
+	"luckytv/backend/internal/editing"
+	"luckytv/backend/internal/model"
 	"reflect"
 	"testing"
 )

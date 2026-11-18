@@ -18,9 +18,9 @@ import (
 	"sync/atomic"
 	"unicode/utf8"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/skillhub"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/skillhub"
 )
 
 // Pin is the exact installed package selected by the user for a business round.

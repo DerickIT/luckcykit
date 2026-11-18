@@ -60,7 +60,7 @@ function buildNav(features: FeatureAvailability): { groups: WorkspaceNavGroup[];
                 ...(features.pluginCenterEnabled ? [{ ...toolItem("plugins", "/plugins"), title: "插件" }] : []),
                 { id: "settings:channels", title: "模型配置", icon: Settings2, to: "/settings?section=channels" },
                 { id: "settings:storage", title: "存储设置", icon: HardDrive, to: "/settings?section=storage" },
-                { id: "agents", title: "BeefTV MCP", icon: Plug, to: "/agents" },
+                { id: "agents", title: "LuckyTV MCP", icon: Plug, to: "/agents" },
             ],
         },
     ];

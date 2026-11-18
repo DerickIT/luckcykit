@@ -25,7 +25,7 @@ describe("Topaz upscale contract", () => {
         const baseURL = apiClient.defaults.baseURL;
         apiClient.defaults.baseURL = server.url.toString();
         try {
-            const quote = await estimateUpscale({ resourceId: "source", channelId: "beeftv", mode: "precision", model: "Proteus", scale: 2 });
+            const quote = await estimateUpscale({ resourceId: "source", channelId: "luckytv", mode: "precision", model: "Proteus", scale: 2 });
             expect(quote.reservation).toBe(1.25);
             expect(quote.generationSubmitted).toBe(false);
             expect(apiClient.defaults.timeout).toBe(4_000);
@@ -75,9 +75,9 @@ describe("Topaz upscale contract", () => {
         try {
             const caps = await getUpscaleCapabilities();
             expect(caps.maxVideoDurationMs).toBe(300_000);
-            const quote = await estimateUpscale({ resourceId: "res-1", channelId: "beeftv", mode: "precision", model: "topaz-proteus", scale: 2 });
+            const quote = await estimateUpscale({ resourceId: "res-1", channelId: "luckytv", mode: "precision", model: "topaz-proteus", scale: 2 });
             expect(quote.reservation).toBe(70);
-            const created = await createUpscaleTask({ resourceId: "res-1", channelId: "beeftv", mode: "precision", model: "topaz-proteus", scale: 2, clientOperationId: "op-1", projectId: "proj-1", nodeId: "node-1" });
+            const created = await createUpscaleTask({ resourceId: "res-1", channelId: "luckytv", mode: "precision", model: "topaz-proteus", scale: 2, clientOperationId: "op-1", projectId: "proj-1", nodeId: "node-1" });
             expect(created.id).toBe("created");
             expect(timeouts).toEqual([
                 { url: "/media-upscale/capabilities", timeout: UPSCALE_CAPABILITIES_TIMEOUT_MS },

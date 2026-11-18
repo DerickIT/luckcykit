@@ -4,12 +4,12 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/generation"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/generation"
 )
 
 func TestClassifyManagedQuotaUserShowsServerSentenceWithoutGenericAction(t *testing.T) {
-	failure := generation.ClassifyError(&beeftv.MediaTaskError{
+	failure := generation.ClassifyError(&luckytv.MediaTaskError{
 		Code:        "media_generation_failed",
 		Category:    "quota_user",
 		Message:     "账户余额不足，请充值后重试。",
@@ -35,7 +35,7 @@ func TestClassifyManagedQuotaUserShowsServerSentenceWithoutGenericAction(t *test
 }
 
 func TestClassifyManagedAuthorizationWithoutUserMessageKeepsLocalCopy(t *testing.T) {
-	failure := generation.ClassifyError(&beeftv.MediaTaskError{
+	failure := generation.ClassifyError(&luckytv.MediaTaskError{
 		Code:     "media_submission_rejected",
 		Category: "authorization",
 		Message:  "The original media request was rejected before a task was created.",
@@ -51,7 +51,7 @@ func TestClassifyManagedAuthorizationWithoutUserMessageKeepsLocalCopy(t *testing
 }
 
 func TestClassifyManagedOldServerGenericMessageKeepsLocalCopy(t *testing.T) {
-	failure := generation.ClassifyError(&beeftv.MediaTaskError{
+	failure := generation.ClassifyError(&luckytv.MediaTaskError{
 		Code:     "media_generation_failed",
 		Category: "authorization",
 		Message:  "The original media request did not return a completed result.",
@@ -121,7 +121,7 @@ func TestClassifyManagedUserMessageReplaysRealServerOutputs(t *testing.T) {
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			failure := generation.ClassifyError(&beeftv.MediaTaskError{
+			failure := generation.ClassifyError(&luckytv.MediaTaskError{
 				Code:        "media_generation_failed",
 				Category:    tc.category,
 				Message:     "The original media request did not return a completed result.",
@@ -179,7 +179,7 @@ func TestPersistedFailureRetryUsesSavedCategoryBeforeText(t *testing.T) {
 }
 
 func TestClassifyManagedPendingKeepsUncertaintyOverUserMessage(t *testing.T) {
-	failure := generation.ClassifyError(&beeftv.MediaTaskError{
+	failure := generation.ClassifyError(&luckytv.MediaTaskError{
 		Code: "media_result_unknown", Category: "unknown", Message: "pending",
 		UserMessage: "账户余额不足，请充值后重试。",
 	})

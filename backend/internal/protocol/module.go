@@ -51,7 +51,7 @@ func (m ModuleProvider) BuildCancel(context.Context, PollContext) (RequestSpec, 
 	return RequestSpec{}, errModuleProvider
 }
 
-// BindModuleProviders 把 JS 生成接口的入口解析到插件包目录。.beeftv-plugin 归档没有
+// BindModuleProviders 把 JS 生成接口的入口解析到插件包目录。.luckytv-plugin 归档没有
 // 包目录、也不能带代码，其中的 JS 接口标为不可用。
 func BindModuleProviders(adapters []Adapter, dir, revision string) []Adapter {
 	for index, adapter := range adapters {

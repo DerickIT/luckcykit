@@ -1,4 +1,4 @@
-// BeefTV 的 DeepSeek Harness Host 入口：只做装配。
+// LuckyTV 的 DeepSeek Harness Host 入口：只做装配。
 // 连接生命周期在 connection.js，HTTP 面在 workspace-http.js，等待与唤醒在 await-machine.js / await-runner.js，
 // 步数上限在 step-limit.js，系统提示词在 prompts.js。
 
@@ -12,7 +12,7 @@ import { approvalReason, rememberQuote, requiresGenerationApproval, submittedTas
 import { createStepLimit } from './step-limit.js'
 import { registerWorkspaceRoutes } from './workspace-http.js'
 
-export const name = 'beeftv'
+export const name = 'luckytv'
 export const inject = ['webServer', 'connection', 'tools', 'systemPrompt']
 
 function sessionIdOf(agent) {
@@ -21,7 +21,7 @@ function sessionIdOf(agent) {
 
 export function apply(ctx) {
   const home = process.env.DSH_HOME || join(homedir(), '.dsh')
-  const pluginHome = join(home, 'storages', 'beeftv')
+  const pluginHome = join(home, 'storages', 'luckytv')
   const awaitingPath = join(pluginHome, 'awaiting.json')
 
   const stepLimit = createStepLimit()
@@ -86,10 +86,10 @@ export function apply(ctx) {
     const sessionId = sessionIdOf(exec?.agent)
     if (!sessionId) return
     runner.setAgent(sessionId, exec.agent)
-    // 步数按这一轮的全部工具调用计算；只有连着 BeefTV 的会话才启用上限。
+    // 步数按这一轮的全部工具调用计算；只有连着 LuckyTV 的会话才启用上限。
     stepLimit.noteToolCall({
       sessionId,
-      beefTV: connection.hasContext(sessionId) || (typeof exec?.name === 'string' && exec.name.startsWith('mcp__beeftv__')),
+      luckyTV: connection.hasContext(sessionId) || (typeof exec?.name === 'string' && exec.name.startsWith('mcp__luckytv__')),
       limit: connection.pluginSettings().stepLimit,
     })
     if (!result?.isError) {
@@ -137,7 +137,7 @@ export function apply(ctx) {
     const sessionId = session?.id
     if (!sessionId) return
     if (event?.type === 'turn/start') {
-      stepLimit.startTurn({ sessionId, turn: event.data?.turn ?? null, beefTV: connection.hasContext(sessionId) })
+      stepLimit.startTurn({ sessionId, turn: event.data?.turn ?? null, luckyTV: connection.hasContext(sessionId) })
       runner.dispatch({ type: 'turnStarted', sessionId })
     } else if (event?.type === 'turn/end') {
       const reason = event.data?.reason
@@ -191,7 +191,7 @@ export function apply(ctx) {
     if (sessionId && (decision.kind === 'allow' || decision.kind === 'ask')) {
       const blocked = stepLimit.reserve({
         sessionId,
-        beefTV: connection.hasContext(sessionId) || (typeof exec?.name === 'string' && exec.name.startsWith('mcp__beeftv__')),
+        luckyTV: connection.hasContext(sessionId) || (typeof exec?.name === 'string' && exec.name.startsWith('mcp__luckytv__')),
         limit: connection.pluginSettings().stepLimit,
       })
       if (blocked) return { kind: 'deny', reason: blocked }

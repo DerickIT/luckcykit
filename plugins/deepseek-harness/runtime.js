@@ -9,13 +9,13 @@ import { setTimeout as delay } from 'node:timers/promises'
 
 const root = fileURLToPath(new URL('.', import.meta.url))
 
-const mcpOperationName = id => `mcp__beeftv__${id.replace(/[^A-Za-z0-9_-]/g, '_')}`
+const mcpOperationName = id => `mcp__luckytv__${id.replace(/[^A-Za-z0-9_-]/g, '_')}`
 const mcpToolBase = name => typeof name === 'string' ? name.replace(/_[a-f0-9]{12}$/, '') : ''
 const mediaReviewTool = mcpOperationName('media.review')
-const submitToolPattern = /^mcp__beeftv__canvas_generation_submit(?:_[a-f0-9]{12})?$/
-const regenerateToolPattern = /^mcp__beeftv__canvas_generation_regenerate(?:_[a-f0-9]{12})?$/
+const submitToolPattern = /^mcp__luckytv__canvas_generation_submit(?:_[a-f0-9]{12})?$/
+const regenerateToolPattern = /^mcp__luckytv__canvas_generation_regenerate(?:_[a-f0-9]{12})?$/
 // submit 与 regenerate 都会创建付费任务；两者提交成功后都要等结果并唤醒。
-const generationSubmissionPattern = /^mcp__beeftv__canvas_generation_(?:submit|regenerate)(?:_[a-f0-9]{12})?$/
+const generationSubmissionPattern = /^mcp__luckytv__canvas_generation_(?:submit|regenerate)(?:_[a-f0-9]{12})?$/
 
 // 连接时从操作目录收集「执行即创建付费生成任务」的工具名。
 // 已知的 submit / regenerate 另有按名兜底，目录缺失或漏标时也不会漏审批。
@@ -32,7 +32,7 @@ export function generationToolSet(operations) {
 }
 
 // 拿不到操作目录时仍能确定不产生费用、不修改画布的工具：CLI 自己的发现工具和只返回报价的 propose。
-const freeWithoutCatalogTool = /^mcp__beeftv__(?:business_list|canvas_generation_propose)(?:_[a-f0-9]{12})?$/
+const freeWithoutCatalogTool = /^mcp__luckytv__(?:business_list|canvas_generation_propose)(?:_[a-f0-9]{12})?$/
 
 // 目录不可用时无法判断一个工具是否收费，审批卡只能如实说明，不能承诺免费。
 export const unknownCatalogReason = '暂时无法确认这次操作是否产生费用或修改画布，请核对后再允许。'
@@ -64,7 +64,7 @@ export function reviewApprovalReason(args = {}) {
 
 export function requiresGenerationApproval(name, args, businessTools = [], operations, generationTools = generationToolSet(operations)) {
   const tool = mcpToolBase(name)
-  if (!tool.startsWith('mcp__beeftv__')) return false
+  if (!tool.startsWith('mcp__luckytv__')) return false
   // 已知付费生成操作按名兜底：目录缺失、切换窗口 current 为空或条目漏标时也不能放行。
   // 旧后端没有 submitsGeneration 字段时，submit 也照旧按工具名审批。
   if (submitToolPattern.test(name) || regenerateToolPattern.test(name)) return true
@@ -74,15 +74,15 @@ export function requiresGenerationApproval(name, args, businessTools = [], opera
   if (generationTools === null) return !freeWithoutCatalogTool.test(tool)
   // 命中目录里 submitsGeneration 的操作（含带哈希后缀的工具名）一律审批，未来新增的付费操作也覆盖。
   if (generationTools?.names?.has(tool)) return true
-  if (!/^mcp__beeftv__business_call(?:_[a-f0-9]{12})?$/.test(name)) return false
+  if (!/^mcp__luckytv__business_call(?:_[a-f0-9]{12})?$/.test(name)) return false
   const businessTool = businessTools.find(item => item.id === args?.tool)
   return !(businessTool?.readOnly === true && businessTool?.submitsGeneration === false)
 }
 
-const proposeToolName = /^mcp__beeftv__canvas_generation_propose(?:_[a-f0-9]{12})?$/
+const proposeToolName = /^mcp__luckytv__canvas_generation_propose(?:_[a-f0-9]{12})?$/
 const generationUnits = { image: ['张', '图片'], video: ['段', '视频'], audio: ['段', '音频'] }
 
-// Keeps BeefTV's own quote for each proposal, so the approval card can say what the user pays for.
+// Keeps LuckyTV's own quote for each proposal, so the approval card can say what the user pays for.
 export function rememberQuote(quotes, name, result) {
   if (result?.isError || !proposeToolName.test(name)) return
   const text = Array.isArray(result?.content) ? result.content.find(item => item?.type === 'text' && typeof item.text === 'string')?.text : undefined
@@ -117,7 +117,7 @@ function generationDetail(targets) {
   return `生成 ${amount} ${unit}${label}${models.length ? `（${models.join('、')}）` : ''}`
 }
 
-// 有整单报价时用 BeefTV 的金额文案；只有部分节点有报价时说明其余按渠道计费。
+// 有整单报价时用 LuckyTV 的金额文案；只有部分节点有报价时说明其余按渠道计费。
 function generationCost(quote, targets) {
   const quoted = Array.isArray(quote?.targets) ? quote.targets : []
   const priced = targets.filter(target => Number.isFinite(target.estimate?.amount))
@@ -135,17 +135,17 @@ function regenerateApprovalReason(args, quotes) {
   const matched = quotedSubmission(args, quotes)
   const detail = matched ? `${generationDetail(matched.targets)}。` : ''
   const cost = matched ? generationCost(matched.quote, matched.targets) : '费用按所选渠道实际计费'
-  return `BeefTV 将在原节点重新生成并计费，原有结果（如有）会留在素材库。${detail}${cost}。`
+  return `LuckyTV 将在原节点重新生成并计费，原有结果（如有）会留在素材库。${detail}${cost}。`
 }
 
 // Text for the DSH approval card. It names only the nodes this submission sends: a proposal can be
-// submitted again for a subset, such as retrying failed nodes. Prices are BeefTV's per-node quotes.
+// submitted again for a subset, such as retrying failed nodes. Prices are LuckyTV's per-node quotes.
 export function approvalReason(name, args, businessTools = [], quotes = new Map(), operations) {
   const unsafe = unsafeOperation(name, operations)
   if (unsafe) {
     return unsafe.id === 'media.review'
       ? reviewApprovalReason(args)
-      : `BeefTV 将执行只读操作 ${unsafe.id}，可能调用外部模型并产生费用。请核对本次操作。`
+      : `LuckyTV 将执行只读操作 ${unsafe.id}，可能调用外部模型并产生费用。请核对本次操作。`
   }
   if (regenerateToolPattern.test(name)) return regenerateApprovalReason(args, quotes)
   if (!submitToolPattern.test(name)) {
@@ -153,14 +153,14 @@ export function approvalReason(name, args, businessTools = [], quotes = new Map(
     if (generationToolSet(operations) === null) return unknownCatalogReason
     const business = businessTools.find(tool => tool.id === args?.tool)
     return business
-      ? `BeefTV 请求执行 ${business.method} ${business.path}${business.submitsGeneration ? '，将提交可能计费的生成任务' : '，将修改工作区'}。请核对本次操作。`
-      : 'BeefTV 将提交生成或未识别的业务操作，可能修改工作区或产生费用，请核对本次操作。'
+      ? `LuckyTV 请求执行 ${business.method} ${business.path}${business.submitsGeneration ? '，将提交可能计费的生成任务' : '，将修改工作区'}。请核对本次操作。`
+      : 'LuckyTV 将提交生成或未识别的业务操作，可能修改工作区或产生费用，请核对本次操作。'
   }
   const matched = quotedSubmission(args, quotes)
   if (!matched) {
-    return 'BeefTV 将提交付费生成，但这次提交和已有报价对不上，无法显示费用。可以先拒绝，让 Agent 重新报价后再提交。'
+    return 'LuckyTV 将提交付费生成，但这次提交和已有报价对不上，无法显示费用。可以先拒绝，让 Agent 重新报价后再提交。'
   }
-  return `BeefTV 将${generationDetail(matched.targets)}。${generationCost(matched.quote, matched.targets)}。`
+  return `LuckyTV 将${generationDetail(matched.targets)}。${generationCost(matched.quote, matched.targets)}。`
 }
 
 // ---- 生成完接着做：设置、任务判定与唤醒文案 ----
@@ -427,7 +427,7 @@ export function guidedPrompt(guide, fallback) {
   const text = typeof guide?.text === 'string' ? guide.text.trim() : ''
   // 异常超长的说明会挤掉工具定义和对话空间，宁可用插件内置的那份。
   if (!text || text.length > maximumGuideChars) return fallback
-  return `${text}\n在 DeepSeek Harness 中，BeefTV 工具名带 mcp__beeftv__ 前缀。付费生成是否需要用户确认由 DSH 的访问模式决定：弹出审批时等用户确认，完全权限下直接执行，不要另外追问。`
+  return `${text}\n在 DeepSeek Harness 中，LuckyTV 工具名带 mcp__luckytv__ 前缀。付费生成是否需要用户确认由 DSH 的访问模式决定：弹出审批时等用户确认，完全权限下直接执行，不要另外追问。`
 }
 
 export function runtimeRecord(value) {
@@ -445,24 +445,24 @@ export function embeddedDocument(html, basePath, parentOrigin = '*') {
   const styles = `<style>
 html .app-workspace-shell:has(.assets-library-page) .app-workspace-main-row{z-index:auto}
 /* Only top controls avoid the host overlay. The page and canvas remain full width. */
-html .canvas-topbar{padding-left:calc(8px + var(--beeftv-host-leading,0px))!important}
-html .app-user-workspace .app-workspace-floating-menu{left:calc(12px + var(--beeftv-host-leading,0px))!important}
+html .canvas-topbar{padding-left:calc(8px + var(--luckytv-host-leading,0px))!important}
+html .app-user-workspace .app-workspace-floating-menu{left:calc(12px + var(--luckytv-host-leading,0px))!important}
 /* A full sidebar stays in place. Its brand row can sit below the host controls. */
-html[data-beeftv-host-chrome] .app-workspace-sidebar-brand-row,
-html[data-beeftv-host-chrome] .app-workspace-sidebar-rail-header{margin-top:48px}
+html[data-luckytv-host-chrome] .app-workspace-sidebar-brand-row,
+html[data-luckytv-host-chrome] .app-workspace-sidebar-rail-header{margin-top:48px}
 </style>`
   const bridge = `<script>(${embeddedChromeBridge.toString()})()</script>`
-  return html.replace(/<base\b[^>]*>/gi, '').replace(/<head[^>]*>/i, match => `${match}<base href="${basePath}/"><meta name="referrer" content="no-referrer">${styles}<script>window.__BEEFTV_HARNESS__=${config}</script>${bridge}`)
+  return html.replace(/<base\b[^>]*>/gi, '').replace(/<head[^>]*>/i, match => `${match}<base href="${basePath}/"><meta name="referrer" content="no-referrer">${styles}<script>window.__LUCKYTV_HARNESS__=${config}</script>${bridge}`)
 }
 
 // The parent only transmits bounded layout metrics, never workspace data or credentials.
 function embeddedChromeBridge() {
   window.addEventListener('message', event => {
-    if (event.source !== window.parent || event.data?.type !== 'beeftv:host-chrome') return
+    if (event.source !== window.parent || event.data?.type !== 'luckytv:host-chrome') return
     const leading = event.data.leading
     if (typeof leading !== 'number' || !Number.isFinite(leading) || leading < 0 || leading > 320) return
-    document.documentElement.style.setProperty('--beeftv-host-leading', `${leading}px`)
-    document.documentElement.toggleAttribute('data-beeftv-host-chrome', leading > 0)
+    document.documentElement.style.setProperty('--luckytv-host-leading', `${leading}px`)
+    document.documentElement.toggleAttribute('data-luckytv-host-chrome', leading > 0)
   })
   // 把当前明暗、底色、前景与主按钮配色告诉宿主，由宿主侧统一解析颜色、筛掉无彩度值并校验对比度。
   // 只发送颜色事实，不带工作区数据或凭据。
@@ -477,7 +477,7 @@ function embeddedChromeBridge() {
     const foreground = getComputedStyle(document.body).color
     const accent = rootStyle.getPropertyValue('--primary').trim().slice(0, 64)
     const accentForeground = rootStyle.getPropertyValue('--primary-foreground').trim().slice(0, 64)
-    window.parent.postMessage({ type: 'beeftv:theme', dark, background, foreground, accent, accentForeground }, '*')
+    window.parent.postMessage({ type: 'luckytv:theme', dark, background, foreground, accent, accentForeground }, '*')
   }
   const scheduleTheme = () => {
     clearTimeout(themeTimer)
@@ -513,16 +513,16 @@ export function embeddedPathRejection(rawPath) {
   }
   const segments = path.split('/').slice(1)
   if (segments.some((segment, index) => segment === '.' || segment === '..' || (segment === '' && index < segments.length - 1))) return 400
-  // The bridge also serves the workspace under /beeftv/app, so that prefix is removed before matching.
-  const effective = (path.replace(/^\/beeftv\/app(?=\/|$)/i, '') || '/').toLowerCase()
+  // The bridge also serves the workspace under /luckytv/app, so that prefix is removed before matching.
+  const effective = (path.replace(/^\/luckytv\/app(?=\/|$)/i, '') || '/').toLowerCase()
   return managedWorkspacePaths.some(managed => effective === managed || effective.startsWith(`${managed}/`)) ? 403 : 0
 }
 
 const localApp = {
-  bundle: '/Applications/BeefTV.app',
-  info: '/Applications/BeefTV.app/Contents/Info.plist',
-  executable: '/Applications/BeefTV.app/Contents/MacOS/BeefTV',
-  cli: '/Applications/BeefTV.app/Contents/MacOS/cli/beeftv',
+  bundle: '/Applications/LuckyTV.app',
+  info: '/Applications/LuckyTV.app/Contents/Info.plist',
+  executable: '/Applications/LuckyTV.app/Contents/MacOS/LuckyTV',
+  cli: '/Applications/LuckyTV.app/Contents/MacOS/cli/luckytv',
 }
 // 2.2.0 is the first desktop release with the harness bridge. Older builds pass unknown flags to the
 // GUI, so starting them with harness flags would open the desktop window instead of attaching.
@@ -548,15 +548,15 @@ export async function localAppStatus() {
   try {
     await Promise.all([access(localApp.executable, constants.X_OK), access(localApp.cli, constants.X_OK)])
   } catch {
-    return { compatible: false, version: null, message: `未找到本机 BeefTV。请安装 ${minimumLocalAppVersion} 或更高版本后重新连接。` }
+    return { compatible: false, version: null, message: `未找到本机 LuckyTV。请安装 ${minimumLocalAppVersion} 或更高版本后重新连接。` }
   }
   const version = await bundleVersion(localApp.info)
   if (supportsHarness(version)) return { compatible: true, version, message: null }
   return {
     compatible: false, version,
     message: version
-      ? `本机 BeefTV 版本为 ${version}，需要 ${minimumLocalAppVersion} 或更高版本。请升级后重新连接。`
-      : `无法读取本机 BeefTV 的版本。请重新安装 ${minimumLocalAppVersion} 或更高版本后重新连接。`,
+      ? `本机 LuckyTV 版本为 ${version}，需要 ${minimumLocalAppVersion} 或更高版本。请升级后重新连接。`
+      : `无法读取本机 LuckyTV 的版本。请重新安装 ${minimumLocalAppVersion} 或更高版本后重新连接。`,
   }
 }
 
@@ -567,11 +567,11 @@ async function requireLocalApp() {
 
 async function bundledPaths() {
   const contents = join(root, 'runtime', 'Contents')
-  const paths = { executable: join(contents, 'MacOS', 'BeefTV'), cli: join(contents, 'MacOS', 'cli', 'beeftv') }
+  const paths = { executable: join(contents, 'MacOS', 'LuckyTV'), cli: join(contents, 'MacOS', 'cli', 'luckytv') }
   try {
     await Promise.all(Object.values(paths).map(path => access(path, constants.X_OK)))
   } catch (error) {
-    throw new Error('插件缺少内置的 BeefTV 运行时，请重新安装插件', { cause: error })
+    throw new Error('插件缺少内置的 LuckyTV 运行时，请重新安装插件', { cause: error })
   }
   return paths
 }
@@ -586,7 +586,7 @@ export async function startLocalRuntime() {
       })
     })
   } catch (error) {
-    throw new Error('无法打开本机 BeefTV，请确认 /Applications/BeefTV.app 已完整安装', { cause: error })
+    throw new Error('无法打开本机 LuckyTV，请确认 /Applications/LuckyTV.app 已完整安装', { cause: error })
   }
   const deadline = Date.now() + 30_000
   let lastFailure
@@ -598,7 +598,7 @@ export async function startLocalRuntime() {
     }
     await delay(250)
   }
-  throw new Error('本机 BeefTV 尚未就绪，请检查桌面应用的启动提示后重新连接', { cause: lastFailure })
+  throw new Error('本机 LuckyTV 尚未就绪，请检查桌面应用的启动提示后重新连接', { cause: lastFailure })
 }
 
 // Reconnects to a running desktop App without opening it again.
@@ -624,12 +624,12 @@ async function launchRuntime(paths, { dataDir, attachOnly = false }) {
   const record = await new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
       child.kill('SIGTERM')
-      reject(new Error('启动 BeefTV 超过 30 秒，请检查安装与工作区状态'))
+      reject(new Error('启动 LuckyTV 超过 30 秒，请检查安装与工作区状态'))
     }, attachOnly ? 3_000 : 30_000)
     const fail = () => {
       if (ready) return
       clearTimeout(timer)
-      reject(new Error('BeefTV 运行时启动失败，请确认安装完整且工作区未被旧版本占用'))
+      reject(new Error('LuckyTV 运行时启动失败，请确认安装完整且工作区未被旧版本占用'))
     }
     child.once('error', fail)
     child.once('exit', fail)
@@ -675,10 +675,10 @@ export async function workspaceJSON(runtime, path, options = {}) {
   const response = await fetch(`${runtime.bridgeURL}${path}`, {
     ...options,
     signal: options.signal ?? AbortSignal.timeout(15_000),
-    headers: { 'content-type': 'application/json', 'X-Beeftv-Harness-Token': runtime.bridgeToken, ...options.headers },
+    headers: { 'content-type': 'application/json', 'X-Luckytv-Harness-Token': runtime.bridgeToken, ...options.headers },
   })
   const value = await response.json()
-  if (!response.ok || value.code !== 0) throw new Error(value.msg || `BeefTV 请求失败 (${response.status})`)
+  if (!response.ok || value.code !== 0) throw new Error(value.msg || `LuckyTV 请求失败 (${response.status})`)
   return value.data
 }
 
@@ -688,10 +688,10 @@ export async function inspectWorkspace(runtime) {
     workspaceJSON(runtime, '/api/workspace/bootstrap'),
   ])
   if (!health.ready || !health.schema?.ready || !health.build?.version || !bootstrap.workspace?.id) {
-    throw new Error('BeefTV 工作区尚未就绪，请在本机应用中完成启动后重试')
+    throw new Error('LuckyTV 工作区尚未就绪，请在本机应用中完成启动后重试')
   }
   if (String(runtime.version).replace(/^v/, '') !== health.build.version.replace(/^v/, '')) {
-    throw new Error('BeefTV 连接版本已变化，请重新连接')
+    throw new Error('LuckyTV 连接版本已变化，请重新连接')
   }
   return {
     build: health.build,
@@ -707,13 +707,13 @@ export async function callOperation(runtime, id, params, signal) {
     signal: signal ?? AbortSignal.timeout(25_000),
     headers: {
       'content-type': 'application/json',
-      'X-Beeftv-Client': runtime.clientId,
+      'X-Luckytv-Client': runtime.clientId,
       authorization: `Bearer ${runtime.clientToken}`,
     },
     body: JSON.stringify({ opId: randomUUID(), params }),
   })
   const value = await response.json()
-  if (!response.ok || value.code !== 0) throw new Error(value.msg || `BeefTV 请求失败 (${response.status})`)
+  if (!response.ok || value.code !== 0) throw new Error(value.msg || `LuckyTV 请求失败 (${response.status})`)
   return value.data
 }
 

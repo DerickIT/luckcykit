@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"strings"
 
-	"infinite-canvas/backend/internal/assistant"
-	"infinite-canvas/backend/internal/channelurl"
-	"infinite-canvas/backend/internal/desktopnet"
+	"luckytv/backend/internal/assistant"
+	"luckytv/backend/internal/channelurl"
+	"luckytv/backend/internal/desktopnet"
 )
 
 type childPin struct {
@@ -24,34 +24,34 @@ func (h *Host) buildEnv(provider assistant.Provider, pin childPin) []string {
 	set := func(key, value string) {
 		env = setEnvValue(env, key, value)
 	}
-	set("BEEFTV_AGENT_DATA_DIR", h.dataDir())
-	set("BEEFTV_AGENT_MODEL", provider.Model)
-	set("BEEFTV_AGENT_BASE_URL", hostBaseURL(provider.BaseURL, provider.Protocol))
-	set("BEEFTV_AGENT_API", hostAPI(provider.Protocol))
-	set("BEEFTV_OPS_URL", opsBaseURL(pin.OpsURL, h.backendAddr()))
-	set("BEEFTV_AGENT_HOST_TOKEN", h.hostToken())
-	set("BEEFTV_AGENT_DESKTOP_TOKEN", pin.DesktopTok)
-	set("BEEFTV_AGENT_API_KEY", provider.APIKey)
+	set("LUCKYTV_AGENT_DATA_DIR", h.dataDir())
+	set("LUCKYTV_AGENT_MODEL", provider.Model)
+	set("LUCKYTV_AGENT_BASE_URL", hostBaseURL(provider.BaseURL, provider.Protocol))
+	set("LUCKYTV_AGENT_API", hostAPI(provider.Protocol))
+	set("LUCKYTV_OPS_URL", opsBaseURL(pin.OpsURL, h.backendAddr()))
+	set("LUCKYTV_AGENT_HOST_TOKEN", h.hostToken())
+	set("LUCKYTV_AGENT_DESKTOP_TOKEN", pin.DesktopTok)
+	set("LUCKYTV_AGENT_API_KEY", provider.APIKey)
 	if provider.ContextWindow > 0 {
-		set("BEEFTV_AGENT_CONTEXT_WINDOW", strconv.Itoa(provider.ContextWindow))
+		set("LUCKYTV_AGENT_CONTEXT_WINDOW", strconv.Itoa(provider.ContextWindow))
 	}
 	if provider.MaxTokens > 0 {
-		set("BEEFTV_AGENT_MAX_TOKENS", strconv.Itoa(provider.MaxTokens))
+		set("LUCKYTV_AGENT_MAX_TOKENS", strconv.Itoa(provider.MaxTokens))
 	}
 	if pin.Port > 0 {
-		set("BEEFTV_AGENT_PORT", strconv.Itoa(pin.Port))
+		set("LUCKYTV_AGENT_PORT", strconv.Itoa(pin.Port))
 	} else {
-		set("BEEFTV_AGENT_PORT", "")
+		set("LUCKYTV_AGENT_PORT", "")
 	}
-	set("BEEFTV_AGENT_INSTANCE_NONCE", pin.Nonce)
-	set("BEEFTV_AGENT_LISTEN_FD", pin.ListenFD)
+	set("LUCKYTV_AGENT_INSTANCE_NONCE", pin.Nonce)
+	set("LUCKYTV_AGENT_LISTEN_FD", pin.ListenFD)
 	if pin.Lifetime {
-		set("BEEFTV_AGENT_LIFETIME_STDIN", "1")
+		set("LUCKYTV_AGENT_LIFETIME_STDIN", "1")
 	} else {
-		set("BEEFTV_AGENT_LIFETIME_STDIN", "")
+		set("LUCKYTV_AGENT_LIFETIME_STDIN", "")
 	}
-	set("BEEFTV_OWNER_TOKEN", "")
-	set("BEEFTV_AGENT_HOST_URL", "")
+	set("LUCKYTV_OWNER_TOKEN", "")
+	set("LUCKYTV_AGENT_HOST_URL", "")
 	return env
 }
 
@@ -73,7 +73,7 @@ func filterInheritedEnv(inherited []string) []string {
 func stripInheritedKey(key string) bool {
 	upper := strings.ToUpper(strings.TrimSpace(key))
 	switch upper {
-	case "BEEFTV_OWNER_TOKEN", "BEEFTV_OPS_URL", "BEEFTV_AGENT_HOST_URL":
+	case "LUCKYTV_OWNER_TOKEN", "LUCKYTV_OPS_URL", "LUCKYTV_AGENT_HOST_URL":
 		return true
 	case "OPENAI_API_KEY", "OPENAI_BASE_URL", "OPENAI_API_BASE", "OPENAI_ORG_ID", "OPENAI_ORGANIZATION":
 		return true
@@ -90,7 +90,7 @@ func stripInheritedKey(key string) bool {
 		"CLAUDE_API_KEY", "NPM_TOKEN", "NODE_AUTH_TOKEN":
 		return true
 	}
-	if strings.HasPrefix(upper, "BEEFTV_AGENT_") {
+	if strings.HasPrefix(upper, "LUCKYTV_AGENT_") {
 		return !agentTunableKey(upper)
 	}
 	return false
@@ -100,11 +100,11 @@ func stripInheritedKey(key string) bool {
 // Credentials, listen identity, model, and ops URL are never tunables.
 func agentTunableKey(upper string) bool {
 	switch upper {
-	case "BEEFTV_AGENT_MAX_TOKENS", "BEEFTV_AGENT_CONTEXT_WINDOW",
-		"BEEFTV_AGENT_TURN_TIMEOUT_MS", "BEEFTV_AGENT_MAX_REQUESTS_PER_TURN",
-		"BEEFTV_AGENT_MAX_TOOL_STEPS_PER_TURN", "BEEFTV_AGENT_TOTAL_REQUEST_BUDGET",
-		"BEEFTV_AGENT_ALLOWED_ORIGIN", "BEEFTV_AGENT_READ_ONLY",
-		"BEEFTV_AGENT_MAX_REQUESTS", "BEEFTV_AGENT_THINKING":
+	case "LUCKYTV_AGENT_MAX_TOKENS", "LUCKYTV_AGENT_CONTEXT_WINDOW",
+		"LUCKYTV_AGENT_TURN_TIMEOUT_MS", "LUCKYTV_AGENT_MAX_REQUESTS_PER_TURN",
+		"LUCKYTV_AGENT_MAX_TOOL_STEPS_PER_TURN", "LUCKYTV_AGENT_TOTAL_REQUEST_BUDGET",
+		"LUCKYTV_AGENT_ALLOWED_ORIGIN", "LUCKYTV_AGENT_READ_ONLY",
+		"LUCKYTV_AGENT_MAX_REQUESTS", "LUCKYTV_AGENT_THINKING":
 		return true
 	}
 	return false

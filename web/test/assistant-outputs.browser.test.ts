@@ -13,7 +13,7 @@ const queriedStatuses: string[] = [];
 const mediaReads: { resource: string; token: string | null }[] = [];
 beforeEach(() => { phase = "running"; reads = 0; historyEmpty = false; taskHold = false; taskResolve = null; mediaReads.length = 0; queriedStatuses.length = 0; });
 beforeAll(async () => {
-    scratch = mkdtempSync(tmpdir() + "/beeftv-output-");
+    scratch = mkdtempSync(tmpdir() + "/luckytv-output-");
     for (const [name, color] of [["first", "red"], ["second", "blue"]]) execFileSync("ffmpeg", ["-v", "error", "-f", "lavfi", "-i", `color=${color}:s=64x48:r=24:d=0.5`, "-c:v", "libx264", "-pix_fmt", "yuv420p", scratch + "/" + name + ".mp4"]);
     const build = await Bun.build({ entrypoints: [import.meta.dir + "/fixtures/assistant-outputs-harness.tsx"], target: "browser", define: {
         "import.meta.env.DEV": "false", "import.meta.env.PROD": "true", "import.meta.env.MODE": '"production"', "import.meta.env.VITE_CANVAS_LOCAL_MODE": '"true"', "import.meta.env.VITE_CANVAS_BACKEND_URL": '"/api"', "process.env.NODE_ENV": '"production"',

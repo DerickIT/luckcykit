@@ -6,8 +6,8 @@ import (
 	"log"
 	"strings"
 
-	"infinite-canvas/backend/internal/model"
-	localproject "infinite-canvas/backend/internal/project"
+	"luckytv/backend/internal/model"
+	localproject "luckytv/backend/internal/project"
 )
 
 type CreateProjectCharacterRequest = localproject.CreateProjectCharacterRequest

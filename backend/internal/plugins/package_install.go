@@ -5,8 +5,8 @@ import (
 	"sort"
 	"strings"
 
-	"infinite-canvas/backend/internal/canvas/capability"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/canvas/capability"
+	"luckytv/backend/internal/protocol"
 )
 
 type EnabledPackageView struct {
@@ -37,7 +37,7 @@ type MarketPluginItem struct {
 	Enabled       bool     `json:"enabled"`
 	Recommended   bool     `json:"recommended,omitempty"`
 	Category      string   `json:"category,omitempty"`
-	// Bundled marks a built-in package shipped inside BeefTV.
+	// Bundled marks a built-in package shipped inside LuckyTV.
 	Bundled bool `json:"bundled,omitempty"`
 }
 

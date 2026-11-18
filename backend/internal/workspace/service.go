@@ -1,8 +1,8 @@
 package workspace
 
 import (
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
 )
 
 // Repository is the typed persistence port for local workspace identity.

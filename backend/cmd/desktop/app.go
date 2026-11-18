@@ -13,11 +13,11 @@ import (
 	"sync"
 	"time"
 
-	"infinite-canvas/backend/internal/bootstrap"
-	"infinite-canvas/backend/internal/desktopstorage"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/bootstrap"
+	"luckytv/backend/internal/desktopstorage"
+	"luckytv/backend/internal/model"
 
-	wailsruntime "github.com/wailsapp/wails/v2/pkg/runtime"
+	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
 type DesktopRuntimeConfig struct {
@@ -129,31 +129,28 @@ func (a *DesktopApp) stop(ctx context.Context) error {
 	return closeDesktopRuntime(ctx, runtime)
 }
 
-func (a *DesktopApp) OpenBeefTVGitHub() error {
-	ctx, err := a.dialogContext()
+func (a *DesktopApp) OpenLuckyTVGitHub() error {
+	app, err := wailsApp()
 	if err != nil {
 		return err
 	}
-	wailsruntime.BrowserOpenURL(ctx, "https://github.com/glanderness/BeefTV")
-	return nil
+	return app.Browser.OpenURL("https://github.com/glanderness/LuckyTV")
 }
 
-func (a *DesktopApp) OpenBeefTVWebsite() error {
-	ctx, err := a.dialogContext()
+func (a *DesktopApp) OpenLuckyTVWebsite() error {
+	app, err := wailsApp()
 	if err != nil {
 		return err
 	}
-	wailsruntime.BrowserOpenURL(ctx, "https://beeftv.app/")
-	return nil
+	return app.Browser.OpenURL("https://luckytv.app/")
 }
 
-func (a *DesktopApp) OpenBeefTVX() error {
-	ctx, err := a.dialogContext()
+func (a *DesktopApp) OpenLuckyTVX() error {
+	app, err := wailsApp()
 	if err != nil {
 		return err
 	}
-	wailsruntime.BrowserOpenURL(ctx, "https://x.com/beefnoode")
-	return nil
+	return app.Browser.OpenURL("https://x.com/luckynoode")
 }
 
 func (a *DesktopApp) SaveOwnedMedia(fileName string, resourceID string) (bool, error) {
@@ -228,18 +225,23 @@ func (a *DesktopApp) promptSavePath(ctx context.Context, fileName string) (strin
 	if choose != nil {
 		return choose(ctx, fileName)
 	}
-	return wailsruntime.SaveFileDialog(ctx, mediaSaveDialogOptions(fileName, runtime.GOOS))
+	app, err := wailsApp()
+	if err != nil {
+		return "", err
+	}
+	opts := mediaSaveDialogOptions(fileName, runtime.GOOS)
+	return app.Dialog.SaveFileWithOptions(&opts).PromptForSingleSelection()
 }
 
-func mediaSaveDialogOptions(fileName, platform string) wailsruntime.SaveDialogOptions {
-	options := wailsruntime.SaveDialogOptions{
-		DefaultFilename: fileName,
-		Title:           "保存文件",
+func mediaSaveDialogOptions(fileName, platform string) application.SaveFileDialogOptions {
+	options := application.SaveFileDialogOptions{
+		Filename: fileName,
+		Title:    "保存文件",
 	}
 	// Native save panels use this filter to preserve the format when a user
 	// renames a file. Let the panel resolve the extension before overwrite checks.
 	if ext := filepath.Ext(fileName); (platform == "windows" || platform == "darwin") && len(ext) > 1 {
-		options.Filters = []wailsruntime.FileFilter{{
+		options.Filters = []application.FileFilter{{
 			DisplayName: strings.ToUpper(ext[1:]) + " 文件 (*" + ext + ")",
 			Pattern:     "*" + ext,
 		}}
@@ -275,28 +277,34 @@ func (a *DesktopApp) copyEagle(baseURL, itemID, destPath string) error {
 	return runtime.CopyEagleItemTo(baseURL, itemID, destPath)
 }
 
+// ServiceStartup is called by Wails v3 when the application starts. It replaces
+// the v2 OnStartup hook and gives us the application-lifetime context.
+func (a *DesktopApp) ServiceStartup(ctx context.Context, _ application.ServiceOptions) error {
+	a.startup(ctx)
+	return nil
+}
+
 func (a *DesktopApp) startup(ctx context.Context) {
 	a.mu.Lock()
 	a.wailsCtx = ctx
 	a.mu.Unlock()
 	if err := prepareDesktopApp(a); err != nil {
 		log.Printf("启动本地后端失败: %v", err)
-		if ctx != nil && ctx.Value("logger") != nil {
-			wailsruntime.LogErrorf(ctx, "启动本地后端失败: %v", err)
-		}
 	}
 }
 
 func (a *DesktopApp) revealWindow() {
-	ctx, err := a.dialogContext()
-	if err != nil || ctx.Value("frontend") == nil {
+	window, err := mainWindow()
+	if err != nil {
 		return
 	}
-	wailsruntime.WindowUnminimise(ctx)
-	wailsruntime.WindowShow(ctx)
+	window.UnMinimise()
+	window.Show()
 }
 
-func (a *DesktopApp) shutdown(_ context.Context) {
+// shutdown is the Wails v3 OnShutdown hook. The variadic context keeps existing
+// test callers compiling without exposing this as a bound service method.
+func (a *DesktopApp) shutdown(_ ...context.Context) {
 	a.mu.Lock()
 	a.wailsCtx = nil
 	a.closing = true
@@ -345,8 +353,8 @@ func (h desktopAssetHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					request.Host = "127.0.0.1"
 				}
 				request.Header.Set("X-Desktop-Token", rt.LaunchToken())
-				if uiToken := rt.UIBootstrapToken(); uiToken != "" && request.Header.Get("X-Beeftv-UI-Bootstrap") == "" && shouldInjectUIBootstrapToken(r) {
-					request.Header.Set("X-Beeftv-UI-Bootstrap", uiToken)
+				if uiToken := rt.UIBootstrapToken(); uiToken != "" && request.Header.Get("X-Luckytv-UI-Bootstrap") == "" && shouldInjectUIBootstrapToken(r) {
+					request.Header.Set("X-Luckytv-UI-Bootstrap", uiToken)
 				}
 				rt.Handler().ServeHTTP(w, request)
 				return

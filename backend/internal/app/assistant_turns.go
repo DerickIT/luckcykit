@@ -6,10 +6,10 @@ import (
 	"errors"
 	"path/filepath"
 
-	"infinite-canvas/backend/internal/assistantturns"
-	"infinite-canvas/backend/internal/canvas"
-	"infinite-canvas/backend/internal/operations"
-	"infinite-canvas/backend/internal/supporttrace"
+	"luckytv/backend/internal/assistantturns"
+	"luckytv/backend/internal/canvas"
+	"luckytv/backend/internal/operations"
+	"luckytv/backend/internal/supporttrace"
 
 	"gorm.io/gorm"
 )

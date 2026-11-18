@@ -1,10 +1,10 @@
 {
-  "name": "beeftv",
-  "interface": { "displayName": "BeefTV" },
+  "name": "luckytv",
+  "interface": { "displayName": "LuckyTV" },
   "plugins": [
     {
-      "name": "beeftv-skills",
-      "source": { "source": "local", "path": "./plugins/beeftv-skills" },
+      "name": "luckytv-skills",
+      "source": { "source": "local", "path": "./plugins/luckytv-skills" },
       "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
       "category": "Productivity"
     }

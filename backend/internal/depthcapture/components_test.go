@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/depthruntime"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/depthruntime"
+	"luckytv/backend/internal/model"
 )
 
 func TestComponentManifestMirrorsRespectExplicitOverride(t *testing.T) {

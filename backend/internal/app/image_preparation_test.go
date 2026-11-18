@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
 )
 
 func TestImagePreparationFailureIsNotUnknownSubmission(t *testing.T) {
@@ -19,7 +19,7 @@ func TestImagePreparationFailureIsNotUnknownSubmission(t *testing.T) {
 	ctx := context.WithValue(generation.WithImageReplayProtocol(context.Background(), generation.ImageReplayProtocol), imageTaskContext{}, task)
 	ctx = context.WithValue(ctx, imageAttemptContext{}, "image-attempt")
 	ctx = context.WithValue(ctx, providerSubmissionKeyContext{}, "persisted-key")
-	req, _ := http.NewRequestWithContext(ctx, http.MethodPost, "https://beeftv.app/v1/images/generations", strings.NewReader(`{}`))
+	req, _ := http.NewRequestWithContext(ctx, http.MethodPost, "https://luckytv.app/v1/images/generations", strings.NewReader(`{}`))
 	_, _, _, err := (appImagePort{s}).Intercept(req)
 	var preparation imagePreparationError
 	if !errors.As(err, &preparation) {

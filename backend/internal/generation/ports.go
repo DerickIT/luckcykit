@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/outbound"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/outbound"
 )
 
 // ResourceInfo is the executor view of an owned workspace asset.
@@ -132,7 +132,7 @@ type MediaProbePort interface {
 // Endpoints holds per-execution test/control-plane URL overrides.
 // Production leaves this empty and derives hosts from config/region.
 type Endpoints struct {
-	BeefTVVideoBaseURL        string
+	LuckyTVVideoBaseURL        string
 	ArkPrivateAssetAPIBaseURL string
 }
 
@@ -155,7 +155,7 @@ type CallMeta struct {
 
 // DeliveryProgressPort carries in-generation result download progress (for
 // example a video fetched from a gateway before the task succeeds). The adapter
-// is bound to the executing BeefTV task and owns identity; provider task ids
+// is bound to the executing LuckyTV task and owns identity; provider task ids
 // must never be used as the key. nil means nothing is reported.
 type DeliveryProgressPort interface {
 	ReportDelivery(progress outbound.ResumableProgress)
@@ -177,7 +177,7 @@ type Runtime struct {
 	DownloadCache     VideoDownloadCachePort
 	ReferenceProgress ReferenceProgressPort
 	Images            ImageSubmissionPort
-	ManagedMedia      beeftv.MediaStatePort
+	ManagedMedia      luckytv.MediaStatePort
 	Prompt            PromptPort
 	Config            ConfigPort
 	Style             StylePort

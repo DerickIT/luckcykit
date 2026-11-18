@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "luckytv-skills": {
+      "type": "http",
+      "url": "https://luckytv.app/api/luckytv/skillhub/v1/mcp"
+    }
+  }
+}

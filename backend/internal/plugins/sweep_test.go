@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/protocol"
 )
 
 // Each release that changed an official archive used to leave the previous blob
@@ -33,7 +33,7 @@ func TestStartupSweepsUnreferencedPackageBlobs(t *testing.T) {
 	}
 	stale := write(strings.Repeat("a", 64)+protocol.PluginPackageExtension, old)
 	fresh := write(strings.Repeat("b", 64)+protocol.PluginPackageExtension, time.Now())
-	foreign := write("my-plugin.beeftv-plugin", old)
+	foreign := write("my-plugin.luckytv-plugin", old)
 
 	runtime, err := NewRuntimeWithStore(dataDir, store)
 	if err != nil {
@@ -41,7 +41,7 @@ func TestStartupSweepsUnreferencedPackageBlobs(t *testing.T) {
 	}
 	svc := New(runtime, store)
 	pkg := testPluginPackage(t, testManifest("kept-plugin", "1.0.0"))
-	if _, err := svc.InstallUploaded("admin-1", pkg, "kept-plugin.beeftv-plugin"); err != nil {
+	if _, err := svc.InstallUploaded("admin-1", pkg, "kept-plugin.luckytv-plugin"); err != nil {
 		t.Fatal(err)
 	}
 	kept := filepath.Join(packageDir, pluginHash(pkg)+protocol.PluginPackageExtension)
@@ -88,7 +88,7 @@ func TestSweepRereadsTheCommittedRegistry(t *testing.T) {
 		t.Fatal(err)
 	}
 	pkg := testPluginPackage(t, testManifest("reused-plugin", "1.0.0"))
-	if _, err := New(runtime, store).InstallUploaded("admin-1", pkg, "reused-plugin.beeftv-plugin"); err != nil {
+	if _, err := New(runtime, store).InstallUploaded("admin-1", pkg, "reused-plugin.luckytv-plugin"); err != nil {
 		t.Fatal(err)
 	}
 	blob := filepath.Join(dataDir, "plugin-packages", pluginHash(pkg)+protocol.PluginPackageExtension)

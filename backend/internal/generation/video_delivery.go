@@ -8,17 +8,17 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/protocol"
 )
 
 const videoDeliveryIdleTimeout = 10 * time.Second
 
-const beefTVVideoDeliveryHeader = "X-Beeftv-Video-Delivery"
+const luckyTVVideoDeliveryHeader = "X-Luckytv-Video-Delivery"
 
 // Opt in only at the trusted gateway's video status endpoint. Older clients
 // keep their existing delivery route until they support same-task backup.
-func applyBeefTVVideoDeliveryHeader(ctx context.Context, config Config, req *http.Request) {
-	if !IsBeefTVVideoConfig(ctx, config) || req.Method != http.MethodGet || !SameProviderOrigin(config.BaseURL, req.URL.String()) {
+func applyLuckyTVVideoDeliveryHeader(ctx context.Context, config Config, req *http.Request) {
+	if !IsLuckyTVVideoConfig(ctx, config) || req.Method != http.MethodGet || !SameProviderOrigin(config.BaseURL, req.URL.String()) {
 		return
 	}
 	collectionURL, err := url.Parse(APIURL(config.BaseURL, "/videos"))
@@ -31,7 +31,7 @@ func applyBeefTVVideoDeliveryHeader(ctx context.Context, config Config, req *htt
 	}
 	id := strings.TrimPrefix(req.URL.Path, prefix)
 	if id != "" && !strings.Contains(id, "/") {
-		req.Header.Set(beefTVVideoDeliveryHeader, "direct")
+		req.Header.Set(luckyTVVideoDeliveryHeader, "direct")
 	}
 }
 
@@ -185,11 +185,11 @@ func videoURLSource(config Config, rawURL string) VideoResultSource {
 }
 
 // The existing download loop owns retry/deadline/progress. This closure only
-// changes its source: BeefTV backup, or the same third-party task's fresh URL.
+// changes its source: LuckyTV backup, or the same third-party task's fresh URL.
 func VideoResultDownloader(config Config, taskID string, primary VideoResultSource, renew func(context.Context) (VideoResultSource, error)) func(context.Context) ([]byte, string, error) {
 	refresh := false
 	readFresh := func(ctx context.Context) ([]byte, string, error) {
-		if IsBeefTVVideoConfig(ctx, config) {
+		if IsLuckyTVVideoConfig(ctx, config) {
 			backupURL := APIURL(config.BaseURL, "/videos/"+url.PathEscape(taskID)+"/content") + "?delivery=backup"
 			return getVideoBinaryWithIdleTimeout(ctx, config, backupURL, videoDeliveryIdleTimeout)
 		}
@@ -224,7 +224,7 @@ func VideoResultDownloader(config Config, taskID string, primary VideoResultSour
 		if !retry && !videoMediaLinkRejected(ctx, config, primary.URL, err) {
 			return nil, "", err
 		}
-		if strings.TrimSpace(taskID) == "" || (!IsBeefTVVideoConfig(ctx, config) && renew == nil) {
+		if strings.TrimSpace(taskID) == "" || (!IsLuckyTVVideoConfig(ctx, config) && renew == nil) {
 			return nil, "", err
 		}
 		refresh = true
@@ -239,7 +239,7 @@ func videoMediaLinkRejected(ctx context.Context, config Config, rawURL string, e
 	}
 	// A third-party media link may expire on its own provider origin. The
 	// original task query verifies provider auth; rejection there still stops.
-	return !SameProviderOrigin(config.BaseURL, ProviderDownloadURL(config.BaseURL, rawURL)) || !IsBeefTVVideoConfig(ctx, config)
+	return !SameProviderOrigin(config.BaseURL, ProviderDownloadURL(config.BaseURL, rawURL)) || !IsLuckyTVVideoConfig(ctx, config)
 }
 
 func videoResultURL(status, rawURL string) (string, error) {

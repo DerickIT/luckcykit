@@ -2,7 +2,7 @@ package bootstrap
 
 import (
 	"context"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 	"testing"
 	"time"
 )

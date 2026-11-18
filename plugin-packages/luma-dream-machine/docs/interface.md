@@ -71,18 +71,18 @@
 
 该 profile 对应 Dream Machine API 的 `POST /dream-machine/v1/generations` 与 `GET /dream-machine/v1/generations/{id}`。创建请求按官方字段发送 `model`、`prompt`、`aspect_ratio`、`resolution`、`duration` 与 `keyframes`：`duration` 写成官方要求的字符串（例如 `5s`；官方 schema 允许任意字符串，常见取值为 `5s` / `9s`），`resolution` 统一小写、2160p 转成官方写法 `4k`，首帧与尾帧写成 `keyframes.frame0` / `frame1` 的 `image` 类型；角色或风格参考图、参考视频、参考音频在提交前报错，不会静默丢弃。官方文档把在线图片地址写成唯一传递方式，因此本 profile 声明 `requiresPublicMediaUrls: true` 且 `mediaTransport.image` 为 `url`：本地图片由宿主先上传到对象存储换成在线地址，拿不到在线地址时在提交前返回 `reference_media_requires_url`，不会把 data URL 写进只接受在线地址的 `keyframes.frame0.url` / `frame1.url`。结果从官方 `assets.video` 取回。
 
-<!-- BEEFTV_PLUGIN_MANIFEST_START -->
+<!-- LUCKYTV_PLUGIN_MANIFEST_START -->
 ## Manifest 完整接口定义
 
 以下 JSON 与插件包内实际 `manifest.json` 逐字段一致，覆盖插件身份、权限、配置、鉴权、参数、校验、创建、Agent、查询、取消、结果下载、响应和 Agent 响应映射。`documentation` 字段的值就是当前完整文档；为避免文档在自身内部无限递归，JSON 中仅用等义占位文本表示正文。
 
 ```json
 {
-  "apiVersion": "beeftv.plugin/v2",
+  "apiVersion": "luckytv.plugin/v2",
   "id": "luma-dream-machine",
   "name": "Luma Dream Machine",
   "version": "2.0.1",
-  "author": "BeefTV Contributors",
+  "author": "LuckyTV Contributors",
   "description": "Luma Dream Machine 独立请求协议插件。",
   "documentation": "<当前插件的完整 documentation，由 README.md 与 docs/interface.md 拼接而成；为避免 JSON 递归，此处不重复展开正文。>",
   "permissions": [
@@ -679,4 +679,4 @@
   }
 }
 ```
-<!-- BEEFTV_PLUGIN_MANIFEST_END -->
+<!-- LUCKYTV_PLUGIN_MANIFEST_END -->

@@ -120,7 +120,7 @@ test("高分屏默认模型菜单紧贴自己的选择框", async () => {
         const triggerBox = (await select.boundingBox())!;
         const popupBox = (await popup.boundingBox())!;
         expect(Math.abs(popupBox.y - triggerBox.y - triggerBox.height)).toBeLessThanOrEqual(8);
-        if (process.env.BEEFTV_SETTINGS_SCREENSHOT_DIR) await page.screenshot({ path: `${process.env.BEEFTV_SETTINGS_SCREENSHOT_DIR}/default-model-highdpi.png` });
+        if (process.env.LUCKYTV_SETTINGS_SCREENSHOT_DIR) await page.screenshot({ path: `${process.env.LUCKYTV_SETTINGS_SCREENSHOT_DIR}/default-model-highdpi.png` });
     } finally { await page.close(); }
 }, 15000);
 
@@ -193,7 +193,7 @@ for (const dark of [false, true]) {
                 return (Math.max(foreground, background) + .05) / (Math.min(foreground, background) + .05);
             });
             expect(contrast).toBeGreaterThanOrEqual(4.5);
-            if (process.env.BEEFTV_SETTINGS_SCREENSHOT_DIR) await page.getByTestId("model-capabilities").screenshot({ path: `${process.env.BEEFTV_SETTINGS_SCREENSHOT_DIR}/model-tags-${dark ? "dark" : "light"}.png` });
+            if (process.env.LUCKYTV_SETTINGS_SCREENSHOT_DIR) await page.getByTestId("model-capabilities").screenshot({ path: `${process.env.LUCKYTV_SETTINGS_SCREENSHOT_DIR}/model-tags-${dark ? "dark" : "light"}.png` });
         } finally { await page.close(); }
     }, 15000);
 }
@@ -219,7 +219,7 @@ for (const reduced of [false, true]) {
         for (const mobile of [false, true]) {
             test(`删除渠道确认可见并可点击：${reduced ? "减少动态效果" : "普通动效"} / ${dark ? "深色" : "浅色"} / ${mobile ? "手机" : "桌面"}`, async () => {
                 const page = await open({ reduced, dark, mobile });
-                const screenshotBase = process.env.BEEFTV_SETTINGS_SCREENSHOT_DIR && `${process.env.BEEFTV_SETTINGS_SCREENSHOT_DIR}/delete-${reduced ? "reduced" : "normal"}-${dark ? "dark" : "light"}-${mobile ? "mobile" : "desktop"}`;
+                const screenshotBase = process.env.LUCKYTV_SETTINGS_SCREENSHOT_DIR && `${process.env.LUCKYTV_SETTINGS_SCREENSHOT_DIR}/delete-${reduced ? "reduced" : "normal"}-${dark ? "dark" : "light"}-${mobile ? "mobile" : "desktop"}`;
                 try {
                     const trigger = page.getByRole("button", { name: "删除渠道 工作室渠道" });
                     if (screenshotBase) await page.screenshot({ path: `${screenshotBase}-before.png` });
@@ -333,8 +333,8 @@ for (const reduced of [false, true]) {
                         expect(box.y).toBeGreaterThanOrEqual(0);
                         expect(box.x + box.width).toBeLessThanOrEqual(viewport.width + 1);
                         expect(box.y + box.height).toBeLessThanOrEqual(viewport.height + 1);
-                        if (process.env.BEEFTV_MODEL_PICKER_SCREENSHOT && reduced && !dark && !mobile && id === "text") {
-                            await page.screenshot({ path: process.env.BEEFTV_MODEL_PICKER_SCREENSHOT });
+                        if (process.env.LUCKYTV_MODEL_PICKER_SCREENSHOT && reduced && !dark && !mobile && id === "text") {
+                            await page.screenshot({ path: process.env.LUCKYTV_MODEL_PICKER_SCREENSHOT });
                         }
                         await popup.locator(".ant-select-item-option").filter({ hasText: model! }).click();
                         const selected = JSON.parse((await page.getByTestId("selected-models").textContent())!);

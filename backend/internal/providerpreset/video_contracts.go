@@ -45,12 +45,12 @@ var videoContracts = func() []VideoContract {
 	return contracts
 }()
 
-func IsBeefTVEndpoint(baseURL string) bool {
+func IsLuckyTVEndpoint(baseURL string) bool {
 	u, err := url.Parse(strings.TrimSpace(baseURL))
-	return err == nil && u.Scheme == "https" && strings.EqualFold(u.Hostname(), "beeftv.app") && u.User == nil && (u.Port() == "" || u.Port() == "443")
+	return err == nil && u.Scheme == "https" && strings.EqualFold(u.Hostname(), "luckytv.app") && u.User == nil && (u.Port() == "" || u.Port() == "443")
 }
 
-func BeefTVVideoContract(model string) (VideoContract, bool) {
+func LuckyTVVideoContract(model string) (VideoContract, bool) {
 	model = strings.ToLower(strings.TrimSpace(model))
 	for _, contract := range videoContracts {
 		for _, name := range contract.Models {
@@ -62,14 +62,14 @@ func BeefTVVideoContract(model string) (VideoContract, bool) {
 	return VideoContract{}, false
 }
 
-// HostedBeefTVVideoProfile overlays the official video route onto a stored
-// profile only when the channel talks to beeftv.app. Custom
+// HostedLuckyTVVideoProfile overlays the official video route onto a stored
+// profile only when the channel talks to luckytv.app. Custom
 // gateways keep their configured capability even if the model name matches.
-func HostedBeefTVVideoProfile(baseURL, model string) (capability, protocol string, ok bool) {
-	if !IsBeefTVEndpoint(baseURL) {
+func HostedLuckyTVVideoProfile(baseURL, model string) (capability, protocol string, ok bool) {
+	if !IsLuckyTVEndpoint(baseURL) {
 		return "", "", false
 	}
-	contract, ok := BeefTVVideoContract(model)
+	contract, ok := LuckyTVVideoContract(model)
 	if !ok {
 		return "", "", false
 	}

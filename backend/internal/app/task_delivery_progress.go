@@ -1,9 +1,9 @@
 package app
 
 import (
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/outbound"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/outbound"
+	localtask "luckytv/backend/internal/task"
 )
 
 type deliveryProgressRegistry struct {

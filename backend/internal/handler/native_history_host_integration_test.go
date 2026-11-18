@@ -17,9 +17,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/editing"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/editing"
+	"luckytv/backend/internal/model"
 )
 
 // Real uploaded media, Go SQLite ownership, default shipped Durable host and

@@ -7,12 +7,12 @@ import (
 	"strconv"
 	"strings"
 
-	"infinite-canvas/backend/internal/assets"
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/repository"
-	"infinite-canvas/backend/internal/topaz"
+	"luckytv/backend/internal/assets"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/repository"
+	"luckytv/backend/internal/topaz"
 )
 
 // Binding is one substitution slot inside a private generation recipe.
@@ -67,7 +67,7 @@ type CompileHost interface {
 	// ProviderConfig is the effective local model configuration.
 	ProviderConfig() (map[string]any, error)
 	LocalMode() bool
-	// ManagedCredential is the current BeefTV key and base URL.
+	// ManagedCredential is the current LuckyTV key and base URL.
 	ManagedCredential() (apiKey, baseURL string, err error)
 	ManagedCredentialRef() string
 	// UpscaleAvailable reports whether the named upscale model can run.

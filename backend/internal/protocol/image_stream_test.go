@@ -117,10 +117,10 @@ func TestProviderVariablesAreOrderedAndRequestScoped(t *testing.T) {
 }
 
 func TestProviderExtensionsRequireNewHostContract(t *testing.T) {
-	for _, version := range []string{"beeftv.plugin/v2", "beeftv.plugin/v3"} {
+	for _, version := range []string{"luckytv.plugin/v2", "luckytv.plugin/v3"} {
 		body := []byte(fmt.Sprintf(`{"apiVersion":%q,"id":"stream-fixture","name":"Fixture","version":"1.0.0","contributes":{"providers":[{"id":"stream-fixture","label":"Fixture","capabilities":["image"],"scopes":["canvas"],"variables":[{"name":"promptCopy","value":{"$ref":"request.prompt"}}],"create":{"method":"POST","path":"/images/generations","defaultPathPrefix":"/api/v3","body":{"prompt":{"$ref":"vars.promptCopy"}}},"response":{"stream":{"typePath":"type","itemEvents":["done"],"images":{"$ref":"response.images"}},"detectImageMime":true}}]}}`, version))
 		adapter, err := LoadManifest(body)
-		if version == "beeftv.plugin/v2" {
+		if version == "luckytv.plugin/v2" {
 			if err == nil {
 				t.Fatal("new syntax was accepted as an old host contract")
 			}

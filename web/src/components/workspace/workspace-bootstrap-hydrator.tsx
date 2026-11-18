@@ -21,6 +21,7 @@ import {
 } from "@/services/workspace-startup-state";
 import { normalizeConfigSnapshot, useConfigStore } from "@/stores/use-config-store";
 import { useUserStore } from "@/stores/use-user-store";
+import { isBrowserLocalRuntime } from "@/lib/runtime-mode";
 
 export function WorkspaceBootstrapHydrator({ children }: { children: ReactNode }) {
     const hydrated = useUserStore((state) => state.hydrated);
@@ -162,6 +163,10 @@ export function shouldSaveLocalModelConfig({ subscriptionReady, modelConfigReady
 let applyingHydratedModelConfig = false;
 
 export async function hydrateLocalModelConfig() {
+    if (isBrowserLocalRuntime()) {
+        useConfigStore.getState().replaceConfig(localWorkspaceConfig(normalizeConfigSnapshot({ config: useConfigStore.getState().config }).config));
+        return;
+    }
     const result = await hydrateModelConfig();
     // 还有没保存的设置修改：界面保留它，等它保存，不用读回的旧快照覆盖。
     if (result.supersededByLocalEdit) return;

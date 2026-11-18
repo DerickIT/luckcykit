@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func TestPaymentRequiredIsSafeRouteRejection(t *testing.T) {

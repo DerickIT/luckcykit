@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"infinite-canvas/backend/internal/skillhub"
+	"luckytv/backend/internal/skillhub"
 )
 
 type marketProbe struct {

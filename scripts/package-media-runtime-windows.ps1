@@ -2,7 +2,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)][string]$Destination,
-    [string]$ArchivePath = $env:BEEFTV_WINDOWS_MEDIA_ARCHIVE
+    [string]$ArchivePath = $env:LUCKYTV_WINDOWS_MEDIA_ARCHIVE
 )
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
@@ -10,7 +10,7 @@ if ($env:OS -ne "Windows_NT") { throw "Native Windows packaging is required" }
 $lockPath = Join-Path $PSScriptRoot "..\licenses\ffmpeg-windows.json"
 $lock = Get-Content -LiteralPath $lockPath -Raw | ConvertFrom-Json
 if (Test-Path -LiteralPath $Destination) { throw "Refusing to overwrite media runtime: $Destination" }
-$scratch = Join-Path ([IO.Path]::GetTempPath()) ("beeftv-media-" + [guid]::NewGuid().ToString("N"))
+$scratch = Join-Path ([IO.Path]::GetTempPath()) ("luckytv-media-" + [guid]::NewGuid().ToString("N"))
 New-Item -ItemType Directory -Path $scratch | Out-Null
 try {
     if (-not $ArchivePath) {

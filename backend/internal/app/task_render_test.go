@@ -11,9 +11,9 @@ import (
 
 	"gorm.io/gorm"
 
-	localasset "infinite-canvas/backend/internal/asset"
-	"infinite-canvas/backend/internal/editing"
-	"infinite-canvas/backend/internal/model"
+	localasset "luckytv/backend/internal/asset"
+	"luckytv/backend/internal/editing"
+	"luckytv/backend/internal/model"
 )
 
 // renderTestProject 构造一个可渲染的 v2 快照：一条可见视频轨 + 一个

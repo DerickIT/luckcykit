@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"strings"
 
-	"infinite-canvas/backend/internal/assistant"
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/workspace"
+	"luckytv/backend/internal/assistant"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/workspace"
 )
 
 const (
@@ -57,8 +57,8 @@ func (s *Service) ResolveAssistantProvider() (AssistantProvider, error) {
 		return AssistantProvider{}, err
 	}
 	for index, channel := range snapshot.Channels {
-		if strings.TrimSpace(channel.Name) == "" && channel.ID == beeftv.ChannelID {
-			snapshot.Channels[index].Name = "BeefTV"
+		if strings.TrimSpace(channel.Name) == "" && channel.ID == luckytv.ChannelID {
+			snapshot.Channels[index].Name = "LuckyTV"
 		}
 	}
 	return modelcatalog.ResolveAssistantProvider(snapshot, s.assistantManagedCredentialLookup())
@@ -66,10 +66,10 @@ func (s *Service) ResolveAssistantProvider() (AssistantProvider, error) {
 
 func (s *Service) assistantManagedCredentialLookup() modelcatalog.ManagedCredentialLookup {
 	return func(channelID, credentialRef, baseURL string) (string, string, bool) {
-		if !(beeftv.IsManagedChannel(channelID, credentialRef, baseURL) || channelID == beeftv.ChannelID) {
+		if !(luckytv.IsManagedChannel(channelID, credentialRef, baseURL) || channelID == luckytv.ChannelID) {
 			return "", "", false
 		}
-		apiKey, resolvedBaseURL, _, _, lookupErr := s.lookupBeefTVCredential()
+		apiKey, resolvedBaseURL, _, _, lookupErr := s.lookupLuckyTVCredential()
 		if lookupErr != nil || strings.TrimSpace(apiKey) == "" {
 			return "", "", false
 		}
@@ -83,8 +83,8 @@ func assistantReasonMessage(reason string) string {
 
 func (s *Service) resolveAssistantChannelModel(snapshot assistantConfigSnapshot, modelKey string) (AssistantProvider, string) {
 	for index, channel := range snapshot.Channels {
-		if strings.TrimSpace(channel.Name) == "" && channel.ID == beeftv.ChannelID {
-			snapshot.Channels[index].Name = "BeefTV"
+		if strings.TrimSpace(channel.Name) == "" && channel.ID == luckytv.ChannelID {
+			snapshot.Channels[index].Name = "LuckyTV"
 		}
 	}
 	return modelcatalog.ResolveAssistantChannelModel(snapshot, modelKey, s.assistantManagedCredentialLookup())
@@ -102,8 +102,8 @@ func assistantChannelName(channel assistantChannel) string {
 	if name := modelcatalog.AssistantChannelName(channel); name != "" && name != channel.ID {
 		return name
 	}
-	if channel.ID == beeftv.ChannelID {
-		return "BeefTV"
+	if channel.ID == luckytv.ChannelID {
+		return "LuckyTV"
 	}
 	return modelcatalog.AssistantChannelName(channel)
 }

@@ -157,7 +157,7 @@ export function resourceStorageKey(id: string) {
 
 export const DEFAULT_CANVAS_DOCUMENT_LIMIT_MB = 64;
 export const MAX_CANVAS_DOCUMENT_LIMIT_MB = 512;
-const CANVAS_DOCUMENT_LIMIT_STORAGE_KEY = "beeftv-canvas-document-limit-mb";
+const CANVAS_DOCUMENT_LIMIT_STORAGE_KEY = "luckytv-canvas-document-limit-mb";
 
 export function readLocalCanvasDocumentLimitMB(): number {
     try {

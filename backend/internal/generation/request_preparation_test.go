@@ -9,8 +9,8 @@ import (
 	"net/url"
 	"testing"
 
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/protocol"
 )
 
 func TestMultipartPreparationCannotBeAnUncertainPaidSubmission(t *testing.T) {
@@ -28,12 +28,12 @@ func TestMultipartPreparationCannotBeAnUncertainPaidSubmission(t *testing.T) {
 func TestManagedDiscoveryTransportFailureClassifiesAsRequestNotSent(t *testing.T) {
 	for _, cause := range []error{
 		io.EOF,
-		&url.Error{Op: "Get", URL: "https://beeftv.app/v1/models", Err: x509.UnknownAuthorityError{}},
-		&net.DNSError{Err: "no such host", Name: "beeftv.app"},
+		&url.Error{Op: "Get", URL: "https://luckytv.app/v1/models", Err: x509.UnknownAuthorityError{}},
+		&net.DNSError{Err: "no such host", Name: "luckytv.app"},
 	} {
-		err := RequestPreparationError{Cause: beeftv.MediaDiscoveryTransportError{Cause: cause}}
+		err := RequestPreparationError{Cause: luckytv.MediaDiscoveryTransportError{Cause: cause}}
 		var preparation RequestPreparationError
-		if !errors.As(err, &preparation) || !beeftv.IsDiscoveryTransportError(err) || !SafeRouteRejection(err) {
+		if !errors.As(err, &preparation) || !luckytv.IsDiscoveryTransportError(err) || !SafeRouteRejection(err) {
 			t.Fatalf("expected unsent preparation error for %T: %#v", cause, err)
 		}
 		classified := ClassifyError(UncertainVideoSubmission(context.Background(), err))

@@ -9,10 +9,9 @@ import (
 	"strings"
 	"time"
 
-	wailsruntime "github.com/wailsapp/wails/v2/pkg/runtime"
-	"infinite-canvas/backend/internal/bootstrap"
-	"infinite-canvas/backend/internal/desktopstorage"
-	"infinite-canvas/backend/internal/runtimeinfo"
+	"luckytv/backend/internal/bootstrap"
+	"luckytv/backend/internal/desktopstorage"
+	"luckytv/backend/internal/runtimeinfo"
 )
 
 func (a *DesktopApp) StorageSettings() (desktopstorage.Usage, error) {
@@ -69,13 +68,13 @@ func (a *DesktopApp) CleanupPreviousStorage() (desktopstorage.Usage, error) {
 }
 
 func (a *DesktopApp) ChooseStorageDirectory() (string, error) {
-	ctx, err := a.dialogContext()
+	app, err := wailsApp()
 	if err != nil {
 		return "", err
 	}
-	path, err := wailsruntime.OpenDirectoryDialog(ctx, wailsruntime.OpenDialogOptions{Title: "选择 BeefTV 数据存储文件夹"})
+	path, err := app.Dialog.OpenFile().SetTitle("选择 LuckyTV 数据存储文件夹").CanChooseDirectories(true).CanChooseFiles(false).PromptForSingleSelection()
 	if err == nil && path != "" && filepath.Dir(path) == path {
-		path = filepath.Join(path, "BeefTV")
+		path = filepath.Join(path, "LuckyTV")
 	}
 	return path, err
 }
@@ -127,7 +126,7 @@ func (a *DesktopApp) MigrateStorage(target string) (desktopstorage.Usage, error)
 	defer func() { a.mu.Lock(); a.migrating = false; a.migrationCancel = nil; a.mu.Unlock() }()
 	currentRuntime := a.runtime()
 	if currentRuntime == nil {
-		return desktopstorage.Usage{}, errors.New("工作区尚未就绪，迁移未开始。请重启 BeefTV 后重试")
+		return desktopstorage.Usage{}, errors.New("工作区尚未就绪，迁移未开始。请重启 LuckyTV 后重试")
 	}
 	prepareCtx, prepareCancel := context.WithTimeout(ctx, 10*time.Second)
 	a.setMigrationProgress(desktopstorage.Progress{Phase: "preparing", Detail: "正在停止后台任务并保存工作区"})
@@ -153,13 +152,13 @@ func (a *DesktopApp) MigrateStorage(target string) (desktopstorage.Usage, error)
 			a.installStorageRuntime(source, old)
 			return desktopstorage.Usage{}, fmt.Errorf("迁移未完成，已恢复原工作区，存储目录未更改。请查看错误详情\n\n%w", cause)
 		}
-		return desktopstorage.Usage{}, fmt.Errorf("迁移未完成，原数据已保留，但工作区未能重新打开。请重启 BeefTV\n\n%w", errors.Join(cause, openErr))
+		return desktopstorage.Usage{}, fmt.Errorf("迁移未完成，原数据已保留，但工作区未能重新打开。请重启 LuckyTV\n\n%w", errors.Join(cause, openErr))
 	}
 	if err != nil {
 		a.mu.Lock()
 		a.closing = true
 		a.mu.Unlock()
-		return desktopstorage.Usage{}, fmt.Errorf("迁移未开始，原数据仍在原目录。工作区未能完整关闭，请重启 BeefTV 后重试\n\n%w", err)
+		return desktopstorage.Usage{}, fmt.Errorf("迁移未开始，原数据仍在原目录。工作区未能完整关闭，请重启 LuckyTV 后重试\n\n%w", err)
 	}
 	sourceLock, err := runtimeinfo.LockWorkspace(source)
 	if err != nil {

@@ -9,7 +9,7 @@ import test from 'node:test';
 const script = fileURLToPath(new URL('./configure-ubuntu-apt.sh', import.meta.url));
 
 function fixture(t, files) {
-  const root = mkdtempSync(join(tmpdir(), 'beeftv-apt-'));
+  const root = mkdtempSync(join(tmpdir(), 'luckytv-apt-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   for (const dir of ['sources.list.d', 'apt.conf.d', 'bin']) mkdirSync(join(root, dir));
   // Run the real edits on owned fixtures without invoking host sudo. BSD sed
@@ -37,8 +37,8 @@ test('hosted Ubuntu mirror lists stop selecting Azure while preserving repositor
   const first = f.read('apt-mirrors.txt');
   f.run();
   assert.equal(f.read('apt-mirrors.txt'), first);
-  assert.match(f.read('apt.conf.d/80beeftv-network'), /Acquire::Retries "3";/);
-  assert.match(f.read('apt.conf.d/80beeftv-network'), /Acquire::https::Timeout "30";/);
+  assert.match(f.read('apt.conf.d/80luckytv-network'), /Acquire::Retries "3";/);
+  assert.match(f.read('apt.conf.d/80luckytv-network'), /Acquire::https::Timeout "30";/);
 });
 
 test('direct list and deb822 sources switch only the exact Azure host', t => {

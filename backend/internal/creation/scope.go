@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func ValidateSubmissionScope(run *model.CreationRun, version int64, req TaskRequest) error {

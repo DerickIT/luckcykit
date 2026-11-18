@@ -7,11 +7,11 @@ import (
 	"strconv"
 	"strings"
 
-	"infinite-canvas/backend/internal/beeftv"
+	"luckytv/backend/internal/luckytv"
 )
 
-func runManagedAudioTask(ctx context.Context, client *beeftv.MediaClient, input Input) (map[string]any, error) {
-	request := beeftv.MediaRequest{TaskRef: SubmissionKeyFromContext(ctx), MediaType: "audio", Model: input.Config.Model}
+func runManagedAudioTask(ctx context.Context, client *luckytv.MediaClient, input Input) (map[string]any, error) {
+	request := luckytv.MediaRequest{TaskRef: SubmissionKeyFromContext(ctx), MediaType: "audio", Model: input.Config.Model}
 	runtime, _ := RuntimeFromContext(ctx)
 	if runtime.ManagedMedia == nil || request.TaskRef == "" {
 		return nil, RequestPreparationError{Cause: errors.New("音频请求缺少持久化提交标识")}
@@ -48,7 +48,7 @@ func runManagedAudioTask(ctx context.Context, client *beeftv.MediaClient, input 
 	if len(input.ReferenceImages) > 0 && len(input.ReferenceAudios) > 0 {
 		return nil, RequestPreparationError{Cause: errors.New("配音暂不支持同时传入参考图片与参考音频，请只保留其中一种参考素材")}
 	}
-	refs := make([]beeftv.LocalMediaReference, 0, len(input.ReferenceImages)+len(input.ReferenceAudios))
+	refs := make([]luckytv.LocalMediaReference, 0, len(input.ReferenceImages)+len(input.ReferenceAudios))
 	for _, image := range input.ReferenceImages {
 		ref := managedReference(image, "reference")
 		ref.Kind = "image"

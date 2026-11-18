@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/app"
-	"infinite-canvas/backend/internal/database"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/app"
+	"luckytv/backend/internal/database"
+	"luckytv/backend/internal/repository"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/sqlite"
@@ -71,11 +71,11 @@ func TestRegisterDesktopCanvasAPIExcludesHostedOnlyRoutes(t *testing.T) {
 		"POST /api/tasks":                                  false,
 		"POST /api/ai/models":                              false,
 		"POST /api/ai/request-urls":                        false,
-		"GET /api/beeftv/connection":                       false,
-		"POST /api/beeftv/connection/start":                false,
-		"GET /api/beeftv/connection/topup/info":            false,
-		"POST /api/beeftv/connection/topup/checkout":       false,
-		"POST /api/beeftv/connection/topup/reconcile":      false,
+		"GET /api/luckytv/connection":                       false,
+		"POST /api/luckytv/connection/start":                false,
+		"GET /api/luckytv/connection/topup/info":            false,
+		"POST /api/luckytv/connection/topup/checkout":       false,
+		"POST /api/luckytv/connection/topup/reconcile":      false,
 		"GET /api/creation-conversations":                  false,
 		"PUT /api/creation-conversations/:id":              false,
 		"GET /api/canvas-folders":                          false,

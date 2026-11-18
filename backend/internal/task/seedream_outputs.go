@@ -2,8 +2,8 @@ package task
 
 import (
 	"encoding/json"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/providerpreset"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/providerpreset"
 	"strconv"
 	"strings"
 )

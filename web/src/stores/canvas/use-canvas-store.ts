@@ -838,7 +838,7 @@ export const useCanvasStore = create<CanvasStore>()(
             }),
             deleteProjects: (ids) =>
                 set((state) => {
-                    ids.forEach((id) => { void localForageStorageForScope().removeItem(`beeftv-project-cover:${id}`); try { window.localStorage.removeItem(`beeftv-project-cover:${id}`); } catch { /* ignore */ } });
+                    ids.forEach((id) => { void localForageStorageForScope().removeItem(`luckytv-project-cover:${id}`); try { window.localStorage.removeItem(`luckytv-project-cover:${id}`); } catch { /* ignore */ } });
                     return { projects: state.projects.filter((project) => !ids.includes(project.id)) };
                 }),
             restoreProject: (project) => set((state) => {

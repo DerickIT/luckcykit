@@ -3,8 +3,8 @@ package creation
 import (
 	"encoding/json"
 
-	"infinite-canvas/backend/internal/canvas/capability"
-	"infinite-canvas/backend/internal/kernel"
+	"luckytv/backend/internal/canvas/capability"
+	"luckytv/backend/internal/kernel"
 )
 
 func ValidateOps(ops []CanvasOp) error {

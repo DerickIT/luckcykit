@@ -17,7 +17,7 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/diagnostics"
+	"luckytv/backend/internal/diagnostics"
 )
 
 const maxRecords = 2000

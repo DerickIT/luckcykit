@@ -10,15 +10,15 @@ import (
 	"sync"
 	"time"
 
-	localasset "infinite-canvas/backend/internal/asset"
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/editing"
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/outbound"
-	"infinite-canvas/backend/internal/repository"
-	"infinite-canvas/backend/internal/transcription"
+	localasset "luckytv/backend/internal/asset"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/editing"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/outbound"
+	"luckytv/backend/internal/repository"
+	"luckytv/backend/internal/transcription"
 
 	"gorm.io/gorm"
 )
@@ -337,7 +337,7 @@ func UpdateTimelineTaskProgress(repo *repository.Repository, task *model.Task, s
 func ProcessTimelineTranscription(
 	ctx context.Context,
 	repo *repository.Repository,
-	beef *beeftv.Service,
+	lucky *luckytv.Service,
 	requireFeature func() error,
 	newExecutor func(userID, baseURL string) *transcription.Executor,
 	logInfo func(userID, taskID, msg, extra string),
@@ -360,16 +360,16 @@ func ProcessTimelineTranscription(
 		if task.Attempts > 1 {
 			return FailTimelineTask(repo, logInfo, task, "转写已中断", "上次云端转写结果未确认，未重复提交。请检查原任务和用量后重新创建转写")
 		}
-		if beef == nil {
-			return FailTimelineTask(repo, logInfo, task, "转写失败", "请先连接 BeefTV")
+		if lucky == nil {
+			return FailTimelineTask(repo, logInfo, task, "转写失败", "请先连接 LuckyTV")
 		}
-		cred, err := beef.Resolve()
+		cred, err := lucky.Resolve()
 		if err != nil || input.ManagedTokenID == "" || cred.TokenID != input.ManagedTokenID {
-			return FailTimelineTask(repo, logInfo, task, "转写失败", "BeefTV 连接已改变，请重新提交转写")
+			return FailTimelineTask(repo, logInfo, task, "转写失败", "LuckyTV 连接已改变，请重新提交转写")
 		}
 		executor.Client = transcription.NewClient(cred.BaseURL)
 		if _, err := outbound.ValidateOutboundURL(cred.BaseURL); err != nil {
-			return FailTimelineTask(repo, logInfo, task, "转写失败", "云端转写地址不可用，请重新连接 BeefTV")
+			return FailTimelineTask(repo, logInfo, task, "转写失败", "云端转写地址不可用，请重新连接 LuckyTV")
 		}
 		executor.Client.HTTP = outbound.OutboundHTTPClient(20 * time.Minute)
 		executor.Client.Model, executor.Client.APIKey = input.Model, cred.APIKey
@@ -397,17 +397,17 @@ func ProcessTimelineTranscription(
 	return nil
 }
 
-func BindTranscriptionModel(beef *beeftv.Service, modelID string) (string, error) {
-	if beef == nil {
-		return "", kernel.BadAuthRequest("请先连接 BeefTV")
+func BindTranscriptionModel(lucky *luckytv.Service, modelID string) (string, error) {
+	if lucky == nil {
+		return "", kernel.BadAuthRequest("请先连接 LuckyTV")
 	}
-	cred, err := beef.Resolve()
+	cred, err := lucky.Resolve()
 	if err != nil {
 		return "", kernel.BadAuthRequest(err.Error())
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	models, err := beef.RefreshCatalog(ctx)
+	models, err := lucky.RefreshCatalog(ctx)
 	if err != nil {
 		return "", kernel.BadAuthRequest(err.Error())
 	}
@@ -424,9 +424,9 @@ func BindTranscriptionModel(beef *beeftv.Service, modelID string) (string, error
 	if !available {
 		return "", kernel.BadAuthRequest("该模型不支持音视频转写，请刷新模型列表")
 	}
-	next, err := beef.Resolve()
+	next, err := lucky.Resolve()
 	if err != nil || next.TokenID != cred.TokenID || next.AccountID != cred.AccountID {
-		return "", kernel.BadAuthRequest("BeefTV 连接已改变，请重新提交转写")
+		return "", kernel.BadAuthRequest("LuckyTV 连接已改变，请重新提交转写")
 	}
 	return cred.TokenID, nil
 }

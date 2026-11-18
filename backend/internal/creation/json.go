@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strings"
 
-	"infinite-canvas/backend/internal/kernel"
+	"luckytv/backend/internal/kernel"
 )
 
 const maxJSONBytes = 1 << 20

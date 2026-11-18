@@ -35,7 +35,7 @@ const listen=server=>new Promise((resolve,reject)=>{server.once('error',reject);
 const json=async req=>{let body='';for await(const chunk of req)body+=chunk;return JSON.parse(body||'{}');};
 
 async function fixture(t,{secure=false,disabled=false,bypassAll=false,rejectProxy=false}={}) {
-  const scratch=fs.mkdtempSync(path.join(os.tmpdir(),'beeftv-sdk-proxy-'));
+  const scratch=fs.mkdtempSync(path.join(os.tmpdir(),'luckytv-sdk-proxy-'));
   const sockets=new Set(),proxyTargets=[],opsPaths=[];
   let modelRequests=0,reads=0,child,hostLog='';
   const servers=[];
@@ -48,7 +48,7 @@ async function fixture(t,{secure=false,disabled=false,bypassAll=false,rejectProx
   const modelHandler=async(req,res)=>{
     const body=await json(req);modelRequests++;
     assert.equal(req.url,'/v1/chat/completions');
-    assert.equal(req.headers['x-beeftv-agent-token'],undefined);
+    assert.equal(req.headers['x-luckytv-agent-token'],undefined);
     const hasResult=body.messages.some(message=>message.role==='tool');
     assert(body.tools.some(tool=>tool.function?.name==='canvas_get'),'synthetic operation must be registered in actual SDK');
     if(hasResult)assert.equal(reads,4,'initial snapshot, dispatch snapshots and the explicit tool must reach ops before the final response');
@@ -64,7 +64,7 @@ async function fixture(t,{secure=false,disabled=false,bypassAll=false,rejectProx
   const proxy=http.createServer((req,res)=>{proxyTargets.push(req.url);res.writeHead(502).end();});servers.push(proxy);
   proxy.on('connect',(req,socket,head)=>{
     proxyTargets.push(req.url);
-    assert.equal(req.headers['x-beeftv-agent-token'],undefined);
+    assert.equal(req.headers['x-luckytv-agent-token'],undefined);
     // No DNS or external egress: only the synthetic destination can be tunneled.
     if(req.url!==destination||rejectProxy){socket.end('HTTP/1.1 502 Bad Gateway\r\nConnection: close\r\n\r\n');return;}
     const upstream=net.connect(modelPort,'127.0.0.1',()=>{socket.write('HTTP/1.1 200 Connection Established\r\n\r\n');if(head.length)upstream.write(head);socket.pipe(upstream);upstream.pipe(socket);});
@@ -72,7 +72,7 @@ async function fixture(t,{secure=false,disabled=false,bypassAll=false,rejectProx
   });
   const proxyPort=await listen(proxy);
   const ops=http.createServer(async(req,res)=>{
-    assert.equal(req.headers['x-beeftv-agent-token'],hostToken);
+    assert.equal(req.headers['x-luckytv-agent-token'],hostToken);
     opsPaths.push(req.url);res.setHeader('content-type','application/json');
     if(serveEmptyHostState(req,res))return;
     if(req.url==='/api/ops/skill.catalog'){res.end(JSON.stringify({code:0,data:{op:'skill.catalog',result:{skills:[]}}}));return;}
@@ -87,14 +87,14 @@ async function fixture(t,{secure=false,disabled=false,bypassAll=false,rejectProx
   for(const name of Object.keys(env))if(/^(?:https?_proxy|no_proxy|all_proxy|node_options|node_use_env_proxy|node_extra_ca_certs|node_tls_reject_unauthorized)$/i.test(name))delete env[name];
   const caPath=path.join(scratch,'fixture-ca.pem');fs.writeFileSync(caPath,cert);
   Object.assign(env,{NODE_USE_ENV_PROXY:disabled?'0':'1',HTTP_PROXY:`http://127.0.0.1:${proxyPort}`,HTTPS_PROXY:`http://127.0.0.1:${proxyPort}`,NO_PROXY:bypassAll?'*':disabled||rejectProxy?'localhost':'localhost,127.0.0.1,::1,[::1]',NODE_EXTRA_CA_CERTS:caPath,
-    BEEFTV_AGENT_DATA_DIR:scratch,BEEFTV_AGENT_PORT:String(hostPort),BEEFTV_OPS_URL:`http://localhost:${opsPort}/api`,BEEFTV_AGENT_HOST_TOKEN:hostToken,BEEFTV_AGENT_API_KEY:'synthetic-model-key',BEEFTV_AGENT_MODEL:'fixture',BEEFTV_AGENT_API:'openai-completions',BEEFTV_AGENT_BASE_URL:`${secure?'https':'http'}://${destination}/v1`,BEEFTV_AGENT_MAX_REQUESTS_PER_TURN:rejectProxy?'1':'2',BEEFTV_AGENT_MAX_TOOL_STEPS_PER_TURN:'2',BEEFTV_AGENT_TOTAL_REQUEST_BUDGET:'0'});
-  delete env.BEEFTV_AGENT_LISTEN_FD;delete env.BEEFTV_AGENT_LIFETIME_STDIN;
+    LUCKYTV_AGENT_DATA_DIR:scratch,LUCKYTV_AGENT_PORT:String(hostPort),LUCKYTV_OPS_URL:`http://localhost:${opsPort}/api`,LUCKYTV_AGENT_HOST_TOKEN:hostToken,LUCKYTV_AGENT_API_KEY:'synthetic-model-key',LUCKYTV_AGENT_MODEL:'fixture',LUCKYTV_AGENT_API:'openai-completions',LUCKYTV_AGENT_BASE_URL:`${secure?'https':'http'}://${destination}/v1`,LUCKYTV_AGENT_MAX_REQUESTS_PER_TURN:rejectProxy?'1':'2',LUCKYTV_AGENT_MAX_TOOL_STEPS_PER_TURN:'2',LUCKYTV_AGENT_TOTAL_REQUEST_BUDGET:'0'});
+  delete env.LUCKYTV_AGENT_LISTEN_FD;delete env.LUCKYTV_AGENT_LIFETIME_STDIN;
   child=spawn(process.execPath,[path.join(root,'agent-host/server.mjs')],{cwd:root,env,stdio:['ignore','pipe','pipe']});
   child.stdout.on('data',chunk=>hostLog+=chunk);child.stderr.on('data',chunk=>hostLog+=chunk);
   const base=`http://127.0.0.1:${hostPort}`,deadline=Date.now()+12000;let healthy=false;
   while(Date.now()<deadline){assert.equal(child.exitCode,null,hostLog);try{const response=await fetch(base+'/health',{signal:AbortSignal.timeout(300)});if(response.ok){healthy=true;break;}}catch{}await delay(50);}
   assert(healthy,'actual host must start: '+hostLog);
-  const response=await fetch(base+'/chat',{method:'POST',headers:{'content-type':'application/json','X-Beeftv-Agent-Token':hostToken},body:JSON.stringify({canvasId:'canvas',message:'Use the synthetic local read then reply.',turnId:'aa11',revisionBefore:1}),signal:AbortSignal.timeout(20000)});
+  const response=await fetch(base+'/chat',{method:'POST',headers:{'content-type':'application/json','X-Luckytv-Agent-Token':hostToken},body:JSON.stringify({canvasId:'canvas',message:'Use the synthetic local read then reply.',turnId:'aa11',revisionBefore:1}),signal:AbortSignal.timeout(20000)});
   assert.equal(response.status,200);
   const events=(await response.text()).trim().split('\n').map(line=>JSON.parse(line));
   return {end:events.find(event=>event.type==='turn_end'),modelRequests,reads,opsPaths,proxyTargets,destination};

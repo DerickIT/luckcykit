@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/writechange"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/writechange"
 )
 
 func TestStoryboardPromptEditClearsOnlyChangedTemplate(t *testing.T) {

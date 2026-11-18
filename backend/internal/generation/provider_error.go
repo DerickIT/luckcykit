@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strings"
 
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/outbound"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/outbound"
 )
 
 // FailureCategory 是生成失败的稳定机器可读类目。HTTP 状态只作兜底，不能单独当原因。
@@ -75,7 +75,7 @@ type categoryCopy struct {
 }
 
 var categoryCopies = map[FailureCategory]categoryCopy{
-	CategoryLocalDiskFull:       {Reason: "本地磁盘空间不足，无法保存数据", Action: "请清理 BeefTV 数据目录所在磁盘；已有生成结果请优先取回原任务，不要重复生成"},
+	CategoryLocalDiskFull:       {Reason: "本地磁盘空间不足，无法保存数据", Action: "请清理 LuckyTV 数据目录所在磁盘；已有生成结果请优先取回原任务，不要重复生成"},
 	CategoryLocalCredential:     {Reason: "本地算力凭据读取失败", Action: "请检查工作区数据目录并重新连接算力账号；不要删除工作区密钥"},
 	CategoryAuth:                {Reason: "模型服务鉴权失败", Action: "请检查 API Key 后重试"},
 	CategoryPermission:          {Reason: "当前渠道没有使用该模型的权限", Action: "请更换模型或检查渠道权限"},
@@ -281,7 +281,7 @@ func ClassifyError(err error) Failure {
 	if errors.As(err, &unknown) {
 		return normalizeFailure(Failure{Category: CategorySubmissionUncertain, Uncertain: true, Retryable: false})
 	}
-	var managed *beeftv.MediaTaskError
+	var managed *luckytv.MediaTaskError
 	if errors.As(err, &managed) {
 		category := managedFailureCategory(managed)
 		uncertain := category == CategorySubmissionUncertain || managed.Pending()
@@ -318,7 +318,7 @@ func ClassifyError(err error) Failure {
 		}
 		return failure
 	}
-	var managedHTTP *beeftv.MediaHTTPError
+	var managedHTTP *luckytv.MediaHTTPError
 	if errors.As(err, &managedHTTP) {
 		failure := classifyHTTPErrorCause(legacyMediaError(err))
 		failure.RequestID = firstNonEmpty(sanitizeDebugID(managedHTTP.RequestID), failure.RequestID)
@@ -356,7 +356,7 @@ func ClassifyError(err error) Failure {
 		return failure
 	}
 	var notSent RequestNotSentError
-	if errors.As(err, &notSent) || beeftv.IsDiscoveryTransportError(err) {
+	if errors.As(err, &notSent) || luckytv.IsDiscoveryTransportError(err) {
 		return normalizeFailure(Failure{Category: CategoryRequestNotSent})
 	}
 	var preparation RequestPreparationError
@@ -439,9 +439,9 @@ func ClassifyError(err error) Failure {
 	return ClassifyText(err.Error())
 }
 
-// managedFailureCategory 把 BeefTV 托管媒体错误合同的 category 映到本地类目。
+// managedFailureCategory 把 LuckyTV 托管媒体错误合同的 category 映到本地类目。
 // 类目只在这里映射；delivery 与未识别值保持既有 unknown 行为。
-func managedFailureCategory(managed *beeftv.MediaTaskError) FailureCategory {
+func managedFailureCategory(managed *luckytv.MediaTaskError) FailureCategory {
 	category := FailureCategory(managed.Category)
 	switch strings.ToLower(strings.TrimSpace(managed.Category)) {
 	case "input":

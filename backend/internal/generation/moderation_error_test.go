@@ -2,7 +2,7 @@ package generation_test
 
 import (
 	"encoding/json"
-	"infinite-canvas/backend/internal/generation"
+	"luckytv/backend/internal/generation"
 	"os"
 	"testing"
 )

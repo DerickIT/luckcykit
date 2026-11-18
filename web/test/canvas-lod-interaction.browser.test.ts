@@ -14,7 +14,7 @@ beforeAll(async () => {
         ? new Response(script, { headers: { "Content-Type": "text/javascript" } })
         : new Response('<style>html,body,#root{margin:0;width:800px;height:600px}[data-canvas-viewport]{position:relative;width:100%;height:100%;overflow:hidden}.canvas-world-layer,.canvas-world-raster-layer{position:absolute;transform-origin:0 0}.canvas-world-raster-layer{transform:scale(var(--canvas-committed-scale))}[data-canvas-lod-layer],[data-canvas-pan-cursor]{position:absolute;inset:0}[data-canvas-lod-layer]{pointer-events:none}</style><div id="root"></div><script type="module" src="/harness.js"></script>', { headers: { "Content-Type": "text/html" } }) });
     const executablePath = [process.env.CHROME_PATH, "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"].find(p => p && existsSync(p));
-    browser = process.env.BEEFTV_TEST_BROWSER === "webkit"
+    browser = process.env.LUCKYTV_TEST_BROWSER === "webkit"
         ? await webkit.launch({ headless: true })
         : await chromium.launch({ executablePath, headless: true });
 }, 30000);

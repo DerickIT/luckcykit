@@ -17,9 +17,9 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/bootstrap"
+	"luckytv/backend/internal/bootstrap"
 
-	"github.com/wailsapp/wails/v2/pkg/options/windows"
+	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
 // The local backend must expose a usable loopback URL and ephemeral launch
@@ -142,13 +142,13 @@ func TestDefaultDataDirLaunchArgumentUsesIsolatedProfile(t *testing.T) {
 	t.Cleanup(func() { os.Args = original })
 	want := filepath.Join(t.TempDir(), "isolated profile")
 	t.Setenv("CANVAS_DESKTOP_DATA_DIR", filepath.Join(t.TempDir(), "other-profile"))
-	os.Args = []string{"BeefTV", "--data-dir=" + want}
+	os.Args = []string{"LuckyTV", "--data-dir=" + want}
 	got, err := defaultDataDir()
 	if err != nil || got != want {
 		t.Fatalf("isolated profile: got %q, err %v", got, err)
 	}
 	for _, invalid := range []string{"", "relative", string(filepath.Separator)} {
-		os.Args = []string{"BeefTV", "--data-dir=" + invalid}
+		os.Args = []string{"LuckyTV", "--data-dir=" + invalid}
 		if _, err := defaultDataDir(); err == nil {
 			t.Fatalf("accepted unsafe profile %q", invalid)
 		}
@@ -188,24 +188,29 @@ func TestDesktopAppBoundMethodsStayTiny(t *testing.T) {
 	typ := reflect.TypeOf((*DesktopApp)(nil))
 	names := make([]string, 0, typ.NumMethod())
 	for i := 0; i < typ.NumMethod(); i++ {
-		names = append(names, typ.Method(i).Name)
+		name := typ.Method(i).Name
+		// Wails v3 filters internal service lifecycle methods from bindings.
+		if name == "ServiceStartup" || name == "ServiceShutdown" || name == "ServiceName" || name == "ServeHTTP" {
+			continue
+		}
+		names = append(names, name)
 	}
 	sort.Strings(names)
-	if !reflect.DeepEqual(names, []string{"CheckForUpdate", "ChooseStorageDirectory", "CleanupPreviousStorage", "ConfirmUpdateStartup", "ConsumeSkillLink", "DepthComponentStatus", "DownloadDepthComponents", "DownloadUpdate", "ExportStartupDiagnostics", "InstallUpdate", "MigrateStorage", "OpenBeefTVGitHub", "OpenBeefTVWebsite", "OpenBeefTVX", "OpenSkillMarketURL", "OpenUpdateLogDirectory", "PauseDepthComponentDownload", "ReferenceStorageSettings", "ReferenceUploadStatus", "RetryStartup", "SaveEagleMedia", "SaveOwnedArchive", "SaveOwnedArtifact", "SaveOwnedMedia", "SaveReferenceStorage", "StartupState", "StorageMigrationStatus", "StorageSettings", "TestReferenceStorage", "UpdateStatus", "UploadReferenceMedia"}) {
+	if !reflect.DeepEqual(names, []string{"CheckForUpdate", "ChooseStorageDirectory", "CleanupPreviousStorage", "ConfirmUpdateStartup", "ConsumeSkillLink", "DepthComponentStatus", "DownloadDepthComponents", "DownloadUpdate", "ExportStartupDiagnostics", "InstallUpdate", "MigrateStorage", "OpenLuckyTVGitHub", "OpenLuckyTVWebsite", "OpenLuckyTVX", "OpenSkillMarketURL", "OpenUpdateLogDirectory", "PauseDepthComponentDownload", "ReferenceStorageSettings", "ReferenceUploadStatus", "RetryStartup", "SaveEagleMedia", "SaveOwnedArchive", "SaveOwnedArtifact", "SaveOwnedMedia", "SaveReferenceStorage", "StartupState", "StorageMigrationStatus", "StorageSettings", "TestReferenceStorage", "UpdateStatus", "UploadReferenceMedia"}) {
 		t.Fatalf("bound methods = %v", names)
 	}
 }
 
 func TestDesktopAppOptionsUseDarkNativeChrome(t *testing.T) {
-	app := newDesktopApp(t.TempDir())
-	opts := desktopAppOptions(app)
-	if opts.BackgroundColour == nil || opts.BackgroundColour.R != 13 || opts.BackgroundColour.G != 15 || opts.BackgroundColour.B != 18 || opts.BackgroundColour.A != 255 {
+	opts := desktopWindowOptions()
+	want := application.NewRGB(13, 15, 18)
+	if opts.BackgroundColour != want {
 		t.Fatalf("background colour = %#v, want dark workspace surface", opts.BackgroundColour)
 	}
-	if opts.Windows == nil || opts.Windows.Theme != windows.Dark || opts.Windows.CustomTheme == nil {
+	if opts.Windows.Theme != application.Dark || opts.Windows.CustomTheme.DarkModeActive == nil || opts.Windows.CustomTheme.DarkModeInactive == nil {
 		t.Fatalf("windows options = %#v, want dark native titlebar theme", opts.Windows)
 	}
-	if opts.Windows.CustomTheme.DarkModeTitleBar != windows.RGB(13, 15, 18) || opts.Windows.CustomTheme.DarkModeTitleBarInactive != windows.RGB(13, 15, 18) {
+	if *opts.Windows.CustomTheme.DarkModeActive.TitleBarColour != uint32(0x120f0d) || *opts.Windows.CustomTheme.DarkModeInactive.TitleBarColour != uint32(0x120f0d) {
 		t.Fatalf("windows custom titlebar = %#v, want #0d0f12", opts.Windows.CustomTheme)
 	}
 }
@@ -231,7 +236,7 @@ func TestMediaSaveDialogSuppliesDefaultFileType(t *testing.T) {
 			t.Run(platform+"/"+ext, func(t *testing.T) {
 				name := "中文素材_20261001." + ext
 				options := mediaSaveDialogOptions(name, platform)
-				if options.DefaultFilename != name || options.Title != "保存文件" || len(options.Filters) != 1 || options.Filters[0].Pattern != "*."+ext || options.Filters[0].DisplayName == "" {
+				if options.Filename != name || options.Title != "保存文件" || len(options.Filters) != 1 || options.Filters[0].Pattern != "*."+ext || options.Filters[0].DisplayName == "" {
 					t.Fatalf("save dialog must supply the actual format as its default filter: %+v", options)
 				}
 			})
@@ -243,7 +248,7 @@ func TestMediaSaveDialogSuppliesDefaultFileType(t *testing.T) {
 		{strings.Repeat("好", 100) + ".mp4", strings.Repeat("好", 58) + ".mp4", "*.mp4"},
 	} {
 		options := mediaSaveDialogOptions(bootstrap.SanitizeSaveFileName(tc.input), "windows")
-		if options.DefaultFilename != tc.name || len(options.Filters) != 1 || options.Filters[0].Pattern != tc.pattern {
+		if options.Filename != tc.name || len(options.Filters) != 1 || options.Filters[0].Pattern != tc.pattern {
 			t.Fatalf("sanitized %q: %+v", tc.input, options)
 		}
 	}
@@ -253,7 +258,7 @@ func TestMediaSaveDialogSuppliesDefaultFileType(t *testing.T) {
 	}
 	for _, platform := range []string{"linux"} {
 		options := mediaSaveDialogOptions("clip.mp4", platform)
-		if options.DefaultFilename != "clip.mp4" || len(options.Filters) != 0 {
+		if options.Filename != "clip.mp4" || len(options.Filters) != 0 {
 			t.Fatalf("must preserve the existing %s dialog options: %+v", platform, options)
 		}
 	}

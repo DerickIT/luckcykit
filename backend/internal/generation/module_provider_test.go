@@ -10,11 +10,11 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/pluginhost"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/pluginhost"
+	"luckytv/backend/internal/protocol"
 )
 
 const testModuleProvider = `
@@ -56,7 +56,7 @@ func moduleProviderRegistry(t *testing.T) *protocol.Registry {
 	if err := os.WriteFile(filepath.Join(dir, "provider.mjs"), []byte(testModuleProvider), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	manifest := `{"apiVersion":"beeftv.plugin/v2","id":"module-fixture","name":"Fixture","version":"1.0.0","contributes":{"providers":[{"id":"module-image","label":"Module Image","module":"./provider.mjs","capabilities":["image"],"scopes":["canvas"]},{"id":"module-keyless","label":"Module Keyless","module":"./provider.mjs","capabilities":["image"],"scopes":["canvas"],"auth":{"type":"none"}}]}}`
+	manifest := `{"apiVersion":"luckytv.plugin/v2","id":"module-fixture","name":"Fixture","version":"1.0.0","contributes":{"providers":[{"id":"module-image","label":"Module Image","module":"./provider.mjs","capabilities":["image"],"scopes":["canvas"]},{"id":"module-keyless","label":"Module Keyless","module":"./provider.mjs","capabilities":["image"],"scopes":["canvas"],"auth":{"type":"none"}}]}}`
 	adapters, err := protocol.LoadInstalledProviders([]byte(manifest))
 	if err != nil {
 		t.Fatal(err)

@@ -19,11 +19,11 @@ def probe(bucket, region):
     claims = {first.claim_key(target, None)}
     first.check_conditions()
     try:
-        with tempfile.TemporaryDirectory(prefix="beeftv-two-publisher-probe-") as directory:
+        with tempfile.TemporaryDirectory(prefix="luckytv-two-publisher-probe-") as directory:
             initial, a, b, current = (Path(directory) / name for name in ("initial", "a", "b", "current"))
-            initial.write_bytes(b"BeefTV probe initial feed")
-            a.write_bytes(b"BeefTV probe feed A")
-            b.write_bytes(b"BeefTV probe feed B")
+            initial.write_bytes(b"LuckyTV probe initial feed")
+            a.write_bytes(b"LuckyTV probe feed A")
+            b.write_bytes(b"LuckyTV probe feed B")
             if not first.conditional_put(target, initial, "no-store", None):
                 raise PublishError("Initial conditional probe creation failed")
             etag = first.get(target, current)
@@ -98,7 +98,7 @@ def probe(bucket, region):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run", action="store_true", help="Explicitly permit unique probe objects in the configured public bucket")
-    parser.add_argument("--bucket", default="beeftv-components-1481187348")
+    parser.add_argument("--bucket", default="luckytv-components-1481187348")
     parser.add_argument("--region", default="ap-guangzhou")
     args = parser.parse_args()
     if not args.run:

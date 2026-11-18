@@ -8,10 +8,10 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
+	localtask "luckytv/backend/internal/task"
 )
 
 func TestManagedFailedImagePendingBillingKeepsQueryingUntilRefunded(t *testing.T) {
@@ -20,8 +20,8 @@ func TestManagedFailedImagePendingBillingKeepsQueryingUntilRefunded(t *testing.T
 		t.Run(pending, func(t *testing.T) {
 			svc, db, task, row, _ := imageSubmissionFixture(t, false)
 			noResult := localtask.RecoveryNoResult
-			task.Status, task.RecoveryOutcome, task.BeefBillingState = model.TaskStatusFailed, &noResult, &pending
-			task.InputJSON = `{"mode":"image","config":{"credentialRef":"beeftv"}}`
+			task.Status, task.RecoveryOutcome, task.LuckyBillingState = model.TaskStatusFailed, &noResult, &pending
+			task.InputJSON = `{"mode":"image","config":{"credentialRef":"luckytv"}}`
 			if err := db.Save(&task).Error; err != nil {
 				t.Fatal(err)
 			}
@@ -42,13 +42,13 @@ func TestManagedFailedImagePendingBillingKeepsQueryingUntilRefunded(t *testing.T
 			}))
 			defer server.Close()
 			wire, _ := svc.imageSubmissionWire(row)
-			wire.URL, wire.ReplayProtocol, wire.MediaType, wire.ChannelID = server.URL+"/v1/media/tasks", beeftv.MediaProtocolVersion, "image", beeftv.ChannelID
+			wire.URL, wire.ReplayProtocol, wire.MediaType, wire.ChannelID = server.URL+"/v1/media/tasks", luckytv.MediaProtocolVersion, "image", luckytv.ChannelID
 			row.QueryCipher, _ = svc.managedImageQueryCipher(task, wire)
 			row.SendCount = 1
 			if err := db.Save(row).Error; err != nil {
 				t.Fatal(err)
 			}
-			ctx := generation.WithEndpoints(context.Background(), generation.Endpoints{BeefTVVideoBaseURL: server.URL})
+			ctx := generation.WithEndpoints(context.Background(), generation.Endpoints{LuckyTVVideoBaseURL: server.URL})
 			candidates, err := svc.repo.FailedImagesForRecovery("", 8)
 			if err != nil || len(candidates) != 1 {
 				t.Fatalf("pending task omitted: %d %v", len(candidates), err)
@@ -65,7 +65,7 @@ func TestManagedFailedImagePendingBillingKeepsQueryingUntilRefunded(t *testing.T
 				t.Fatal(err)
 			}
 			latest, _ = svc.repo.Task(task.ID)
-			if latest.NextPollAt != nil || latest.BeefBillingState == nil || *latest.BeefBillingState != "refunded" || localtask.ComputeOutcome(*latest, "", localtask.OutcomeFacts{}).Regenerate != "allowed" || gets.Load() != 2 || posts.Load() != 0 {
+			if latest.NextPollAt != nil || latest.LuckyBillingState == nil || *latest.LuckyBillingState != "refunded" || localtask.ComputeOutcome(*latest, "", localtask.OutcomeFacts{}).Regenerate != "allowed" || gets.Load() != 2 || posts.Load() != 0 {
 				t.Fatalf("refund not converged: task=%+v gets=%d posts=%d", latest, gets.Load(), posts.Load())
 			}
 		})

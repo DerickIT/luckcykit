@@ -175,11 +175,11 @@ def verify_binary(directory, lock):
 
 def collect(lock, version, output, cache, offline=False):
     if not re.fullmatch(r"v?\d+\.\d+\.\d+(?:[.-][A-Za-z0-9_.-]+)?", version):
-        raise ValueError("Invalid BeefTV release version")
+        raise ValueError("Invalid LuckyTV release version")
     version = "v" + version.removeprefix("v")
     output.mkdir(parents=True, exist_ok=True)
     cache.mkdir(parents=True, exist_ok=True)
-    destination = output / f"BeefTV-{version}-ffmpeg-wasm-sources.tar.gz"
+    destination = output / f"LuckyTV-{version}-ffmpeg-wasm-sources.tar.gz"
     if destination.exists():
         raise ValueError(f"Refusing to overwrite: {destination}")
     with tempfile.TemporaryDirectory(prefix=".wasm-sources-", dir=output) as temp:
@@ -201,7 +201,7 @@ def collect(lock, version, output, cache, offline=False):
         put("rebuild.py", Path(__file__).read_bytes())
         put("source-lock.json", json_bytes(lock))
         manifest = {k: lock[k] for k in ("id", "version", "license", "binaryHashes", "provenance")}
-        manifest.update(schemaVersion=1, beefTVVersion=version, sources=sources, licenses=licenses,
+        manifest.update(schemaVersion=1, luckytvVersion=version, sources=sources, licenses=licenses,
                         buildInstructions="BUILD.md", buildRecipe="rebuild.py",
                         fileHashes={p: digest((staging / p).read_bytes()) for p in licenses + ["BUILD.md", "rebuild.py", "source-lock.json"]})
         put("manifest.json", json_bytes(manifest))
@@ -276,7 +276,7 @@ image=$(cat toolchain-image.id)
 builder=$(docker context show)
 [[ "$(docker buildx inspect "$builder" | awk '$1 == "Driver:" {print $2}')" == docker ]] || { echo "Use the current context's local Docker driver" >&2; exit 1; }
 docker image inspect "$image" > toolchain-image.json
-tag="beeftv-wasm-toolchain:${image#sha256:}"
+tag="luckytv-wasm-toolchain:${image#sha256:}"
 docker tag "$image" "$tag"
 [[ "$(docker image inspect "$tag" --format '{{.Id}}')" == "$(docker image inspect "$image" --format '{{.Id}}')" ]] || exit 1
 docker buildx build --builder "$builder" --platform linux/amd64 --pull=false --network=none --progress=plain \\
@@ -292,7 +292,7 @@ python3 -c 'import hashlib,pathlib; [print(hashlib.sha256(p.read_bytes()).hexdig
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--lock", type=Path)
-    parser.add_argument("--version", help="BeefTV release version, e.g. 1.7.23")
+    parser.add_argument("--version", help="LuckyTV release version, e.g. 1.7.23")
     parser.add_argument("--output-dir", type=Path, default=Path("dist"))
     parser.add_argument("--cache-dir", type=Path, default=Path(".local/cache/ffmpeg-wasm-sources"))
     parser.add_argument("--offline", action="store_true")

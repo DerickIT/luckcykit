@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/securefile"
+	"luckytv/backend/internal/securefile"
 )
 
 // 已有安装的登记文件没有 kind / lastUsedAt / revokedAt：升级后必须照旧能用，

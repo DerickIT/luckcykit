@@ -6,17 +6,17 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/providerpreset"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/providerpreset"
 )
 
-func beefTVTestBaseURL(ctx context.Context) string {
+func luckyTVTestBaseURL(ctx context.Context) string {
 	runtime, ok := RuntimeFromContext(ctx)
 	if !ok {
 		return ""
 	}
-	return strings.TrimSpace(runtime.Endpoints.BeefTVVideoBaseURL)
+	return strings.TrimSpace(runtime.Endpoints.LuckyTVVideoBaseURL)
 }
 
 func IsPublicMediaURL(value string) bool {
@@ -37,25 +37,25 @@ func usesSeedanceTaskOptions(config Config) bool {
 		config.InterfaceType == "seedance-videos-compatible"
 }
 
-func IsBeefTVVideoConfig(ctx context.Context, config Config) bool {
-	if testBase := beefTVTestBaseURL(ctx); testBase != "" {
+func IsLuckyTVVideoConfig(ctx context.Context, config Config) bool {
+	if testBase := luckyTVTestBaseURL(ctx); testBase != "" {
 		got := strings.TrimRight(strings.TrimSpace(config.BaseURL), "/")
 		want := strings.TrimRight(testBase, "/")
 		return got == want || strings.HasPrefix(got, want+"/")
 	}
-	return providerpreset.IsBeefTVEndpoint(config.BaseURL)
+	return providerpreset.IsLuckyTVEndpoint(config.BaseURL)
 }
 
-func IsBeefTVSeedancePreuploadConfig(ctx context.Context, config Config) bool {
-	return IsBeefTVVideoConfig(ctx, config) && IsSeedanceVideoConfig(config)
+func IsLuckyTVSeedancePreuploadConfig(ctx context.Context, config Config) bool {
+	return IsLuckyTVVideoConfig(ctx, config) && IsSeedanceVideoConfig(config)
 }
 
-func requiresBeefTVHTTPReferences(ctx context.Context, config Config) bool {
+func requiresLuckyTVHTTPReferences(ctx context.Context, config Config) bool {
 	if UpscaleMediaType(config.Model) != "" {
-		return IsBeefTVVideoConfig(ctx, config)
+		return IsLuckyTVVideoConfig(ctx, config)
 	}
-	contract, ok := providerpreset.BeefTVVideoContract(config.Model)
-	return ok && contract.RequiresHTTPReferences && IsBeefTVVideoConfig(ctx, config)
+	contract, ok := providerpreset.LuckyTVVideoContract(config.Model)
+	return ok && contract.RequiresHTTPReferences && IsLuckyTVVideoConfig(ctx, config)
 }
 
 func IsGrokVideoConfig(config Config) bool {

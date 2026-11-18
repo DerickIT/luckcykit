@@ -9,9 +9,9 @@ import (
 	"net/textproto"
 	"strings"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/platform"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/platform"
 )
 
 func stringField(payload map[string]interface{}, key string) string {

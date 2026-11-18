@@ -6,7 +6,7 @@ import { createModelChannel, defaultConfig } from "@/stores/use-config-store";
 let browser: Browser;
 let server: ReturnType<typeof Bun.serve>;
 const ids = ["gpt-6-astra", "claude-opus-5-5", "deepseek-v4.1-flash", "glm-5.3", "qwen3.8-flash", "wand-vega-vl-1.0-flash"];
-const initial = { ...defaultConfig, assistantModel: "beeftv::claude-opus-5-5", channels: [createModelChannel({ id: "beeftv", pinned: true, enabled: true, models: ids, modelProfiles: ids.map(model => ({ model, capability: "text", protocol: "chat-completion" })) })] };
+const initial = { ...defaultConfig, assistantModel: "luckytv::claude-opus-5-5", channels: [createModelChannel({ id: "luckytv", pinned: true, enabled: true, models: ids, modelProfiles: ids.map(model => ({ model, capability: "text", protocol: "chat-completion" })) })] };
 let saved = structuredClone(initial);
 let writes = 0;
 let submitted: string[] = [];
@@ -43,11 +43,11 @@ beforeAll(async () => {
             const body = await req.json(); saved = body.config;
             return ok({ saved: true, revision: writes });
         }
-        if (path.endsWith("/beeftv/connection/start")) { startCalls++; connectionState = "connected"; saved.assistantModel = "beeftv::gpt-6-astra"; if (failFirstStartCatalogRead) { failFirstStartCatalogRead = false; catalogReadFailures = 1; } return ok({ state: connectionState, hasCredential: true }); }
-        if (path.endsWith("/beeftv/connection/disconnect")) { disconnectCalls++; connectionState = "disconnected"; return ok({ state: connectionState }); }
-        if (path.endsWith("/beeftv/connection")) return ok({ state: connectionState, hasCredential: connectionState === "connected" || connectionState === "connection_error", catalogFailed: connectionState === "connection_error" });
+        if (path.endsWith("/luckytv/connection/start")) { startCalls++; connectionState = "connected"; saved.assistantModel = "luckytv::gpt-6-astra"; if (failFirstStartCatalogRead) { failFirstStartCatalogRead = false; catalogReadFailures = 1; } return ok({ state: connectionState, hasCredential: true }); }
+        if (path.endsWith("/luckytv/connection/disconnect")) { disconnectCalls++; connectionState = "disconnected"; return ok({ state: connectionState }); }
+        if (path.endsWith("/luckytv/connection")) return ok({ state: connectionState, hasCredential: connectionState === "connected" || connectionState === "connection_error", catalogFailed: connectionState === "connection_error" });
         if (path.endsWith("/assistant/ui-session")) return ok({ token: "synthetic-only", expiresAt: new Date(Date.now() + 1800000).toISOString() });
-        if (path.endsWith("/assistant/status")) return ok({ available: true, model: { id: saved.assistantModel.split("::")[1], channelId: "beeftv" } });
+        if (path.endsWith("/assistant/status")) return ok({ available: true, model: { id: saved.assistantModel.split("::")[1], channelId: "luckytv" } });
         if (path.endsWith("/assistant/history")) return ok({ sessionId: "s1", turns: [] });
         if (path.endsWith("/assistant/sessions")) return ok({ sessionId: "s1", sessions: [] });
         if (path.endsWith("/assistant/chat")) { submitted.push(saved.assistantModel); return new Response(JSON.stringify({ type: "turn_end", turnId: "t1", reply: "synthetic", toolCalls: [], proposals: [] }) + "\n"); }
@@ -71,8 +71,8 @@ test("default multimodal selection and explicit off persist without changing the
         await picker.click();
         await page.locator('.ant-select-item-option-content').filter({ hasText: /^wand-vega-vl-1.0-flash/ }).click();
         await page.waitForTimeout(100);
-        expect(saved.mediaReviewModel).toBe("beeftv::wand-vega-vl-1.0-flash");
-        expect(saved.assistantModel).toBe("beeftv::claude-opus-5-5");
+        expect(saved.mediaReviewModel).toBe("luckytv::wand-vega-vl-1.0-flash");
+        expect(saved.assistantModel).toBe("luckytv::claude-opus-5-5");
         await page.reload();
         expect(await row.innerText()).toContain("wand-vega-vl-1.0-flash");
         await picker.click();
@@ -93,7 +93,7 @@ test("connected account can disconnect and expose the authorization action again
     try {
         await page.goto(new URL("/settings", server.url).toString());
         await page.getByRole("button", { name: "断开连接", exact: true }).click();
-        const connect = page.locator("button:not(.ant-btn-loading)").filter({ hasText: /^连接 BeefTV$/ });
+        const connect = page.locator("button:not(.ant-btn-loading)").filter({ hasText: /^连接 LuckyTV$/ });
         await connect.waitFor({ timeout: 5000 });
         expect(disconnectCalls).toBe(1);
         expect(connectionState).toBe("disconnected");
@@ -104,7 +104,7 @@ test("connected account can disconnect and expose the authorization action again
 test("settings retries failed connected catalog read and retains authorization default intent", async () => {
     connectionState = "disconnected"; catalogReadFailures = 0; failFirstStartCatalogRead = true;
     const page = await browser.newPage(); await page.goto(new URL("/settings", server.url).toString());
-    await page.getByRole("button", { name: "连接 BeefTV", exact: true }).click();
+    await page.getByRole("button", { name: "连接 LuckyTV", exact: true }).click();
     const retry = page.getByRole("button", { name: "重试更新模型列表" });
     await retry.waitFor(); await retry.click();
     await retry.waitFor({ state: "hidden" });
@@ -136,7 +136,7 @@ test("picker keyboard selection persists, respects busy and fits both themes at 
     expect(await page.locator('.ant-select-item-option-content').allTextContents()).toEqual(["gpt-6-astra", "claude-opus-5-5", "deepseek-v4.1-flash", "glm-5.3"]);
     await picker.press("ArrowUp"); await picker.press("Enter");
     await page.waitForTimeout(100);
-    expect(saved.assistantModel).toBe("beeftv::gpt-6-astra");
+    expect(saved.assistantModel).toBe("luckytv::gpt-6-astra");
     await page.reload(); await page.getByRole("button", { name: "切换忙碌" }).click();
     expect(await picker.isDisabled()).toBe(true);
     for (let i = 0; i < 2; i++) {
@@ -176,7 +176,7 @@ test("next turn waits for saved selection; failed save cannot dispatch", async (
     await page.waitForTimeout(100); expect(submitted).toEqual([]);
     expect(await page.getByRole("combobox", { name: "助手模型" }).isDisabled()).toBe(true);
     holdSave = false; release?.();
-    await page.waitForTimeout(500); expect({ submitted, error: await page.locator('output').textContent(), saved: saved.assistantModel }).toEqual({ submitted: ["beeftv::glm-5.3"], error: "", saved: "beeftv::glm-5.3" });
+    await page.waitForTimeout(500); expect({ submitted, error: await page.locator('output').textContent(), saved: saved.assistantModel }).toEqual({ submitted: ["luckytv::glm-5.3"], error: "", saved: "luckytv::glm-5.3" });
     failSave = true;
     await page.getByRole("combobox", { name: "助手模型" }).click();
     await page.locator('.ant-select-item-option-content').filter({ hasText: /^gpt-6-astra$/ }).click();

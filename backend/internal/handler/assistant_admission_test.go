@@ -48,12 +48,12 @@ func TestAssistantAdmissionRejectionAndHostFailure(t *testing.T) {
 		})
 	})
 	body := `{"canvasId":"` + env.canvasID + `","message":"hello"}`
-	rejected := env.callWithHeaders(t, http.MethodPost, "/assistant/chat", body, map[string]string{"X-Beeftv-Ui-Session": "expired"})
-	if rejected.Code != http.StatusForbidden || rejected.Header().Get("X-Beeftv-Turn-Admission") != "rejected" || chatHits != 0 {
+	rejected := env.callWithHeaders(t, http.MethodPost, "/assistant/chat", body, map[string]string{"X-Luckytv-Ui-Session": "expired"})
+	if rejected.Code != http.StatusForbidden || rejected.Header().Get("X-Luckytv-Turn-Admission") != "rejected" || chatHits != 0 {
 		t.Fatalf("authentication rejection incorrectly admitted: %d %v hits=%d", rejected.Code, rejected.Header(), chatHits)
 	}
 	forwarded := env.call(t, http.MethodPost, "/assistant/chat", body)
-	if forwarded.Code != http.StatusForbidden || forwarded.Header().Get("X-Beeftv-Turn-Admission") != "admitted" || chatHits != 1 {
+	if forwarded.Code != http.StatusForbidden || forwarded.Header().Get("X-Luckytv-Turn-Admission") != "admitted" || chatHits != 1 {
 		t.Fatalf("post-admission host failure lost uncertainty: %d %v hits=%d", forwarded.Code, forwarded.Header(), chatHits)
 	}
 }
@@ -65,7 +65,7 @@ func TestAssistantInvalidSkillIsNotAdmitted(t *testing.T) {
 	})
 	body := `{"canvasId":"` + env.canvasID + `","message":"hello","skills":[{"skillId":"missing","versionId":"v1","contentHash":"bad"}]}`
 	response := env.call(t, http.MethodPost, "/assistant/chat", body)
-	if response.Code != 400 || response.Header().Get("X-Beeftv-Turn-Admission") != "rejected" || hits != 0 {
+	if response.Code != 400 || response.Header().Get("X-Luckytv-Turn-Admission") != "rejected" || hits != 0 {
 		t.Fatalf("invalid skill left an unknown turn: %d %v hits=%d", response.Code, response.Header(), hits)
 	}
 }
@@ -78,7 +78,7 @@ func TestAssistantHostBodyRejectionIsNotAdmitted(t *testing.T) {
 		})
 	})
 	response := env.call(t, http.MethodPost, "/assistant/chat", `{"canvasId":"`+env.canvasID+`","message":"hello"}`)
-	if response.Code != 413 || response.Header().Get("X-Beeftv-Turn-Admission") != "rejected" {
+	if response.Code != 413 || response.Header().Get("X-Luckytv-Turn-Admission") != "rejected" {
 		t.Fatalf("body rejection: %d %v", response.Code, response.Header())
 	}
 }
@@ -98,14 +98,14 @@ func TestAssistantSnapshotFailureIsRejectedAndCanRetry(t *testing.T) {
 	}
 	body := `{"canvasId":"` + env.canvasID + `","message":"hello"}`
 	response := env.call(t, http.MethodPost, "/assistant/chat", body)
-	if response.Code < 400 || response.Header().Get("X-Beeftv-Turn-Admission") != "rejected" || hits != 0 {
+	if response.Code < 400 || response.Header().Get("X-Luckytv-Turn-Admission") != "rejected" || hits != 0 {
 		t.Fatalf("snapshot failure left recovery pending: %d %v hits=%d", response.Code, response.Header(), hits)
 	}
 	if err := db.Exec(`DROP TRIGGER reject_turn`).Error; err != nil {
 		t.Fatal(err)
 	}
 	response = env.call(t, http.MethodPost, "/assistant/chat", body)
-	if response.Header().Get("X-Beeftv-Turn-Admission") != "admitted" || hits != 1 {
+	if response.Header().Get("X-Luckytv-Turn-Admission") != "admitted" || hits != 1 {
 		t.Fatalf("retry not admitted: %d %v hits=%d", response.Code, response.Header(), hits)
 	}
 }
@@ -140,10 +140,10 @@ func TestAssistantDetachObserverModeReturnsImmediatelyWithoutBlockingOnHostStrea
 	body := `{"canvasId":"` + env.canvasID + `","message":"hello"}`
 	started := time.Now()
 	response := env.callWithHeaders(t, http.MethodPost, "/assistant/chat", body, map[string]string{
-		"X-Beeftv-Ui-Session":    env.uiToken,
-		"X-Beeftv-Observer-Mode": "detach",
+		"X-Luckytv-Ui-Session":    env.uiToken,
+		"X-Luckytv-Observer-Mode": "detach",
 	})
-	if response.Code != http.StatusOK || response.Header().Get("X-Beeftv-Turn-Admission") != "admitted" || !strings.HasPrefix(response.Header().Get("Content-Type"), "application/x-ndjson") {
+	if response.Code != http.StatusOK || response.Header().Get("X-Luckytv-Turn-Admission") != "admitted" || !strings.HasPrefix(response.Header().Get("Content-Type"), "application/x-ndjson") {
 		close(releaseStream)
 		t.Fatalf("detach status=%d headers=%v body=%s", response.Code, response.Header(), response.Body.String())
 	}

@@ -623,7 +623,7 @@ describe('R6 十镜长片：分镜、首帧、时间线缺一项都判失败', (
   test('agent.guide 调用成功不影响 R6 计分', () => {
     const result = good({
       opLog: [
-        { op: 'agent.guide', status: 'ok', params: {}, result: { name: 'beeftv-canvas' }, at: '2026-01-01T00:00:00.500Z' },
+        { op: 'agent.guide', status: 'ok', params: {}, result: { name: 'luckytv-canvas' }, at: '2026-01-01T00:00:00.500Z' },
         ...renderOpLog(),
       ],
     });

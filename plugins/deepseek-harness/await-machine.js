@@ -467,7 +467,7 @@ export function transition(state, event) {
       withdraw(next, entry, messageId, 'idle', actions)
     }
   } else if (type === 'messageClaimed') {
-    if (event.sourceKind === 'beeftv-await' || next.messages[event.messageId] || next.stale[event.messageId]) return finish()
+    if (event.sourceKind === 'luckytv-await' || next.messages[event.messageId] || next.stale[event.messageId]) return finish()
     if (event.sourceKind !== 'user') return finish()
     userMessage(next, event.sessionId, event.agentStatus, actions, out)
   } else if (type === 'userMessage') {

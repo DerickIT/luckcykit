@@ -16,13 +16,13 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/skillhub"
+	"luckytv/backend/internal/skillhub"
 )
 
-// Opt-in integration against BeefTV's isolated TestSkillHubLocalIntegrationServer.
+// Opt-in integration against LuckyTV's isolated TestSkillHubLocalIntegrationServer.
 // It accepts only that synthetic loopback fixture, never a real account or host.
 func TestPublicationRealSkillHubCanonicalRoundTrip(t *testing.T) {
-	path := os.Getenv("BEEFTV_SKILLHUB_TEST_RECEIPT")
+	path := os.Getenv("LUCKYTV_SKILLHUB_TEST_RECEIPT")
 	if path == "" {
 		t.Skip("requires isolated synthetic SkillHub fixture receipt")
 	}
@@ -80,8 +80,8 @@ func TestPublicationRealSkillHubCanonicalRoundTrip(t *testing.T) {
 			}
 			server := httptest.NewServer(proxy)
 			defer server.Close()
-			endpoint := server.URL + "/api/beeftv/skillhub/v1"
-			t.Setenv("BEEFTV_SKILLHUB_URL", endpoint)
+			endpoint := server.URL + "/api/luckytv/skillhub/v1"
+			t.Setenv("LUCKYTV_SKILLHUB_URL", endpoint)
 			if err := writeMarketJSON(filepath.Join(s.marketUserDir("owner"), "authorization.json"), marketAuth{Endpoint: endpoint, AccessToken: fixture.PublishingToken, ExpiresAt: time.Now().Add(time.Minute)}); err != nil {
 				t.Fatal(err)
 			}

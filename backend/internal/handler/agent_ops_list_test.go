@@ -8,8 +8,8 @@ import (
 	"reflect"
 	"testing"
 
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/operations"
 )
 
 func TestOpsListingKeepsOwnerAndExternalCatalogFull(t *testing.T) {
@@ -19,7 +19,7 @@ func TestOpsListingKeepsOwnerAndExternalCatalogFull(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	ownerListing := getOps(t, env, map[string]string{"X-Beeftv-Owner": owner})
+	ownerListing := getOps(t, env, map[string]string{"X-Luckytv-Owner": owner})
 	registry := operations.NewRegistry(nil, nil)
 	operations.RegisterDefaultOps(registry)
 	want := make([]string, 0)
@@ -43,7 +43,7 @@ func TestOpsListingKeepsOwnerAndExternalCatalogFull(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	externalListing := getOps(t, env, map[string]string{"X-Beeftv-Client": reg.ID, "Authorization": "Bearer " + token})
+	externalListing := getOps(t, env, map[string]string{"X-Luckytv-Client": reg.ID, "Authorization": "Bearer " + token})
 	if !reflect.DeepEqual(externalListing, want) {
 		t.Fatalf("外部客户端能力发现应为 %v，得到 %v", want, externalListing)
 	}
@@ -51,7 +51,7 @@ func TestOpsListingKeepsOwnerAndExternalCatalogFull(t *testing.T) {
 		t.Fatalf("外部客户端应能看到等待任务操作: %v", externalListing)
 	}
 
-	hostListing := getOps(t, env, map[string]string{"X-Beeftv-Agent-Token": assistantTestHostToken})
+	hostListing := getOps(t, env, map[string]string{"X-Luckytv-Agent-Token": assistantTestHostToken})
 	wantHost := make([]string, 0)
 	for _, descriptor := range registry.List(operations.ManualCaller(false)) {
 		if len(descriptor.AssistantModes) > 0 {
@@ -127,7 +127,7 @@ func TestExternalWritesListAndUndoRoutes(t *testing.T) {
 		t.Fatal(err)
 	}
 	extHeaders := map[string]string{
-		"X-Beeftv-Client": reg.ID,
+		"X-Luckytv-Client": reg.ID,
 		"Authorization":   "Bearer " + token,
 		"Content-Type":    "application/json",
 	}
@@ -207,7 +207,7 @@ func TestTaskWaitHTTPRejectsMissingTasks(t *testing.T) {
 	}
 	response := env.callWithHeaders(t, http.MethodPost, "/ops/task.wait",
 		`{"params":{"taskIds":["missing-task"],"timeoutMs":0}}`,
-		map[string]string{"X-Beeftv-Owner": owner})
+		map[string]string{"X-Luckytv-Owner": owner})
 	if response.Code != http.StatusNotFound {
 		t.Fatalf("task.wait = %d %s", response.Code, response.Body.String())
 	}

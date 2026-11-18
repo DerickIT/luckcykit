@@ -259,12 +259,12 @@ func isKnownArtifactURL(parsed *url.URL) bool {
 		return false
 	}
 	switch strings.ToLower(parsed.Hostname()) {
-	case "updates.beefapi.com":
-		return strings.HasPrefix(parsed.Path, "/beeftv/")
+	case "updates.luckyapi.com":
+		return strings.HasPrefix(parsed.Path, "/luckytv/")
 	case "cnb.cool":
-		return strings.HasPrefix(parsed.Path, "/beeftv-downloads/desktop/-/releases/download/")
-	case "beeftv-components-1481187348.cos.ap-guangzhou.myqcloud.com":
-		return strings.HasPrefix(parsed.Path, "/beeftv/")
+		return strings.HasPrefix(parsed.Path, "/luckytv-downloads/desktop/-/releases/download/")
+	case "luckytv-components-1481187348.cos.ap-guangzhou.myqcloud.com":
+		return strings.HasPrefix(parsed.Path, "/luckytv/")
 	default:
 		return false
 	}
@@ -272,7 +272,7 @@ func isKnownArtifactURL(parsed *url.URL) bool {
 
 func isKnownDownloadHost(host string) bool {
 	switch strings.ToLower(strings.TrimSpace(host)) {
-	case "updates.beefapi.com", "cnb.cool", "beeftv-components-1481187348.cos.ap-guangzhou.myqcloud.com":
+	case "updates.luckyapi.com", "cnb.cool", "luckytv-components-1481187348.cos.ap-guangzhou.myqcloud.com":
 		return true
 	default:
 		return false

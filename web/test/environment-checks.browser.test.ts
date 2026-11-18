@@ -74,7 +74,7 @@ for (const width of [390, 1440]) for (const dark of [false, true]) test(`environ
         await page.waitForFunction(() => document.querySelector('[aria-label="重新检查"]')?.getAttribute("aria-busy") === "false");
         expect(await page.getByRole("button", { name: "重新检查", exact: true }).isEnabled()).toBe(true);
         expect(requests).toBeGreaterThan(before);
-        expect((await page.evaluate(() => indexedDB.databases())).filter(db => db.name?.startsWith("beeftv-environment-probe-")).length).toBe(0);
+        expect((await page.evaluate(() => indexedDB.databases())).filter(db => db.name?.startsWith("luckytv-environment-probe-")).length).toBe(0);
         await page.screenshot({ path: import.meta.dir + `/../../output/environment-check/${width}-${dark}.png` });
         expect(errors).toEqual([]);
     } catch (error) {

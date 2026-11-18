@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"strings"
 
-	"infinite-canvas/backend/internal/canvas/capability"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/providerpreset"
+	"luckytv/backend/internal/canvas/capability"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/providerpreset"
 )
 
 func registerCanvasNodeConfigureOps(r *Registry) {

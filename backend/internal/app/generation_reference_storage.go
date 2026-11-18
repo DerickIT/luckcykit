@@ -1,6 +1,6 @@
 package app
 
-import "infinite-canvas/backend/internal/generation"
+import "luckytv/backend/internal/generation"
 
 func (s *Service) newReferenceStoragePort() generation.ReferenceStoragePort {
 	if s == nil {

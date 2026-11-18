@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -87,7 +87,7 @@ func (r *Repository) Skill(id string) (*model.Skill, error) {
 }
 
 // RetireExternalSkills deactivates imports from the retired shared-directory
-// source atomically, preserving BeefTV installations and historical packages.
+// source atomically, preserving LuckyTV installations and historical packages.
 func (r *Repository) RetireExternalSkills() error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		externalIDs := tx.Model(&model.Skill{}).Select("id").Where("source_type = ?", "local")

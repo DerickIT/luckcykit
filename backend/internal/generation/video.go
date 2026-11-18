@@ -11,18 +11,18 @@ import (
 	"strconv"
 	"strings"
 
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/providerpreset"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/providerpreset"
 )
 
-func RestoreBeefTVSeedanceAudioControl(ctx context.Context, config Config, video *VideoCapabilityConfig) {
+func RestoreLuckyTVSeedanceAudioControl(ctx context.Context, config Config, video *VideoCapabilityConfig) {
 	if config.VideoCapabilitiesVersion != nil {
 		return
 	}
 	// Saved built-in profiles predate the supported audio switch. This is a
-	// BeefTV contract correction, not an override of custom provider settings.
-	contract, known := providerpreset.BeefTVVideoContract(config.Model)
-	if IsBeefTVVideoConfig(ctx, config) && known && contract.Protocol == "newapi" && modelcatalog.IsSeedance2Family("newapi", config.Model) {
+	// LuckyTV contract correction, not an override of custom provider settings.
+	contract, known := providerpreset.LuckyTVVideoContract(config.Model)
+	if IsLuckyTVVideoConfig(ctx, config) && known && contract.Protocol == "newapi" && modelcatalog.IsSeedance2Family("newapi", config.Model) {
 		video.GenerateAudio.Supported = true
 	}
 }
@@ -33,10 +33,10 @@ func RunVideoTask(ctx context.Context, input Input) (map[string]interface{}, err
 
 func RunVideoTaskWithPolicy(ctx context.Context, input Input, pollPolicy VideoPollPolicy) (map[string]interface{}, error) {
 	pollPolicy = videoPollPolicyForConfig(ctx, input.Config, pollPolicy)
-	// BeefTV exposes its flat /v1/videos contract. Route it before
+	// LuckyTV exposes its flat /v1/videos contract. Route it before
 	// protocol adapters so stale persisted channel metadata cannot select an
 	// incompatible legacy multipart or flat request shape.
-	if managedConnection(input.Config) || IsBeefTVVideoConfig(ctx, input.Config) {
+	if managedConnection(input.Config) || IsLuckyTVVideoConfig(ctx, input.Config) {
 		client, unified, err := useManagedMediaEnvelope(ctx, input.Config, "video")
 		if err != nil {
 			return nil, err

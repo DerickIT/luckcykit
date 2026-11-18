@@ -1,8 +1,8 @@
 package app
 
 import (
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/taskruntime"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/taskruntime"
 )
 
 const taskStageRequestNotSent = taskruntime.StageRequestNotSent

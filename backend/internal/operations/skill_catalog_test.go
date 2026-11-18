@@ -3,7 +3,7 @@ package operations
 import (
 	"encoding/json"
 	"fmt"
-	"infinite-canvas/backend/internal/skills"
+	"luckytv/backend/internal/skills"
 	"strings"
 	"testing"
 )

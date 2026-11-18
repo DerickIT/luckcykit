@@ -19,13 +19,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SERVER_ENTRY = path.resolve(__dirname, '../server.mjs');
 
 export function resolveNodeRuntime() {
-  const configured = process.env.BEEFTV_NODE_RUNTIME;
+  const configured = process.env.LUCKYTV_NODE_RUNTIME;
   if (configured) {
     const candidate = path.join(configured, process.platform === 'win32' ? 'node.exe' : 'bin/node');
     if (fs.existsSync(candidate)) return candidate;
   }
   const candidates = [
-    path.join('/', 'Applications', 'BeefTV.app', 'Contents', 'Resources', 'agent-host', 'runtime', 'bin', 'node'),
+    path.join('/', 'Applications', 'LuckyTV.app', 'Contents', 'Resources', 'agent-host', 'runtime', 'bin', 'node'),
     path.join(os.homedir(), '.local', 'bin', 'node'),
   ];
   for (const c of candidates) {
@@ -108,27 +108,27 @@ export function validateEvalConfig(args, env = process.env) {
   let realApi = 'openai-completions';
 
   if (modelMode === 'real') {
-    const rawIn = String(env.BEEFTV_EVAL_PRICE_IN ?? '').trim();
-    const rawOut = String(env.BEEFTV_EVAL_PRICE_OUT ?? '').trim();
+    const rawIn = String(env.LUCKYTV_EVAL_PRICE_IN ?? '').trim();
+    const rawOut = String(env.LUCKYTV_EVAL_PRICE_OUT ?? '').trim();
     priceInPerMillion = Number(rawIn);
     priceOutPerMillion = Number(rawOut);
     if (!rawIn || !rawOut || !Number.isFinite(priceInPerMillion) || !Number.isFinite(priceOutPerMillion) || priceInPerMillion <= 0 || priceOutPerMillion <= 0) {
       throw new Error(
-        'real_mode_price_missing: --model real 必须显式配置大于 0 的 BEEFTV_EVAL_PRICE_IN 与 BEEFTV_EVAL_PRICE_OUT（元/百万 token），拒绝以 0 单价裸跑真模型',
+        'real_mode_price_missing: --model real 必须显式配置大于 0 的 LUCKYTV_EVAL_PRICE_IN 与 LUCKYTV_EVAL_PRICE_OUT（元/百万 token），拒绝以 0 单价裸跑真模型',
       );
     }
-    realBaseUrl = String(env.BEEFTV_AGENT_BASE_URL || '').trim();
-    realApiKey = String(env.BEEFTV_AGENT_API_KEY || '').trim();
-    realModelId = String(env.BEEFTV_AGENT_MODEL || '').trim();
-    realApi = String(env.BEEFTV_AGENT_API || 'openai-completions').trim();
+    realBaseUrl = String(env.LUCKYTV_AGENT_BASE_URL || '').trim();
+    realApiKey = String(env.LUCKYTV_AGENT_API_KEY || '').trim();
+    realModelId = String(env.LUCKYTV_AGENT_MODEL || '').trim();
+    realApi = String(env.LUCKYTV_AGENT_API || 'openai-completions').trim();
     if (!realBaseUrl || !realApiKey || !realModelId) {
       throw new Error(
-        'real_mode_credentials_missing: --model real 需要配置 BEEFTV_AGENT_BASE_URL、BEEFTV_AGENT_API_KEY 与 BEEFTV_AGENT_MODEL',
+        'real_mode_credentials_missing: --model real 需要配置 LUCKYTV_AGENT_BASE_URL、LUCKYTV_AGENT_API_KEY 与 LUCKYTV_AGENT_MODEL',
       );
     }
   } else {
-    priceInPerMillion = Number(env.BEEFTV_EVAL_PRICE_IN || 0);
-    priceOutPerMillion = Number(env.BEEFTV_EVAL_PRICE_OUT || 0);
+    priceInPerMillion = Number(env.LUCKYTV_EVAL_PRICE_IN || 0);
+    priceOutPerMillion = Number(env.LUCKYTV_EVAL_PRICE_OUT || 0);
   }
 
   return {
@@ -151,9 +151,9 @@ export function validateEvalConfig(args, env = process.env) {
 // 递归/字符串脱敏：清除任何 API Key、Bearer Token、Host Token、Desktop Token
 export function redactSecrets(input, extraSecrets = []) {
   const envSecrets = [
-    process.env.BEEFTV_AGENT_API_KEY,
-    process.env.BEEFTV_AGENT_HOST_TOKEN,
-    process.env.BEEFTV_AGENT_DESKTOP_TOKEN,
+    process.env.LUCKYTV_AGENT_API_KEY,
+    process.env.LUCKYTV_AGENT_HOST_TOKEN,
+    process.env.LUCKYTV_AGENT_DESKTOP_TOKEN,
     ...extraSecrets,
   ]
     .map((s) => String(s || '').trim())
@@ -167,7 +167,7 @@ export function redactSecrets(input, extraSecrets = []) {
     out = out.replace(/\bsk-[A-Za-z0-9_-]{6,}\b/g, '[REDACTED]');
     out = out.replace(/\bBearer\s+[A-Za-z0-9._~+/=-]{6,}\b/gi, 'Bearer [REDACTED]');
     out = out.replace(
-      /(["']?(?:api[_-]?key|authorization|x-beeftv-agent-token|x-desktop-token|host[_-]?token|desktop[_-]?token|secret|password)["']?\s*[:=]\s*["'])([^"']+)(["'])/gi,
+      /(["']?(?:api[_-]?key|authorization|x-luckytv-agent-token|x-desktop-token|host[_-]?token|desktop[_-]?token|secret|password)["']?\s*[:=]\s*["'])([^"']+)(["'])/gi,
       '$1[REDACTED]$3',
     );
     return out;
@@ -180,7 +180,7 @@ export function redactSecrets(input, extraSecrets = []) {
 
   const result = {};
   for (const [k, v] of Object.entries(input)) {
-    if (/^(api[_-]?key|authorization|x-beeftv-agent-token|x-desktop-token|host[_-]?token|desktop[_-]?token|secret|password|token)$/i.test(k)) {
+    if (/^(api[_-]?key|authorization|x-luckytv-agent-token|x-desktop-token|host[_-]?token|desktop[_-]?token|secret|password|token)$/i.test(k)) {
       result[k] = '[REDACTED]';
     } else {
       result[k] = redactSecrets(v, extraSecrets);
@@ -318,7 +318,7 @@ export function extractModelRequestTrace(reqBody = {}, respText = '', priorTurnR
   const messages = Array.isArray(reqBody?.messages) ? reqBody.messages : [];
   const lastRawMsg = messages[messages.length - 1];
   const lastRawText = extractMsgText(lastRawMsg);
-  const hasStudioDigest = lastRawText.includes('<beeftv_studio>');
+  const hasStudioDigest = lastRawText.includes('<luckytv_studio>');
   const studioIsEmpty = lastRawText.includes('概况：画布是空的。');
 
   const stableMessages = messages.filter((m) => !isTransientStudioTailMessage(m));
@@ -380,7 +380,7 @@ export function extractModelRequestTrace(reqBody = {}, respText = '', priorTurnR
         trigger = 'plan_continue';
       } else if (txt.startsWith('<canvas_event') || txt.startsWith('[事件 ')) {
         trigger = 'auto_wake';
-      } else if (txt.includes('[BEEFTV_INPUT:') || txt.includes('BEEFTV_SUPPLEMENT:')) {
+      } else if (txt.includes('[LUCKYTV_INPUT:') || txt.includes('LUCKYTV_SUPPLEMENT:')) {
         trigger = 'user_steer';
       } else if (txt.startsWith('以下是前述工具返回的素材内容')) {
         trigger = 'media_attachment_followup';
@@ -485,8 +485,8 @@ export function extractModelRequestTrace(reqBody = {}, respText = '', priorTurnR
   ) {
     eliminable = true;
     eliminableReason = studioIsEmpty
-      ? '空画布已有 <beeftv_studio> 现场摘要仍调用 canvas_get'
-      : '同轮已读写画布且有最新 <beeftv_studio> 仍重复调用 canvas_get';
+      ? '空画布已有 <luckytv_studio> 现场摘要仍调用 canvas_get'
+      : '同轮已读写画布且有最新 <luckytv_studio> 仍重复调用 canvas_get';
   } else if (
     thisHasWrite &&
     priorWriteRequests.length >= 1 &&
@@ -845,7 +845,7 @@ export function renderMarkdownReport(report) {
       ? ` (缓存命中 \`${s.totalCachedTokens}\` tok / \`${((s.totalCachedTokenRatio || 0) * 100).toFixed(1)}%\`)`
       : '';
   const lines = [
-    '# BeefTV 内置创作助手评测报告 (Eval Harness)',
+    '# LuckyTV 内置创作助手评测报告 (Eval Harness)',
     '',
     `- **生成时间**: \`${report.generatedAt}\``,
     `- **整体状态**: **${report.status.toUpperCase()}**`,
@@ -958,16 +958,16 @@ async function startAgentHostProcess({ opsUrl, modelBaseUrl, modelId, modelApi, 
   const nodeBin = resolveNodeRuntime();
   const env = {
     ...process.env,
-    BEEFTV_OPS_URL: opsUrl,
-    BEEFTV_AGENT_HOST_TOKEN: hostToken,
-    BEEFTV_AGENT_DATA_DIR: dataDir,
-    BEEFTV_AGENT_PORT: '0',
-    BEEFTV_AGENT_MODEL: modelId,
-    BEEFTV_AGENT_API: modelApi,
-    BEEFTV_AGENT_BASE_URL: modelBaseUrl,
-    BEEFTV_AGENT_API_KEY: apiKey,
-    BEEFTV_AGENT_MAX_REQUESTS_PER_TURN: String(maxRequests),
-    BEEFTV_AGENT_MAX_TOOL_STEPS_PER_TURN: String(Math.max(40, maxRequests * 2)),
+    LUCKYTV_OPS_URL: opsUrl,
+    LUCKYTV_AGENT_HOST_TOKEN: hostToken,
+    LUCKYTV_AGENT_DATA_DIR: dataDir,
+    LUCKYTV_AGENT_PORT: '0',
+    LUCKYTV_AGENT_MODEL: modelId,
+    LUCKYTV_AGENT_API: modelApi,
+    LUCKYTV_AGENT_BASE_URL: modelBaseUrl,
+    LUCKYTV_AGENT_API_KEY: apiKey,
+    LUCKYTV_AGENT_MAX_REQUESTS_PER_TURN: String(maxRequests),
+    LUCKYTV_AGENT_MAX_TOOL_STEPS_PER_TURN: String(Math.max(40, maxRequests * 2)),
   };
 
   const child = spawn(nodeBin, [SERVER_ENTRY], {
@@ -1047,7 +1047,7 @@ async function sendChatTurn({
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-Beeftv-Agent-Token': hostToken,
+      'X-Luckytv-Agent-Token': hostToken,
     },
     body: JSON.stringify({
       canvasId,
@@ -1168,7 +1168,7 @@ export async function waitForCanvasIdle({ hostBaseUrl, hostToken, canvasId, time
   while (Date.now() - startedAt < timeoutMs) {
     const signal = AbortSignal.timeout(Math.max(1, Math.min(5000, timeoutMs - (Date.now() - startedAt))));
     const res = await fetch(`${hostBaseUrl}/history?canvasId=${encodeURIComponent(canvasId)}`, {
-      headers: { 'X-Beeftv-Agent-Token': hostToken },
+      headers: { 'X-Luckytv-Agent-Token': hostToken },
       signal,
     }).catch(() => null);
     const history = res?.ok ? await res.json().catch(() => null) : null;
@@ -1186,7 +1186,7 @@ export async function runEval(rawOptions = {}) {
 
   const outDir = config.outDir
     ? path.resolve(config.outDir)
-    : fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-eval-out-'));
+    : fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-eval-out-'));
   fs.mkdirSync(outDir, { recursive: true });
 
   const ledgerPath = path.join(outDir, 'ledger.jsonl');
@@ -1383,7 +1383,7 @@ export async function runEval(rawOptions = {}) {
     modelBaseUrl = `http://127.0.0.1:${realProxyServer.address().port}/v1`;
   }
 
-  const tempDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-eval-host-'));
+  const tempDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-eval-host-'));
   let agentHost = null;
   const scenarioRuns = [];
 
@@ -1491,7 +1491,7 @@ export async function runEval(rawOptions = {}) {
               body.system || (body.messages || []).filter((m) => m.role === 'system' || m.role === 'developer'),
             );
             const activeSkillPresent =
-              !systemText.includes('beeftv_active_skills') &&
+              !systemText.includes('luckytv_active_skills') &&
               ['skillId', 'versionId', 'contentHash'].every((key) =>
                 nonSystemText.includes(`${key}=\\"${pin[key]}\\"`),
               );
@@ -1510,7 +1510,7 @@ export async function runEval(rawOptions = {}) {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
-                  'X-Beeftv-Agent-Token': hostToken,
+                  'X-Luckytv-Agent-Token': hostToken,
                 },
                 body: JSON.stringify({
                   canvasId,
@@ -1580,7 +1580,7 @@ export async function runEval(rawOptions = {}) {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
-                  'X-Beeftv-Agent-Token': hostToken,
+                  'X-Luckytv-Agent-Token': hostToken,
                 },
                 body: JSON.stringify({
                   canvasId,

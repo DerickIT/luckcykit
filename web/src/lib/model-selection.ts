@@ -1,4 +1,4 @@
-import { isBeefTVEndpoint } from "@/lib/beeftv-video-contracts";
+import { isLuckyTVEndpoint } from "@/lib/luckytv-video-contracts";
 import { channelForId } from "@/lib/channel-identity";
 import { h3VideoOperation, isH3Model } from "@/lib/h3-video";
 import { defaultImageCapabilityConfig, hasUserModelCapability, modelCapabilityConfigFor, normalizeImageValue, normalizeVideoValue, STANDARD_IMAGE_SIZE_VALUES, videoDurationAllowed, videoReferencesForOperation, type ImageCapabilityConfig, type VideoCapabilityConfig } from "@/lib/model-capabilities";
@@ -126,7 +126,7 @@ export function modelCompatibilityError(config: AiConfig, model: string, require
         const profile = capabilityConfig.video!;
         if (requirements.videoOperation !== "draft_to_final" && requirements.videoSeconds && !videoDurationAllowed(profile, Number(requirements.videoSeconds))) return "不支持当前视频时长";
         if (!input) return "";
-        const operation = resolveVideoOperation(input, requirements.videoOperation, profile, model, isBeefTVModelRoute(model, config));
+        const operation = resolveVideoOperation(input, requirements.videoOperation, profile, model, isLuckyTVModelRoute(model, config));
         const refOperation = profile.operations.includes(operation)
             ? operation
             : visualInputCount > 0 && input.videoCount === 0 && profile.operations.includes("image_to_video")
@@ -474,7 +474,7 @@ export function inferVideoOperation(input: ModelInputSummary) {
     return "text_to_video";
 }
 
-export function isBeefTVModelRoute(model: string, config?: Partial<AiConfig>): boolean {
+export function isLuckyTVModelRoute(model: string, config?: Partial<AiConfig>): boolean {
     const trimmed = model.trim();
     if (!trimmed) return false;
     const hasPrefix = trimmed.includes("::");
@@ -489,20 +489,20 @@ export function isBeefTVModelRoute(model: string, config?: Partial<AiConfig>): b
         const matched = channelForId(config.channels, channelId);
         const channel = matched && hasModel(matched) ? matched : undefined;
         if (!channel) return false;
-        return isBeefTVEndpoint(channel.baseUrl || "") || (!channel.baseUrl?.trim() && channel.id.trim().toLowerCase() === "beeftv");
+        return isLuckyTVEndpoint(channel.baseUrl || "") || (!channel.baseUrl?.trim() && channel.id.trim().toLowerCase() === "luckytv");
     }
-    if (hasPrefix) return channelId.toLowerCase() === "beeftv";
-    return Boolean(config?.baseUrl && isBeefTVEndpoint(config.baseUrl));
+    if (hasPrefix) return channelId.toLowerCase() === "luckytv";
+    return Boolean(config?.baseUrl && isLuckyTVEndpoint(config.baseUrl));
 }
 
-export function resolveVideoOperation(input: ModelInputSummary, storedOperation?: string, profile?: VideoCapabilityConfig | null, model?: string, isBeefTVRoute = model ? isBeefTVModelRoute(model) : false) {
+export function resolveVideoOperation(input: ModelInputSummary, storedOperation?: string, profile?: VideoCapabilityConfig | null, model?: string, isLuckyTVRoute = model ? isLuckyTVModelRoute(model) : false) {
     const visualInputCount = input.imageCount + input.characterCount;
     const totalMediaCount = visualInputCount + input.videoCount + input.audioCount;
     const supportsReferenceVideo = profile ? profile.operations.includes("reference_to_video") : undefined;
     const hasExplicitOpRefs = profile?.operationReferences !== undefined;
     if (storedOperation && !["text_to_video", "image_to_video", "audio_to_video", "extend", "reference_to_video"].includes(storedOperation)) return storedOperation;
     if (storedOperation === "extend" && input.videoCount > 0) return storedOperation;
-    if (isBeefTVRoute && model && isH3Model(model) && !hasExplicitOpRefs) {
+    if (isLuckyTVRoute && model && isH3Model(model) && !hasExplicitOpRefs) {
         const h3Operation = h3VideoOperation(model, input, storedOperation);
         if (h3Operation === "reference_to_video" && supportsReferenceVideo === false && input.videoCount === 0 && input.characterCount === 0 && visualInputCount > 0 && profile?.operations.includes("image_to_video")) {
             const frameRefs = videoReferencesForOperation(profile, "image_to_video");

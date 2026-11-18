@@ -3,7 +3,7 @@ package handler
 import (
 	"fmt"
 	"github.com/goccy/go-yaml"
-	"infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/task"
 	"reflect"
 	"strings"
 )

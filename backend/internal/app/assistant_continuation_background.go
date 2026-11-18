@@ -6,7 +6,7 @@ import (
 	"log"
 	"sync"
 
-	"infinite-canvas/backend/internal/assistantturns"
+	"luckytv/backend/internal/assistantturns"
 )
 
 type assistantContinuationBackground struct {

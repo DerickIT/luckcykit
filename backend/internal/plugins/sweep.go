@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/protocol"
 )
 
 // blobSweepGrace leaves alone package files written in the last few minutes:
@@ -59,7 +59,7 @@ func (c *Runtime) sweepStartupLeftovers(committed []RegistryRecord) {
 	}
 }
 
-// isContentAddressedBlob matches the <sha256>.beeftv-plugin names the runtime
+// isContentAddressedBlob matches the <sha256>.luckytv-plugin names the runtime
 // writes, so files a user dropped into the directory are never touched.
 func isContentAddressedBlob(name string) bool {
 	hash, ok := strings.CutSuffix(name, protocol.PluginPackageExtension)

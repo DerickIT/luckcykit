@@ -1,8 +1,8 @@
 package app
 
 import (
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/workspace"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/workspace"
 )
 
 // AuthUser is retained as a response-shape compatibility type. Local mode has

@@ -2,9 +2,9 @@ package app
 
 import (
 	"context"
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/mediaattempt"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/mediaattempt"
+	"luckytv/backend/internal/model"
 )
 
 type imageAttemptContext = mediaattempt.AttemptContext
@@ -38,10 +38,10 @@ func (p attemptConnections) SystemChannel(id string) (*model.ModelChannel, error
 }
 func (p attemptConnections) ReadLocalModelConfig() ([]byte, error) { return p.s.ReadLocalModelConfig() }
 func (p attemptConnections) HasManagedCredential() bool {
-	return p.s.beefTV != nil && p.s.beefTV.HasManagedCredential()
+	return p.s.luckyTV != nil && p.s.luckyTV.HasManagedCredential()
 }
 func (p attemptConnections) LookupManagedCredential() (string, string, string, string, error) {
-	return p.s.lookupBeefTVCredential()
+	return p.s.lookupLuckyTVCredential()
 }
 func (p attemptConnections) ResolveProviderConfig(config generation.Config) (generation.Config, error) {
 	return p.s.resolveProviderConfig(config)

@@ -5,15 +5,15 @@ import (
 	"errors"
 	"strings"
 
-	"infinite-canvas/backend/internal/beeftv"
+	"luckytv/backend/internal/luckytv"
 )
 
-func managedLegacyVideoInput(input Input) beeftv.LegacyVideoInput {
+func managedLegacyVideoInput(input Input) luckytv.LegacyVideoInput {
 	resolution := videoResolutionNameRequest(input.VideoCapability, input.Config.VQuality)
 	if input.VideoCapability == nil && !isAutomaticVideoResolution(input.Config.VQuality) {
 		resolution = NormalizeVideoResolution(input.Config.VQuality)
 	}
-	request := beeftv.LegacyVideoInput{Model: input.Config.Model, Prompt: WithSystemPrompt(input.Config, strings.TrimSpace(input.Prompt)), Seconds: input.Config.VideoSeconds, Resolution: resolution, AspectRatio: input.Config.Size, Metadata: input.Metadata}
+	request := luckytv.LegacyVideoInput{Model: input.Config.Model, Prompt: WithSystemPrompt(input.Config, strings.TrimSpace(input.Prompt)), Seconds: input.Config.VideoSeconds, Resolution: resolution, AspectRatio: input.Config.Size, Metadata: input.Metadata}
 	serverOwned := input.Config.VideoCapabilitiesVersion != nil && strings.TrimSpace(*input.Config.VideoCapabilitiesVersion) != "" && input.VideoCapability != nil
 	if serverOwned {
 		if input.VideoCapability.DurationSupported != nil && !*input.VideoCapability.DurationSupported {
@@ -52,9 +52,9 @@ func managedLegacyVideoInput(input Input) beeftv.LegacyVideoInput {
 		request.Draft = &value
 		request.Resolution = "480p"
 	}
-	for _, group := range BeefTVSeedanceMediaGroups(&input) {
+	for _, group := range LuckyTVSeedanceMediaGroups(&input) {
 		for _, media := range group.items {
-			request.References = append(request.References, beeftv.LegacyVideoReference{ID: media.ID, Kind: group.kind, URL: firstNonEmpty(media.URL, media.DataURL)})
+			request.References = append(request.References, luckytv.LegacyVideoReference{ID: media.ID, Kind: group.kind, URL: firstNonEmpty(media.URL, media.DataURL)})
 		}
 	}
 	return request
@@ -70,7 +70,7 @@ func runManagedLegacyVideo(ctx context.Context, input Input, policy VideoPollPol
 		var err error
 		id, err = managedMediaClient(createCtx, input.Config).CreateLegacyVideo(createCtx, SubmissionKeyFromContext(ctx), managedLegacyVideoInput(input))
 		if err != nil {
-			if errors.Is(err, beeftv.ErrReferencesNotUploaded) || errors.Is(err, beeftv.ErrInvalidVideoReferences) {
+			if errors.Is(err, luckytv.ErrReferencesNotUploaded) || errors.Is(err, luckytv.ErrInvalidVideoReferences) {
 				return nil, RequestPreparationError{Cause: err}
 			}
 			return nil, SubmissionUnknownError{Cause: legacyMediaError(err)}

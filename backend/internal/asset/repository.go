@@ -1,6 +1,6 @@
 package asset
 
-import "infinite-canvas/backend/internal/repository"
+import "luckytv/backend/internal/repository"
 
 type gormRepository struct {
 	*repository.Repository

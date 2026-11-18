@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func EnrichAPICallLog(logEntry *model.ApiCallLog, responseBody []byte) {

@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	"infinite-canvas/backend/internal/skillhub"
+	"luckytv/backend/internal/skillhub"
 )
 
 func runPublishing(ctx context.Context, c *skillhub.Client, a arguments, out io.Writer) error {
@@ -35,7 +35,7 @@ func runPublishing(ctx context.Context, c *skillhub.Client, a arguments, out io.
 	}
 	if a.command == "authorize" {
 		var auth skillhub.Authorization
-		if err = c.JSON(ctx, "POST", "authorizations", "", "", map[string]string{"clientName": "BeefTV Skills CLI"}, &auth); err != nil {
+		if err = c.JSON(ctx, "POST", "authorizations", "", "", map[string]string{"clientName": "LuckyTV Skills CLI"}, &auth); err != nil {
 			return err
 		}
 		state.DeviceCode = auth.DeviceCode

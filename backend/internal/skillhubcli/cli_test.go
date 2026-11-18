@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/skillhub"
+	"luckytv/backend/internal/skillhub"
 )
 
 const testMarkdown = "---\nname: example\ndescription: A reusable storyboard method.\n---\nAsk about the story.\n"
@@ -106,7 +106,7 @@ func TestRemoteSearchFetchAndExplicitInstallWithoutDesktop(t *testing.T) {
 	for _, status := range []string{"unsupported", "unverified", ""} {
 		compatibility = status
 		other := t.TempDir()
-		if err = Run(context.Background(), []string{"install", release.SkillID, "--release", release.ReleaseID, "--market", server.URL, "--agent", "codex", "--scope", "project", "--project", other, "--capabilities", "beeftv.canvas"}, &out); err == nil {
+		if err = Run(context.Background(), []string{"install", release.SkillID, "--release", release.ReleaseID, "--market", server.URL, "--agent", "codex", "--scope", "project", "--project", other, "--capabilities", "luckytv.canvas"}, &out); err == nil {
 			t.Fatalf("%q compatibility was overridden by caller flags", status)
 		}
 		if _, err = os.Stat(filepath.Join(other, ".agents")); !os.IsNotExist(err) {

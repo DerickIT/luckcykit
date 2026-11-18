@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/operations"
 )
 
 func batchConfigureParams(canvasID string, revision int64, nodes ...map[string]any) map[string]any {

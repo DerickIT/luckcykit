@@ -4,24 +4,24 @@ import (
 	"slices"
 	"strings"
 
-	"infinite-canvas/backend/internal/providerpreset"
+	"luckytv/backend/internal/providerpreset"
 )
 
-func isLocalBeefTVRoute(item LocalChannelModel) bool {
-	return providerpreset.IsBeefTVEndpoint(item.BaseURL) || (strings.TrimSpace(item.BaseURL) == "" && strings.EqualFold(strings.TrimSpace(item.ChannelID), "beeftv"))
+func isLocalLuckyTVRoute(item LocalChannelModel) bool {
+	return providerpreset.IsLuckyTVEndpoint(item.BaseURL) || (strings.TrimSpace(item.BaseURL) == "" && strings.EqualFold(strings.TrimSpace(item.ChannelID), "luckytv"))
 }
 
-// ApplyLocalVideoContract matches the desktop configuration's BeefTV overlay.
+// ApplyLocalVideoContract matches the desktop configuration's LuckyTV overlay.
 // A versioned gateway profile owns its limits. Otherwise, verified route limits
 // repair legacy generic profiles without changing the saved audio default.
 func ApplyLocalVideoContract(item LocalChannelModel, config *ModelCapabilityConfig) *ModelCapabilityConfig {
-	if item.Capability != "video" || item.VideoCapabilitiesVersion != nil || !isLocalBeefTVRoute(item) || config == nil || config.Video == nil {
+	if item.Capability != "video" || item.VideoCapabilitiesVersion != nil || !isLocalLuckyTVRoute(item) || config == nil || config.Video == nil {
 		return config
 	}
 	if isSeedance2Family(item.Protocol, item.Model) {
 		config = repairLegacyEnterpriseSeedanceVideoProfile(item.Protocol, item.Model, config)
 	}
-	contract, ok := providerpreset.BeefTVVideoContract(item.Model)
+	contract, ok := providerpreset.LuckyTVVideoContract(item.Model)
 	if !ok {
 		return config
 	}

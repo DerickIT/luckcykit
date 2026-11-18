@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"sync"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 type session struct {

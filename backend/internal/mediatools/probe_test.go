@@ -104,7 +104,7 @@ func TestBundledFFprobeRelocation(t *testing.T) {
 	if err := os.WriteFile(want, []byte("fixture"), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	for _, executable := range []string{filepath.Join(root, "BeefTV.exe"), filepath.Join(root, "cli", "beeftv.exe")} {
+	for _, executable := range []string{filepath.Join(root, "LuckyTV.exe"), filepath.Join(root, "cli", "luckytv.exe")} {
 		if got := bundledTool(executable, "ffprobe"); got != want {
 			t.Fatalf("got %s want %s", got, want)
 		}
@@ -120,7 +120,7 @@ func TestBundledDarwinFFprobeRelocationAndCLI(t *testing.T) {
 	if err := os.WriteFile(want, []byte("fixture"), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	for _, executable := range []string{filepath.Join(contents, "MacOS", "BeefTV"), filepath.Join(contents, "MacOS", "cli", "beeftv")} {
+	for _, executable := range []string{filepath.Join(contents, "MacOS", "LuckyTV"), filepath.Join(contents, "MacOS", "cli", "luckytv")} {
 		if got := bundledTool(executable, "ffprobe"); got != want {
 			t.Fatalf("got %s want %s", got, want)
 		}

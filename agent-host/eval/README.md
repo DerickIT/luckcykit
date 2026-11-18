@@ -1,4 +1,4 @@
-# BeefTV 内置创作助手评测台 (`agent-host/eval/`)
+# LuckyTV 内置创作助手评测台 (`agent-host/eval/`)
 
 本目录提供内置创作助手评测台（Evaluation Harness）。通过内存版 Go 业务权威模拟器（`sim-go.mjs`）与 11 个固定创作场景（`scenarios.mjs`），驱动真实的 `agent-host/server.mjs`（Durable SQLite 会话、操作桥、画布 CAS 与技能加载）执行回归评测。`fake` 模式使用写好工具调用的本地模型桩，零外部扣费；通过只证明宿主和模拟业务链路可运行，不能证明真实模型的创作质量或实际 Go 后端、桌面交互已验收。
 
@@ -35,18 +35,18 @@ bun eval/run-eval.mjs --model fake
 ### 指定单场景与自定义输出目录
 ```bash
 cd agent-host
-bun eval/run-eval.mjs --scenario S1,S2 --model fake --runs 1 --out /tmp/beeftv-eval-report
+bun eval/run-eval.mjs --scenario S1,S2 --model fake --runs 1 --out /tmp/luckytv-eval-report
 ```
 
 ### 运行真实模型评测（需显式配置非零单价与预算上限）
 ```bash
 cd agent-host
-BEEFTV_AGENT_BASE_URL="https://your-provider.example.com/v1" \
-BEEFTV_AGENT_API_KEY="sk-..." \
-BEEFTV_AGENT_MODEL="your-model-id" \
-BEEFTV_EVAL_PRICE_IN="2.0" \
-BEEFTV_EVAL_PRICE_OUT="8.0" \
-bun eval/run-eval.mjs --model real --scenario all --runs 3 --max-requests 25 --budget-cny 25 --out /tmp/beeftv-real-eval
+LUCKYTV_AGENT_BASE_URL="https://your-provider.example.com/v1" \
+LUCKYTV_AGENT_API_KEY="sk-..." \
+LUCKYTV_AGENT_MODEL="your-model-id" \
+LUCKYTV_EVAL_PRICE_IN="2.0" \
+LUCKYTV_EVAL_PRICE_OUT="8.0" \
+bun eval/run-eval.mjs --model real --scenario all --runs 3 --max-requests 25 --budget-cny 25 --out /tmp/luckytv-real-eval
 ```
 
 ---
@@ -59,19 +59,19 @@ bun eval/run-eval.mjs --model real --scenario all --runs 3 --max-requests 25 --b
 | `--scenario <id\|all>` | `all` | 场景标识（支持 `S1`..`S11` 或 `shortdrama-2shot` 等名称，支持逗号分隔） |
 | `--model <fake\|real>` | `fake` | `fake` 使用本地确定性 SSE 模型服务；`real` 连接真实模型并启用本地计量代理 |
 | `--runs <N>` | `1` | 每个场景重复运行次数（`1..50`） |
-| `--max-requests <N>` | `25` | 注入 `BEEFTV_AGENT_MAX_REQUESTS_PER_TURN` 的单轮最大模型请求上限 |
+| `--max-requests <N>` | `25` | 注入 `LUCKYTV_AGENT_MAX_REQUESTS_PER_TURN` 的单轮最大模型请求上限 |
 | `--budget-cny <number>` | `25` | 按返回的 usage 累计费用，达到阈值后停止后续请求并标记 `aborted_budget`；当前请求可能使费用超过阈值 |
 | `--out <dir>` | 临时目录 | 输出 `report.json`、`report.md`、`ledger.jsonl` 与 `requests/` 的目录路径 |
 
 `requests/` 按发出顺序保存每次模型请求的原文（`0001.json` 起，密钥脱敏、内联图片只留长度），与账本的 `seq` 对应。账本按请求发出时归属场景与回合，并用请求里的会话键（`prompt_cache_key` 或 `metadata.user_id`）把上一个场景迟到的请求归回原场景，标记 `late`。每个场景收尾前会等宿主没有进行中的回合和在途请求（假模型最多 10 秒，真实模型最多 120 秒），结果记在报告的 `settle`。
 
 ### 环境变量（`--model real` 必填）
-- `BEEFTV_EVAL_PRICE_IN`：输入价格（人民币元 / 百万 token，必须 `> 0`）
-- `BEEFTV_EVAL_PRICE_OUT`：输出价格（人民币元 / 百万 token，必须 `> 0`）
-- `BEEFTV_AGENT_BASE_URL`：模型服务 Base URL
-- `BEEFTV_AGENT_API_KEY`：模型 API Key（写入报告与账本前自动脱敏为 `[REDACTED]`）
-- `BEEFTV_AGENT_MODEL`：模型 ID
-- `BEEFTV_AGENT_API`：协议类型（默认 `openai-completions`）
+- `LUCKYTV_EVAL_PRICE_IN`：输入价格（人民币元 / 百万 token，必须 `> 0`）
+- `LUCKYTV_EVAL_PRICE_OUT`：输出价格（人民币元 / 百万 token，必须 `> 0`）
+- `LUCKYTV_AGENT_BASE_URL`：模型服务 Base URL
+- `LUCKYTV_AGENT_API_KEY`：模型 API Key（写入报告与账本前自动脱敏为 `[REDACTED]`）
+- `LUCKYTV_AGENT_MODEL`：模型 ID
+- `LUCKYTV_AGENT_API`：协议类型（默认 `openai-completions`）
 
 ---
 
@@ -102,9 +102,9 @@ S8–S11 的计分只使用结构化数据：画布节点、生成方案、`opLo
 ```bash
 cd agent-host
 # 外部 Agent（Claude Code / Codex / DSH）直接用场景码
-bun eval/run-external-eval.mjs --scenario R1a,R3 --out /tmp/beeftv-parity-ext
+bun eval/run-external-eval.mjs --scenario R1a,R3 --out /tmp/luckytv-parity-ext
 # 内置宿主 + 真实模型（需要模型与预算配置）
-bun eval/run-eval.mjs --model real --scenario parity --runs 1 --out /tmp/beeftv-parity
+bun eval/run-eval.mjs --model real --scenario parity --runs 1 --out /tmp/luckytv-parity
 ```
 
 内置的确定性假模型还没有 R 场景的脚本分支，`--model fake --scenario parity` 会跑但判失败；脚本接入前请用外部 Agent 或真实模型。尺子自身的判分可以用 `bun test eval/scenarios.test.mjs` 里的 sim-go 自检覆盖（正确执行应全过，另有每个场景至少一条反例）。
@@ -195,44 +195,44 @@ bun eval/run-eval.mjs --model real --scenario parity --runs 1 --out /tmp/beeftv-
 
 ## 外部 Agent 对照（Claude Code / Codex / DSH）
 
-`eval/run-external-eval.mjs` 用同一个模拟器和同一套场景判分，换成外部 Agent 来回答：每个用户回合启动一次 `claude -p`、`codex exec` 或 `dsh --profile headless --json`（第二轮起接着上一轮会话），通过 `beeftv mcp serve` 读写模拟器，并装好 `plugins/beeftv-skills` 里的画布技能。外部 Agent 的配置目录是临时目录，不读写本机真实的 `~/.claude`、`~/.codex` 或 `~/.dsh`，正常结束和异常退出都会删除。
+`eval/run-external-eval.mjs` 用同一个模拟器和同一套场景判分，换成外部 Agent 来回答：每个用户回合启动一次 `claude -p`、`codex exec` 或 `dsh --profile headless --json`（第二轮起接着上一轮会话），通过 `luckytv mcp serve` 读写模拟器，并装好 `plugins/luckytv-skills` 里的画布技能。外部 Agent 的配置目录是临时目录，不读写本机真实的 `~/.claude`、`~/.codex` 或 `~/.dsh`，正常结束和异常退出都会删除。
 
 ```bash
-cd backend && go build -o /tmp/beeftv ./cmd/beeftv && cd ../agent-host
+cd backend && go build -o /tmp/luckytv ./cmd/luckytv && cd ../agent-host
 # Claude Code（Anthropic 兼容网关）
-BEEFTV_EVAL_AGENT=claude ANTHROPIC_BASE_URL=https://<网关> ANTHROPIC_API_KEY=... BEEFTV_EVAL_AGENT_MODEL=<模型> \
-BEEFTV_EVAL_PRICE_IN=0.2 BEEFTV_EVAL_PRICE_OUT=0.8 BEEFTV_CLI=/tmp/beeftv \
+LUCKYTV_EVAL_AGENT=claude ANTHROPIC_BASE_URL=https://<网关> ANTHROPIC_API_KEY=... LUCKYTV_EVAL_AGENT_MODEL=<模型> \
+LUCKYTV_EVAL_PRICE_IN=0.2 LUCKYTV_EVAL_PRICE_OUT=0.8 LUCKYTV_CLI=/tmp/luckytv \
 bun eval/run-external-eval.mjs --scenario S1,S2,S3,S6,S7,S8,S9,S10,S11 --runs 2 --out /tmp/ext-eval
 # Codex（OpenAI Responses 兼容网关）
-BEEFTV_EVAL_AGENT=codex BEEFTV_EVAL_CODEX_BASE_URL=https://<网关>/v1 BEEFTV_EVAL_CODEX_API_KEY=... BEEFTV_EVAL_AGENT_MODEL=<模型> ...
+LUCKYTV_EVAL_AGENT=codex LUCKYTV_EVAL_CODEX_BASE_URL=https://<网关>/v1 LUCKYTV_EVAL_CODEX_API_KEY=... LUCKYTV_EVAL_AGENT_MODEL=<模型> ...
 # DSH headless（模型服务商沿用本机 headless profile 的配置）
-BEEFTV_EVAL_AGENT=dsh BEEFTV_EVAL_DSH_BIN="$(command -v dsh)" \
-BEEFTV_CLI=/tmp/beeftv BEEFTV_EVAL_AGENT_MODEL=<服务商>/<模型> \
-BEEFTV_EVAL_PRICE_IN=0.2 BEEFTV_EVAL_PRICE_CACHE=0.004 BEEFTV_EVAL_PRICE_OUT=0.8 \
+LUCKYTV_EVAL_AGENT=dsh LUCKYTV_EVAL_DSH_BIN="$(command -v dsh)" \
+LUCKYTV_CLI=/tmp/luckytv LUCKYTV_EVAL_AGENT_MODEL=<服务商>/<模型> \
+LUCKYTV_EVAL_PRICE_IN=0.2 LUCKYTV_EVAL_PRICE_CACHE=0.004 LUCKYTV_EVAL_PRICE_OUT=0.8 \
 bun eval/run-external-eval.mjs --scenario S1 --runs 1 --budget-cny <元> --out /tmp/dsh-eval
 ```
 
-- 模拟器前有一层转发，把当前回合写进 `x-beeftv-agent-turn`，按回合判分的检查照常可用；`/business/tools` 回空列表。
+- 模拟器前有一层转发，把当前回合写进 `x-luckytv-agent-turn`，按回合判分的检查照常可用；`/business/tools` 回空列表。
 - S4（中途插话）、S5（生成后自动唤醒）只有内置宿主支持，记为不适用；S6 的「每次请求都带着活动技能」只能从宿主请求体取证，不计入。技能 pin 改成在消息里告诉它技能版本，相当于用户说「我选了这个技能」。
 - `--with-digest`：每轮把内置助手同款的制作摘要放在消息前面，用来量摘要对外部 Agent 的作用。
 - 用量统一成三个数：未缓存输入、缓存读、输出。Claude 的 `input_tokens` 不含缓存，缓存创建并进未缓存输入；Codex 的 `input_tokens` 已含缓存，会减掉；DSH 的 `inputTokens` 就是未缓存输入。每轮另记工具调用数和耗时，summary 给出每轮平均工具调用、耗时中位数与 p90、按场景的完成数。Codex 不报模型请求次数，按「工具调用数 + 1」估。
 - 用量不完整：CLI 没返回 usage、返回空对象、DSH 事件流缺 `step_end` 用量（输入和输出缺任一项也算缺）、一轮没有任何 `step_end`（包括崩溃、超时或只输出 error）或会话日志补不全时，该轮在报告里计入 `usageIncompleteTurns`，不会当成 0 元。设了 `--budget-cny` 时遇到这种轮次立即停止本场景剩余回合和后续场景，状态写 `aborted_usage_incomplete`；没设预算时只计数并继续。
-- 费用：`BEEFTV_EVAL_PRICE_IN` 算未缓存输入，`BEEFTV_EVAL_PRICE_CACHE` 算缓存读，`BEEFTV_EVAL_PRICE_OUT` 算输出（元/百万 token）。没给 `PRICE_CACHE` 时按 `PRICE_IN` 算缓存读，报告 `meta.cachePriceSource` 会写成 `price_in`。
+- 费用：`LUCKYTV_EVAL_PRICE_IN` 算未缓存输入，`LUCKYTV_EVAL_PRICE_CACHE` 算缓存读，`LUCKYTV_EVAL_PRICE_OUT` 算输出（元/百万 token）。没给 `PRICE_CACHE` 时按 `PRICE_IN` 算缓存读，报告 `meta.cachePriceSource` 会写成 `price_in`。
 - 预算：`--budget-cny <元>` 在每轮开始前按已累计费用检查，达到上限就停，剩下的场景记 `aborted_budget`；不预留当前轮。设了预算但 `PRICE_IN`/`PRICE_OUT` 缺失或为 0 时直接报错退出，不按 0 算。
 - 模拟器没有 `generation.estimate` 和 `media.review`，外部 Agent 调到时会报不支持；这是模拟器的缺口，正式后端有这两个操作。
 
 ### DSH headless 驱动
 
-- `BEEFTV_EVAL_DSH_BIN`：`dsh` 可执行文件，默认从 `PATH` 找；不在 `PATH` 时用 `command -v dsh` 的结果或安装包里的实际路径（例如 `<dsh-path>`）。
+- `LUCKYTV_EVAL_DSH_BIN`：`dsh` 可执行文件，默认从 `PATH` 找；不在 `PATH` 时用 `command -v dsh` 的结果或安装包里的实际路径（例如 `<dsh-path>`）。
 - 隔离：每次评测新建临时 `DSH_HOME`，profile 由 dsh 自己初始化；`DSH_AGENTS_HOME` 和 `HOME` 也指向临时目录，结束后删除。准备阶段任何一步失败也会删掉临时目录，不写本机 `~/.dsh`。
-- 模型服务商配置：运行时从源 `DSH_HOME`（`BEEFTV_EVAL_DSH_SOURCE_HOME`，默认当前 `$DSH_HOME` 或 `~/.dsh`）只读复制 `profiles/headless/cordis.patch.yml`。这只包含配置和密钥环境变量名，不含密钥。
+- 模型服务商配置：运行时从源 `DSH_HOME`（`LUCKYTV_EVAL_DSH_SOURCE_HOME`，默认当前 `$DSH_HOME` 或 `~/.dsh`）只读复制 `profiles/headless/cordis.patch.yml`。这只包含配置和密钥环境变量名，不含密钥。
 - 凭据：优先只用启动环境变量，变量名取自源配置里声明的密钥变量（`apiKeyEnv`）。声明的变量缺失时，才把源 `.credentials.yaml` 复制成临时 `DSH_HOME` 下权限 `0600` 的副本，评测结束随临时目录删除；不软链、不改动用户真实凭据文件，也不写入仓库、报告或日志。
-- MCP：用 `--patch` 挂 `@deepseek-ai/dsh-mcp-client`，`serverName` 为 `beeftv`，stdio 启动 `beeftv mcp serve`，env 带 `BEEFTV_BASE_URL` 与 `BEEFTV_OWNER_TOKEN`，`toolCallTimeoutMs` 为 120000。`beeftv mcp serve` 报告的「N 个工具」写进报告 meta。
-- 工具面：overlay 逐个关闭命令行、文件读写、网页、子 Agent、任务、待办等内置工具，只留技能读取和 BeefTV MCP。headless 没有更细的类别开关，所以按插件 id 禁用；实际工具数从 stderr 读回，不凭配置推断。权限用 `danger-full-access` 预设加 `--approval-policy never`，避免无人值守时等待审批。
-- 技能：`plugins/beeftv-skills/skills/beeftv-canvas/SKILL.md` 复制到临时 `$DSH_HOME/skills/beeftv-canvas/`。
+- MCP：用 `--patch` 挂 `@deepseek-ai/dsh-mcp-client`，`serverName` 为 `luckytv`，stdio 启动 `luckytv mcp serve`，env 带 `LUCKYTV_BASE_URL` 与 `LUCKYTV_OWNER_TOKEN`，`toolCallTimeoutMs` 为 120000。`luckytv mcp serve` 报告的「N 个工具」写进报告 meta。
+- 工具面：overlay 逐个关闭命令行、文件读写、网页、子 Agent、任务、待办等内置工具，只留技能读取和 LuckyTV MCP。headless 没有更细的类别开关，所以按插件 id 禁用；实际工具数从 stderr 读回，不凭配置推断。权限用 `danger-full-access` 预设加 `--approval-policy never`，避免无人值守时等待审批。
+- 技能：`plugins/luckytv-skills/skills/luckytv-canvas/SKILL.md` 复制到临时 `$DSH_HOME/skills/luckytv-canvas/`。
 - 续聊：第二轮起用 `--session-id` 续同一会话；会话不带 agent preset，工作目录固定为同一个临时目录，满足 headless 的续聊限制。
 - 解析：从 `--json` 事件流取最终回复、`final.reason`、退出码和 `tool_call` 数；每步 `status(step_end)` 的 usage 里 `inputTokens` 是未缓存输入、`cacheReadTokens` 是缓存读、`outputTokens` 是输出。一步至少要同时有有效的输入和输出；有重试的步骤不带 usage、或只带缓存读/只带输出时，从临时 DSH_HOME 下该会话日志的 `assistant/message`/`assistant/attempt` 用量补；没有 `zstd` 命令或补不到时标成「用量不完整」，不按 0 静默通过。
-- `BEEFTV_EVAL_AGENT_MODEL`：可选，`provider/model` 形式（模型 id 自己可带斜杠）；不填则用 DSH 当前配置，并把实际 provider、model、推理档位写进报告 meta。`BEEFTV_EVAL_DSH_REASONING` 可覆盖推理档位，默认沿用配置或 `high`。
+- `LUCKYTV_EVAL_AGENT_MODEL`：可选，`provider/model` 形式（模型 id 自己可带斜杠）；不填则用 DSH 当前配置，并把实际 provider、model、推理档位写进报告 meta。`LUCKYTV_EVAL_DSH_REASONING` 可覆盖推理档位，默认沿用配置或 `high`。
 
 ---
 
@@ -245,8 +245,8 @@ cd backend
 # 默认：脚本化假模型，只验证测量工具本身
 go test ./internal/handler -run TestAssistantEfficiencyBaselineOnRealBackend -count=1
 # 真实模型（费用自理；密钥只通过环境变量传入，不写文件）
-BEEFTV_REAL_BASELINE_URL=https://<网关>/v1 BEEFTV_REAL_BASELINE_KEY=... BEEFTV_REAL_BASELINE_MODEL=<model-id> \
-BEEFTV_REAL_BASELINE_OUT=/tmp/baseline go test ./internal/handler -run TestAssistantEfficiencyBaselineOnRealBackend -count=1 -timeout 25m
+LUCKYTV_REAL_BASELINE_URL=https://<网关>/v1 LUCKYTV_REAL_BASELINE_KEY=... LUCKYTV_REAL_BASELINE_MODEL=<model-id> \
+LUCKYTV_REAL_BASELINE_OUT=/tmp/baseline go test ./internal/handler -run TestAssistantEfficiencyBaselineOnRealBackend -count=1 -timeout 25m
 ```
 
 模型目录由测试写入的本地配置提供；目录为空时测试直接失败，避免得到失真的基线。
@@ -260,24 +260,24 @@ BEEFTV_REAL_BASELINE_OUT=/tmp/baseline go test ./internal/handler -run TestAssis
 ```bash
 cd backend
 # 默认：本地假 OpenAI 图片/视频上游（合法 PNG 与 5 秒 MP4），零付费，验证整条流程
-BEEFTV_REAL_GEN=1 BEEFTV_REAL_GEN_OUT=/tmp/real-gen go test ./internal/handler -run TestAssistantRealGenerationEndToEnd -count=1 -v -timeout 15m
+LUCKYTV_REAL_GEN=1 LUCKYTV_REAL_GEN_OUT=/tmp/real-gen go test ./internal/handler -run TestAssistantRealGenerationEndToEnd -count=1 -v -timeout 15m
 # 真实网关（费用自理；密钥只从环境变量进入进程，不写文件）
-BEEFTV_REAL_GEN_URL=https://<网关>/v1 BEEFTV_REAL_GEN_KEY=... \
-BEEFTV_REAL_GEN_OUT=/tmp/real-gen go test ./internal/handler -run TestAssistantRealGenerationEndToEnd -count=1 -v -timeout 60m
+LUCKYTV_REAL_GEN_URL=https://<网关>/v1 LUCKYTV_REAL_GEN_KEY=... \
+LUCKYTV_REAL_GEN_OUT=/tmp/real-gen go test ./internal/handler -run TestAssistantRealGenerationEndToEnd -count=1 -v -timeout 60m
 ```
 
-- `BEEFTV_REAL_GEN=1`：显式开启假模式本地验证；未设置且未提供 `BEEFTV_REAL_GEN_URL` 时测试默认跳过。
-- `BEEFTV_REAL_GEN_URL` / `BEEFTV_REAL_GEN_KEY`：生成与文本模型共用的 OpenAI 兼容网关；设置 URL 后自动走真实模式。
-- `BEEFTV_REAL_GEN_MODEL`：助手文本模型，默认沿用内置助手默认模型。
-- `BEEFTV_REAL_GEN_MAX_TASKS`：图片/视频任务总数上限，默认 `6`；超出后不再确认新方案，报告记录原因。
-- `BEEFTV_REAL_GEN_MAX_VIDEO_SECONDS`：单镜头视频秒数上限，默认 `5`；超长或秒数不明的视频方案不确认。
-- `BEEFTV_REAL_GEN_OUT`：输出目录；默认临时目录。报告为 `report.json` / `report.md`，产物在 `artifacts/`，另有 `canvas.json`。
-- 超时：图片任务默认 5 分钟、视频任务默认 15 分钟、单个回合默认 10 分钟，可用 `BEEFTV_REAL_GEN_IMAGE_TIMEOUT_MS`、`BEEFTV_REAL_GEN_VIDEO_TIMEOUT_MS`、`BEEFTV_REAL_GEN_TURN_TIMEOUT_MS` 调整。
+- `LUCKYTV_REAL_GEN=1`：显式开启假模式本地验证；未设置且未提供 `LUCKYTV_REAL_GEN_URL` 时测试默认跳过。
+- `LUCKYTV_REAL_GEN_URL` / `LUCKYTV_REAL_GEN_KEY`：生成与文本模型共用的 OpenAI 兼容网关；设置 URL 后自动走真实模式。
+- `LUCKYTV_REAL_GEN_MODEL`：助手文本模型，默认沿用内置助手默认模型。
+- `LUCKYTV_REAL_GEN_MAX_TASKS`：图片/视频任务总数上限，默认 `6`；超出后不再确认新方案，报告记录原因。
+- `LUCKYTV_REAL_GEN_MAX_VIDEO_SECONDS`：单镜头视频秒数上限，默认 `5`；超长或秒数不明的视频方案不确认。
+- `LUCKYTV_REAL_GEN_OUT`：输出目录；默认临时目录。报告为 `report.json` / `report.md`，产物在 `artifacts/`，另有 `canvas.json`。
+- 超时：图片任务默认 5 分钟、视频任务默认 15 分钟、单个回合默认 10 分钟，可用 `LUCKYTV_REAL_GEN_IMAGE_TIMEOUT_MS`、`LUCKYTV_REAL_GEN_VIDEO_TIMEOUT_MS`、`LUCKYTV_REAL_GEN_TURN_TIMEOUT_MS` 调整。
 - 确认走真实的 `ApproveGenerationOrder`（界面「确认方案」的服务方法）；测试侧 `/__confirm` 只做入口和硬上限兜底。额度检查、预留和确认在同一把锁里串行执行，按完整 `Targets` 计划计数，音频等本测试范围外的类型直接拒绝。审片模型按 `ResolveMediaReviewProvider` 配置，`/__media-review` 会报告是否解析成功。
-- 上游返回的、指向上游基址（`BEEFTV_REAL_GEN_URL` 的 scheme+host）的绝对媒体地址会改写成指向本地测试代理，下载时由代理重新注入真实密钥；CDN 等其它域名保持原样。代理只在重定向目标的 scheme、hostname、port 与上游基址完全一致时保留 `Authorization`；跨域或子域名重定向会先删除鉴权再继续跟随，CDN 签名地址仍能正常下载。
+- 上游返回的、指向上游基址（`LUCKYTV_REAL_GEN_URL` 的 scheme+host）的绝对媒体地址会改写成指向本地测试代理，下载时由代理重新注入真实密钥；CDN 等其它域名保持原样。代理只在重定向目标的 scheme、hostname、port 与上游基址完全一致时保留 `Authorization`；跨域或子域名重定向会先删除鉴权再继续跟随，CDN 签名地址仍能正常下载。
 - 任一轮聊天失败、任务等待超时或任务失败都会立即停止后续确认与后续轮次。正常退出与 `SIGINT`/`SIGTERM` 共用同一套收尾：先调用 `/__shutdown` 停止新确认并与确认共用 gate 锁，再等本进程内进行中的确认结束，然后查询所有任务、能取消的取消、再查询、写报告后退出；收尾总时长有 10 秒硬上限，短于 Go 侧 20 秒 `WaitDelay`，重复信号不会重入。若预算内确认仍未结束，报告标记 `confirmationOutcomeUnknown: true` 和相关方案 ID，测试判失败。不能取消的任务在报告里列出任务 ID、上游任务号与「可能仍在运行」。
 - 无论假模式还是真实模式，报告必须证明 2 张首帧、2 段视频、1 个成片都成功保存并下载，否则测试失败并指出缺了哪一项。
 - 所有写盘文本（请求原文、报告、`canvas.json`）统一脱敏，覆盖上游密钥、`Bearer` 头和 `sk-` 形式密钥。
-- 第 3 轮的 `canvas.timeline.render` 是本地 ffmpeg 渲染任务（报告里显示 `timeline_render ffmpeg`），不调用付费上游，也不计入 `BEEFTV_REAL_GEN_MAX_TASKS`。收尾时先停宿主并等宿主进程退出，再查询、取消、再查询，避免宿主关闭后继续创建任务。
+- 第 3 轮的 `canvas.timeline.render` 是本地 ffmpeg 渲染任务（报告里显示 `timeline_render ffmpeg`），不调用付费上游，也不计入 `LUCKYTV_REAL_GEN_MAX_TASKS`。收尾时先停宿主并等宿主进程退出，再查询、取消、再查询，避免宿主关闭后继续创建任务。
 - 已知限制：主模型图片检查走 `media.overview` / `media.inspect`，审片模型 `media.review` 只接受 MP4/WAV；真实网关若返回图片 URL，需保证该 URL 可被本地后端下载或被改写到代理。驱动不把密钥写入配置或报告。
 

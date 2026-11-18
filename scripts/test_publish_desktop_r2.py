@@ -71,7 +71,7 @@ class PublicationTests(unittest.TestCase):
             def do_GET(self):
                 agent = self.headers.get("User-Agent", "")
                 requests.append((self.path, agent))
-                if not re.fullmatch(r"BeefTV-Desktop-Updater/v\d+\.\d+\.\d+", agent):
+                if not re.fullmatch(r"LuckyTV-Desktop-Updater/v\d+\.\d+\.\d+", agent):
                     self.send_error(403)
                     return
                 origin_header = self.headers.get("X-Test-Origin")
@@ -138,12 +138,12 @@ class PublicationTests(unittest.TestCase):
         self.verify_command = self.verifier.start()
         self.addCleanup(self.verifier.stop)
         self.publisher = release.Publisher(self.store, release.PublicHTTP(opener), "/tmp/update-release",
-                                           "https://updates.beefapi.com/beeftv", lambda *args: None)
+                                           "https://updates.luckyapi.com/luckytv", lambda *args: None)
 
     def bridge(self):
         return release.Publisher(self.legacy_store, self.publisher.public, "/tmp/update-release",
                                  release.R2_PUBLIC_BASE, lambda *args: None,
-                                 feed_public_base="https://legacy.example/beeftv")
+                                 feed_public_base="https://legacy.example/luckytv")
 
     def test_bridge_requires_the_exact_already_active_r2_feed(self):
         old = self.manifest()
@@ -167,7 +167,7 @@ class PublicationTests(unittest.TestCase):
         self.assertEqual(bridge.activate(newer, require_active_source=True), "v1.5.8")
         self.assertEqual(self.legacy_store.objects[release.LATEST], newer.read_bytes())
         self.assertEqual(len(self.legacy_store.writes), 2)
-        self.assertTrue(all(key == release.LATEST or key.startswith("beeftv/latest-backups/")
+        self.assertTrue(all(key == release.LATEST or key.startswith("luckytv/latest-backups/")
                             for key, _ in self.legacy_store.writes))
         self.assertIn(old_bytes, self.legacy_store.objects.values())
         self.assertFalse(any(key.endswith((".zip", ".exe", ".dmg", ".deb"))
@@ -221,10 +221,10 @@ class PublicationTests(unittest.TestCase):
         for platform in sorted(release.PLATFORMS):
             if platform == omit:
                 continue
-            name = f"BeefTV-{version}-{platform}.zip"
+            name = f"LuckyTV-{version}-{platform}.zip"
             data = (version + platform).encode() * copies
             (self.root / name).write_bytes(data)
-            platforms[platform] = {"url": f"https://updates.beefapi.com/beeftv/{version}/{name}",
+            platforms[platform] = {"url": f"https://updates.luckyapi.com/luckytv/{version}/{name}",
                                    "size": len(data), "sha256": hashlib.sha256(data).hexdigest()}
         payload = {"schema": 1, "version": version, "commit": "a" * 40, "notes": "test release", "platforms": platforms}
         path = self.root / f"{version}.json"
@@ -234,18 +234,18 @@ class PublicationTests(unittest.TestCase):
     def manifest_v2(self, version="v1.5.7", with_domestic=False, from_version=None, copies=32):
         platforms = {}
         for platform in sorted(release.PLATFORMS):
-            name = f"BeefTV-{version}-{platform}.zip"
+            name = f"LuckyTV-{version}-{platform}.zip"
             data = (version + platform).encode() * copies
             (self.root / name).write_bytes(data)
-            r2_url = f"https://updates.beefapi.com/beeftv/{version}/{name}"
+            r2_url = f"https://updates.luckyapi.com/luckytv/{version}/{name}"
             cnb_url = f"{release.CNB_PUBLIC_BASE}/{version}/{name}"
             urls = [cnb_url, r2_url] if with_domestic else [r2_url]
             entry = {"urls": urls, "size": len(data), "sha256": hashlib.sha256(data).hexdigest()}
             if from_version:
-                d_name = f"BeefTV-{version}-{platform}-from-{from_version}.delta.zip"
+                d_name = f"LuckyTV-{version}-{platform}-from-{from_version}.delta.zip"
                 d_data = (f"delta-{from_version}-{version}-{platform}").encode() * 8
                 (self.root / d_name).write_bytes(d_data)
-                d_r2_url = f"https://updates.beefapi.com/beeftv/{version}/{d_name}"
+                d_r2_url = f"https://updates.luckyapi.com/luckytv/{version}/{d_name}"
                 d_cnb_url = f"{release.CNB_PUBLIC_BASE}/{version}/{d_name}"
                 d_urls = [d_cnb_url, d_r2_url] if with_domestic else [d_r2_url]
                 entry["deltas"] = {from_version: {"urls": d_urls, "size": len(d_data), "sha256": hashlib.sha256(d_data).hexdigest()}}
@@ -275,11 +275,11 @@ class PublicationTests(unittest.TestCase):
         self.assertEqual(self.store.objects[release.LATEST_V2], v2_r2.read_bytes())
         # Populate verified CNB full ZIPs and delta ZIPs, then upgrade v2 feed to domestic+R2
         for platform in release.PLATFORMS:
-            for name in (f"BeefTV-v2.1.0-{platform}.zip", f"BeefTV-v2.1.0-{platform}-from-v2.0.6.delta.zip"):
-                self.cnb_store.objects[f"beeftv-downloads/desktop/-/releases/download/v2.1.0/{name}"] = (self.root / name).read_bytes()
+            for name in (f"LuckyTV-v2.1.0-{platform}.zip", f"LuckyTV-v2.1.0-{platform}-from-v2.0.6.delta.zip"):
+                self.cnb_store.objects[f"luckytv-downloads/desktop/-/releases/download/v2.1.0/{name}"] = (self.root / name).read_bytes()
         self.assertEqual(self.publisher.activate_v2(v2_domestic), "v2.1.0")
         self.assertEqual(self.store.objects[release.LATEST_V2], v2_domestic.read_bytes())
-        v2_backups = [val for key, val in self.store.objects.items() if key.startswith("beeftv/latest-v2-backups/")]
+        v2_backups = [val for key, val in self.store.objects.items() if key.startswith("luckytv/latest-v2-backups/")]
         self.assertEqual(v2_backups, [v2_r2.read_bytes()])
         # Idempotent re-run succeeds, but downgrading back to R2-only for the same version is rejected
         self.assertEqual(self.publisher.activate_v2(v2_domestic), "v2.1.0")
@@ -294,10 +294,10 @@ class PublicationTests(unittest.TestCase):
         self.assertEqual(self.store.writes, [])
         names = ['darwin-arm64.dmg', 'darwin-amd64.dmg', 'windows-amd64-setup.exe', 'linux-amd64.deb']
         for name in names:
-            (self.root / ('BeefTV-v1.5.7-' + name)).write_bytes(name.encode())
+            (self.root / ('LuckyTV-v1.5.7-' + name)).write_bytes(name.encode())
         self.publisher.stage(manifest, self.root, with_installers=True)
         self.assertNotIn(release.LATEST, self.store.objects)
-        key = release.PREFIX + '/v1.5.7/BeefTV-v1.5.7-linux-amd64.deb'
+        key = release.PREFIX + '/v1.5.7/LuckyTV-v1.5.7-linux-amd64.deb'
         self.assertEqual(self.store.objects[key], b'linux-amd64.deb')
         self.store.objects[key] = b'corrupt'
         with self.assertRaises(release.PublishError):
@@ -309,25 +309,25 @@ class PublicationTests(unittest.TestCase):
         self.publisher.stage(manifest, self.root)
         self.assertNotIn(release.LATEST, self.store.objects)
         self.assertEqual(len(self.store.writes), len(release.PLATFORMS) + 1)
-        self.assertTrue(all(agent == "BeefTV-Desktop-Updater/v1.5.7" for _, agent in self.public_requests))
+        self.assertTrue(all(agent == "LuckyTV-Desktop-Updater/v1.5.7" for _, agent in self.public_requests))
         self.publisher.stage(manifest, self.root)
         self.assertEqual(len(self.store.writes), len(release.PLATFORMS) + 1)
         self.assertEqual(self.verify_command.call_args.args[0], ["/tmp/update-release", "verify", "--envelope", str(manifest)])
 
     def test_public_readback_uses_updater_user_agent_instead_of_urllib_default(self):
         data = b"public release asset"
-        self.store.objects["beeftv/probe"] = data
-        url = f"http://127.0.0.1:{self.server.server_port}/beeftv/probe"
+        self.store.objects["luckytv/probe"] = data
+        url = f"http://127.0.0.1:{self.server.server_port}/luckytv/probe"
         with self.assertRaises(urllib.error.HTTPError) as failure:
             urllib.request.urlopen(url)
         self.assertEqual(failure.exception.code, 403)
         release.PublicHTTP().check(url, len(data), hashlib.sha256(data).hexdigest(), version="v1.5.8")
-        self.assertEqual(self.public_requests[-1][1], "BeefTV-Desktop-Updater/v1.5.8")
+        self.assertEqual(self.public_requests[-1][1], "LuckyTV-Desktop-Updater/v1.5.8")
 
     def test_same_job_receipt_cuts_activation_to_1k_per_package_and_keeps_full_feeds(self):
         manifest = self.manifest(copies=512)
         for suffix in ['darwin-arm64.dmg', 'darwin-amd64.dmg', 'windows-amd64-setup.exe', 'linux-amd64.deb']:
-            (self.root / ('BeefTV-v1.5.7-' + suffix)).write_bytes(suffix.encode() * 512)
+            (self.root / ('LuckyTV-v1.5.7-' + suffix)).write_bytes(suffix.encode() * 512)
         verified = {}
         self.publisher.public.verified = verified
         self.publisher.stage(manifest, self.root, with_installers=True)
@@ -352,7 +352,7 @@ class PublicationTests(unittest.TestCase):
         manifest = self.manifest()
         receipt = self.root / 'receipt.json'
         receipt.write_text('old proof')
-        owner = dict(GITHUB_REPOSITORY='glanderness/BeefTV', GITHUB_RUN_ID='123',
+        owner = dict(GITHUB_REPOSITORY='glanderness/LuckyTV', GITHUB_RUN_ID='123',
                      GITHUB_RUN_ATTEMPT='1', GITHUB_JOB='publish')
         argv = ['publish', 'stage', '--manifest', str(manifest), '--verifier', '/tmp/update-release',
                 '--endpoint-url', 'https://cos.ap-guangzhou.myqcloud.com',
@@ -372,7 +372,7 @@ class PublicationTests(unittest.TestCase):
     def test_r2_cli_rehashes_full_objects_even_with_a_receipt_and_cache_ignoring_if_match(self):
         manifest = self.manifest(copies=512)
         receipt = self.root / 'receipt.json'
-        owner = dict(GITHUB_REPOSITORY='glanderness/BeefTV', GITHUB_RUN_ID='123',
+        owner = dict(GITHUB_REPOSITORY='glanderness/LuckyTV', GITHUB_RUN_ID='123',
                      GITHUB_RUN_ATTEMPT='1', GITHUB_JOB='publish')
         argv = ['publish', 'stage', '--manifest', str(manifest), '--verifier', '/tmp/update-release',
                 '--endpoint-url', 'https://' + 'a' * 32 + '.r2.cloudflarestorage.com',
@@ -442,8 +442,8 @@ class PublicationTests(unittest.TestCase):
     def test_receipt_is_bound_to_signed_envelope_storage_and_exact_ci_attempt_job(self):
         manifest = self.manifest()
         args = Mock(provider='cos', endpoint_url='https://cos.ap-guangzhou.myqcloud.com',
-                    region='ap-guangzhou', bucket='fixture-123', public_base='https://fixture.example/beeftv')
-        owner = dict(GITHUB_REPOSITORY='glanderness/BeefTV', GITHUB_RUN_ID='123',
+                    region='ap-guangzhou', bucket='fixture-123', public_base='https://fixture.example/luckytv')
+        owner = dict(GITHUB_REPOSITORY='glanderness/LuckyTV', GITHUB_RUN_ID='123',
                      GITHUB_RUN_ATTEMPT='1', GITHUB_JOB='publish')
         with patch.dict(os.environ, owner, clear=True):
             binding = release.verification_binding(manifest, args)
@@ -460,16 +460,16 @@ class PublicationTests(unittest.TestCase):
 
     def test_failed_full_hash_cannot_create_verification_proof(self):
         data = b'fixture' * 1024
-        self.store.objects['beeftv/asset.zip'] = data
+        self.store.objects['luckytv/asset.zip'] = data
         public = release.PublicHTTP(self.publisher.public.opener, {})
         with self.assertRaises(release.PublishError):
-            public.check('https://updates.beefapi.com/beeftv/asset.zip', len(data), '0' * 64, version='v1.5.7')
+            public.check('https://updates.luckyapi.com/luckytv/asset.zip', len(data), '0' * 64, version='v1.5.7')
         self.assertEqual(public.verified, {})
 
     def test_malformed_receipt_is_reported_before_publisher_or_latest_write(self):
         manifest = self.manifest()
         receipt = self.root / 'receipt.json'
-        owner = dict(GITHUB_REPOSITORY='glanderness/BeefTV', GITHUB_RUN_ID='123',
+        owner = dict(GITHUB_REPOSITORY='glanderness/LuckyTV', GITHUB_RUN_ID='123',
                      GITHUB_RUN_ATTEMPT='1', GITHUB_JOB='publish')
         argv = ['publish', 'activate', '--manifest', str(manifest), '--verifier', '/tmp/update-release',
                 '--endpoint-url', 'https://cos.ap-guangzhou.myqcloud.com', '--verification-receipt', str(receipt)]
@@ -492,7 +492,7 @@ class PublicationTests(unittest.TestCase):
 
     def test_missing_local_archive_and_bad_hash_write_nothing(self):
         manifest = self.manifest()
-        source = self.root / "BeefTV-v1.5.7-windows-amd64.zip"
+        source = self.root / "LuckyTV-v1.5.7-windows-amd64.zip"
         source.unlink()
         with self.assertRaisesRegex(release.PublishError, "Local archive"):
             self.publisher.stage(manifest, self.root)
@@ -511,7 +511,7 @@ class PublicationTests(unittest.TestCase):
     def test_existing_immutable_version_cannot_be_overwritten(self):
         manifest = self.manifest()
         self.publisher.stage(manifest, self.root)
-        key = "beeftv/v1.5.7/BeefTV-v1.5.7-darwin-amd64.zip"
+        key = "luckytv/v1.5.7/LuckyTV-v1.5.7-darwin-amd64.zip"
         self.store.objects[key] = b"existing different version content"
         writes = len(self.store.writes)
         with self.assertRaisesRegex(release.PublishError, "Immutable"):
@@ -522,7 +522,7 @@ class PublicationTests(unittest.TestCase):
     def test_missing_or_corrupt_public_asset_blocks_activation(self):
         manifest = self.manifest()
         self.publisher.stage(manifest, self.root)
-        key = "beeftv/v1.5.7/BeefTV-v1.5.7-windows-amd64.zip"
+        key = "luckytv/v1.5.7/LuckyTV-v1.5.7-windows-amd64.zip"
         original = self.store.objects.pop(key)
         with self.assertRaises(release.PublishError):
             self.publisher.activate(manifest)
@@ -538,7 +538,7 @@ class PublicationTests(unittest.TestCase):
         new = self.manifest()
         self.publisher.stage(new, self.root)
         self.publisher.activate(new)
-        backups = [value for key, value in self.store.objects.items() if key.startswith("beeftv/latest-backups/")]
+        backups = [value for key, value in self.store.objects.items() if key.startswith("luckytv/latest-backups/")]
         self.assertEqual(backups, [old.read_bytes()])
         self.assertEqual(self.store.objects[release.LATEST], new.read_bytes())
         self.assertIn((release.LATEST, release.REVALIDATE), self.store.writes)
@@ -587,7 +587,7 @@ class PublicationTests(unittest.TestCase):
         payload = json.loads(base64.b64decode(json.loads(manifest.read_text())["payload"]))
         metadata = {"draft": False, "prerelease": False, "published_at": "now", "tag_name": payload["version"],
                     "target_commitish": payload["commit"], "assets": [{"name": name, "state": "uploaded"} for name in
-                    ["desktop-update.json"] + [f"BeefTV-{payload['version']}-{platform}.zip" for platform in release.PLATFORMS]]}
+                    ["desktop-update.json"] + [f"LuckyTV-{payload['version']}-{platform}.zip" for platform in release.PLATFORMS]]}
         latest_tag = "v1.5.6"
 
         def response(command):
@@ -612,11 +612,11 @@ class PublicationTests(unittest.TestCase):
         self.store.objects[key] = manifest.read_bytes()
         self.publisher.activate(manifest)
         self.assertEqual(self.store.objects[release.LATEST], manifest.read_bytes())
-        self.assertIn(("/" + key, "BeefTV-Desktop-Updater/v1.5.7"), self.public_requests)
+        self.assertIn(("/" + key, "LuckyTV-Desktop-Updater/v1.5.7"), self.public_requests)
 
     def recovery_documents(self, manifest):
         lock = json.dumps({"schema": 1, "nonce": "a" * 32, "target": release.LATEST,
-                           "owner": {"GITHUB_REPOSITORY": "glanderness/BeefTV", "GITHUB_RUN_ID": "42",
+                           "owner": {"GITHUB_REPOSITORY": "glanderness/LuckyTV", "GITHUB_RUN_ID": "42",
                                      "GITHUB_RUN_ATTEMPT": "2", "GITHUB_JOB": "publish"}}).encode()
         claim = json.dumps({"schema": 1, "target": release.LATEST, "expectedETag": None,
                             "nextSize": manifest.stat().st_size,
@@ -648,7 +648,7 @@ class PublicationTests(unittest.TestCase):
         manifest = self.manifest()
         self.publisher.stage(manifest, self.root)
         lock, claim = self.recovery_documents(manifest)
-        key = "beeftv/v1.5.7/BeefTV-v1.5.7-windows-amd64.zip"
+        key = "luckytv/v1.5.7/LuckyTV-v1.5.7-windows-amd64.zip"
         original = self.store.objects[key]
         with patch.object(release, "require_terminal_publisher") as terminal:
             self.verify_command.return_value = subprocess.CompletedProcess([], 1, "", "private diagnostic")
@@ -674,7 +674,7 @@ class PublicationTests(unittest.TestCase):
         manifest = self.manifest()
         self.publisher.stage(manifest, self.root)
         lock, claim = self.recovery_documents(manifest)
-        metadata = {"id": 42, "run_attempt": 2, "status": "completed", "repository": {"full_name": "glanderness/BeefTV"}}
+        metadata = {"id": 42, "run_attempt": 2, "status": "completed", "repository": {"full_name": "glanderness/LuckyTV"}}
 
         def response(command):
             return subprocess.CompletedProcess(command, 0, json.dumps(metadata) if command[0] == "gh" else "", "")
@@ -684,27 +684,27 @@ class PublicationTests(unittest.TestCase):
         self.public_requests.clear()
         self.assertEqual(self.publisher.resume(manifest, lock, claim, **self.recovery_confirmations), "v1.5.7")
         self.store.resume.assert_called_once_with(release.LATEST, manifest, lock, claim)
-        self.assertIn(["gh", "api", "repos/glanderness/BeefTV/actions/runs/42/attempts/2"],
+        self.assertIn(["gh", "api", "repos/glanderness/LuckyTV/actions/runs/42/attempts/2"],
                       [call.args[0] for call in self.verify_command.call_args_list])
         self.publisher.release_check.assert_called_once()
-        self.assertEqual(self.public_requests[-1], ("/beeftv/desktop-update.json", "BeefTV-Desktop-Updater/v1.5.7"))
+        self.assertEqual(self.public_requests[-1], ("/luckytv/desktop-update.json", "LuckyTV-Desktop-Updater/v1.5.7"))
 
 
 class TerminalPublisherTests(unittest.TestCase):
     def lock(self, owner=None):
-        owner = owner if owner is not None else {"GITHUB_REPOSITORY": "glanderness/BeefTV", "GITHUB_RUN_ID": "42",
+        owner = owner if owner is not None else {"GITHUB_REPOSITORY": "glanderness/LuckyTV", "GITHUB_RUN_ID": "42",
                                                 "GITHUB_RUN_ATTEMPT": "2", "GITHUB_JOB": "publish"}
         return json.dumps({"owner": owner}).encode()
 
     def test_missing_or_unofficial_identity_never_calls_github(self):
         for owner in [{}, {"GITHUB_REPOSITORY": "another/repo", "GITHUB_RUN_ID": "42", "GITHUB_RUN_ATTEMPT": "2", "GITHUB_JOB": "publish"},
-                      {"GITHUB_REPOSITORY": "glanderness/BeefTV", "GITHUB_RUN_ID": "42/attempts/1", "GITHUB_RUN_ATTEMPT": "2", "GITHUB_JOB": "publish"}]:
+                      {"GITHUB_REPOSITORY": "glanderness/LuckyTV", "GITHUB_RUN_ID": "42/attempts/1", "GITHUB_RUN_ATTEMPT": "2", "GITHUB_JOB": "publish"}]:
             with self.subTest(owner=owner), patch.object(release, "run") as runner, self.assertRaises(release.PublishError):
                 release.require_terminal_publisher(self.lock(owner))
             runner.assert_not_called()
 
     def test_only_the_exact_completed_run_attempt_is_accepted(self):
-        metadata = {"id": 42, "run_attempt": 2, "status": "completed", "repository": {"full_name": "glanderness/BeefTV"}}
+        metadata = {"id": 42, "run_attempt": 2, "status": "completed", "repository": {"full_name": "glanderness/LuckyTV"}}
         invalid = [dict(metadata, status="in_progress"), dict(metadata, id=43), dict(metadata, run_attempt=1),
                    dict(metadata, repository={"full_name": "another/repo"}), [], None]
         for value in invalid:
@@ -713,7 +713,7 @@ class TerminalPublisherTests(unittest.TestCase):
                     release.require_terminal_publisher(self.lock())
         with patch.object(release, "run", return_value=subprocess.CompletedProcess([], 0, json.dumps(metadata), "")) as runner:
             release.require_terminal_publisher(self.lock())
-            runner.assert_called_once_with(["gh", "api", "repos/glanderness/BeefTV/actions/runs/42/attempts/2"])
+            runner.assert_called_once_with(["gh", "api", "repos/glanderness/LuckyTV/actions/runs/42/attempts/2"])
         for status, output in [(1, ""), (0, "not json")]:
             with patch.object(release, "run", return_value=subprocess.CompletedProcess([], status, output, "private diagnostic")):
                 with self.assertRaises(release.PublishError):
@@ -761,12 +761,12 @@ class S3AdapterTests(unittest.TestCase):
                 factory.return_value.check_conditions.assert_not_called()
 
     def test_cos_credentials_are_restricted_to_matching_regional_service_and_public_bucket(self):
-        bucket, region = "beeftv-components-1481187348", "ap-guangzhou"
+        bucket, region = "luckytv-components-1481187348", "ap-guangzhou"
         endpoint = f"https://cos.{region}.myqcloud.com"
-        public = f"https://{bucket}.cos.{region}.myqcloud.com/beeftv"
+        public = f"https://{bucket}.cos.{region}.myqcloud.com/luckytv"
         for changes in [{"endpoint": "https://cos.ap-guangzhou.myqcloud.com.evil.example"},
                         {"endpoint": endpoint + "/path"}, {"region": "auto"},
-                        {"bucket": "without-appid"}, {"public_base": "https://evil.example/beeftv"}]:
+                        {"bucket": "without-appid"}, {"public_base": "https://evil.example/luckytv"}]:
             with self.subTest(changes=changes), self.assertRaises(release.PublishError), patch.object(release, "run") as runner:
                 values = dict(provider="cos", endpoint=endpoint, region=region, bucket=bucket, public_base=public)
                 values.update(changes)
@@ -823,11 +823,11 @@ class S3AdapterTests(unittest.TestCase):
 
     def test_legacy_r2_configuration_still_requires_account_endpoint_and_auto_region(self):
         store = release.storage_config("r2", "https://" + "a" * 32 + ".r2.cloudflarestorage.com",
-                                       "auto", "beeftv-releases", "https://updates.beefapi.com/beeftv")
+                                       "auto", "luckytv-releases", "https://updates.luckyapi.com/luckytv")
         self.assertEqual(store.provider, "r2")
         with self.assertRaises(release.PublishError):
             release.storage_config("r2", "https://" + "a" * 32 + ".r2.cloudflarestorage.com",
-                                   "ap-guangzhou", "beeftv-releases", "https://updates.beefapi.com/beeftv")
+                                   "ap-guangzhou", "luckytv-releases", "https://updates.luckyapi.com/luckytv")
 
     def test_cli_rejects_credential_destination_before_any_command(self):
         for endpoint in ["https://attacker.example", "https://" + "a" * 32 + ".r2.cloudflarestorage.com.evil.example", "https://user@" + "a" * 32 + ".r2.cloudflarestorage.com"]:
@@ -837,8 +837,8 @@ class S3AdapterTests(unittest.TestCase):
 
     def test_put_uses_conditional_write_and_never_passes_credentials(self):
         with patch.object(release, "run", return_value=subprocess.CompletedProcess([], 0, "{}", "")) as runner:
-            s3 = release.S3("https://example.r2.cloudflarestorage.com", "beeftv-releases")
-            self.assertTrue(s3.put("beeftv/v1.5.7/file.zip", Path("/tmp/file"), release.IMMUTABLE))
+            s3 = release.S3("https://example.r2.cloudflarestorage.com", "luckytv-releases")
+            self.assertTrue(s3.put("luckytv/v1.5.7/file.zip", Path("/tmp/file"), release.IMMUTABLE))
             self.assertEqual(runner.call_args.args[0][-2:], ["--if-none-match", "*"])
             self.assertTrue(s3.put(release.LATEST, Path("/tmp/feed"), release.REVALIDATE, etag='"old"'))
             self.assertEqual(runner.call_args.args[0][-2:], ["--if-match", '"old"'])
@@ -846,12 +846,12 @@ class S3AdapterTests(unittest.TestCase):
     def test_permission_failure_is_not_treated_as_absent(self):
         with patch.object(release, "run", return_value=subprocess.CompletedProcess([], 1, "", "(AccessDenied) credential")):
             with self.assertRaisesRegex(release.PublishError, "Cannot inspect"):
-                release.S3("https://r2.example", "beeftv-releases").get(release.LATEST, "/tmp/unused")
+                release.S3("https://r2.example", "luckytv-releases").get(release.LATEST, "/tmp/unused")
 
 
 class ConditionalCapabilityTests(unittest.TestCase):
     def store(self, ignore_create=False, ignore_replace=False, ignore_stale=False):
-        store = release.S3("https://r2.example", "beeftv-releases")
+        store = release.S3("https://r2.example", "luckytv-releases")
         fake = FakeS3()
         normal_put = fake.put
         writes = 0
@@ -874,7 +874,7 @@ class ConditionalCapabilityTests(unittest.TestCase):
         store, fake = self.store()
         store.check_conditions()
         self.assertEqual(fake.objects, {})
-        self.assertTrue(all(key.startswith("beeftv/.publication-probes/") for key, _ in fake.writes))
+        self.assertTrue(all(key.startswith("luckytv/.publication-probes/") for key, _ in fake.writes))
 
     def test_ignored_create_and_replacement_conditions_block_and_cleanup(self):
         for flags, error in [(dict(ignore_create=True), "If-None-Match"),

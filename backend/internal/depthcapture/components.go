@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"infinite-canvas/backend/internal/depthruntime"
-	"infinite-canvas/backend/internal/desktopstorage"
+	"luckytv/backend/internal/depthruntime"
+	"luckytv/backend/internal/desktopstorage"
 )
 
 type ComponentState struct {

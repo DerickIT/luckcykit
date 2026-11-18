@@ -2,7 +2,7 @@ package assistantturns_test
 
 import (
 	"errors"
-	"infinite-canvas/backend/internal/assistantturns"
+	"luckytv/backend/internal/assistantturns"
 	"reflect"
 	"testing"
 )

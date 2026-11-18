@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/protocol"
 )
 
 func runImageTask(ctx context.Context, input canvasGenerationInput) (map[string]interface{}, error) {
@@ -28,10 +28,10 @@ type (
 	videoPollEvent           = generation.VideoPollEvent
 	videoPollOutcome         = generation.VideoPollOutcome
 	videoDownloadError       = generation.VideoDownloadError
-	beefTVSeedanceMediaReader = generation.BeefTVSeedanceMediaReader
-	beefTVSeedanceUploadSession = generation.BeefTVSeedanceUploadSession
-	beefTVSeedanceUploadComplete = generation.BeefTVSeedanceUploadComplete
-	beefTVSeedanceUploadRequest = generation.BeefTVSeedanceUploadRequest
+	luckyTVSeedanceMediaReader = generation.LuckyTVSeedanceMediaReader
+	luckyTVSeedanceUploadSession = generation.LuckyTVSeedanceUploadSession
+	luckyTVSeedanceUploadComplete = generation.LuckyTVSeedanceUploadComplete
+	luckyTVSeedanceUploadRequest = generation.LuckyTVSeedanceUploadRequest
 	ArkPrivateAssetSyncResult = generation.ArkPrivateAssetSyncResult
 	seedanceVideosRequest    = generation.SeedanceVideosRequest
 	geminiImageRequest       = generation.GeminiImageRequest
@@ -43,8 +43,8 @@ type (
 	seedanceAgentPlanRequest = generation.SeedanceAgentPlanRequest
 )
 
-func restoreBeefTVSeedanceAudioControl(ctx context.Context, config providerConfig, video *VideoCapabilityConfig) {
-	generation.RestoreBeefTVSeedanceAudioControl(ctx, config, video)
+func restoreLuckyTVSeedanceAudioControl(ctx context.Context, config providerConfig, video *VideoCapabilityConfig) {
+	generation.RestoreLuckyTVSeedanceAudioControl(ctx, config, video)
 }
 func runVideoTask(ctx context.Context, input canvasGenerationInput) (map[string]interface{}, error) {
 	return generation.RunVideoTask(ctx, input)
@@ -74,28 +74,28 @@ func runVideoDownload(ctx context.Context, taskID string, policy videoPollPolicy
 func retryableVideoPollError(ctx context.Context, err error) (bool, bool) {
 	return generation.RetryableVideoPollError(ctx, err)
 }
-func isBeefTVVideoConfig(ctx context.Context, config providerConfig) bool {
-	return generation.IsBeefTVVideoConfig(ctx, config)
+func isLuckyTVVideoConfig(ctx context.Context, config providerConfig) bool {
+	return generation.IsLuckyTVVideoConfig(ctx, config)
 }
-func isBeefTVSeedancePreuploadConfig(ctx context.Context, config providerConfig) bool {
-	return generation.IsBeefTVSeedancePreuploadConfig(ctx, config)
+func isLuckyTVSeedancePreuploadConfig(ctx context.Context, config providerConfig) bool {
+	return generation.IsLuckyTVSeedancePreuploadConfig(ctx, config)
 }
 func isArkPlanVideoConfig(config providerConfig) bool { return generation.IsArkPlanVideoConfig(config) }
 func parseBool(value string, fallback bool) bool      { return generation.ParseBool(value, fallback) }
 func sleepContext(ctx context.Context, duration time.Duration) error {
 	return generation.SleepContext(ctx, duration)
 }
-func prepareBeefTVSeedanceReferences(ctx context.Context, config providerConfig, input *canvasGenerationInput, read beefTVSeedanceMediaReader) error {
-	return generation.PrepareBeefTVVideoReferences(ctx, config, input, read)
+func prepareLuckyTVSeedanceReferences(ctx context.Context, config providerConfig, input *canvasGenerationInput, read luckyTVSeedanceMediaReader) error {
+	return generation.PrepareLuckyTVVideoReferences(ctx, config, input, read)
 }
-func skipBeefTVSeedanceMedia(media providerMedia) bool {
-	return generation.SkipBeefTVSeedanceMedia(media)
+func skipLuckyTVSeedanceMedia(media providerMedia) bool {
+	return generation.SkipLuckyTVSeedanceMedia(media)
 }
-func beefTVSeedanceKindMaxBytes(kind string) int64 {
-	return generation.BeefTVSeedanceKindMaxBytes(kind)
+func luckyTVSeedanceKindMaxBytes(kind string) int64 {
+	return generation.LuckyTVSeedanceKindMaxBytes(kind)
 }
-func validateBeefTVSeedanceMediaSize(kind string, size int64) error {
-	return generation.ValidateBeefTVSeedanceMediaSize(kind, size)
+func validateLuckyTVSeedanceMediaSize(kind string, size int64) error {
+	return generation.ValidateLuckyTVSeedanceMediaSize(kind, size)
 }
 func withTaskExecutionID(ctx context.Context, taskID string) context.Context {
 	return generation.WithTaskExecutionID(ctx, taskID)

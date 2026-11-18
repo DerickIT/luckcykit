@@ -8,12 +8,12 @@ import (
 	"fmt"
 	"strings"
 
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/outbound"
-	"infinite-canvas/backend/internal/prompts"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/outbound"
+	"luckytv/backend/internal/prompts"
+	"luckytv/backend/internal/repository"
 
 	"gorm.io/gorm"
 )
@@ -213,13 +213,13 @@ func ValidateResolvedImageCapability(repo *repository.Repository, readLocalConfi
 }
 
 func ResolveImageCapability(repo *repository.Repository, readLocalConfig func() ([]byte, error), input *Input) error {
-	if input.Config.CredentialRef == beeftv.CredentialRef {
+	if input.Config.CredentialRef == luckytv.CredentialRef {
 		body, err := readLocalConfig()
 		if err != nil {
 			return err
 		}
 		for _, item := range modelcatalog.ParseLocalChannelModels(body) {
-			if item.ChannelID != "beeftv" || item.Model != input.Config.Model || item.ImageCapabilitiesVersion == nil || strings.TrimSpace(*item.ImageCapabilitiesVersion) == "" {
+			if item.ChannelID != "luckytv" || item.Model != input.Config.Model || item.ImageCapabilitiesVersion == nil || strings.TrimSpace(*item.ImageCapabilitiesVersion) == "" {
 				continue
 			}
 			raw, err := json.Marshal(item.CapabilityConfig)
@@ -297,7 +297,7 @@ func ValidateResolvedVideoCapabilityContext(ctx context.Context, repo *repositor
 }
 
 func ResolveVideoCapability(ctx context.Context, repo *repository.Repository, readLocalConfig func() ([]byte, error), input *Input) error {
-	if input.Config.CredentialRef == beeftv.CredentialRef {
+	if input.Config.CredentialRef == luckytv.CredentialRef {
 		body, err := readLocalConfig()
 		if err != nil {
 			return err
@@ -305,12 +305,12 @@ func ResolveVideoCapability(ctx context.Context, repo *repository.Repository, re
 		input.Config.VideoCapabilitiesVersion = nil
 		input.Config.CapabilityConfig = nil
 		for _, item := range modelcatalog.ParseLocalChannelModels(body) {
-			if item.ChannelID != "beeftv" || !item.Enabled || item.Model != input.Config.Model || item.VideoCapabilitiesVersion == nil || strings.TrimSpace(*item.VideoCapabilitiesVersion) == "" {
+			if item.ChannelID != "luckytv" || !item.Enabled || item.Model != input.Config.Model || item.VideoCapabilitiesVersion == nil || strings.TrimSpace(*item.VideoCapabilitiesVersion) == "" {
 				continue
 			}
 			config, _ := item.CapabilityConfig.(map[string]any)
 			rawVideo, _ := json.Marshal(config["video"])
-			video, valid := beeftv.NormalizeVersionedVideoCapability(rawVideo, *item.VideoCapabilitiesVersion)
+			video, valid := luckytv.NormalizeVersionedVideoCapability(rawVideo, *item.VideoCapabilitiesVersion)
 			if !valid {
 				continue
 			}
@@ -354,7 +354,7 @@ func ResolveVideoCapability(ctx context.Context, repo *repository.Repository, re
 			return nil
 		}
 		input.Config.CapabilityConfig = normalized
-		RestoreBeefTVSeedanceAudioControl(ctx, input.Config, normalized.Video)
+		RestoreLuckyTVSeedanceAudioControl(ctx, input.Config, normalized.Video)
 		input.VideoCapability = normalized.Video
 		applyFixedVideoResolution(input, normalized.Video)
 		return nil
@@ -372,7 +372,7 @@ func ResolveVideoCapability(ctx context.Context, repo *repository.Repository, re
 		return errors.New("当前视频模型能力参数无效")
 	}
 	input.VideoCapability = normalized.Video
-	RestoreBeefTVSeedanceAudioControl(ctx, input.Config, normalized.Video)
+	RestoreLuckyTVSeedanceAudioControl(ctx, input.Config, normalized.Video)
 	applyFixedVideoResolution(input, normalized.Video)
 	return nil
 }

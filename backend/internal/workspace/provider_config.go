@@ -11,13 +11,13 @@ import (
 	"strings"
 	"sync"
 
-	"infinite-canvas/backend/internal/localcrypto"
-	"infinite-canvas/backend/internal/providerpreset"
+	"luckytv/backend/internal/localcrypto"
+	"luckytv/backend/internal/providerpreset"
 )
 
 const (
 	LocalProviderConfigFile = "local-model-config.json"
-	RedactedSecret          = "__BEEFTV_REDACTED__"
+	RedactedSecret          = "__LUCKYTV_REDACTED__"
 )
 
 // ProviderConfig owns the local provider snapshot. It has no database or

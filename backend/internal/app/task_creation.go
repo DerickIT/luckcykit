@@ -1,9 +1,9 @@
 package app
 
 import (
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	localtask "infinite-canvas/backend/internal/task"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	localtask "luckytv/backend/internal/task"
 )
 
 const retiredAgentBoundaryMessage = localtask.RetiredAgentBoundaryMessage

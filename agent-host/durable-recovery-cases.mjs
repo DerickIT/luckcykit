@@ -10,7 +10,7 @@ import { createDurableSessionStore } from './durable-session-owner.mjs';
 
 // A synthetic model whose first answer waits for the test, so a turn stays live.
 async function gatedFixture(t, { completeTurn, beforeReply = async () => {}, isTurnOpen = () => true } = {}) {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'beeftv-durable-recovery-'));
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'luckytv-durable-recovery-'));
   let release; const gate = new Promise((resolve) => { release = resolve; });
   let requested; const started = new Promise((resolve) => { requested = resolve; });
   let modelCalls = 0;
@@ -24,13 +24,13 @@ async function gatedFixture(t, { completeTurn, beforeReply = async () => {}, isT
   });
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   const runtime = await ModelRuntime.create({ authPath: path.join(directory, 'auth.json'), modelsPath: null, refreshOnCreate: false });
-  runtime.registerProvider('beeftv', { api: 'openai-completions', apiKey: 'synthetic', baseUrl: `http://127.0.0.1:${server.address().port}/v1`,
+  runtime.registerProvider('luckytv', { api: 'openai-completions', apiKey: 'synthetic', baseUrl: `http://127.0.0.1:${server.address().port}/v1`,
     models: [{ id: 'fixture', name: 'fixture', reasoning: false, input: ['text'], contextWindow: 200000, maxTokens: 100,
       cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 } }] });
-  const models = createModels(); models.setProvider(runtime.getProvider('beeftv'));
+  const models = createModels(); models.setProvider(runtime.getProvider('luckytv'));
   const completions = [];
   const open = () => createDurableSessionStore({ sessionRoot: path.join(directory, 'sessions'), workspaceRoot: path.join(directory, 'workspace'),
-    getModels: () => models, getModelRef: () => ({ provider: 'beeftv', modelId: 'fixture' }), buildTools: () => [],
+    getModels: () => models, getModelRef: () => ({ provider: 'luckytv', modelId: 'fixture' }), buildTools: () => [],
     authorizeTurn: async ({ turnId }) => { authorizations.push(turnId); return { open: isTurnOpen(turnId), canvasId: 'canvas', turnId, permissionMode: 'canvas' }; },
     completeTurn: async (input) => { if (completeTurn) await completeTurn(input); completions.push(input.turnId); },
     settings: { retry: { maxRetries: 0 } } });

@@ -271,11 +271,11 @@ func TestAsyncVideoResponseNormalizesStatusAndResult(t *testing.T) {
 
 func TestAsyncMediaPollUsesNestedGenerationStatusAndMetadataURL(t *testing.T) {
 	adapter, _ := Builtins().Get("minimax-video")
-	polled, err := adapter.ParsePoll(context.Background(), PollContext{TaskID: "beef-task-1"}, []byte(`{"id":"beef-task-1","status":"in_progress","progress":100,"metadata":{"generation_status":"completed","stage":"saving","url":"https://cdn.example/beef-result.mp4"}}`))
+	polled, err := adapter.ParsePoll(context.Background(), PollContext{TaskID: "lucky-task-1"}, []byte(`{"id":"lucky-task-1","status":"in_progress","progress":100,"metadata":{"generation_status":"completed","stage":"saving","url":"https://cdn.example/lucky-result.mp4"}}`))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if polled.Status != StatusSucceeded || polled.Result == nil || len(polled.Result.Videos) != 1 || polled.Result.Videos[0].URL != "https://cdn.example/beef-result.mp4" {
+	if polled.Status != StatusSucceeded || polled.Result == nil || len(polled.Result.Videos) != 1 || polled.Result.Videos[0].URL != "https://cdn.example/lucky-result.mp4" {
 		t.Fatalf("polled = %#v", polled)
 	}
 }
@@ -378,7 +378,7 @@ func TestAgnesVideo25AllowsCustomDuration(t *testing.T) {
 
 func TestDeclarativeManifestMapsFieldsAndResponses(t *testing.T) {
 	manifest := []byte(`{
-			"apiVersion":"beeftv.plugin/v1",
+			"apiVersion":"luckytv.plugin/v1",
 			"id":"example-video","version":"1.0.0","name":"Example Video","author":"Example","documentation":"# Example Video",
 		"contributes":{"providers":[{"id":"example-video","label":"Example Video","capabilities":["video"],"scopes":["admin.system-channel","user.custom-channel"],"create":{"method":"POST","path":"/v1/tasks","fields":{"model":"request.model","input.prompt":"request.prompt","input.seconds":"request.duration"}},"poll":{"method":"GET","path":"/v1/tasks/{{taskId}}"},"response":{"taskIdPaths":["id","data.id"],"statusPaths":["status","data.status"],"resultPaths":["result.video_url","data.result.video_url"],"resultKind":"video"}}]}
 	}`)
@@ -420,7 +420,7 @@ func TestDeclarativeManifestMapsFieldsAndResponses(t *testing.T) {
 
 func TestDeclarativeManifestSupportsMediaPathsTransformsAndErrors(t *testing.T) {
 	manifest := []byte(`{
-		"apiVersion":"beeftv.plugin/v1",
+		"apiVersion":"luckytv.plugin/v1",
 		"id":"declarative-expression-test","version":"1.0.0","name":"Declarative Expression Test","author":"Test","documentation":"# Declarative Expression Test",
 		"contributes":{"providers":[{"id":"declarative-expression-test","label":"Declarative Expression Test","capabilities":["video"],"scopes":["canvas"],"create":{"method":"POST","path":"/tasks","fields":{"resolution":"request.resolution|lower","ref_image_0":"request.images.0.url","ref_image_1":"request.images.1.url"}},"response":{"errorPaths":["code"],"messagePaths":["msg"]}}]}
 	}`)
@@ -529,7 +529,7 @@ func TestEveryBuiltinHasDetailedDocumentation(t *testing.T) {
 }
 
 func TestImageResponseKeepsBase64AsDataURL(t *testing.T) {
-	adapter := officialPackageAdapter(t, "openai-images.beeftv-plugin", "openai-image")
+	adapter := officialPackageAdapter(t, "openai-images.luckytv-plugin", "openai-image")
 	result, err := adapter.ParseCreate(context.Background(), []byte(`{"data":[{"b64_json":"aW1hZ2U="}]}`))
 	if err != nil {
 		t.Fatal(err)
@@ -540,7 +540,7 @@ func TestImageResponseKeepsBase64AsDataURL(t *testing.T) {
 }
 
 func TestOpenAIImagesEditUsesMultipartInlineImageReferences(t *testing.T) {
-	adapter := officialPackageAdapter(t, "openai-images.beeftv-plugin", "openai-image")
+	adapter := officialPackageAdapter(t, "openai-images.luckytv-plugin", "openai-image")
 	if adapter.Metadata().RequiresPublicMediaURLs {
 		t.Fatal("OpenAI Images edits must keep local resources inline for multipart upload")
 	}
@@ -577,8 +577,8 @@ func TestAsyncMediaPollKeepsResultKind(t *testing.T) {
 	cases := []struct {
 		packageName, id, payload, want string
 	}{
-		{"volcengine-jimeng-image.beeftv-plugin", "volcengine-jimeng-image", `{"data":{"status":"completed","image_urls":["https://cdn.example/image.png"]}}`, "image"},
-		{"async-audio.beeftv-plugin", "async-audio", `{"id":"audio-1","status":"completed","audio_url":"https://cdn.example/audio.mp3"}`, "audio"},
+		{"volcengine-jimeng-image.luckytv-plugin", "volcengine-jimeng-image", `{"data":{"status":"completed","image_urls":["https://cdn.example/image.png"]}}`, "image"},
+		{"async-audio.luckytv-plugin", "async-audio", `{"id":"audio-1","status":"completed","audio_url":"https://cdn.example/audio.mp3"}`, "audio"},
 		{"", "minimax-video", `{"task":{"id":"video-1","status":"succeeded","content":{"url":"https://cdn.example/video.mp4"}}}`, "video"},
 	}
 	for _, tc := range cases {

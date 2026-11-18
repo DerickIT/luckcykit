@@ -5,13 +5,13 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/model"
 )
 
 func TestServerImageCapabilitiesOwnFileLimitWithoutModelOrHostExceptions(t *testing.T) {
 	for _, name := range []string{"opaque-future-2030", "gpt-image-2", "gpt-image-2.5", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst"} {
 		profile := DefaultImageCapabilityConfig("openai-image", name)
-		for _, base := range []string{"https://beeftv.app", "https://legacy-enterprise.example.com/v1", "https://legacy.example.com", "https://third-party.example", "http://beeftv.app", "https://beeftv.app.evil.example"} {
+		for _, base := range []string{"https://luckytv.app", "https://legacy-enterprise.example.com/v1", "https://legacy.example.com", "https://third-party.example", "http://luckytv.app", "https://luckytv.app.evil.example"} {
 			input := TaskInput{Mode: "image", Prompt: "edit", Config: TaskConfig{BaseURL: base, InterfaceType: "openai-image", Model: name, Size: "1024x1024"}, ReferenceImages: []MediaRef{{Bytes: 48 << 20}}}
 			if err := validateImageTask(profile, input); err == nil {
 				t.Fatal("hostname silently removed local limits")
@@ -29,7 +29,7 @@ func TestServerImageCapabilitiesOwnFileLimitWithoutModelOrHostExceptions(t *test
 		}
 	}
 	profile := DefaultImageCapabilityConfig("openai-image", "dola-seedream-5-0-pro-260628")
-	if err := validateImageTask(profile, TaskInput{Mode: "image", Prompt: "edit", Config: TaskConfig{BaseURL: "https://beeftv.app", InterfaceType: "openai-image", Model: "dola-seedream-5-0-pro-260628", Size: "2K"}, ReferenceImages: []MediaRef{{Bytes: 31 << 20}}}); err == nil {
+	if err := validateImageTask(profile, TaskInput{Mode: "image", Prompt: "edit", Config: TaskConfig{BaseURL: "https://luckytv.app", InterfaceType: "openai-image", Model: "dola-seedream-5-0-pro-260628", Size: "2K"}, ReferenceImages: []MediaRef{{Bytes: 31 << 20}}}); err == nil {
 		t.Fatal("Seedream's documented limit was removed")
 	}
 }
@@ -69,7 +69,7 @@ func TestGPTImageQualityTiersValidateAll39Selections(t *testing.T) {
 				if err := validateImageTask(profile, input); err != nil {
 					t.Fatalf("%s/%s/%s: %v", name, quality, size, err)
 				}
-				input.Mode, input.Config.ChannelID = "image", "beeftv"
+				input.Mode, input.Config.ChannelID = "image", "luckytv"
 				_, err := ValidateConfiguredTask(input, func(_, _ string) (*model.ChannelModel, error) {
 					return &model.ChannelModel{ModelKey: name, Protocol: "openai-image", CapabilityConfigJSON: string(legacyJSON)}, nil
 				})

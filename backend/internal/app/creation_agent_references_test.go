@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/generation"
+	"luckytv/backend/internal/generation"
 )
 
 func TestCreationAgentImagesResolveOnlyApprovedResources(t *testing.T) {

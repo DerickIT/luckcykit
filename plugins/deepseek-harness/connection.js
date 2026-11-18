@@ -10,18 +10,18 @@ import {
   normalizeSettings, startLocalRuntime, startRuntime, validatedSettingsPatch, workspaceJSON,
 } from './runtime.js'
 
-const mcpToolName = id => `mcp__beeftv__${id.replace(/[^A-Za-z0-9_-]/g, '_')}`
+const mcpToolName = id => `mcp__luckytv__${id.replace(/[^A-Za-z0-9_-]/g, '_')}`
 
-// BeefTV 的 MCP 服务端按操作目录写入 readOnlyHint。DSH 不会把 MCP 注解传给插件，
+// LuckyTV 的 MCP 服务端按操作目录写入 readOnlyHint。DSH 不会把 MCP 注解传给插件，
 // 所以 Host 自己读同一份目录。business.list 是 CLI 自己的发现工具，始终只读。
 function readOnlyToolNames(operations) {
   return new Set([mcpToolName('business.list'), ...operations.filter(operation => operation.readOnly === true).map(operation => mcpToolName(operation.id))])
 }
 
 function recordToolActivity(runtime, exec, result) {
-  if (!runtime || result?.isError || typeof exec?.name !== 'string' || !exec.name.startsWith('mcp__beeftv__')) return
+  if (!runtime || result?.isError || typeof exec?.name !== 'string' || !exec.name.startsWith('mcp__luckytv__')) return
   if (runtime.readOnlyTools?.has(exec.name.replace(/_[a-f0-9]{12}$/, ''))) return
-  if (/^mcp__beeftv__business_call(?:_[a-f0-9]{12})?$/.test(exec.name)) {
+  if (/^mcp__luckytv__business_call(?:_[a-f0-9]{12})?$/.test(exec.name)) {
     const tool = runtime.businessTools?.find(item => item.id === exec.arguments?.tool)
     if (tool?.readOnly === true) return
   }
@@ -39,7 +39,7 @@ function recordToolActivity(runtime, exec, result) {
   // 「每次问我」只登记了原地重做意图，画布没有变化；不能因此触发页面刷新或跳转。
   if (payload?.status === 'pending_approval') return
   const canvasId = typeof rawCanvasId === 'string' && rawCanvasId ? rawCanvasId.slice(0, 200) : null
-  const created = /^mcp__beeftv__canvas_create(?:_[a-f0-9]{12})?$/.test(exec.name)
+  const created = /^mcp__luckytv__canvas_create(?:_[a-f0-9]{12})?$/.test(exec.name)
     || (exec.arguments?.tool === 'business_put_canvas_projects_id' && exec.arguments?.body?.project?.revision === 0)
   const kind = created ? 'canvas-created' : canvasId ? 'canvas-updated' : 'workspace-updated'
   runtime.activity = { seq: (runtime.activity?.seq || 0) + 1, kind, canvasId }
@@ -108,7 +108,7 @@ export function createConnection({ ctx, pluginHome, runner, stepLimit, awaitingR
   })
 
   function status() {
-    const mcpTools = ctx.tools.schemas().filter(tool => tool.name.startsWith('mcp__beeftv__')).map(tool => tool.name)
+    const mcpTools = ctx.tools.schemas().filter(tool => tool.name.startsWith('mcp__luckytv__')).map(tool => tool.name)
     return {
       connected: Boolean(current), mode: current?.mode || null,
       connectionId: current?.connectionId || null,
@@ -158,7 +158,7 @@ export function createConnection({ ctx, pluginHome, runner, stepLimit, awaitingR
   async function connect(mode, reconnect = false) {
     // 设置和上次留下的提示先读完，第一次工具调用就按用户的真实选择执行。
     await Promise.all([pluginSettingsReady, settingsReady, awaitingReady])
-    if (!['standalone', 'local'].includes(mode)) throw new Error('请选择独立工作区或本地 BeefTV')
+    if (!['standalone', 'local'].includes(mode)) throw new Error('请选择独立工作区或本地 LuckyTV')
     if (switching) throw new Error('正在连接工作区，请稍后重试')
     // 健康检查失败时 current 会先被清空，这里先记下旧连接，切换窗口仍能认出原来的工作区。
     const source = current
@@ -199,7 +199,7 @@ export function createConnection({ ctx, pluginHome, runner, stepLimit, awaitingR
       runtime.clientToken = registered.token
       const [business, operations] = await Promise.all(['/business/tools', '/ops'].map(async path => {
         const response = await fetch(`${runtime.baseURL}${path}`, {
-          headers: { 'X-Beeftv-Client': registered.client.id, authorization: `Bearer ${registered.token}` },
+          headers: { 'X-Luckytv-Client': registered.client.id, authorization: `Bearer ${registered.token}` },
           signal: AbortSignal.timeout(15_000),
         })
         const catalog = await response.json()
@@ -217,12 +217,12 @@ export function createConnection({ ctx, pluginHome, runner, stepLimit, awaitingR
       runtime.localApp = mode === 'standalone' ? await localAppStatus() : null
       if (mode === 'standalone') localAppCheckedAt = Date.now()
       runtime.connectionId = randomUUID()
-      runtime.basePath = `/beeftv/app/${randomBytes(24).toString('hex')}`
+      runtime.basePath = `/luckytv/app/${randomBytes(24).toString('hex')}`
       mcpOwner = runtime
       runtime.mcp = ctx.plugin(mcpClient.default || mcpClient, {
-        serverName: 'beeftv', transport: 'stdio', command: runtime.cli, args: ['mcp', 'serve'],
+        serverName: 'luckytv', transport: 'stdio', command: runtime.cli, args: ['mcp', 'serve'],
         failOnStartupError: true, toolCallTimeoutMs: 120_000,
-        env: { BEEFTV_BASE_URL: runtime.baseURL, BEEFTV_CLIENT_ID: registered.client.id, BEEFTV_CLIENT_TOKEN: registered.token },
+        env: { LUCKYTV_BASE_URL: runtime.baseURL, LUCKYTV_CLIENT_ID: registered.client.id, LUCKYTV_CLIENT_TOKEN: registered.token },
       })
       await runtime.mcp
       current = runtime
@@ -233,7 +233,7 @@ export function createConnection({ ctx, pluginHome, runner, stepLimit, awaitingR
         contexts.clear()
         runner.dispatch({ type: 'workspaceLost' })
         void runner.abandonForRuntime(runtime)
-        error = 'BeefTV 工作区已关闭，请重新连接'
+        error = 'LuckyTV 工作区已关闭，请重新连接'
       })
       await writeSettings()
       // 换到别的工作区时丢掉旧工作区还没送进模型的完成通知，并只按当前工作区核对离开时的任务。
@@ -267,7 +267,7 @@ export function createConnection({ ctx, pluginHome, runner, stepLimit, awaitingR
           if (current !== previous || switching) return status()
           current = null
           contexts.clear()
-          error = 'BeefTV 连接已中断，等待本机应用恢复'
+          error = 'LuckyTV 连接已中断，等待本机应用恢复'
           runner.dispatch({ type: 'workspaceLost' })
           await release(previous)
         }

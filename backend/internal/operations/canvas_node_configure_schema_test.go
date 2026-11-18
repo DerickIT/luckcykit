@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/google/jsonschema-go/jsonschema"
-	"infinite-canvas/backend/internal/canvas/capability"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/pricing"
+	"luckytv/backend/internal/canvas/capability"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/pricing"
 )
 
 func TestConfigureAdvertisesExecutableMediaDraftFields(t *testing.T) {
@@ -65,14 +65,14 @@ func (p *configuredVideoQuoteProbe) LookupGenerationOrder(string, string) (*Gene
 }
 
 func TestConfiguredVideoProposalFreezesResolutionAndEstimate(t *testing.T) {
-	const modelKey = "beefapi::video-fixture"
+	const modelKey = "luckyapi::video-fixture"
 	p := &configuredVideoQuoteProbe{configureProbe: &configureProbe{proposeProbe: proposeProbe{
 		doc: proposeCanvas(t, []map[string]any{{"id": "n", "type": "video", "title": "Video", "metadata": map[string]any{"composerContent": "A rotating film icon"}}}),
 		resolve: func(string, string) (AssistantGenerationModel, error) {
 			return AssistantGenerationModel{ModelKey: modelKey, Display: "Video fixture", Revision: 7}, nil
 		},
 	}}}
-	catalog := modelcatalog.NewCatalogResponse(modelcatalog.CatalogSourceSystem, nil, []modelcatalog.PublicChannelCatalog{{ID: "beefapi", Models: []modelcatalog.PublicChannelModel{{
+	catalog := modelcatalog.NewCatalogResponse(modelcatalog.CatalogSourceSystem, nil, []modelcatalog.PublicChannelCatalog{{ID: "luckyapi", Models: []modelcatalog.PublicChannelModel{{
 		ID: "video-fixture", ModelKey: "video-fixture", Capability: "video", Available: true,
 		CapabilityConfig: map[string]any{"video": map[string]any{"defaultResolution": "768p", "duration": map[string]any{"selection": "range", "min": 1, "max": 15, "step": 1, "default": 5}}},
 		VideoPricing: map[string]any{"currency": "CNY", "mode": "seconds", "rates": map[string]any{

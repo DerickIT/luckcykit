@@ -80,7 +80,7 @@ async function anthropicToolThenAnswer(call, res) {
 
 async function withHost(run, envExtra = {}, options = {}) {
   const { slowFirstModel = true } = options;
-  const directory = mkdtempSync(path.join(tmpdir(), 'beeftv session lifecycle '));
+  const directory = mkdtempSync(path.join(tmpdir(), 'luckytv session lifecycle '));
   const hostToken = 'synthetic-lifecycle-host';
   let child;
   let base;
@@ -103,7 +103,7 @@ async function withHost(run, envExtra = {}, options = {}) {
   const api = async (route, body) => {
     const response = await fetch(base + route, {
       method: body === undefined ? 'GET' : 'POST',
-      headers: { 'content-type': 'application/json', 'X-Beeftv-Agent-Token': hostToken },
+      headers: { 'content-type': 'application/json', 'X-Luckytv-Agent-Token': hostToken },
       body: body === undefined ? undefined : JSON.stringify(body),
       signal: AbortSignal.timeout(20000),
     });
@@ -114,7 +114,7 @@ async function withHost(run, envExtra = {}, options = {}) {
   };
   const ops = createServer(async (req, res) => {
     res.setHeader('content-type', 'application/json');
-    if (req.headers['x-beeftv-agent-token'] !== hostToken) { res.writeHead(403).end('{}'); return; }
+    if (req.headers['x-luckytv-agent-token'] !== hostToken) { res.writeHead(403).end('{}'); return; }
     opsRequests.push(`${req.method} ${req.url}`);
     if (serveEmptyHostState(req, res)) return;
     if (req.url === '/api/ops') {
@@ -182,15 +182,15 @@ async function withHost(run, envExtra = {}, options = {}) {
     base = `http://127.0.0.1:${port}`;
     const env = {
       ...process.env,
-      BEEFTV_AGENT_DATA_DIR: directory,
-      BEEFTV_AGENT_HOST_TOKEN: hostToken,
-      BEEFTV_AGENT_PORT: String(port),
-      BEEFTV_OPS_URL: `http://127.0.0.1:${opsPort}/api`,
-      BEEFTV_AGENT_API: options.anthropicThinking || options.anthropicScript ? 'anthropic-messages' : 'openai-completions',
-      BEEFTV_AGENT_MODEL: 'synthetic',
-      BEEFTV_AGENT_API_KEY: 'synthetic-only',
-      BEEFTV_AGENT_BASE_URL: `http://127.0.0.1:${modelPort}${options.anthropicThinking || options.anthropicScript ? '' : '/v1'}`,
-      BEEFTV_AGENT_TURN_TIMEOUT_MS: '20000',
+      LUCKYTV_AGENT_DATA_DIR: directory,
+      LUCKYTV_AGENT_HOST_TOKEN: hostToken,
+      LUCKYTV_AGENT_PORT: String(port),
+      LUCKYTV_OPS_URL: `http://127.0.0.1:${opsPort}/api`,
+      LUCKYTV_AGENT_API: options.anthropicThinking || options.anthropicScript ? 'anthropic-messages' : 'openai-completions',
+      LUCKYTV_AGENT_MODEL: 'synthetic',
+      LUCKYTV_AGENT_API_KEY: 'synthetic-only',
+      LUCKYTV_AGENT_BASE_URL: `http://127.0.0.1:${modelPort}${options.anthropicThinking || options.anthropicScript ? '' : '/v1'}`,
+      LUCKYTV_AGENT_TURN_TIMEOUT_MS: '20000',
       ...envExtra,
     };
     const start = async () => {
@@ -207,7 +207,7 @@ async function withHost(run, envExtra = {}, options = {}) {
       const exited = new Promise((resolve) => child.once('close', resolve));
       child.kill(signal);
       await exited;
-      if (modelId) env.BEEFTV_AGENT_MODEL = modelId;
+      if (modelId) env.LUCKYTV_AGENT_MODEL = modelId;
       await start();
     };
     await start();
@@ -379,7 +379,7 @@ for (const failFirstModel of [false, true]) test(`真实宿主：旧 JSONL 交�
       { type: 'session', version: 3, id: sessionId, timestamp, cwd: path.join(directory, 'workspace', canvasKey(canvasId)) },
       { type: 'message', id: 'user-old', parentId: null, timestamp, message: { role: 'user', content: [{ type: 'text', text: '旧会话里的原始需求' }], timestamp: 1791374400000 } },
       { type: 'message', id: 'assistant-old', parentId: 'user-old', timestamp, message: { role: 'assistant', content: [{ type: 'text', text: '旧会话里的历史回执' }], timestamp: 1791374401000 } },
-      { type: 'custom', id: 'turn-old', parentId: 'assistant-old', timestamp, customType: 'beeftv.canvas.turn',
+      { type: 'custom', id: 'turn-old', parentId: 'assistant-old', timestamp, customType: 'luckytv.canvas.turn',
         data: { turnId: 'legacy-turn', userText: '旧会话里的原始需求', reply: '旧会话里的历史回执', toolCalls: [], proposals: [], error: null, cancelled: false, createdAt: timestamp } },
     ];
     writeFileSync(path.join(canvasDir, `2026-10-07T12-00-00-000Z_${sessionId}.jsonl`), rows.map((row) => JSON.stringify(row)).join('\n') + '\n');
@@ -432,7 +432,7 @@ test('真实宿主：旧会话交接首轮断线，重启后重发原请求复�
     writeFileSync(path.join(canvasDir, `2026-10-07T12-00-00-000Z_${sessionId}.jsonl`), JSON.stringify(row) + '\n');
     const body = { canvasId, sessionId, turnId: 'lost-response', requestId: 'lost-response', message: '保留这条消息' };
     const controller = new AbortController();
-    const response = await fetch(base + '/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Beeftv-Agent-Token': hostToken }, body: JSON.stringify(body), signal: controller.signal });
+    const response = await fetch(base + '/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Luckytv-Agent-Token': hostToken }, body: JSON.stringify(body), signal: controller.signal });
     const reader = response.body.getReader();
     const first = new TextDecoder().decode((await reader.read()).value);
     const successor = JSON.parse(first.trim().split('\n')[0]).sessionId;
@@ -495,7 +495,7 @@ test('真实宿主：冷启动首个历史响应恢复已提交文字，不等�
       const canvasId = 'cold-history-canvas';
       const { payload: { sessionId } } = await api('/sessions', { canvasId });
       const controller = new AbortController();
-      const response = await fetch(base + '/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Beeftv-Agent-Token': hostToken },
+      const response = await fetch(base + '/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Luckytv-Agent-Token': hostToken },
         body: JSON.stringify({ canvasId, sessionId, turnId: 'cold-history-turn', requestId: 'cold-history-request', message: '检查制作计划' }), signal: controller.signal });
       // The second provider call can start only after the first assistant entry
       // and its plan_update tool result have committed through official Durable.

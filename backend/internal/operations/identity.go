@@ -17,7 +17,7 @@ const (
 )
 
 // ApprovalMode 是调用方执行付费生成（生成单）时的审批档位：
-// - ask：每次问我（内置助手默认，或登记为 ask 的外部凭据；需 owner 在界面或 beeftv approve 批准）
+// - ask：每次问我（内置助手默认，或登记为 ask 的外部凭据；需 owner 在界面或 luckytv approve 批准）
 // - caller：调用方自己批（外部 Agent 凭据默认；先 propose 拿到生成单，再凭单 submit）
 // - auto：自动，不设限额（脚本专用凭据；submit 一步开单并自动批准）
 type ApprovalMode string

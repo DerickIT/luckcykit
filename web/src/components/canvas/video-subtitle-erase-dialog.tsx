@@ -25,7 +25,7 @@ import {
 import { resolveMediaUrl } from "@/services/file-storage";
 import { cacheResourceObjectUrl } from "@/services/resource-blob-cache";
 import { useActiveTheme } from "@/stores/canvas/use-canvas-theme-store";
-import { channelHasGenerationCredential, isBuiltinBeefTVChannel, useEffectiveConfig } from "@/stores/use-config-store";
+import { channelHasGenerationCredential, isBuiltinLuckyTVChannel, useEffectiveConfig } from "@/stores/use-config-store";
 import type { CanvasNodeData } from "@/types/canvas";
 import { SMART_ERASE_TYPE_LABELS, VideoSmartEraseControls, type SmartEraseControlState } from "./video-smart-erase-controls";
 
@@ -160,7 +160,7 @@ export function buildSmartEraseApiParams(
     if (controls.eraseType === "watermark") {
         return {
             resourceId,
-            channelId: "beeftv",
+            channelId: "luckytv",
             eraseType: "watermark",
             eraseMethod: controls.eraseMethod,
             watermarkModel: controls.watermarkModel,
@@ -170,7 +170,7 @@ export function buildSmartEraseApiParams(
     if (controls.eraseType === "privacy") {
         return {
             resourceId,
-            channelId: "beeftv",
+            channelId: "luckytv",
             eraseType: "privacy",
             privacyModel: controls.privacyModel,
             privacyTargets: controls.privacyTargets,
@@ -183,7 +183,7 @@ export function buildSmartEraseApiParams(
     const embedId = translateOn && controls.subtitleEmbedId && controls.subtitleEmbedId > 0 ? controls.subtitleEmbedId : undefined;
     return {
         resourceId,
-        channelId: "beeftv",
+        channelId: "luckytv",
         eraseType: "subtitle",
         eraseMethod: effectiveMethod,
         subtitleModel: controls.subtitleModel,
@@ -205,7 +205,7 @@ export function CanvasVideoSubtitleEraseDialog({
     const theme = canvasThemes[useActiveTheme()];
     const config = useEffectiveConfig();
     const officialConnected = config.channels.some(
-        (channel) => channel.enabled !== false && isBuiltinBeefTVChannel(channel) && channelHasGenerationCredential(channel),
+        (channel) => channel.enabled !== false && isBuiltinLuckyTVChannel(channel) && channelHasGenerationCredential(channel),
     );
 
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -671,7 +671,7 @@ export function CanvasVideoSubtitleEraseDialog({
                 <div className="rounded-[var(--r-md)] border px-3.5 py-2.5 text-xs" style={{ background: theme.node.panel, borderColor: theme.node.edge }}>
                     {!officialConnected ? (
                         <p role="status" style={{ color: theme.node.muted }}>
-                            视频智能擦除需要连接 BeefTV 官方算力。
+                            视频智能擦除需要连接 LuckyTV 官方算力。
                             <a href="#/settings?section=channels" className="ml-1 underline" onClick={onClose}>
                                 前往连接官方算力
                             </a>

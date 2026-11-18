@@ -8,7 +8,7 @@ import { useThemeStore } from "@/stores/use-theme-store";
 import { CanvasNodeType, type CanvasNodeData, type ViewportTransform } from "@/types/canvas";
 import "antd/dist/reset.css";
 import "@/styles/globals.css";
-import "@/styles/beeftv-local-overrides.css";
+import "@/styles/luckytv-local-overrides.css";
 
 const noop = () => {};
 const selected = new Set<string>();
@@ -65,7 +65,7 @@ function Harness() {
         return { kind, iterations, ...perf.state, update: stats(durations), renderModel: stats(models), spatialBuilds: (perf as any).spatialBuilds, changedNodeRenders: perf.nodeRenders.n0 || 0, otherNodeRenders: Object.entries(perf.nodeRenders).filter(([id]) => id !== "n0").reduce((sum, [, n]) => sum + n, 0), scope: "production React synchronous update commits, real canvas components and synthetic local media; not paint/FPS, backend or native-host timing" };
     };
     return <div style={{ width: "100vw", height: "100vh", display: "flex", flexDirection: "column" }}>
-        <header style={{ height: 48, padding: 12, color: "#d0d7de", background: "#18212a" }}>BeefTV 画布性能回放 · 测试数据 · {nodes.length} 节点</header>
+        <header style={{ height: 48, padding: 12, color: "#d0d7de", background: "#18212a" }}>LuckyTV 画布性能回放 · 测试数据 · {nodes.length} 节点</header>
         <main style={{ flex: 1, position: "relative" }}><InfiniteCanvas containerRef={containerRef} viewport={viewport} onViewportChange={setViewport}><CanvasProjectWorldLayers {...props} /></InfiniteCanvas></main>
     </div>;
 }

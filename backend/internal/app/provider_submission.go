@@ -3,9 +3,9 @@ package app
 import (
 	"context"
 
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/mediaattempt"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/mediaattempt"
+	"luckytv/backend/internal/model"
 )
 
 type providerSubmissionKeyContext = mediaattempt.SubmissionKeyContext

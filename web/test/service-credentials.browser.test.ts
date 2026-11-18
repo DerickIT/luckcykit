@@ -4,8 +4,8 @@ import { chromium, type Browser, type Page } from "playwright";
 import postcss from "postcss";
 import tailwind from "@tailwindcss/postcss";
 
-// 截图目录与 BeefTV PR 流程一致：/tmp/beeftv-pr-shots/<需求号>/
-const shotDirectory = process.env.BEEFTV_SHOT_DIR || "/tmp/beeftv-pr-shots/27";
+// 截图目录与 LuckyTV PR 流程一致：/tmp/luckytv-pr-shots/<需求号>/
+const shotDirectory = process.env.LUCKYTV_SHOT_DIR || "/tmp/luckytv-pr-shots/27";
 let browser: Browser;
 let server: ReturnType<typeof Bun.serve>;
 
@@ -21,7 +21,7 @@ beforeAll(async () => {
     const js = await build.outputs.find((output) => output.path.endsWith(".js"))!.text();
     const cssPath = import.meta.dir + "/../src/styles/globals.css";
     const css = (await postcss([tailwind({ base: import.meta.dir + "/.." })]).process(readFileSync(cssPath, "utf8"), { from: cssPath })).css
-        + readFileSync(import.meta.dir + "/../src/styles/beeftv-local-overrides.css", "utf8")
+        + readFileSync(import.meta.dir + "/../src/styles/luckytv-local-overrides.css", "utf8")
         + readFileSync(import.meta.dir + "/../src/styles/workspace-product.css", "utf8")
         + await build.outputs.find((output) => output.path.endsWith(".css"))!.text();
     const providers = [
@@ -30,7 +30,7 @@ beforeAll(async () => {
         { id: "volcengine-ark-video", name: "Volcengine Ark Seedance", create: "POST /api/v3/contents/generations/tasks", poll: "GET /api/v3/contents/generations/tasks/{task_id}", contentType: "application/json", authType: "bearer" },
         { id: "volcengine-ark-agent-plan-video", name: "Volcengine Ark Agent Plan Seedance", create: "POST /api/plan/v3/contents/generations/tasks", poll: "GET /api/plan/v3/contents/generations/tasks/{task_id}", contentType: "application/json", authType: "bearer" },
         { id: "volcengine-jimeng-video", name: "Volcengine Jimeng Video", create: "POST /?Action=CVSync2AsyncSubmitTask", poll: "GET /?Action=CVSync2AsyncGetResult", contentType: "application/json", authType: "volcengine-v4" },
-    ].map((provider) => ({ ...provider, version: "1.0.0", vendor: "BeefTV", categories: [provider.id === "chat-completion" ? "text" : "video"], scopes: ["user.custom-channel"], enabled: true }));
+    ].map((provider) => ({ ...provider, version: "1.0.0", vendor: "LuckyTV", categories: [provider.id === "chat-completion" ? "text" : "video"], scopes: ["user.custom-channel"], enabled: true }));
     server = Bun.serve({ port: 0, fetch(request) {
         const url = new URL(request.url);
         if (url.pathname === "/harness.js") return new Response(js, { headers: { "Content-Type": "application/javascript" } });

@@ -6,9 +6,9 @@ import (
 	"testing"
 
 	"gorm.io/gorm"
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/database"
-	"infinite-canvas/backend/internal/model"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/database"
+	"luckytv/backend/internal/model"
 )
 
 func TestVersionTwoWorkspaceAddsDurableAgentOperations(t *testing.T) {

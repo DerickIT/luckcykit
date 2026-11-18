@@ -510,7 +510,7 @@ test("a retired interface is not offered again but still names a saved choice", 
 });
 
 test("upgradeYsduiModelProfile preserves server-versioned capabilities and keeps user defaultResolution valid", async () => {
-    const { upgradeYsduiModelProfile } = await import("../../plugin-packages/beeftv-plugin-ysdui/client/presets.js");
+    const { upgradeYsduiModelProfile } = await import("../../plugin-packages/luckytv-plugin-ysdui/client/presets.js");
     const serverProfile = {
         model: "doubao-seedream-5-0-pro-260628",
         capability: "image",
@@ -550,7 +550,7 @@ test("upgradeYsduiModelProfile preserves server-versioned capabilities and keeps
     expect(migrated.capabilityConfig.video.resolutions).toEqual(["1080P"]);
     expect(migrated.capabilityConfig.video.defaultResolution).toBe("1080P");
 
-    const ysduiClient = await import("../../plugin-packages/beeftv-plugin-ysdui/client/index.js");
+    const ysduiClient = await import("../../plugin-packages/luckytv-plugin-ysdui/client/index.js");
     let contributedComponent: ReactNamespace.ComponentType<Record<string, unknown>> | null = null;
     ysduiClient.activate({
         React: ReactNamespace,

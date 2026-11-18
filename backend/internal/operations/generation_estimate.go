@@ -6,10 +6,10 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"infinite-canvas/backend/internal/beeftv"
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/pricing"
+	"luckytv/backend/internal/luckytv"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/pricing"
 )
 
 // EstimateTarget is one planned generation as the canvas would submit it.
@@ -78,7 +78,7 @@ func estimateTarget(catalog *modelcatalog.CatalogResponse, target EstimateTarget
 		table = pricing.FromVideoQuote(model.VideoPricing)
 	}
 	if table == nil {
-		if channelID != beeftv.ChannelID {
+		if channelID != luckytv.ChannelID {
 			return pricing.Unknown("自带 Key 的渠道暂无价格，按该渠道实际计费")
 		}
 		return pricing.Unknown("这个模型暂无价格")

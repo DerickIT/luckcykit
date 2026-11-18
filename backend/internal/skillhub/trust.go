@@ -12,9 +12,9 @@ import (
 // Trust keys are provisioned separately from the catalog and desktop updater.
 // Without pinned keys the transport's configured HTTPS origin is the trust source.
 func VerifyRelease(r *Release) error {
-	raw := os.Getenv("BEEFTV_SKILLHUB_TRUSTED_KEYS")
+	raw := os.Getenv("LUCKYTV_SKILLHUB_TRUSTED_KEYS")
 	if raw == "" {
-		if os.Getenv("BEEFTV_SKILLHUB_REQUIRE_SIGNATURE") == "true" {
+		if os.Getenv("LUCKYTV_SKILLHUB_REQUIRE_SIGNATURE") == "true" {
 			return fmt.Errorf("尚未配置技能市场验签公钥")
 		}
 		return nil

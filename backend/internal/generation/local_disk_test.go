@@ -1,7 +1,7 @@
 package generation_test
 
 import (
-	"infinite-canvas/backend/internal/generation"
+	"luckytv/backend/internal/generation"
 	"strings"
 	"testing"
 )

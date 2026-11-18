@@ -20,8 +20,8 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/canvas/capability"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/canvas/capability"
+	"luckytv/backend/internal/protocol"
 )
 
 func writeSamplePluginDir(t *testing.T, version string) string {
@@ -49,12 +49,12 @@ func writeSamplePluginDir(t *testing.T, version string) string {
 		"name": "storyboard-grid-test",
 		"version": "` + version + `",
 		"description": "测试分镜九宫格插件",
-		"author": "BeefTV",
+		"author": "LuckyTV",
 		"pi": {
 			"extensions": ["./extensions/index.ts"],
 			"skills": ["./skills"]
 		},
-		"beeftv": {
+		"luckytv": {
 			"name": "分镜九宫格测试",
 			"client": "./dist/client.js",
 			"contributes": {
@@ -357,7 +357,7 @@ func TestNpmPackageFetcherSeesNewVersionDespiteWarmCache(t *testing.T) {
 		t.Skip("npm is not on PATH")
 	}
 	t.Setenv("npm_config_cache", t.TempDir())
-	const name = "beeftv-plugin-moving"
+	const name = "luckytv-plugin-moving"
 	registry, publish := startMovingRegistry(t, name)
 	installedVersion := func() string {
 		t.Helper()
@@ -395,7 +395,7 @@ func TestBuiltinLL2PluginPreinstalledAndRegistersProviders(t *testing.T) {
 	defer capability.BuiltinRegistry().ResetPluginDescriptors()
 	svc := New(rt, nil)
 
-	for _, builtinID := range []string{"beeftv-plugin-ll2", "beeftv-plugin-ysdui"} {
+	for _, builtinID := range []string{"luckytv-plugin-ll2", "luckytv-plugin-ysdui"} {
 		view, ok := ByID(svc.List(), builtinID)
 		if !ok {
 			t.Fatalf("expected %s to be pre-installed by default", builtinID)
@@ -411,7 +411,7 @@ func TestBuiltinLL2PluginPreinstalledAndRegistersProviders(t *testing.T) {
 	reg := svc.Registry()
 	syncImageAdapter, resolved := reg.Resolve("ysdui-image")
 	if !resolved {
-		t.Fatal("expected provider ysdui-image from beeftv-plugin-ysdui to be registered in protocol registry")
+		t.Fatal("expected provider ysdui-image from luckytv-plugin-ysdui to be registered in protocol registry")
 	}
 	syncSpec, err := syncImageAdapter.BuildCreate(context.Background(), protocol.RequestContext{
 		BaseURL: "https://tokenhub.ysdui.cn",
@@ -629,9 +629,9 @@ func TestBundledPluginDirsManifestAndDesktopAgentHostResolution(t *testing.T) {
 	}
 	names := readBundledPluginManifestForTest(t, repoPluginPackages)
 	wantNames := map[string]bool{
-		"beeftv-plugin-market": false,
-		"beeftv-plugin-ll2":    false,
-		"beeftv-plugin-ysdui":  false,
+		"luckytv-plugin-market": false,
+		"luckytv-plugin-ll2":    false,
+		"luckytv-plugin-ysdui":  false,
 	}
 	for _, name := range names {
 		if _, ok := wantNames[name]; !ok {
@@ -654,9 +654,9 @@ func TestBundledPluginDirsManifestAndDesktopAgentHostResolution(t *testing.T) {
 		agentHost string
 		nodeRel   string
 	}{
-		{gp: "windows", execRel: "BeefTV.exe", agentHost: "agent-host", nodeRel: filepath.Join("runtime", "node.exe")},
-		{gp: "linux", execRel: "BeefTV", agentHost: "agent-host", nodeRel: filepath.Join("runtime", "bin", "node")},
-		{gp: "darwin", execRel: filepath.Join("BeefTV.app", "Contents", "MacOS", "BeefTV"), agentHost: filepath.Join("BeefTV.app", "Contents", "Resources", "agent-host"), nodeRel: filepath.Join("runtime", "bin", "node")},
+		{gp: "windows", execRel: "LuckyTV.exe", agentHost: "agent-host", nodeRel: filepath.Join("runtime", "node.exe")},
+		{gp: "linux", execRel: "LuckyTV", agentHost: "agent-host", nodeRel: filepath.Join("runtime", "bin", "node")},
+		{gp: "darwin", execRel: filepath.Join("LuckyTV.app", "Contents", "MacOS", "LuckyTV"), agentHost: filepath.Join("LuckyTV.app", "Contents", "Resources", "agent-host"), nodeRel: filepath.Join("runtime", "bin", "node")},
 	} {
 		t.Run(tc.gp, func(t *testing.T) {
 			bundleRoot := t.TempDir()
@@ -682,7 +682,7 @@ func TestBundledPluginDirsManifestAndDesktopAgentHostResolution(t *testing.T) {
 				copyTreeForTest(t, filepath.Join(repoPluginPackages, name), filepath.Join(bundledPluginsRoot, name))
 			}
 
-			// Simulate a desktop install where plugin-packages contains only flat *.beeftv-plugin files.
+			// Simulate a desktop install where plugin-packages contains only flat *.luckytv-plugin files.
 			flatOfficialDir := t.TempDir()
 			entries, err := os.ReadDir(repoPluginPackages)
 			if err != nil {
@@ -703,7 +703,7 @@ func TestBundledPluginDirsManifestAndDesktopAgentHostResolution(t *testing.T) {
 				}
 			}
 			if !copiedArchive {
-				t.Fatal("no *.beeftv-plugin archive found in plugin-packages")
+				t.Fatal("no *.luckytv-plugin archive found in plugin-packages")
 			}
 			t.Setenv("CANVAS_OFFICIAL_PLUGIN_DIR", flatOfficialDir)
 
@@ -716,10 +716,10 @@ func TestBundledPluginDirsManifestAndDesktopAgentHostResolution(t *testing.T) {
 			})
 
 			for _, nonBundled := range []string{
-				"beeftv-plugin-slot-test",
-				"beeftv-plugin-character-replacement",
-				"beeftv-plugin-sticky-note",
-				"beeftv-plugin-ecommerce-hero",
+				"luckytv-plugin-slot-test",
+				"luckytv-plugin-character-replacement",
+				"luckytv-plugin-sticky-note",
+				"luckytv-plugin-ecommerce-hero",
 			} {
 				if _, ok := BundledSampleDir(nonBundled); ok {
 					t.Fatalf("%s must not resolve as a bundled desktop plugin", nonBundled)
@@ -735,7 +735,7 @@ func TestBundledPluginDirsManifestAndDesktopAgentHostResolution(t *testing.T) {
 			svc := New(rt, nil)
 			svc.SetPackageFetcher(copyPackageFetcher)
 
-			for _, builtinID := range []string{"beeftv-plugin-market", "beeftv-plugin-ll2", "beeftv-plugin-ysdui"} {
+			for _, builtinID := range []string{"luckytv-plugin-market", "luckytv-plugin-ll2", "luckytv-plugin-ysdui"} {
 				builtinView, found := ByID(svc.List(), builtinID)
 				if !found {
 					t.Fatalf("%s was not loaded from agent-host/bundled-plugins", builtinID)
@@ -756,7 +756,7 @@ func TestBundledPluginDirsManifestAndDesktopAgentHostResolution(t *testing.T) {
 			offlineCtx, cancel := context.WithCancel(context.Background())
 			cancel()
 			curated := loadCuratedRegistryItems(offlineCtx, "", map[string]View{})
-			want := []string{"beeftv-plugin-character-replacement", "beeftv-plugin-comfyui", "beeftv-plugin-runninghub"}
+			want := []string{"luckytv-plugin-character-replacement", "luckytv-plugin-comfyui", "luckytv-plugin-runninghub"}
 			if len(curated) != len(want) {
 				t.Fatalf("expected curated registry to list %v, got %+v", want, curated)
 			}
@@ -862,7 +862,7 @@ func TestMarketChinaMirrorSearchReadmeAndOnlineTarballInstall(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	charPluginDir := filepath.Join(repoPluginPackages, "beeftv-plugin-character-replacement")
+	charPluginDir := filepath.Join(repoPluginPackages, "luckytv-plugin-character-replacement")
 	tgzBytes, tgzSHA256 := packDirectoryToTarGzForTest(t, charPluginDir)
 
 	var server *httptest.Server
@@ -880,12 +880,12 @@ func TestMarketChinaMirrorSearchReadmeAndOnlineTarballInstall(t *testing.T) {
 				"objects": [
 					{
 						"package": {
-							"name": "beeftv-plugin-character-replacement",
+							"name": "luckytv-plugin-character-replacement",
 							"version": "0.1.0",
 							"description": "AI 角色替换工作室",
-							"keywords": ["beeftv-plugin", "pi-package", "character-replacement"],
-							"links": {"repository": "https://github.com/Sunnyender-org/beeftv-plugins"},
-							"publisher": {"username": "beeftv"}
+							"keywords": ["luckytv-plugin", "pi-package", "character-replacement"],
+							"links": {"repository": "https://github.com/Sunnyender-org/luckytv-plugins"},
+							"publisher": {"username": "luckytv"}
 						}
 					},
 					{
@@ -898,7 +898,7 @@ func TestMarketChinaMirrorSearchReadmeAndOnlineTarballInstall(t *testing.T) {
 					}
 				]
 			}`))
-		case r.URL.Path == "/packages/beeftv-plugin-character-replacement-0.1.0.tgz":
+		case r.URL.Path == "/packages/luckytv-plugin-character-replacement-0.1.0.tgz":
 			w.Header().Set("Content-Type", "application/gzip")
 			_, _ = w.Write(tgzBytes)
 		case r.URL.Path == "/readme/README.md":
@@ -925,22 +925,22 @@ func TestMarketChinaMirrorSearchReadmeAndOnlineTarballInstall(t *testing.T) {
 			"schemaVersion": 1,
 			"plugins": [
 				{
-					"id": "beeftv-plugin-character-replacement",
-					"packageName": "beeftv-plugin-character-replacement",
+					"id": "luckytv-plugin-character-replacement",
+					"packageName": "luckytv-plugin-character-replacement",
 					"name": "AI 角色替换工作室",
 					"version": "0.1.0",
 					"description": "二阶段角色替换",
-					"author": "BeefTV",
+					"author": "LuckyTV",
 					"category": "短剧与视频创作",
 					"recommended": true,
-					"repo": "https://github.com/Sunnyender-org/beeftv-plugins/tree/main/plugins/beeftv-plugin-character-replacement",
+					"repo": "https://github.com/Sunnyender-org/luckytv-plugins/tree/main/plugins/luckytv-plugin-character-replacement",
 					"readme": %q,
 					"mirrorTarball": %q,
 					"sha256": %q,
 					"tags": ["角色替换"]
 				}
 			]
-		}`, server.URL+"/readme/README.md", server.URL+"/packages/beeftv-plugin-character-replacement-0.1.0.tgz", sha)
+		}`, server.URL+"/readme/README.md", server.URL+"/packages/luckytv-plugin-character-replacement-0.1.0.tgz", sha)
 		saveCuratedRegistryCache(cachePath, []byte(raw))
 		curatedRegistryMemCache.Lock()
 		curatedRegistryMemCache.raw = []byte(raw)
@@ -950,45 +950,45 @@ func TestMarketChinaMirrorSearchReadmeAndOnlineTarballInstall(t *testing.T) {
 
 	// 1. Test npmmirror plain-text search & Go-side keyword filtering
 	npmHits, ok := searchSingleNpmRegistry(context.Background(), server.URL+"/npmmirror.com", "角色", map[string]View{})
-	if !ok || len(npmHits) != 1 || npmHits[0].ID != "beeftv-plugin-character-replacement" {
-		t.Fatalf("expected npmmirror search to return beeftv-plugin-character-replacement and filter out unrelated-package, got ok=%v hits=%+v", ok, npmHits)
+	if !ok || len(npmHits) != 1 || npmHits[0].ID != "luckytv-plugin-character-replacement" {
+		t.Fatalf("expected npmmirror search to return luckytv-plugin-character-replacement and filter out unrelated-package, got ok=%v hits=%+v", ok, npmHits)
 	}
 
 	// 2. Test remote README fetching via FetchMarketReadme before plugin is installed
 	writeRegistryCacheWithSHA(tgzSHA256)
-	readmeText, err := svc.FetchMarketReadme(context.Background(), "beeftv-plugin-character-replacement", NpmMirrorRegistry)
+	readmeText, err := svc.FetchMarketReadme(context.Background(), "luckytv-plugin-character-replacement", NpmMirrorRegistry)
 	if err != nil || !strings.Contains(readmeText, "远程镜像 README") {
 		t.Fatalf("expected FetchMarketReadme to return remote README text, got err=%v text=%q", err, readmeText)
 	}
 
 	// 3. Test curated-ID install rejects mismatched SHA-256
 	writeRegistryCacheWithSHA("0000000000000000000000000000000000000000000000000000000000000000")
-	if _, err := svc.InstallPackage("beeftv-plugin-character-replacement", NpmMirrorRegistry); err == nil {
+	if _, err := svc.InstallPackage("luckytv-plugin-character-replacement", NpmMirrorRegistry); err == nil {
 		t.Fatal("expected curated install with mismatched SHA-256 to fail")
 	}
 
 	// 4. Test curated-ID install succeeds when SHA-256 matches
 	writeRegistryCacheWithSHA(tgzSHA256)
-	installedView, err := svc.InstallPackage("beeftv-plugin-character-replacement", NpmMirrorRegistry)
+	installedView, err := svc.InstallPackage("luckytv-plugin-character-replacement", NpmMirrorRegistry)
 	if err != nil {
 		t.Fatalf("curated online install by ID failed: %v", err)
 	}
-	if installedView.Manifest.ID != "beeftv-plugin-character-replacement" || installedView.Status != StatusEnabled {
+	if installedView.Manifest.ID != "luckytv-plugin-character-replacement" || installedView.Status != StatusEnabled {
 		t.Fatalf("unexpected installed plugin view: %+v", installedView)
 	}
 
 	// 5. Test direct URL with query parameters (&) and #sha256= fragment
-	presignedURL := server.URL + "/packages/beeftv-plugin-character-replacement-0.1.0.tgz?X-Amz-Credential=abc&X-Amz-Signature=def#sha256=" + tgzSHA256
+	presignedURL := server.URL + "/packages/luckytv-plugin-character-replacement-0.1.0.tgz?X-Amz-Credential=abc&X-Amz-Signature=def#sha256=" + tgzSHA256
 	reinstalledView, err := svc.InstallPackage(presignedURL, NpmMirrorRegistry)
-	if err != nil || reinstalledView.Manifest.ID != "beeftv-plugin-character-replacement" {
+	if err != nil || reinstalledView.Manifest.ID != "luckytv-plugin-character-replacement" {
 		t.Fatalf("presigned URL with '&' and #sha256= failed: %v", err)
 	}
 
 	// 6. Test versioned curated spec cannot bypass SHA-256 or install unapproved version
-	if _, err := svc.InstallPackage("beeftv-plugin-character-replacement@9.9.9", NpmMirrorRegistry); err == nil {
+	if _, err := svc.InstallPackage("luckytv-plugin-character-replacement@9.9.9", NpmMirrorRegistry); err == nil {
 		t.Fatal("expected unapproved versioned curated spec to be rejected")
 	}
-	if _, err := svc.InstallPackage("beeftv-plugin-character-replacement@0.1.0", NpmMirrorRegistry); err != nil {
+	if _, err := svc.InstallPackage("luckytv-plugin-character-replacement@0.1.0", NpmMirrorRegistry); err != nil {
 		t.Fatalf("expected matching versioned curated spec to succeed: %v", err)
 	}
 

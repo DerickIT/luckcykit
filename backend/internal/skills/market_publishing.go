@@ -15,8 +15,8 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/skillhub"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/skillhub"
 )
 
 type PublishPlan struct {
@@ -155,7 +155,7 @@ func (s *Service) preparePublicationBundle(user, id, canvas string, meta skillhu
 		if meta.SourceURL == "" {
 			meta.SourceURL = source.SourceURL
 			if meta.SourceURL == "" {
-				meta.SourceURL = "https://beeftv.app/skills/" + source.SkillID + "?release=" + source.ReleaseID
+				meta.SourceURL = "https://luckytv.app/skills/" + source.SkillID + "?release=" + source.ReleaseID
 			}
 		}
 		if meta.Requirements == nil {
@@ -198,7 +198,7 @@ func (s *Service) preparePublicationBundle(user, id, canvas string, meta skillhu
 
 func validatePublicationRequirements(requirements []string) error {
 	if checkMarketRequirements(requirements) != nil {
-		return &kernel.AppError{Status: 400, Code: 400, Reason: "invalid_skill_requirements", Message: "requirements 只接受 beeftv.canvas、model.image、model.video、model.audio。纯文字技能请使用空数组 []，其他条件写入 requirementNotes；修正后重新准备投稿。"}
+		return &kernel.AppError{Status: 400, Code: 400, Reason: "invalid_skill_requirements", Message: "requirements 只接受 luckytv.canvas、model.image、model.video、model.audio。纯文字技能请使用空数组 []，其他条件写入 requirementNotes；修正后重新准备投稿。"}
 	}
 	return nil
 }

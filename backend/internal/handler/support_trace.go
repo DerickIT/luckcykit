@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"infinite-canvas/backend/internal/supporttrace"
+	"luckytv/backend/internal/supporttrace"
 
 	"github.com/gin-gonic/gin"
 )

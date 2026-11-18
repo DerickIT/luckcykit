@@ -7,16 +7,16 @@ import (
 	"path/filepath"
 	"strings"
 
-	"infinite-canvas/backend/internal/agentops"
-	"infinite-canvas/backend/internal/buildinfo"
+	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/buildinfo"
 )
 
 const (
-	skillMarkerName = ".beeftv-managed"
-	skillSource     = "beeftv-desktop"
+	skillMarkerName = ".luckytv-managed"
+	skillSource     = "luckytv-desktop"
 )
 
-var errSkillNotOwned = errors.New("skill directory is not managed by BeefTV")
+var errSkillNotOwned = errors.New("skill directory is not managed by LuckyTV")
 
 func markerContent() []byte {
 	version := strings.TrimSpace(buildinfo.Version)

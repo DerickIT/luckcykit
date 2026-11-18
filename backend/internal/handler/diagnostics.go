@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"infinite-canvas/backend/internal/diagnostics"
+	"luckytv/backend/internal/diagnostics"
 
 	"github.com/gin-gonic/gin"
 )

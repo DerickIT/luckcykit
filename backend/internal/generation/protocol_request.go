@@ -15,11 +15,11 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/channelurl"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/modelcatalog"
-	"infinite-canvas/backend/internal/outbound"
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/channelurl"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/modelcatalog"
+	"luckytv/backend/internal/outbound"
+	"luckytv/backend/internal/protocol"
 )
 
 // ProtocolRequestFor builds the request for one resolved adapter. A model saved
@@ -308,7 +308,7 @@ func ExecuteProtocolBinaryRequestWithConsumer(ctx context.Context, config Config
 			return nil, "", RequestPreparationError{Cause: err}
 		}
 	}
-	applyBeefTVVideoDeliveryHeader(ctx, config, req)
+	applyLuckyTVVideoDeliveryHeader(ctx, config, req)
 	if consume != nil {
 		req.Header.Set("Accept", "text/event-stream")
 		return DoBinaryWithConsumer(req, consume)

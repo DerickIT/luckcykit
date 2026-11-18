@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/buildinfo"
-	"infinite-canvas/backend/internal/environment"
-	"infinite-canvas/backend/internal/kernel"
+	"luckytv/backend/internal/buildinfo"
+	"luckytv/backend/internal/environment"
+	"luckytv/backend/internal/kernel"
 )
 
 type StartupExportOptions struct {

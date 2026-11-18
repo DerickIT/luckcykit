@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/protocol"
 )
 
 type protocolUploadTestResources struct {

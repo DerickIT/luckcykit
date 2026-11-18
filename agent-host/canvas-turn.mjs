@@ -249,7 +249,7 @@ export function providerRegistration({ api, baseUrl, modelId, maxTokens, context
     ? { ...catalogCompat, promptCacheKeyMode: 'enabled' }
     : catalogCompat ? { ...catalogCompat } : undefined;
   return {
-    name: 'BeefTV', baseUrl, apiKey: '$BEEFTV_AGENT_API_KEY', api,
+    name: 'LuckyTV', baseUrl, apiKey: '$LUCKYTV_AGENT_API_KEY', api,
     models: [{
       id: modelId,
       name: modelId,
@@ -271,7 +271,7 @@ export function providerUnavailableReason({ modelId, baseUrl, apiKey, api }) {
   return '';
 }
 
-// parseHostBaseUrlEnv 拆分 BEEFTV_AGENT_BASE_URL 的末尾 `#`（无默认版本前缀标记）：
+// parseHostBaseUrlEnv 拆分 LUCKYTV_AGENT_BASE_URL 的末尾 `#`（无默认版本前缀标记）：
 // Anthropic SDK 固定拼 `/v1/messages`，末尾带 `#` 的渠道在发送前由 resolveHostModelRequestUrl 剥掉这层自动补上的 `/v1`。
 export function parseHostBaseUrlEnv(rawValue = '') {
   const trimmed = String(rawValue).trim();

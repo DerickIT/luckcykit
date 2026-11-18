@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"infinite-canvas/backend/internal/modelcatalog"
+	"luckytv/backend/internal/modelcatalog"
 )
 
 type mixedGenerationProbe struct {
@@ -223,53 +223,53 @@ func TestGenerationTargetsReconcilesStaleVideoOperationWithModelCapabilities(t *
 	customRoute := false
 	catalog := modelcatalog.NewCatalogResponse(modelcatalog.CatalogSourceSystem, nil, []modelcatalog.PublicChannelCatalog{
 		{
-			ID: "beeftv",
+			ID: "luckytv",
 			Models: []modelcatalog.PublicChannelModel{
-				{ID: "wan3.0-video", ModelKey: "wan3.0-video", Capability: "video", Available: true, ManagedBeefTV: &managedRoute, CapabilityConfig: wanCap},
-				{ID: "agnes-2.5", ModelKey: "agnes-2.5", Capability: "video", Available: true, ManagedBeefTV: &managedRoute, CapabilityConfig: agnesCap},
-				{ID: "kling-video-v3", ModelKey: "kling-video-v3", Capability: "video", Available: true, ManagedBeefTV: &managedRoute, CapabilityConfig: klingCap},
-				{ID: "minimax-h3-max-turbo", ModelKey: "minimax-h3-max-turbo", Capability: "video", Available: true, ManagedBeefTV: &managedRoute, CapabilityConfig: hostedH3Cap},
-				{ID: "minimax-h3-max", ModelKey: "minimax-h3-max", Capability: "video", Available: true, ManagedBeefTV: &managedRoute, CapabilityConfig: contractH3MaxCap},
-				{ID: "minimax-h3", ModelKey: "minimax-h3", Capability: "video", Available: true, ManagedBeefTV: &managedRoute, CapabilityConfig: versionedH3LiveCap},
+				{ID: "wan3.0-video", ModelKey: "wan3.0-video", Capability: "video", Available: true, ManagedLuckyTV: &managedRoute, CapabilityConfig: wanCap},
+				{ID: "agnes-2.5", ModelKey: "agnes-2.5", Capability: "video", Available: true, ManagedLuckyTV: &managedRoute, CapabilityConfig: agnesCap},
+				{ID: "kling-video-v3", ModelKey: "kling-video-v3", Capability: "video", Available: true, ManagedLuckyTV: &managedRoute, CapabilityConfig: klingCap},
+				{ID: "minimax-h3-max-turbo", ModelKey: "minimax-h3-max-turbo", Capability: "video", Available: true, ManagedLuckyTV: &managedRoute, CapabilityConfig: hostedH3Cap},
+				{ID: "minimax-h3-max", ModelKey: "minimax-h3-max", Capability: "video", Available: true, ManagedLuckyTV: &managedRoute, CapabilityConfig: contractH3MaxCap},
+				{ID: "minimax-h3", ModelKey: "minimax-h3", Capability: "video", Available: true, ManagedLuckyTV: &managedRoute, CapabilityConfig: versionedH3LiveCap},
 			},
 		},
 		{
 			ID: "live",
 			Models: []modelcatalog.PublicChannelModel{
-				{ID: "minimax-h3-max", ModelKey: "minimax-h3-max", Capability: "video", Available: true, ManagedBeefTV: &managedRoute, CapabilityConfig: hostedH3Cap},
+				{ID: "minimax-h3-max", ModelKey: "minimax-h3-max", Capability: "video", Available: true, ManagedLuckyTV: &managedRoute, CapabilityConfig: hostedH3Cap},
 			},
 		},
 		{
-			ID: "beeftv-omni",
+			ID: "luckytv-omni",
 			Models: []modelcatalog.PublicChannelModel{
-				{ID: "minimax-h3-max", ModelKey: "minimax-h3-max", Capability: "video", Available: true, ManagedBeefTV: &managedRoute, CapabilityConfig: versionedH3LiveCap},
+				{ID: "minimax-h3-max", ModelKey: "minimax-h3-max", Capability: "video", Available: true, ManagedLuckyTV: &managedRoute, CapabilityConfig: versionedH3LiveCap},
 			},
 		},
 		{
-			ID: "partial-beeftv",
+			ID: "partial-luckytv",
 			Models: []modelcatalog.PublicChannelModel{
-				{ID: "minimax-h3", ModelKey: "minimax-h3", Capability: "video", Available: true, ManagedBeefTV: &managedRoute, CapabilityConfig: partialOpRefH3Cap},
+				{ID: "minimax-h3", ModelKey: "minimax-h3", Capability: "video", Available: true, ManagedLuckyTV: &managedRoute, CapabilityConfig: partialOpRefH3Cap},
 			},
 		},
 		{
-			ID: "empty-beeftv",
+			ID: "empty-luckytv",
 			Models: []modelcatalog.PublicChannelModel{
-				{ID: "minimax-h3", ModelKey: "minimax-h3", Capability: "video", Available: true, ManagedBeefTV: &managedRoute, CapabilityConfig: emptyOpRefH3Cap},
+				{ID: "minimax-h3", ModelKey: "minimax-h3", Capability: "video", Available: true, ManagedLuckyTV: &managedRoute, CapabilityConfig: emptyOpRefH3Cap},
 			},
 		},
 		{
 			ID: "override",
 			Models: []modelcatalog.PublicChannelModel{
-				{ID: "minimax-h3-max", ModelKey: "minimax-h3-max", Capability: "video", Available: true, ManagedBeefTV: &managedRoute, CapabilityConfig: explicitNoMidH3MaxCap},
+				{ID: "minimax-h3-max", ModelKey: "minimax-h3-max", Capability: "video", Available: true, ManagedLuckyTV: &managedRoute, CapabilityConfig: explicitNoMidH3MaxCap},
 			},
 		},
 		{
 			ID: "custom",
 			Models: []modelcatalog.PublicChannelModel{
-				{ID: "opaque-video", ModelKey: "opaque-video", Capability: "video", Available: true, ManagedBeefTV: &customRoute, CapabilityDeclared: &undeclared, CapabilityConfig: autoDefaultCustomCap},
-				{ID: "minimax-h3-max", ModelKey: "minimax-h3-max", Capability: "video", Available: true, ManagedBeefTV: &customRoute, CapabilityConfig: versionedH3LiveCap},
-				{ID: "kling-video-v3", ModelKey: "kling-video-v3", Capability: "video", Available: true, ManagedBeefTV: &customRoute, CapabilityConfig: customKlingTwoFrameCap},
-				{ID: "frame9-video", ModelKey: "frame9-video", Capability: "video", Available: true, ManagedBeefTV: &customRoute, CapabilityConfig: customFrame9Cap},
+				{ID: "opaque-video", ModelKey: "opaque-video", Capability: "video", Available: true, ManagedLuckyTV: &customRoute, CapabilityDeclared: &undeclared, CapabilityConfig: autoDefaultCustomCap},
+				{ID: "minimax-h3-max", ModelKey: "minimax-h3-max", Capability: "video", Available: true, ManagedLuckyTV: &customRoute, CapabilityConfig: versionedH3LiveCap},
+				{ID: "kling-video-v3", ModelKey: "kling-video-v3", Capability: "video", Available: true, ManagedLuckyTV: &customRoute, CapabilityConfig: customKlingTwoFrameCap},
+				{ID: "frame9-video", ModelKey: "frame9-video", Capability: "video", Available: true, ManagedLuckyTV: &customRoute, CapabilityConfig: customFrame9Cap},
 			},
 		},
 	})
@@ -296,32 +296,32 @@ func TestGenerationTargetsReconcilesStaleVideoOperationWithModelCapabilities(t *
 	colorgradeRef["metadata"].(map[string]any)["storageKey"] = "resource:cg-1"
 	convVideoRef := map[string]any{"id": "conv-vid", "type": "media-conversion", "title": "转码视频", "metadata": map[string]any{"storageKey": "resource:conv-vid", "mediaConversion": map[string]any{"outputKind": "video"}}}
 
-	wanVideo := imageNode("wan-shot", "beeftv::wan3.0-video")
+	wanVideo := imageNode("wan-shot", "luckytv::wan3.0-video")
 	wanVideo["type"] = "video"
 	wanVideo["metadata"].(map[string]any)["videoEditOperation"] = "image_to_video"
 	wanVideo["metadata"].(map[string]any)["videoStartFrameNodeId"] = "img-1"
 
-	agnesVideo := imageNode("agnes-shot", "beeftv::agnes-2.5")
+	agnesVideo := imageNode("agnes-shot", "luckytv::agnes-2.5")
 	agnesVideo["type"] = "video"
 	agnesVideo["metadata"].(map[string]any)["videoEditOperation"] = "image_to_video"
 	agnesVideo["metadata"].(map[string]any)["videoStartFrameNodeId"] = "img-1"
 
-	klingVideo := imageNode("kling-shot", "beeftv::kling-video-v3")
+	klingVideo := imageNode("kling-shot", "luckytv::kling-video-v3")
 	klingVideo["type"] = "video"
 	klingVideo["metadata"].(map[string]any)["videoEditOperation"] = "reference_to_video"
 	klingVideo["metadata"].(map[string]any)["videoEndFrameNodeId"] = "img-1"
 
-	hostedH3Lip := imageNode("hosted-h3-lip", "beeftv::minimax-h3-max-turbo")
+	hostedH3Lip := imageNode("hosted-h3-lip", "luckytv::minimax-h3-max-turbo")
 	hostedH3Lip["type"] = "video"
 	hostedH3Lip["metadata"].(map[string]any)["videoEditOperation"] = "reference_to_video"
 	hostedH3Lip["metadata"].(map[string]any)["videoStartFrameNodeId"] = "img-1"
 
-	h3FrameAudio := imageNode("h3-lip-shot", "beeftv::minimax-h3-max")
+	h3FrameAudio := imageNode("h3-lip-shot", "luckytv::minimax-h3-max")
 	h3FrameAudio["type"] = "video"
 	h3FrameAudio["metadata"].(map[string]any)["videoEditOperation"] = "image_to_video"
 	h3FrameAudio["metadata"].(map[string]any)["videoStartFrameNodeId"] = "img-1"
 
-	h3MidFrame := imageNode("h3-mid-shot", "beeftv::minimax-h3-max")
+	h3MidFrame := imageNode("h3-mid-shot", "luckytv::minimax-h3-max")
 	h3MidFrame["type"] = "video"
 	h3MidFrame["metadata"].(map[string]any)["videoEditOperation"] = "image_to_video"
 	h3MidFrame["metadata"].(map[string]any)["videoStartFrameNodeId"] = "img-1"
@@ -329,28 +329,28 @@ func TestGenerationTargetsReconcilesStaleVideoOperationWithModelCapabilities(t *
 	h3MidFrame["metadata"].(map[string]any)["videoEndFrameNodeId"] = "img-3"
 	h3MidFrame["metadata"].(map[string]any)["videoMiddleFrameTime"] = 2.5
 
-	switchedFromH3 := imageNode("wan-from-h3", "beeftv::wan3.0-video")
+	switchedFromH3 := imageNode("wan-from-h3", "luckytv::wan3.0-video")
 	switchedFromH3["type"] = "video"
 	switchedFromH3["metadata"].(map[string]any)["videoEditOperation"] = "image_to_video"
 	switchedFromH3["metadata"].(map[string]any)["videoStartFrameNodeId"] = "img-1"
 	switchedFromH3["metadata"].(map[string]any)["videoMiddleFrameNodeId"] = "img-2"
 	switchedFromH3["metadata"].(map[string]any)["videoMiddleFrameTime"] = 1.8
 
-	charAndDrawShot := imageNode("char-draw-shot", "beeftv::agnes-2.5")
+	charAndDrawShot := imageNode("char-draw-shot", "luckytv::agnes-2.5")
 	charAndDrawShot["type"] = "video"
 	charAndDrawShot["metadata"].(map[string]any)["videoEditOperation"] = "image_to_video"
 	charAndDrawShot["metadata"].(map[string]any)["videoStartFrameNodeId"] = "img-1"
 
-	convVideoShot := imageNode("conv-video-shot", "beeftv::wan3.0-video")
+	convVideoShot := imageNode("conv-video-shot", "luckytv::wan3.0-video")
 	convVideoShot["type"] = "video"
 	convVideoShot["metadata"].(map[string]any)["videoEditOperation"] = "image_to_video"
 
-	versionedH3Lip := imageNode("versioned-h3-lip", "beeftv::minimax-h3")
+	versionedH3Lip := imageNode("versioned-h3-lip", "luckytv::minimax-h3")
 	versionedH3Lip["type"] = "video"
 	versionedH3Lip["metadata"].(map[string]any)["videoEditOperation"] = "image_to_video"
 	versionedH3Lip["metadata"].(map[string]any)["videoStartFrameNodeId"] = "img-1"
 
-	versionedH3TwoAudio := imageNode("versioned-h3-2aud", "beeftv::minimax-h3")
+	versionedH3TwoAudio := imageNode("versioned-h3-2aud", "luckytv::minimax-h3")
 	versionedH3TwoAudio["type"] = "video"
 	versionedH3TwoAudio["metadata"].(map[string]any)["videoEditOperation"] = "image_to_video"
 	versionedH3TwoAudio["metadata"].(map[string]any)["videoStartFrameNodeId"] = "img-1"
@@ -362,7 +362,7 @@ func TestGenerationTargetsReconcilesStaleVideoOperationWithModelCapabilities(t *
 	liveH3MaxMid["metadata"].(map[string]any)["videoMiddleFrameNodeId"] = "img-2"
 	liveH3MaxMid["metadata"].(map[string]any)["videoMiddleFrameTime"] = 2.5
 
-	omniH3MaxMid := imageNode("omni-h3max-mid", "beeftv-omni::minimax-h3-max")
+	omniH3MaxMid := imageNode("omni-h3max-mid", "luckytv-omni::minimax-h3-max")
 	omniH3MaxMid["type"] = "video"
 	omniH3MaxMid["metadata"].(map[string]any)["videoEditOperation"] = "image_to_video"
 	omniH3MaxMid["metadata"].(map[string]any)["videoStartFrameNodeId"] = "img-1"
@@ -397,12 +397,12 @@ func TestGenerationTargetsReconcilesStaleVideoOperationWithModelCapabilities(t *
 	customKlingShot["metadata"].(map[string]any)["videoStartFrameNodeId"] = "img-1"
 	customKlingShot["metadata"].(map[string]any)["videoEndFrameNodeId"] = "img-2"
 
-	partialOpRefH3Shot := imageNode("partial-opref-h3", "partial-beeftv::minimax-h3")
+	partialOpRefH3Shot := imageNode("partial-opref-h3", "partial-luckytv::minimax-h3")
 	partialOpRefH3Shot["type"] = "video"
 	partialOpRefH3Shot["metadata"].(map[string]any)["videoEditOperation"] = "image_to_video"
 	partialOpRefH3Shot["metadata"].(map[string]any)["videoStartFrameNodeId"] = "img-1"
 
-	emptyOpRefH3Shot := imageNode("empty-opref-h3", "empty-beeftv::minimax-h3")
+	emptyOpRefH3Shot := imageNode("empty-opref-h3", "empty-luckytv::minimax-h3")
 	emptyOpRefH3Shot["type"] = "video"
 	emptyOpRefH3Shot["metadata"].(map[string]any)["videoEditOperation"] = "image_to_video"
 	emptyOpRefH3Shot["metadata"].(map[string]any)["videoStartFrameNodeId"] = "img-1"
@@ -411,7 +411,7 @@ func TestGenerationTargetsReconcilesStaleVideoOperationWithModelCapabilities(t *
 	frame9ThreeImgShot["type"] = "video"
 	frame9ThreeImgShot["metadata"].(map[string]any)["videoEditOperation"] = "image_to_video"
 
-	staleRemovedShot := imageNode("stale-removed-h3", "beeftv::removed-h3-max")
+	staleRemovedShot := imageNode("stale-removed-h3", "luckytv::removed-h3-max")
 	staleRemovedShot["type"] = "video"
 	staleRemovedShot["metadata"].(map[string]any)["videoEditOperation"] = "reference_to_video"
 	staleRemovedShot["metadata"].(map[string]any)["videoMiddleFrameNodeId"] = "img-2"

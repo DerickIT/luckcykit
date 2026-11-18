@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/writechange"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/writechange"
 )
 
 // maxStoryboardRowsPerCall 是单次分镜行写入的批量上限。一次拆完一集的常见规模远低于此；

@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"infinite-canvas/backend/internal/protocol"
+	"luckytv/backend/internal/protocol"
 )
 
 func decodeSpecBody(t *testing.T, spec protocol.RequestSpec) map[string]any {

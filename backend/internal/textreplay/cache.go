@@ -5,9 +5,9 @@ import (
 	"errors"
 	"sync"
 
-	"infinite-canvas/backend/internal/kernel"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/platform"
+	"luckytv/backend/internal/kernel"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/platform"
 )
 
 type cacheKey struct {

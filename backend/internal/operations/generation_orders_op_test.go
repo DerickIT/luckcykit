@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/operations"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/operations"
 )
 
 func seedGenerationOrder(t *testing.T, h *harness, proposalID, canvasID string, status operations.GenerationOrderStatus) {

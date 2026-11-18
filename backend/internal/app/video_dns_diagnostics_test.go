@@ -11,11 +11,11 @@ import (
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"infinite-canvas/backend/internal/diagnostics"
-	"infinite-canvas/backend/internal/generation"
-	"infinite-canvas/backend/internal/model"
-	"infinite-canvas/backend/internal/outbound"
-	"infinite-canvas/backend/internal/repository"
+	"luckytv/backend/internal/diagnostics"
+	"luckytv/backend/internal/generation"
+	"luckytv/backend/internal/model"
+	"luckytv/backend/internal/outbound"
+	"luckytv/backend/internal/repository"
 )
 
 func TestVideoFailureStagesSurviveWorkerRefreshSQLiteAndDiagnosticZIP(t *testing.T) {
@@ -103,11 +103,11 @@ func TestVideoFailureStagesSurviveWorkerRefreshSQLiteAndDiagnosticZIP(t *testing
 	}
 }
 
-func TestOriginalBeefTVTaskDNSDeferralDoesNotNeedHealthyDNS(t *testing.T) {
+func TestOriginalLuckyTVTaskDNSDeferralDoesNotNeedHealthyDNS(t *testing.T) {
 	svc := &Service{}
 	started := time.Now()
 	task := model.Task{ID: "owned-task", Type: "canvas_video", ProviderRequestID: "original", StartedAt: &started}
-	input, _ := json.Marshal(canvasGenerationInput{Mode: "video", Config: providerConfig{BaseURL: "https://beeftv.app/v1", InterfaceType: "newapi", Model: "seedance-2.0-mini"}})
+	input, _ := json.Marshal(canvasGenerationInput{Mode: "video", Config: providerConfig{BaseURL: "https://luckytv.app/v1", InterfaceType: "newapi", Model: "seedance-2.0-mini"}})
 	previous := net.DefaultResolver
 	lookups := 0
 	net.DefaultResolver = &net.Resolver{PreferGo: true, Dial: func(context.Context, string, string) (net.Conn, error) {
