@@ -25,6 +25,9 @@ LuckyTV 是一个本地优先、轻量、AI Native 的视频工作台。本页�
 
 ## 开发参考
 
+- [AI 辅助开发工作流与技术约束](ai-development-workflow.md)
+- [需求记录规范与模板](requirements/README.md)
+- [微信登录与托管模型云服务需求（草案）](requirements/001-wechat-auth-hosted-model-service.md)
 - [后端本地开发](content/docs/backend/local-development.mdx)
 - [外部 Agent 接入](content/docs/backend/external-agents.mdx)
 - [luckytv 命令行基础使用](content/docs/backend/luckytv-cli.mdx)
