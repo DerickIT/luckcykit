@@ -1,7 +1,10 @@
 import { useMemo, useRef } from "react";
 import { CanvasConfigComposer } from "@/components/canvas/canvas-config-composer";
 import { CanvasNodePromptPanel } from "@/components/canvas/canvas-node-prompt-panel";
-import { buildCanvasResourceReferences, isCanvasTextResourceNode, type CanvasResourceReference } from "@/lib/canvas/canvas-resource-references";
+import { isEmbeddedRuntime } from "@/lib/embedded-runtime";
+import { CanvasAssistantModelPicker } from "./canvas-assistant-model-picker";
+import type { CanvasAssistantController } from "./use-canvas-assistant";
+import { buildCanvasResourceReferences, isCanvasTextResourceNode, referencedAssetIdsInPrompt, type CanvasResourceReference } from "@/lib/canvas/canvas-resource-references";
 import { isCanvasNodeGenerating } from "@/lib/canvas/canvas-node-task-state";
 import type { CanvasPageUiStoreHook } from "@/stores/canvas/use-canvas-page-ui-store";
 import { CanvasNodeType, type CanvasNodeData } from "@/types/canvas";
@@ -18,6 +21,8 @@ const EMPTY_TEXT_NODES: CanvasNodeData[] = [];
 
 type Props = {
     node: CanvasNodeData;
+    assistant: CanvasAssistantController;
+    agentEnabled: boolean;
     projectId: string;
     videoModel: string;
     document: ReturnType<typeof useCanvasDocumentState>;
@@ -32,7 +37,7 @@ type Props = {
     onNodeMouseDown: ReturnType<typeof useCanvasSelectionController>["handleNodeMouseDown"];
 };
 
-export function CanvasProjectNodePrompt({ node: panelNode, projectId, videoModel, document, dialogs,
+export function CanvasProjectNodePrompt({ node: panelNode, projectId, videoModel, assistant, agentEnabled, document, dialogs,
     renderModel, generation, nodeEditor, pageUi, referenceActions, onFocusNode: focusCanvasNode,
     onCreateReplacement: createGenerationReplacement, onNodeMouseDown: handleNodeMouseDown,
 }: Props) {
@@ -88,6 +93,22 @@ export function CanvasProjectNodePrompt({ node: panelNode, projectId, videoModel
         <CanvasNodePromptPanel
             projectId={projectId}
             node={panelNode}
+            agentBusy={agentEnabled && (assistant.statusBusy || assistant.streaming || assistant.sessionBusy || assistant.awaitingReceipt)}
+            agentReady
+            submissionDisabled={!agentEnabled && isEmbeddedRuntime()}
+            agentModelControl={agentEnabled ? <CanvasAssistantModelPicker busy={assistant.modelBusy || assistant.sessionBusy || assistant.awaitingReceipt} /> : undefined}
+            onAgentPrompt={agentEnabled ? (nodeId, prompt) => {
+                assistant.setOpen(true);
+                const typeInstruction = panelNode.type === CanvasNodeType.Text || panelNode.type === CanvasNodeType.Skill
+                    ? "只修改这个节点的正文 content。"
+                    : "只修改这个节点的生成提示词或参数；如果用户要求生成，使用现有生成方案提案与确认流程。";
+                void assistant.send(
+                    `只处理当前聚焦的画布节点。${typeInstruction}不要新建节点、不要修改其他节点、不要创建连线或修改其他画布内容。\n用户要求：\n${prompt}`,
+                    [nodeId],
+                    [...new Set(referencedAssetIdsInPrompt(prompt).map((assetId) => ({ kind: "asset" as const, id: assetId })))],
+                    { permissionMode: "canvas", focusedNodeId: nodeId },
+                );
+            } : undefined}
             referenceNodes={nodesRef.current}
             referenceConnections={connectionsRef.current}
             onLocateReferenceNode={focusCanvasNode}

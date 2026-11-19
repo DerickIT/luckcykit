@@ -1,5 +1,5 @@
 import { Button, InputNumber } from "antd";
-import { useMemo, type CSSProperties } from "react";
+import { useMemo, type CSSProperties, type ReactNode } from "react";
 import { ArrowUp, LoaderCircle } from "lucide-react";
 
 import { GenerationCostLabel, useGenerationCostEstimate } from "@/components/generation/generation-cost-badge";
@@ -166,6 +166,11 @@ export function CanvasNodePromptFooterControls({
     autoLinkLabel,
     pickConnectActive,
     isRunning,
+    agentMode,
+    agentBusy,
+    agentReady,
+    submissionDisabled,
+    agentModelControl,
     h3Model,
     middleFrameSupported,
     endFrameSupported,
@@ -189,6 +194,11 @@ export function CanvasNodePromptFooterControls({
     autoLinkLabel: string;
     pickConnectActive: boolean;
     isRunning: boolean;
+    agentMode?: boolean;
+    agentBusy?: boolean;
+    agentReady?: boolean;
+    submissionDisabled?: boolean;
+    agentModelControl?: ReactNode;
     h3Model: boolean;
     middleFrameSupported: boolean;
     endFrameSupported: boolean;
@@ -204,19 +214,53 @@ export function CanvasNodePromptFooterControls({
     const rememberVideoSettings = useCreationPreferencesStore((state) => state.rememberVideoSettings);
     const { config, requirements, availableModels, resolvedRequirements, costDisplay, isSubmitDisabled } = preview;
     const monochromeAccent = theme.node.activeStroke;
-    const actionLabel = isRunning ? "生成中" : "生成";
+    const actionLabel = agentMode ? (agentBusy ? "Agent 处理中" : "发送给 Agent") : isRunning ? "生成中" : "生成";
+    const submitDisabled = Boolean(submissionDisabled) || (agentMode ? Boolean(agentBusy || !agentReady) : isRunning || isSubmitDisabled);
+
+    const nodeModelPicker = availableModels.length ? (
+        <ModelPicker
+            className="!h-7 !w-full !min-w-0 !text-[var(--fs-tiny)] !font-normal [&_img]:!size-3 [&_.lucide]:!size-3"
+            fullWidth
+            config={config}
+            value={config.model}
+            onChange={(model) => {
+                const patch = mode === "image" ? { model, ...defaultImageParamsForModel(config, model) } : { model };
+                if (mode === "image" || mode === "video") {
+                    const nextConfig = buildNodeConfig(globalConfig, { ...node, metadata: { ...node.metadata, ...patch } }, mode, { ...requirements, options: undefined });
+                    if (mode === "image") rememberImageSettings({ model: nextConfig.model, ratio: nextConfig.size, quality: nextConfig.quality, count: nextConfig.count, transparentBackground: nextConfig.transparentBackground });
+                    else rememberVideoSettings({ model: nextConfig.model, ratio: nextConfig.size, seconds: nextConfig.videoSeconds, videoQuality: nextConfig.vquality, generateAudio: nextConfig.videoGenerateAudio, watermark: nextConfig.videoWatermark });
+                }
+                onConfigChange(node.id, patch);
+            }}
+            capability={mode}
+            requirements={resolvedRequirements}
+            onMissingConfig={() => navigateToSettings({ section: "channels", continueCreation: true })}
+            variant="creation"
+            showConfiguredModelName
+        />
+    ) : (
+        <button
+            type="button"
+            className="canvas-composer-model-picker flex !h-7 w-full min-w-0 items-center px-2 text-left !text-[var(--fs-tiny)] !font-normal"
+            aria-label="暂无模型可用，连接内置算力"
+            title="暂无模型可用，连接内置算力"
+            onClick={() => navigateToSettings({ section: "channels", continueCreation: true })}
+        >
+            <span className="truncate">暂无模型可用，连接内置算力</span>
+        </button>
+    );
 
     const submitControl = (() => {
         const button = (
             <Button
                 type="text"
                 className="canvas-node-composer-submit canvas-node-composer-submit-canvas"
-                disabled={isRunning || isSubmitDisabled}
+                disabled={submitDisabled}
                 style={
                     {
-                        color: isSubmitDisabled ? theme.node.faint : theme.node.text,
-                        "--canvas-composer-submit-action": isSubmitDisabled ? theme.toolbar.itemHover : monochromeAccent,
-                        "--canvas-composer-submit-action-fg": isSubmitDisabled ? theme.node.faint : theme.canvas.background,
+                        color: submitDisabled ? theme.node.faint : theme.node.text,
+                        "--canvas-composer-submit-action": submitDisabled ? theme.toolbar.itemHover : monochromeAccent,
+                        "--canvas-composer-submit-action-fg": submitDisabled ? theme.node.faint : theme.canvas.background,
                     } as CSSProperties
                 }
                 onClick={onSubmit}
@@ -224,11 +268,11 @@ export function CanvasNodePromptFooterControls({
                 title={actionLabel}
             >
                 <span className="canvas-node-composer-submit-action" aria-hidden>
-                    {isRunning ? <LoaderCircle className="size-3.5 animate-spin motion-reduce:animate-none" /> : <ArrowUp className="size-3.5" strokeWidth={2.4} />}
+                    {(agentMode ? agentBusy : isRunning) ? <LoaderCircle className="size-3.5 animate-spin motion-reduce:animate-none" /> : <ArrowUp className="size-3.5" strokeWidth={2.4} />}
                 </span>
             </Button>
         );
-        if (!costDisplay) return button;
+        if (agentMode || !costDisplay) return button;
         return (
             <div className="inline-flex h-8 shrink-0 items-center rounded-full pl-2.5" style={{ background: "var(--canvas-composer-control-surface)" }}>
                 <GenerationCostLabel
@@ -244,9 +288,9 @@ export function CanvasNodePromptFooterControls({
     if (simpleMode) {
         return (
             <div className="canvas-node-composer-footer">
-                <span className="min-w-0 truncate px-2 text-[var(--fs-tiny)]" style={{ color: theme.node.muted }}>
+                {agentMode ? <div className="min-w-0 flex-1">{agentModelControl}</div> : <span className="min-w-0 truncate px-2 text-[var(--fs-tiny)]" style={{ color: theme.node.muted }}>
                     {activeReferenceCount ? `已连接 ${activeReferenceCount} 个素材` : "将使用默认模型与参数"}
-                </span>
+                </span>}
                 <ReferenceToolsPopover
                     canAutoMention={canAutoMention}
                     autoLinkEnabled={autoLinkEnabled}
@@ -267,39 +311,13 @@ export function CanvasNodePromptFooterControls({
 
     return (
         <div className="canvas-node-composer-footer">
-            <div className={expanded ? "min-w-0 flex-1" : costDisplay ? "canvas-node-composer-model !min-w-24" : "canvas-node-composer-model"}>
-                {availableModels.length ? (
-                    <ModelPicker
-                        className="!h-7 !w-full !min-w-0 !text-[var(--fs-tiny)] !font-normal [&_img]:!size-3 [&_.lucide]:!size-3"
-                        fullWidth
-                        config={config}
-                        value={config.model}
-                        onChange={(model) => {
-                            const patch = mode === "image" ? { model, ...defaultImageParamsForModel(config, model) } : { model };
-                            if (mode === "image" || mode === "video") {
-                                const nextConfig = buildNodeConfig(globalConfig, { ...node, metadata: { ...node.metadata, ...patch } }, mode, { ...requirements, options: undefined });
-                                if (mode === "image") rememberImageSettings({ model: nextConfig.model, ratio: nextConfig.size, quality: nextConfig.quality, count: nextConfig.count, transparentBackground: nextConfig.transparentBackground });
-                                else rememberVideoSettings({ model: nextConfig.model, ratio: nextConfig.size, seconds: nextConfig.videoSeconds, videoQuality: nextConfig.vquality, generateAudio: nextConfig.videoGenerateAudio, watermark: nextConfig.videoWatermark });
-                            }
-                            onConfigChange(node.id, patch);
-                        }}
-                        capability={mode}
-                        requirements={resolvedRequirements}
-                        onMissingConfig={() => navigateToSettings({ section: "channels", continueCreation: true })}
-                        variant="creation"
-                        showConfiguredModelName
-                    />
-                ) : (
-                    <button
-                        type="button"
-                        className="canvas-composer-model-picker flex !h-7 w-full min-w-0 items-center px-2 text-left !text-[var(--fs-tiny)] !font-normal"
-                        aria-label="暂无模型可用，连接内置算力"
-                        title="暂无模型可用，连接内置算力"
-                        onClick={() => navigateToSettings({ section: "channels", continueCreation: true })}
-                    >
-                        <span className="truncate">暂无模型可用，连接内置算力</span>
-                    </button>
-                )}
+            <div className={expanded ? "min-w-0 flex-1" : costDisplay && !agentMode ? "canvas-node-composer-model !min-w-24" : "canvas-node-composer-model"}>
+                {agentMode ? (
+                    <div className="flex min-w-0 flex-1 flex-col gap-1">
+                        <div className="min-w-0" title="Pi Agent 助手模型">{agentModelControl}</div>
+                        {mode !== "text" ? <div className="min-w-0" title="节点生成模型">{nodeModelPicker}</div> : null}
+                    </div>
+                ) : nodeModelPicker}
             </div>
             <div className="ml-auto flex min-w-0 shrink-0 items-center gap-1">
                 <ReferenceToolsPopover

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -99,6 +100,30 @@ func assistantTurnInput(selected []string, references []assistantReference) app.
 	return input
 }
 
+func validateFocusedAssistantNode(canvasRaw []byte, selected []string, focusedNodeID string) error {
+	focusedNodeID = strings.TrimSpace(focusedNodeID)
+	if focusedNodeID == "" {
+		return nil
+	}
+	if len(selected) != 1 || strings.TrimSpace(selected[0]) != focusedNodeID {
+		return errors.New("focusedNodeId 必须是唯一选中的当前画布节点")
+	}
+	var doc struct {
+		Nodes []struct {
+			ID string `json:"id"`
+		} `json:"nodes"`
+	}
+	if err := json.Unmarshal(canvasRaw, &doc); err != nil {
+		return errors.New("画布内容无法解析")
+	}
+	for _, node := range doc.Nodes {
+		if node.ID == focusedNodeID {
+			return nil
+		}
+	}
+	return errors.New("focusedNodeId 不属于当前画布")
+}
+
 // assistantScopeForRequest 只在调用方是已鉴权内置宿主且出示了后端签发的 turnId 时
 // 返回受限范围。其他调用方（已登记客户端、owner 直连）返回 nil，保持原有工作区能力不变。
 func assistantScopeForRequest(c *gin.Context, svc assistantScopeService, userID string, hostCall bool) (*agentops.AssistantScope, string, error) {
@@ -126,6 +151,7 @@ func assistantScopeForRequest(c *gin.Context, svc assistantScopeService, userID 
 	return &agentops.AssistantScope{
 		PermissionMode: scope.PermissionMode,
 		CanvasID:       scope.CanvasID,
+		FocusedNodeID:  scope.FocusedNodeID,
 		AssetIDs:       assistantIDSet(scope.AssetIDs),
 		CanvasIDs:      assistantIDSet(scope.CanvasIDs),
 		TaskIDs:        assistantIDSet(scope.TaskIDs),

@@ -560,6 +560,7 @@ func RegisterAgentProxyRoutes(r gin.IRouter, svc *app.Service, clients *agentops
 			CanvasID        string                    `json:"canvasId"`
 			Message         string                    `json:"message"`
 			SelectedNodeIDs []string                  `json:"selectedNodeIds"`
+			FocusedNodeID   string                    `json:"focusedNodeId"`
 			SessionID       string                    `json:"sessionId"`
 			RequestID       *string                   `json:"requestId"`
 			References      []assistantReference      `json:"references"`
@@ -626,6 +627,12 @@ func RegisterAgentProxyRoutes(r gin.IRouter, svc *app.Service, clients *agentops
 				}
 			}
 		}
+		if focusedNodeID := strings.TrimSpace(payload.FocusedNodeID); focusedNodeID != "" {
+			if err := validateFocusedAssistantNode(canvasRaw, payload.SelectedNodeIDs, focusedNodeID); err != nil {
+				fail(c, http.StatusBadRequest, app.BadAuthRequest(err.Error()))
+				return
+			}
+		}
 		// 轮前快照在转发之前就落盘：宿主没有画布持久化通道，这个前提只能由后端建立，
 		// 否则撤销会拿不到「这轮开始之前」的文档。范围也只在这里验证并持久化：
 		// 之后的操作入口按这条记录读授权，宿主与模型都无法自报。
@@ -636,6 +643,7 @@ func RegisterAgentProxyRoutes(r gin.IRouter, svc *app.Service, clients *agentops
 			return
 		}
 		input := assistantTurnInput(payload.SelectedNodeIDs, references)
+		input.FocusedNodeID = strings.TrimSpace(payload.FocusedNodeID)
 		input.PermissionMode = assistantturns.Mode(payload.PermissionMode)
 		input.SkillPins = pins
 		c.Header("X-Luckytv-Turn-Admission", "unknown")

@@ -1148,12 +1148,13 @@ function InfiniteCanvasPage() {
     const cancelVideoCrop = useCallback(() => setVideoCropNodeId(null), [setVideoCropNodeId]);
 
     const renderCanvasNodePanel = useCallback((node: CanvasNodeData) => (
-        <CanvasProjectNodePrompt node={node} projectId={projectId} videoModel={config.videoModel}
+        <CanvasProjectNodePrompt node={node} projectId={projectId} videoModel={config.videoModel} assistant={assistant}
+            agentEnabled={!readOnly && internalAssistantEnabled && !versions.preview}
             document={document} dialogs={dialogs} renderModel={renderModelRef.current} generation={generation}
             nodeEditor={nodeEditor} pageUi={pageUi} referenceActions={referenceActions}
             onFocusNode={focusCanvasNode} onCreateReplacement={createGenerationReplacement}
             onNodeMouseDown={handleNodeMouseDown} />
-    ), [projectId, config.videoModel, document, dialogs, generation, nodeEditor, pageUi,
+    ), [projectId, config.videoModel, assistant, readOnly, internalAssistantEnabled, versions.preview, document, dialogs, generation, nodeEditor, pageUi,
         referenceActions, focusCanvasNode, createGenerationReplacement, handleNodeMouseDown]);
 
     const renderCanvasNodeContent = useCallback((node: CanvasNodeData) => (

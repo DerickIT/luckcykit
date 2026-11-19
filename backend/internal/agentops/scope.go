@@ -17,6 +17,7 @@ import (
 type AssistantScope struct {
 	PermissionMode string
 	CanvasID       string
+	FocusedNodeID  string
 	AssetIDs       map[string]bool
 	CanvasIDs      map[string]bool
 	TaskIDs        map[string]bool
@@ -48,16 +49,54 @@ func (s *AssistantScope) Allows(op *operations.Op, params json.RawMessage) error
 		return denied("本轮助手权限不允许该操作")
 	}
 	var args struct {
-		CanvasID    string `json:"canvasId"`
-		NodeID      string `json:"nodeId"`
-		AssetID     string `json:"assetId"`
-		TaskID      string `json:"taskId"`
-		SkillID     string `json:"skillId"`
-		VersionID   string `json:"versionId"`
-		ContentHash string `json:"contentHash"`
+		CanvasID          string                     `json:"canvasId"`
+		NodeID            string                     `json:"nodeId"`
+		NodeIDs           []string                   `json:"nodeIds"`
+		ProductionNodeIDs []string                   `json:"productionNodeIds"`
+		Patch             map[string]json.RawMessage `json:"patch"`
+		AssetID           string                     `json:"assetId"`
+		TaskID            string                     `json:"taskId"`
+		SkillID           string                     `json:"skillId"`
+		VersionID         string                     `json:"versionId"`
+		ContentHash       string                     `json:"contentHash"`
 	}
 	if len(params) > 0 {
 		_ = json.Unmarshal(params, &args)
+	}
+	if s.FocusedNodeID != "" && !op.ReadOnly {
+		switch op.ID {
+		case "canvas.node.update", "canvas.node.configure":
+			if strings.TrimSpace(args.NodeID) != s.FocusedNodeID {
+				return denied("本轮只能修改当前选中的节点")
+			}
+			if op.ID == "canvas.node.update" {
+				if len(args.Patch) == 0 {
+					return denied("本轮只能修改当前选中节点的正文")
+				}
+				for field := range args.Patch {
+					if field != "content" {
+						return denied("本轮只能修改当前选中节点的正文")
+					}
+				}
+			}
+		case "canvas.task.bind":
+			if strings.TrimSpace(args.NodeID) != s.FocusedNodeID {
+				return denied("本轮只能将生成结果绑定到当前选中的节点")
+			}
+		default:
+			return denied("本轮不能修改当前选中的节点以外的画布内容")
+		}
+	}
+	if s.FocusedNodeID != "" && op.ID == "canvas.node.configure" && args.CanvasID != s.CanvasID {
+		return denied("本轮只能修改当前画布的聚焦节点")
+	}
+	if s.FocusedNodeID != "" && !op.ReadOnly && op.ID == "canvas.generation.submit" {
+		if args.CanvasID != s.CanvasID || len(args.NodeIDs) != 1 || strings.TrimSpace(args.NodeIDs[0]) != s.FocusedNodeID {
+			return denied("本轮只能为当前选中的节点提交已确认的生成方案")
+		}
+	}
+	if s.FocusedNodeID != "" && op.ID == "canvas.task.bind" && args.NodeID != "" && strings.TrimSpace(args.NodeID) != s.FocusedNodeID {
+		return denied("本轮只能将生成结果绑定到当前选中的节点")
 	}
 	// Broad modes rely on each shared domain handler's current ownership check.
 	// Skills remain pinned rather than discovering filesystem instructions.
@@ -109,6 +148,16 @@ func (s *AssistantScope) Allows(op *operations.Op, params json.RawMessage) error
 		}
 		return denied("只能读取当前画布或已在界面里引用的画布")
 	case "canvas.generation.propose":
+		if s.FocusedNodeID != "" {
+			if args.CanvasID != s.CanvasID || len(args.NodeIDs) != 1 || strings.TrimSpace(args.NodeIDs[0]) != s.FocusedNodeID {
+				return denied("本轮只能为当前选中的节点提出生成方案")
+			}
+			for _, nodeID := range args.ProductionNodeIDs {
+				if strings.TrimSpace(nodeID) != s.FocusedNodeID {
+					return denied("本轮只能为当前选中的节点提出生成方案")
+				}
+			}
+		}
 		// 写只允许落在当前画布：跨画布写即便带上合法 canvasId 也必须拒绝。
 		if args.CanvasID == s.CanvasID {
 			return nil

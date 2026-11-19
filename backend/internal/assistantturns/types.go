@@ -82,6 +82,7 @@ type Change struct {
 type Input struct {
 	PermissionMode  string
 	SelectedNodeIDs []string
+	FocusedNodeID   string
 	AssetIDs        []string
 	CanvasIDs       []string
 	SkillPins       []skills.Pin
@@ -91,6 +92,7 @@ type Input struct {
 type Scope struct {
 	PermissionMode  string
 	CanvasID        string
+	FocusedNodeID   string
 	AssetIDs        []string
 	CanvasIDs       []string
 	TaskIDs         []string
@@ -128,6 +130,7 @@ type Record struct {
 	CreatedAt            time.Time
 	State                string
 	SelectedNodeIDs      []string
+	FocusedNodeID        string
 	ReferencedAssetIDs   []string
 	ReferencedCanvasIDs  []string
 	AssociatedAssetIDs   []string
@@ -149,6 +152,7 @@ func (r Record) sameBeginScope(userID, canvasID string, input Input) bool {
 	return r.UserID == userID && r.CanvasID == canvasID &&
 		Mode(r.PermissionMode) == Mode(input.PermissionMode) &&
 		equalStringLists(r.SelectedNodeIDs, uniqueSorted(input.SelectedNodeIDs)) &&
+		r.FocusedNodeID == strings.TrimSpace(input.FocusedNodeID) &&
 		equalStringLists(r.ReferencedAssetIDs, uniqueSorted(input.AssetIDs)) &&
 		equalStringLists(r.ReferencedCanvasIDs, uniqueSorted(input.CanvasIDs)) &&
 		reflect.DeepEqual(skillPinIdentities(r.SkillPins), skillPinIdentities(input.SkillPins))

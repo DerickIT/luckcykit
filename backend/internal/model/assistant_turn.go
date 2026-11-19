@@ -21,6 +21,7 @@ type AssistantTurn struct {
 	UpdatedAt            time.Time `json:"updatedAt"`
 	State                string    `json:"state" gorm:"size:16;not null"`
 	SelectedNodeIDs      string    `json:"-" gorm:"type:text"`
+	FocusedNodeID        string    `json:"-" gorm:"size:80"`
 	ReferencedAssetIDs   string    `json:"-" gorm:"type:text"`
 	ReferencedCanvasIDs  string    `json:"-" gorm:"type:text"`
 	AssociatedAssetIDs   string    `json:"-" gorm:"type:text"`

@@ -116,7 +116,7 @@ type CanvasRun = {
     supplements: { text: string; status: "sending" | "accepted" | "unconfirmed"; attachments?: AssistantAttachment[]; skills?: AssistantSkillSelection[] }[];
     controller: AbortController | null;
     error: string | null;
-    lastSent: { text: string; selectedNodeIds: string[]; references: AgentChatReference[]; attachments?: AssistantAttachment[]; skills?: AssistantSkillSelection[]; permissionMode: AssistantPermissionMode } | null;
+    lastSent: { text: string; selectedNodeIds: string[]; references: AgentChatReference[]; attachments?: AssistantAttachment[]; skills?: AssistantSkillSelection[]; permissionMode: AssistantPermissionMode; focusedNodeId?: string } | null;
     turnStatus: Record<string, AssistantTurnStatus>;
 };
 
@@ -372,7 +372,7 @@ export function useCanvasAssistant({ canvasId, onCanvasChanged }: Options) {
         void loadHistory(canvasId);
     }, [canvasId, loadHistory, open, runFor, status?.available]);
 
-    const send = useCallback(async (text: string, selectedNodeIds: string[], references: AgentChatReference[] = [], input: { attachments?: AssistantAttachment[]; skills?: AssistantSkillSelection[]; permissionMode?: AssistantPermissionMode} = {}) => {
+    const send = useCallback(async (text: string, selectedNodeIds: string[], references: AgentChatReference[] = [], input: { attachments?: AssistantAttachment[]; skills?: AssistantSkillSelection[]; permissionMode?: AssistantPermissionMode; focusedNodeId?: string } = {}) => {
         const message = text.trim();
         if (!message && !input.attachments?.length) return;
         // 发送时冻结归属：此后即使用户切到别的画布，结果也只写回这条记录。
@@ -382,6 +382,7 @@ export function useCanvasAssistant({ canvasId, onCanvasChanged }: Options) {
         const attachments = (input.attachments || []).map(item => ({ ...item }));
         const skills = (input.skills || []).map(item => ({ ...item }));
         const run = runFor(targetCanvas);
+        if (input.focusedNodeId && (run.streaming || run.recovery || run.sessionBusy || run.supplementBusy)) return;
         if (run.streaming) {
             if (!run.dispatched || !run.sessionId || run.supplementBusy) return;
             const supplement = { text: message, attachments, skills, status: "sending" as "sending" | "accepted" | "unconfirmed" };
@@ -420,7 +421,7 @@ export function useCanvasAssistant({ canvasId, onCanvasChanged }: Options) {
         run.dispatched = false;
         run.backgroundActive = false;
         run.recovery = null;
-        run.lastSent = { text: message, selectedNodeIds: selectedSnapshot, references: referenceSnapshot, attachments, skills, permissionMode };
+        run.lastSent = { text: message, selectedNodeIds: selectedSnapshot, references: referenceSnapshot, attachments, skills, permissionMode, focusedNodeId: input.focusedNodeId };
         // A new identity per send: Stop names exactly this one, and a retry is a new request.
         const requestId = createClientId();
         run.requestId = requestId;
@@ -525,7 +526,7 @@ export function useCanvasAssistant({ canvasId, onCanvasChanged }: Options) {
                     } else onCanvasChangedRef.current?.(targetCanvas, assistantChangedNodeIds(turn.change));
                     rerenderIfActive(targetCanvas);
                 },
-            }, { signal: controller.signal, selectedNodeIds: selectedSnapshot, references: referenceSnapshot, sessionId: run.sessionId ?? undefined, requestId, attachments, skills, permissionMode });
+            }, { signal: controller.signal, selectedNodeIds: selectedSnapshot, focusedNodeId: input.focusedNodeId, references: referenceSnapshot, sessionId: run.sessionId ?? undefined, requestId, attachments, skills, permissionMode });
         } catch (streamError) {
             if (controller.signal.aborted && !runFor(targetCanvas).dispatched) {
                 // 发出前点了停止：不论停在哪一步（就绪检查、读取对话），都按「没有发出」收尾。
@@ -610,7 +611,7 @@ export function useCanvasAssistant({ canvasId, onCanvasChanged }: Options) {
     const retryLast = useCallback(() => {
         const run = runFor(activeCanvasRef.current);
         if (!run.lastSent || run.dispatched) return;
-        void send(run.lastSent.text, run.lastSent.selectedNodeIds, run.lastSent.references, { attachments: run.lastSent.attachments, skills: run.lastSent.skills, permissionMode: run.lastSent.permissionMode });
+        void send(run.lastSent.text, run.lastSent.selectedNodeIds, run.lastSent.references, { attachments: run.lastSent.attachments, skills: run.lastSent.skills, permissionMode: run.lastSent.permissionMode, focusedNodeId: run.lastSent.focusedNodeId });
     }, [runFor, send]);
 
     const dismissError = useCallback(() => {

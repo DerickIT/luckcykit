@@ -605,6 +605,8 @@ export type AgentChatRequest = {
     permissionMode?: AssistantPermissionMode;
     signal?: AbortSignal;
     selectedNodeIds?: string[];
+    /** Restricts writes in this turn to one node selected by the canvas prompt panel. */
+    focusedNodeId?: string;
     /** 当前消息里 @ 引用到的资源；后端逐项校验归属，任何一项非法都整轮拒绝。 */
     references?: AgentChatReference[];
     /** 只发当前会话；后端发现它已不是该画布的当前会话会整回合拒绝。 */
@@ -646,7 +648,7 @@ export async function streamAgentChat(
     handlers: StreamHandlers,
     request: AgentChatRequest = {},
 ): Promise<void> {
-    const { signal, selectedNodeIds = [], references = [], sessionId, requestId, attachments = [], skills = [] } = request;
+    const { signal, selectedNodeIds = [], focusedNodeId, references = [], sessionId, requestId, attachments = [], skills = [] } = request;
     let token: string;
     try {
         token = await ensureAgentUiSession();
@@ -655,6 +657,7 @@ export async function streamAgentChat(
     }
     signal?.throwIfAborted();
     const body: Record<string, unknown> = { canvasId, message, selectedNodeIds, permissionMode: assistantPermissionMode(request.permissionMode) };
+    if (focusedNodeId) body.focusedNodeId = focusedNodeId;
     if (references.length) body.references = references;
     if (sessionId) body.sessionId = sessionId;
     if (requestId) body.requestId = requestId;

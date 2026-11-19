@@ -183,9 +183,7 @@ LuckyTV also includes project and personal asset libraries, asynchronous tasks, 
 
 See [Quick Start](QUICKSTART.md) for model setup and building from source, and the [desktop release guide](docs/desktop-release.md) for packaging requirements.
 
-## Contributing and license
-
-Issues and pull requests are welcome. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the development workflow and testing requirements.
+## License
 
 The repository uses licenses with different scopes. Original content added under the new license, starting with the commit that first introduced it and subject to its terms, is covered by the [`BeefTV Source Available License 1.0`](LICENSE). Historical content released under MIT remains under the MIT terms retained in the same file. Upstream and third-party materials keep their respective licenses.
 
@@ -193,15 +191,9 @@ The new license permits self-hosting, internal customization, and creating and s
 
 The new restrictions do not apply retroactively to historical MIT content or override independently licensed third-party materials. This is a source-available license; the entire repository should not be treated as standard MIT or as an open source project under the OSI definition. See the [license guide](docs/content/docs/overview/licensing.mdx) for covered scenarios and boundaries, and [`NOTICE`](NOTICE) for upstream sources and third-party attributions.
 
-## Open source acknowledgments
+## Upstream sources and licensing
 
-LuckyTV builds on and draws from the following open source projects and technologies:
-
-- **[影策 Open AI Canvas (Yingce Open AI Canvas)](https://github.com/ddcat-ai/open-ai-canvas)** (https://github.com/ddcat-ai/open-ai-canvas): A workspace for AI filmmaking and short drama creation. LuckyTV is developed on top of this project. Foundational capabilities such as canvas node workflows, model provider integration, task and asset management, and community-contributed built-in plugins come from this project and continue to be refined and optimized into a local desktop app. Thanks again to [ddcat](https://github.com/ddcat-ai) and all Open AI Canvas contributors for their contributions to the open source AIGC community.
-- **[basketikun's infinite-canvas](https://github.com/basketikun/infinite-canvas)**: An open source workspace combining an infinite canvas with AI image creation. LuckyTV draws on its overall infinite canvas architecture and reuses parts of its canvas code and capabilities, including node dragging and zooming, connections, undo/redo, and canvas import/export. Thanks to [basketikun](https://github.com/basketikun) and all contributors.
-- **[Pi (Pi Agent)](https://github.com/earendil-works/pi)**: A lightweight, extensible agent framework providing the agent execution loop, tool calling, and session management. LuckyTV's built-in Agent is built on Pi, with adaptations and extensions for video creation, including canvas operations, creative planning, and skill management. Thanks to Pi's authors, [maintainers](https://github.com/earendil-works), and all contributors.
-
-We thank these projects' authors, maintainers, and contributors for their foundations and inspiration. LuckyTV continues independent development and extensive optimization on top of this work. Upstream and third-party code, copyright notices, and licenses retain their respective terms. See [`NOTICE`](NOTICE), [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md), and [`LICENSE`](LICENSE) for attribution and license scope.
+Upstream sources, copyright notices, and license information are documented in [`NOTICE`](NOTICE), [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md), and [`LICENSE`](LICENSE).
 
 ## ⭐ Star History
 

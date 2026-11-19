@@ -406,6 +406,7 @@ func (s *Service) ClaimContinuation(userID, id string, prepare func(*gorm.DB, *m
 		if err := tx.First(&source, "turn_id = ?", row.SourceTurnID).Error; err != nil {
 			return err
 		}
+		rec.FocusedNodeID = source.FocusedNodeID
 		rec.GenerationAuthorizationJSON = source.GenerationAuthorizationJSON
 		if _, err = s.store.Insert(tx, recordToModel(rec, s.now())); err != nil {
 			return err

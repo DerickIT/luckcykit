@@ -46,6 +46,16 @@ func (s *Service) confirmAssistantProductionWithApprover(userID, turnID string, 
 		if err = tx.First(&source, "turn_id = ? AND user_id = ? AND canvas_id = ?", turnID, userID, input.CanvasID).Error; err != nil {
 			return err
 		}
+		if source.FocusedNodeID != "" {
+			if len(input.NodeIDs) != 1 || strings.TrimSpace(input.NodeIDs[0]) != source.FocusedNodeID {
+				return operations.PermissionDenied("focused_node_scope", "本轮只能确认当前选中节点的生成方案")
+			}
+			for _, target := range input.Targets {
+				if strings.TrimSpace(target.NodeID) != source.FocusedNodeID {
+					return operations.PermissionDenied("focused_node_scope", "本轮只能确认当前选中节点的生成方案")
+				}
+			}
+		}
 		expectedTargets := input.Targets
 		if len(expectedTargets) == 0 && source.GenerationAuthorizationJSON != "" {
 			var existing operations.GenerationAuthorization

@@ -146,6 +146,7 @@ func (s *Service) Begin(userID, canvasID, turnID string, input Input) (int64, er
 			State:               StateOpen,
 			Document:            raw,
 			SelectedNodeIDs:     uniqueSorted(input.SelectedNodeIDs),
+			FocusedNodeID:       strings.TrimSpace(input.FocusedNodeID),
 			ReferencedAssetIDs:  uniqueSorted(input.AssetIDs),
 			ReferencedCanvasIDs: uniqueSorted(input.CanvasIDs),
 			AssociatedAssetIDs:  associatedAssets,
@@ -257,6 +258,7 @@ func (s *Service) ScopeForHost(userID, turnID string) (Scope, bool, error) {
 	return Scope{
 		PermissionMode:   Mode(rec.PermissionMode),
 		CanvasID:         rec.CanvasID,
+		FocusedNodeID:    rec.FocusedNodeID,
 		AssetIDs:         uniqueSorted(append(append([]string{}, rec.ReferencedAssetIDs...), rec.AssociatedAssetIDs...)),
 		CanvasIDs:        uniqueSorted(rec.ReferencedCanvasIDs),
 		TaskIDs:          uniqueSorted(taskIDs),

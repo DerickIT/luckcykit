@@ -15,7 +15,7 @@ import (
 	"gorm.io/gorm"
 )
 
-const CurrentSchemaVersion int64 = 29
+const CurrentSchemaVersion int64 = 30
 
 type localSchemaMigration struct {
 	Version   int64 `gorm:"primaryKey;autoIncrement:false"`
@@ -145,6 +145,9 @@ func canonicalLocalMigrations() []localMigration {
 		// 失败类目在失败那一刻算一次并随任务保存；旧任务留空，读取时仍按旧文案归类。
 		{version: 29, name: "task-failure-category", apply: func(tx *gorm.DB) error {
 			return ensureSQLiteColumn(tx, "tasks", "error_code", "TEXT")
+		}},
+		{version: 30, name: "assistant-focused-node-scope", apply: func(tx *gorm.DB) error {
+			return ensureSQLiteColumn(tx, "assistant_turns", "focused_node_id", "TEXT NOT NULL DEFAULT ''")
 		}},
 	}
 }

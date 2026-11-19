@@ -1,6 +1,6 @@
 import { Modal } from "antd";
 import { Tooltip } from "@/components/ui/base/tooltip";
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { ChevronDown, FileText, ImagePlus, Link2, Maximize2, Music2, SlidersHorizontal, Video, WandSparkles, X } from "lucide-react";
 
 import { modelCapabilityConfigFor } from "@/lib/model-capabilities";
@@ -55,6 +55,11 @@ type CanvasNodePromptPanelProps = {
     projectId: string;
     node: CanvasNodeData;
     isRunning: boolean;
+    agentBusy?: boolean;
+    agentReady?: boolean;
+    submissionDisabled?: boolean;
+    agentModelControl?: ReactNode;
+    onAgentPrompt?: (nodeId: string, prompt: string) => void;
     onPromptChange: (nodeId: string, prompt: string) => void;
     onConfigChange: (nodeId: string, patch: Partial<CanvasNodeMetadata>) => void;
     onGenerate: (nodeId: string, mode: CanvasNodeGenerationMode, prompt: string) => void;
@@ -75,7 +80,7 @@ type CanvasNodePromptPanelProps = {
     workspaceMode?: CanvasWorkspaceMode;
 };
 
-export function CanvasNodePromptPanel({ config: configProp, projectId, node, isRunning, onPromptChange, onConfigChange, onGenerate, onOpenGenerationHistory, onCreateGenerationReplacement, mentionReferences = [], onAddReference, onRemoveReference, onReorderReferences, onReplaceReference, onReplaceReferenceFiles, referenceNodes = [node], referenceConnections = [], onLocateReferenceNode, onClose, onNodeMouseDown, onImageSettingsOpenChange, workspaceMode = "professional" }: CanvasNodePromptPanelProps) {
+export function CanvasNodePromptPanel({ config: configProp, projectId, node, isRunning, agentBusy = false, agentReady = true, submissionDisabled = false, agentModelControl, onAgentPrompt, onPromptChange, onConfigChange, onGenerate, onOpenGenerationHistory, onCreateGenerationReplacement, mentionReferences = [], onAddReference, onRemoveReference, onReorderReferences, onReplaceReference, onReplaceReferenceFiles, referenceNodes = [node], referenceConnections = [], onLocateReferenceNode, onClose, onNodeMouseDown, onImageSettingsOpenChange, workspaceMode = "professional" }: CanvasNodePromptPanelProps) {
     const effectiveConfig = useEffectiveConfig();
     const globalConfig = configProp || effectiveConfig;
     const themeName = useActiveTheme();
@@ -283,12 +288,13 @@ export function CanvasNodePromptPanel({ config: configProp, projectId, node, isR
 
     const submit = () => {
         const text = prompt.trim();
-        if (!text || isRunning || currentModelCompatibilityError || livePreflightError) return false;
+        if (!text || isRunning || agentBusy || submissionDisabled || (onAgentPrompt && !agentReady) || (!onAgentPrompt && (currentModelCompatibilityError || livePreflightError))) return false;
         if (referenceCheck.issues.length) {
             setReferenceAction({ type: "locate", token: referenceCheck.issues[0].token, key: Date.now() });
             return false;
         }
-        onGenerate(node.id, mode, text);
+        if (onAgentPrompt) onAgentPrompt(node.id, text);
+        else onGenerate(node.id, mode, text);
         return true;
     };
 
@@ -430,6 +436,11 @@ export function CanvasNodePromptPanel({ config: configProp, projectId, node, isR
             autoLinkLabel={autoLinkLabel}
             pickConnectActive={pickConnectActive}
             isRunning={isRunning}
+            agentMode={Boolean(onAgentPrompt)}
+            agentBusy={agentBusy}
+            agentReady={agentReady}
+            submissionDisabled={submissionDisabled}
+            agentModelControl={agentModelControl}
             h3Model={h3Model}
             middleFrameSupported={middleFrameSupported}
             endFrameSupported={endFrameSupported}

@@ -5,9 +5,9 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"io"
 	"luckytv/backend/internal/agentops"
 	"luckytv/backend/internal/operations"
-	"io"
 )
 
 func (s *Service) RevalidateAssistantNativeSource(ctx context.Context, userID, currentTurnID, originTurnID, sessionID string, source operations.MediaSource) (any, error) {
@@ -53,7 +53,7 @@ func (s *Service) validateAssistantNativeSource(ctx context.Context, userID, cur
 	if err != nil {
 		return nil, err
 	}
-	scope := &agentops.AssistantScope{PermissionMode: trusted.PermissionMode, CanvasID: trusted.CanvasID, AssetIDs: map[string]bool{}, CanvasIDs: map[string]bool{}, ProjectReference: func(kind, id string) error {
+	scope := &agentops.AssistantScope{PermissionMode: trusted.PermissionMode, CanvasID: trusted.CanvasID, FocusedNodeID: trusted.FocusedNodeID, AssetIDs: map[string]bool{}, CanvasIDs: map[string]bool{}, ProjectReference: func(kind, id string) error {
 		return s.ValidateAgentProjectReference(userID, trusted.CanvasID, kind, id)
 	}}
 	for _, id := range trusted.AssetIDs {
