@@ -28,7 +28,11 @@
 
 ## 当前需求
 
-- [001 微信登录与托管模型云服务](001-wechat-auth-hosted-model-service.md)：草拟，模块化单体方向已确认，产品资质与运营决策待确认。
+- [004 云服务生产闭环与 OneAPI 托管模型](004-cloud-hosted-model-oneapi.md)：已批准，实施中；邮箱 OTP、永久点数账本、托管模型与独立管理后台。
+- [003 恢复短剧项目工作台入口](003-restore-drama-workbench-entry.md)：已批准，实施中；恢复短剧列表/详情入口并保持画布路由兼容。
+- [002 LuckyTV 当前产品需求基线（代码反推）](002-current-product-baseline.md)：根据当前代码和专题文档整理的现状基线；草拟，供产品去留与重写讨论，不代表已逐项验收或确认。
+- [001 微信登录与托管模型云服务](001-wechat-auth-hosted-model-service.md)：未来云服务讨论稿；产品资质与运营决策待确认。
+- 相关设计：[架构方案](../architecture/cloud-service.md)、[技术设计](../technical/cloud-service.md)、[Skills 设计](../skills/cloud-service-skills.md)。
 
 ## 与其他记录的关系
 
