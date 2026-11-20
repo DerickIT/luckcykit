@@ -2,7 +2,7 @@
 
 - 状态：持续更新的技术设计；当前产品范围见 [需求 004](../requirements/004-cloud-hosted-model-oneapi.md)，历史讨论见 [需求 001](../requirements/001-wechat-auth-hosted-model-service.md)。
 - 当前云服务仍是 loopback SQLite 沙箱；邮箱 OTP/API、OneAPI 固定 Chat Completions 数据面、任务预留/usage 结算及 admin bootstrap/session/RBAC 基础已实现并由 fake/行为测试验证。SMTP、OneAPI、模型、支付未真实联调；管理员运营 API 与生产部署未完成。
-- 上位文档：[架构方案](../architecture/cloud-service.md)。
+- 上位文档：[架构方案](cloud-service-architecture.md)。
 
 ## 1. 技术边界
 

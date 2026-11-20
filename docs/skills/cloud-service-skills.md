@@ -1,7 +1,7 @@
 # 云服务中的 Agent 与 Skills 设计
 
 - 状态：讨论稿 v1。本文讨论好运TV产品内的 Agent Skills 如何参与云服务功能，不是 Claude Code 项目指令，也不是已经上线的能力。
-- 关联：[产品需求](../requirements/001-wechat-auth-hosted-model-service.md) · [架构方案](../architecture/cloud-service.md) · [技术设计](../technical/cloud-service.md) · [现有技能格式与执行规则](../content/docs/plugins/skills.mdx)。
+- 关联：[产品需求](../requirements/001-wechat-auth-hosted-model-service.md) · [架构方案](../technical/cloud-service-architecture.md) · [技术设计](../technical/cloud-service.md) · [现有技能格式与执行规则](../content/docs/plugins/skills.mdx)。
 
 ## 1. 定位
 

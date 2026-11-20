@@ -58,6 +58,7 @@ const roots = [
 
 const allowedRootDocs = new Set([
   "docs/index.md",
+  "docs/ai-development-workflow.md",
   "docs/desktop-install.md",
   "docs/linux-install.md",
   "docs/desktop-local-development.md",

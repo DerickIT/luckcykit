@@ -2,7 +2,7 @@
 
 - 状态：讨论稿 v2（方案待共同确认；未授权实施生产集成）
 - 创建：2026-11-18；本次整理：2026-11-19
-- 相关文档：[架构方案](../architecture/cloud-service.md) · [技术设计](../technical/cloud-service.md) · [Skills 设计](../skills/cloud-service-skills.md)
+- 相关文档：[架构方案](../technical/cloud-service-architecture.md) · [技术设计](../technical/cloud-service.md) · [Skills 设计](../skills/cloud-service-skills.md)
 
 ## 一句话目标
 
