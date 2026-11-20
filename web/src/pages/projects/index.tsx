@@ -14,6 +14,7 @@ import { resourceFileUrl } from "@/services/api/resources";
 import { ModelPicker } from "@/components/model-picker";
 import { createStyleProfileSnapshot, parseStyleProfile, serializeStyleProfile } from "@/lib/canvas/style-profile";
 import { projectSummaryCompletion, projectSummaryStage } from "@/lib/project-workbench";
+import { projectViewPath } from "@/lib/project-routes";
 import { settingsPath } from "@/lib/settings-navigation";
 import { PromptTemplateOperation, parseGeneratedStory, promptTemplateTaskPlaceholder, shortDramaOutlineVariables } from "@/lib/prompts";
 import { runBackendGenerationTask } from "@/services/api/generation-task";
@@ -124,7 +125,7 @@ export default function ProjectsPage() {
             setGenerationStatus(`正在导入 ${parsed.chapters.length} 个章节…`);
             await importProjectUnits(project.project.id, parsed.chapters.map((chapter: { title: string; content: string }) => ({ kind: "chapter", title: chapter.title, sourceText: chapter.content })));
             await queryClient.invalidateQueries({ queryKey: ["projects"] });
-            navigate(`/projects/${project.project.id}/overview`);
+            navigate(projectViewPath(project.project.id, "overview"));
         } catch (error) {
             message.error(error instanceof Error ? error.message : "AI 生成失败，请重试");
         } finally {
@@ -146,7 +147,7 @@ export default function ProjectsPage() {
         onSuccess: ({ project }) => {
             setCreateOpen(false);
             void queryClient.invalidateQueries({ queryKey: ["projects"] });
-            navigate(`/projects/${project.id}/overview`);
+            navigate(projectViewPath(project.id, "overview"));
         },
         onError: (error) => message.error(error instanceof Error ? error.message : "项目创建失败"),
     });
@@ -389,13 +390,13 @@ function ProjectRow({ row, folders, onDelete, onRename, onArchive, onDuplicate, 
     const styleTitle = projectStyle?.title || parseStyleProfile(row.project.styleProfileJson)?.title || resolveCanvasStylePreset(row.project.stylePresetId)?.title || (row.project.stylePresetId ? "自定义画风" : "未设置画风");
     const coverUrl = row.project.coverResourceId ? resourceFileUrl(row.project.coverResourceId) : projectStyle?.imageUrl;
     return (
-        <Link to={`/projects/${row.project.id}/overview`} className="product-collection-card library-card project-library-card group">
+        <Link to={projectViewPath(row.project.id, "overview")} className="product-collection-card library-card project-library-card group">
             <span className="project-library-cover">
                 {coverUrl ? <CachedResourceImage className="project-library-cover-art" src={coverUrl} alt="" fallback={<MediaPlaceholder failed />} /> : <MediaPlaceholder label="故事由此开始" />}
                 <span className="project-library-cover-scrim" />
                 <span className="project-library-cover-ratio">{row.project.aspectRatio}</span>
                 <span className="project-library-cover-stage">{stage.label}</span>
-                <span className="project-collection-delete" onClick={(event) => event.preventDefault()}><Dropdown trigger={["click"]} placement="bottomRight" overlayClassName="project-library-menu" menu={{ items: [{ key: "open", label: "打开", onClick: () => navigate(`/projects/${row.project.id}/overview`) }, { key: "rename", icon: <Pencil className="size-3.5" />, label: "重命名", onClick: onRename }, { key: "cover", label: "修改封面", onClick: () => navigate(`/projects/${row.project.id}/settings`) }, { key: "duplicate", label: "创建副本", onClick: () => void onDuplicate() }, { key: "move", label: "移动至文件夹", children: [{ key: "root", label: "全部项目", onClick: () => void onMove("") }, ...folders.map((folder) => ({ key: folder.id, label: folder.name, onClick: () => void onMove(folder.id) }))] }, { key: "archive", icon: <Archive className="size-3.5" />, label: row.project.status === "archived" ? "恢复项目" : "归档项目", onClick: onArchive }, { type: "divider" }, { key: "delete", danger: true, label: "删除项目", onClick: onDelete }] }}><button type="button" className="project-library-more" aria-label={`${row.project.name} 更多操作`} onClick={(event) => event.preventDefault()}><MoreHorizontal className="size-4" /></button></Dropdown></span>
+                <span className="project-collection-delete" onClick={(event) => event.preventDefault()}><Dropdown trigger={["click"]} placement="bottomRight" overlayClassName="project-library-menu" menu={{ items: [{ key: "open", label: "打开", onClick: () => navigate(projectViewPath(row.project.id, "overview")) }, { key: "rename", icon: <Pencil className="size-3.5" />, label: "重命名", onClick: onRename }, { key: "cover", label: "修改封面", onClick: () => navigate(projectViewPath(row.project.id, "settings")) }, { key: "duplicate", label: "创建副本", onClick: () => void onDuplicate() }, { key: "move", label: "移动至文件夹", children: [{ key: "root", label: "全部项目", onClick: () => void onMove("") }, ...folders.map((folder) => ({ key: folder.id, label: folder.name, onClick: () => void onMove(folder.id) }))] }, { key: "archive", icon: <Archive className="size-3.5" />, label: row.project.status === "archived" ? "恢复项目" : "归档项目", onClick: onArchive }, { type: "divider" }, { key: "delete", danger: true, label: "删除项目", onClick: onDelete }] }}><button type="button" className="project-library-more" aria-label={`${row.project.name} 更多操作`} onClick={(event) => event.preventDefault()}><MoreHorizontal className="size-4" /></button></Dropdown></span>
             </span>
             <span className="project-library-body">
                 <span className="project-library-heading"><strong title={row.project.name}>{row.project.name}</strong>{row.project.status === "archived" ? <em>已归档</em> : null}<ArrowRight className="project-library-arrow size-4" /></span>

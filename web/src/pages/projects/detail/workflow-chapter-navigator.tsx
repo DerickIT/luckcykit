@@ -6,6 +6,8 @@ import { useNavigate } from "react-router";
 import { PaginationBar } from "@/components/layout/workspace-page";
 import { AppModal } from "@/components/ui/product/app-modal/app-modal";
 import type { ProjectUnit } from "@/services/api/projects";
+import { orderedByPosition } from "@/lib/project-workbench";
+import { projectWorkflowPath } from "@/lib/project-routes";
 
 type Props = {
     projectId: string;
@@ -21,7 +23,7 @@ export function WorkflowChapterNavigator({ projectId, units, unitId, stage }: Pr
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(100);
     const deferredQuery = useDeferredValue(query.trim().toLocaleLowerCase("zh-CN"));
-    const orderedUnits = useMemo(() => units.slice().sort((left, right) => left.position - right.position), [units]);
+    const orderedUnits = useMemo(() => orderedByPosition(units), [units]);
     const currentIndex = Math.max(0, orderedUnits.findIndex((unit) => unit.id === unitId));
     const current = orderedUnits[currentIndex];
     const filteredUnits = useMemo(() => {
@@ -46,7 +48,7 @@ export function WorkflowChapterNavigator({ projectId, units, unitId, stage }: Pr
     const goTo = (target?: ProjectUnit) => {
         if (!target) return;
         setOpen(false);
-        navigate(`/projects/${projectId}/workflow/${target.id}/${stage || "video"}`);
+        navigate(projectWorkflowPath(projectId, target.id, stage || "video"));
     };
 
     if (!current) return null;

@@ -5,6 +5,8 @@ import { ArrowUpRight, BookOpenText, ChevronLeft, ChevronRight, Crosshair, Folde
 import { Link } from "react-router";
 
 import { resolveProjectCanvasStyle } from "@/components/canvas/canvas-style-picker-modal";
+import { orderedByPosition } from "@/lib/project-workbench";
+import { projectChapterPath, projectViewPath } from "@/lib/project-routes";
 import { getProject, getProjectUnit, type ProjectDetail, type ProjectUnit } from "@/services/api/projects";
 
 export const CANVAS_PROJECT_CHAPTER_DND_TYPE = "application/x-infinite-canvas-project-chapter";
@@ -32,7 +34,7 @@ export function CanvasProjectSidebar({ projectId, detail, onAddChapter, onLocate
     const projectDetail = detail || projectQuery.data;
     const style = resolveProjectCanvasStyle(projectDetail?.project.stylePresetId, projectDetail?.project.styleProfileJson);
     const mediaAssetCount = projectDetail?.assets.filter((asset) => asset.mediaType === "image" || asset.mediaType === "video").length || 0;
-    const orderedUnits = useMemo(() => projectDetail?.units.slice().sort((left, right) => left.position - right.position) || [], [projectDetail?.units]);
+    const orderedUnits = useMemo(() => orderedByPosition(projectDetail?.units || []), [projectDetail?.units]);
     const visibleUnits = useMemo(() => {
         if (!deferredQuery) return orderedUnits.map((unit, index) => ({ unit, index }));
         const numericQuery = /^\d+$/.test(deferredQuery) ? deferredQuery.replace(/^0+/, "") || "0" : "";
@@ -106,7 +108,7 @@ export function CanvasProjectSidebar({ projectId, detail, onAddChapter, onLocate
                 <button type="button" className="grid size-7 place-items-center rounded-md text-foreground/55 hover:bg-surface-hover" title="展开项目侧栏" aria-label="展开项目侧栏" onClick={() => setCollapsed(false)}>
                     <ChevronRight className="size-4" />
                 </button>
-                <Link to={`/projects/${projectId}/canvases`} className="canvas-project-sidebar-back-link mt-2 grid size-7 place-items-center rounded-md text-foreground/55 hover:bg-surface-hover" title="返回项目画布列表">
+                <Link to={projectViewPath(projectId, "canvases")} className="canvas-project-sidebar-back-link mt-2 grid size-7 place-items-center rounded-md text-foreground/55 hover:bg-surface-hover" title="返回项目画布列表">
                     <FolderKanban className="size-4" />
                 </Link>
             </aside>
@@ -116,7 +118,7 @@ export function CanvasProjectSidebar({ projectId, detail, onAddChapter, onLocate
     return (
         <aside className="canvas-project-sidebar relative z-[var(--z-panel)] hidden w-[var(--canvas-sidebar-width)] shrink-0 flex-col border-r border-border bg-background/94 backdrop-blur-xl lg:flex">
             <header className="canvas-project-sidebar-header flex h-12 shrink-0 items-center justify-between gap-2 border-b border-border px-2.5">
-                <Link to={`/projects/${projectId}/canvases`} className="flex min-w-0 items-center gap-2 text-xs font-semibold" title="返回项目画布列表">
+                <Link to={projectViewPath(projectId, "canvases")} className="flex min-w-0 items-center gap-2 text-xs font-semibold" title="返回项目画布列表">
                     <FolderKanban className="size-3.5 shrink-0" />
                     <span className="truncate">{projectDetail?.project.name || "项目空间"}</span>
                 </Link>
@@ -131,7 +133,7 @@ export function CanvasProjectSidebar({ projectId, detail, onAddChapter, onLocate
                         <Palette className="size-3.5" />
                         项目画风
                     </span>
-                    <Link to={`/projects/${projectId}/settings`} className="grid size-6 place-items-center rounded text-foreground/35 hover:bg-surface-hover hover:text-foreground" title="编辑项目画风" aria-label="编辑项目画风">
+                    <Link to={projectViewPath(projectId, "settings")} className="grid size-6 place-items-center rounded text-foreground/35 hover:bg-surface-hover hover:text-foreground" title="编辑项目画风" aria-label="编辑项目画风">
                         <Settings2 className="size-3.5" />
                     </Link>
                 </div>
@@ -312,7 +314,7 @@ function ChapterPreview({
                 >
                     {adding ? <LoaderCircle className="size-3.5 animate-spin" /> : <Plus className="size-3.5" />}添加到画布
                 </button>
-                <Link to={`/projects/${projectId}/chapters/${unit.id}`} className="inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-xs text-foreground/62 hover:bg-surface-hover hover:text-foreground">
+                <Link to={projectChapterPath(projectId, unit.id)} className="inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-xs text-foreground/62 hover:bg-surface-hover hover:text-foreground">
                     打开编辑器
                     <ArrowUpRight className="size-3.5" />
                 </Link>

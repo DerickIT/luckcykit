@@ -16,6 +16,8 @@ import { ModelPicker } from "@/components/model-picker";
 import { initialWorkbenchModel, refreshedWorkbenchModel } from "./workflow-model-selection";
 import { modelCapabilityConfigFor, normalizeImageValue, normalizeVideoValue, videoDurationOptions } from "@/lib/model-capabilities";
 import { customShotTitle, formatShotOrdinal, normalizeDefaultShotTitle } from "@/lib/shot-label";
+import { orderedByPosition } from "@/lib/project-workbench";
+import { projectWorkflowPath } from "@/lib/project-routes";
 import { declaredOrOmniVideoCapability, isLuckyTVModelRoute, resolveCompatibleModel, resolveModelVideoBooleanOptions, resolveVideoOperation, type ModelRequirements } from "@/lib/model-selection";
 import { formatVideoResolutionLabel } from "@/lib/video-generation-options";
 import { submitBackendGenerationTask } from "@/services/api/generation-task";
@@ -93,7 +95,7 @@ export default function WorkflowProductionWorkbench(props: Props) {
     const [taskClock, setTaskClock] = useState(() => Date.now());
     const activeShotIdRef = useRef(selectedShot?.id || "");
     activeShotIdRef.current = selectedShot?.id || "";
-    const shots = useMemo(() => (detail.shots || []).filter((item) => item.unitId === unitId).slice().sort((left, right) => left.position - right.position), [detail.shots, unitId]);
+    const shots = useMemo(() => orderedByPosition((detail.shots || []).filter((item) => item.unitId === unitId)), [detail.shots, unitId]);
     const shotIndex = selectedShot ? shots.findIndex((item) => item.id === selectedShot.id) : -1;
     const revision = currentRevision(detail, selectedShot);
     const artifactType = artifactTypeForStage(activeStage);
@@ -533,7 +535,7 @@ export default function WorkflowProductionWorkbench(props: Props) {
                             className="workflow-preview-stage-switch"
                             value={activeStage}
                             options={[{ value: "storyboard", label: "分镜图" }, { value: "previz", label: "动作预演" }, { value: "video", label: "镜头视频" }]}
-                            onChange={(nextStage) => navigate(`/projects/${projectId}/workflow/${unitId}/${nextStage}`)}
+                            onChange={(nextStage) => navigate(projectWorkflowPath(projectId, unitId, nextStage))}
                         />
                     </header>
                     <div className="workflow-preview-scroll thin-scrollbar">
@@ -620,7 +622,7 @@ function ShotAssetMentionTextarea({ value = "", onChange = () => undefined, refe
 }
 
 function EpisodeLibrary({ detail, activeUnitId, projectId, activeStage }: { detail: ProjectDetail; activeUnitId: string; projectId: string; activeStage: ShortDramaWorkflowStage }) {
-    return <div className="workflow-simple-list">{detail.units.slice().sort((left, right) => left.position - right.position).map((unit, index) => <Link key={unit.id} to={`/projects/${projectId}/workflow/${unit.id}/${activeStage}`} className={unit.id === activeUnitId ? "is-active" : ""}><span>{String(index + 1).padStart(2, "0")}</span><strong>{unit.title}</strong></Link>)}</div>;
+    return <div className="workflow-simple-list">{orderedByPosition(detail.units).map((unit, index) => <Link key={unit.id} to={projectWorkflowPath(projectId, unit.id, activeStage)} className={unit.id === activeUnitId ? "is-active" : ""}><span>{String(index + 1).padStart(2, "0")}</span><strong>{unit.title}</strong></Link>)}</div>;
 }
 
 function ShotLibrary({ detail, shots, selectedShotId, onSelectShot }: { detail: ProjectDetail; shots: ProjectShot[]; selectedShotId: string; onSelectShot: (id: string) => void }) {

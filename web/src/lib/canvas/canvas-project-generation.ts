@@ -17,6 +17,7 @@ import { repairOverlappingImageBatches } from "@/lib/canvas/canvas-generation-la
 import { interruptFileUpload } from "@/lib/canvas/canvas-file-upload";
 import { canvasNodeFailureView } from "@/lib/canvas/canvas-node-failure-view";
 import type { CanvasNodeGenerationMode } from "@/components/canvas/canvas-node-prompt-panel";
+import type { NodeGenerationContext } from "@/components/canvas/canvas-node-generation";
 import { CanvasNodeType, type CanvasAssistantSession, type CanvasConnection, type CanvasImageGenerationType, type CanvasNodeData, type CanvasNodeMetadata, type CanvasVideoEditOperation } from "@/types/canvas";
 import type { ReferenceImage } from "@/types/image";
 import type { ReferenceAudio, ReferenceVideo } from "@/types/media";
@@ -425,14 +426,31 @@ function isIndirectReferenceImage(image: ReferenceImage) {
     return Boolean(image.sourceNodeId) || image.id.startsWith("character-reference-") || image.id.startsWith("asset:");
 }
 
+type VideoGenerationContext = Partial<Pick<NodeGenerationContext, "characterReferences">> & Pick<NodeGenerationContext, "referenceImages" | "referenceVideos" | "referenceAudios">;
+
+type ResolvedVideoCapability = {
+    effectiveModel: string;
+    isLuckyTVRoute: boolean;
+    declared: boolean;
+    fullVideoProfile?: VideoCapabilityConfig;
+    videoProfile?: VideoCapabilityConfig;
+};
+
+function resolveVideoCapability(node: CanvasNodeData | undefined, config: AiConfig | undefined): ResolvedVideoCapability {
+    const effectiveModel = config?.model || node?.metadata?.model || "";
+    const safeConfig = config && Array.isArray(config.channels) && config.channels.length ? config : undefined;
+    return {
+        effectiveModel,
+        isLuckyTVRoute: isLuckyTVModelRoute(effectiveModel, config),
+        declared: safeConfig ? hasDeclaredModelCapability(safeConfig, effectiveModel, "video") : false,
+        fullVideoProfile: safeConfig && effectiveModel ? modelCapabilityConfigFor(safeConfig, effectiveModel).video : undefined,
+        videoProfile: declaredOrOmniVideoCapability(config, effectiveModel),
+    };
+}
+
 function resolveVideoEditOperation(
     node: CanvasNodeData | undefined,
-    context: {
-        referenceImages: ReferenceImage[];
-        referenceVideos: ReferenceVideo[];
-        referenceAudios: ReferenceAudio[];
-        characterReferences?: Array<unknown>;
-    } | undefined,
+    context: VideoGenerationContext | undefined,
     effectiveModel: string,
     videoProfile?: VideoCapabilityConfig | null,
     isLuckyTVRoute?: boolean,
@@ -451,25 +469,14 @@ function resolveVideoEditOperation(
     return resolveVideoOperation(input, storedOperation, videoProfile, effectiveModel, isLuckyTVRoute) as CanvasVideoEditOperation;
 }
 
-export function resolveVideoGenerationEditOperation(
+function resolveVideoGenerationEditOperationWithCapability(
     node: CanvasNodeData | undefined,
-    context?: {
-        referenceImages: ReferenceImage[];
-        referenceVideos: ReferenceVideo[];
-        referenceAudios: ReferenceAudio[];
-        characterReferences?: Array<unknown>;
-    },
-    config?: AiConfig,
+    context: VideoGenerationContext | undefined,
+    capability: ResolvedVideoCapability,
 ): CanvasVideoEditOperation {
     const metadata = node?.metadata;
-    const draftTaskId = metadata?.videoDraftTaskId?.trim() || undefined;
-    if (draftTaskId) return "draft_to_final";
-    const effectiveModel = config?.model || metadata?.model || "";
-    const safeConfig = config && Array.isArray(config.channels) && config.channels.length ? (config as AiConfig) : undefined;
-    const isLuckyTVRoute = isLuckyTVModelRoute(effectiveModel, config);
-    const declared = safeConfig ? hasDeclaredModelCapability(safeConfig, effectiveModel, "video") : false;
-    const fullVideoProfile = safeConfig && effectiveModel ? modelCapabilityConfigFor(safeConfig, effectiveModel).video : undefined;
-    const videoProfile = declaredOrOmniVideoCapability(config, effectiveModel);
+    if (metadata?.videoDraftTaskId?.trim()) return "draft_to_final";
+    const { effectiveModel, isLuckyTVRoute, declared, fullVideoProfile, videoProfile } = capability;
     const { middleFrameSupport } = resolveVideoReferenceCapabilities(effectiveModel, fullVideoProfile, declared, isLuckyTVRoute);
     const hasMiddleFrame = middleFrameSupport === "supported" && Boolean(metadata?.videoMiddleFrameNodeId);
     const resolvedOperation = resolveVideoEditOperation(node, context, effectiveModel, videoProfile, isLuckyTVRoute);
@@ -478,27 +485,26 @@ export function resolveVideoGenerationEditOperation(
         : resolvedOperation;
 }
 
+export function resolveVideoGenerationEditOperation(
+    node: CanvasNodeData | undefined,
+    context?: VideoGenerationContext,
+    config?: AiConfig,
+): CanvasVideoEditOperation {
+    return resolveVideoGenerationEditOperationWithCapability(node, context, resolveVideoCapability(node, config));
+}
+
 export function buildVideoGenerationMetadata(
     node: CanvasNodeData | undefined,
-    context?: {
-        referenceImages: ReferenceImage[];
-        referenceVideos: ReferenceVideo[];
-        referenceAudios: ReferenceAudio[];
-        characterReferences?: Array<unknown>;
-    },
+    context?: VideoGenerationContext,
     config?: AiConfig,
 ): CanvasNodeMetadata {
     const metadata = node?.metadata;
     const referenceImageIds = new Set((context?.referenceImages || []).map((image) => image.id));
     const draftTaskId = metadata?.videoDraftTaskId?.trim() || undefined;
-    const effectiveModel = config?.model || metadata?.model || "";
-    const safeConfig = config && Array.isArray(config.channels) && config.channels.length ? (config as AiConfig) : undefined;
-    const isLuckyTVRoute = isLuckyTVModelRoute(effectiveModel, config);
-    const declared = safeConfig ? hasDeclaredModelCapability(safeConfig, effectiveModel, "video") : false;
-    const fullVideoProfile = safeConfig && effectiveModel ? modelCapabilityConfigFor(safeConfig, effectiveModel).video : undefined;
-    const videoProfile = declaredOrOmniVideoCapability(config, effectiveModel);
+    const capability = resolveVideoCapability(node, config);
+    const { effectiveModel, isLuckyTVRoute, declared, fullVideoProfile, videoProfile } = capability;
     const { maxFrameImages, endFrameSupported, maxFrameAudios, middleFrameSupport } = resolveVideoReferenceCapabilities(effectiveModel, fullVideoProfile, declared, isLuckyTVRoute);
-    const videoEditOperation = resolveVideoGenerationEditOperation(node, context, config);
+    const videoEditOperation = resolveVideoGenerationEditOperationWithCapability(node, context, capability);
     const storedOperation = metadata?.videoEditOperation;
     // 非中间帧能力声明模型的全模态参考生成不消费首尾帧/中间帧槽位；未知的自定义渠道仅在模式被自动提升时清理残留帧槽位。
     const ignoreFrameSelection =

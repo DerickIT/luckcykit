@@ -6,7 +6,7 @@ import "@/lib/plugins/builtin";
 import { syncActiveClientPlugins } from "@/lib/plugins/plugin-client-loader";
 import { usePluginSlot } from "@/lib/plugins/slot-registry";
 import { FullScreenLoader, WorkspaceRouteLoader } from "@/components/ui/aceternity/full-screen-loader";
-import { loadAgentsPage, loadAssetsPage, loadCanvasPage, loadCanvasProjectPage, loadCreatePage, loadHomePage, loadProjectDetailPage } from "@/lib/workspace-route-modules";
+import { loadAgentsPage, loadAssetsPage, loadCanvasPage, loadCanvasProjectPage, loadCreatePage, loadHomePage, loadProjectDetailPage, loadProjectsPage } from "@/lib/workspace-route-modules";
 import { CanvasRefreshShell } from "@/pages/canvas/canvas-refresh-shell";
 import RouteErrorPage from "@/pages/route-error";
 import { isLocalWorkspaceMode } from "@/services/workspace-mode";
@@ -21,6 +21,7 @@ const NotFound = lazy(() => import("@/pages/not-found"));
 const EagleLibraryPage = lazy(() => import("@/pages/plugins/eagle"));
 const PluginsPage = lazy(() => import("@/pages/plugins"));
 const ProjectDetailPage = lazy(loadProjectDetailPage);
+const ProjectsPage = lazy(loadProjectsPage);
 const SettingsPage = lazy(() => import("@/pages/settings"));
 const SkillsPage = lazy(() => import("@/pages/skills/marketplace"));
 const TestVoiceRecording = lazy(() => import("@/pages/test-voice-recording"));
@@ -133,6 +134,17 @@ export const router = createWorkspaceRouter([
             { path: "/settings", element: deferred(<SettingsPage />) },
             { path: "/agents", element: deferred(<AgentsPage />) },
             { path: "/test-voice-recording", element: deferred(<TestVoiceRecording />) },
+            {
+                path: "/dramas",
+                element: <RequireFeature feature="shortDramaEnabled"><Outlet /></RequireFeature>,
+                children: [
+                    { index: true, element: deferred(<ProjectsPage />) },
+                    { path: ":projectId", element: deferred(<ProjectDetailPage />) },
+                    { path: ":projectId/:view", element: deferred(<ProjectDetailPage />) },
+                    { path: ":projectId/chapters/:chapterId", element: deferred(<ProjectDetailPage />) },
+                    { path: ":projectId/workflow/:unitId/:stage", element: deferred(<ProjectDetailPage />) },
+                ],
+            },
             {
                 path: "/projects",
                 element: deferred(<CanvasPage />),

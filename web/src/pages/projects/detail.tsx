@@ -11,6 +11,8 @@ import type { ProjectDetail } from "@/services/api/projects";
 
 import { WorkflowChapterNavigator } from "./detail/workflow-chapter-navigator";
 import { usePluginSlot } from "@/lib/plugins/slot-registry";
+import { orderedByPosition } from "@/lib/project-workbench";
+import { dramasPath, projectChapterPath, projectViewPath, projectWorkflowPath } from "@/lib/project-routes";
 import { createLocalCanvasProject } from "@/services/local-workspace-repository";
 import { isLocalWorkspaceMode } from "@/services/workspace-mode";
 
@@ -50,7 +52,7 @@ export default function ProjectDetailPage() {
     });
     const unitsQuery = useQuery({ queryKey: ["project", projectId, "units"], queryFn: () => listProjectUnits(projectId), enabled: Boolean(projectId) });
     const units = unitsQuery.data?.units || [];
-    const firstUnitId = units.slice().sort((left, right) => left.position - right.position)[0]?.id || "";
+    const firstUnitId = orderedByPosition(units)[0]?.id || "";
     const requestedUnitId = chapterId || unitId || "";
     const activeUnitId = units.some((unit) => unit.id === requestedUnitId) ? requestedUnitId : firstUnitId;
     const overviewQuery = useQuery({ queryKey: ["project", projectId, "overview"], queryFn: () => getProjectOverview(projectId), enabled: Boolean(projectId) && activeView === "overview" });
@@ -83,7 +85,7 @@ export default function ProjectDetailPage() {
         if (detail?.project.status === "archived") { message.warning("项目已归档，请先在项目设置中恢复"); return; }
         const activeChapterId = chapterId || sessionStorage.getItem(`project-active-chapter:${projectId}`) || "";
         const unit = activeView === "chapters"
-            ? detail?.units.find((item) => item.id === activeChapterId) || detail?.units.slice().sort((left, right) => left.position - right.position)[0]
+            ? detail?.units.find((item) => item.id === activeChapterId) || orderedByPosition(detail?.units || [])[0]
             : undefined;
         const shots = unit ? detail?.shots.filter((shot) => shot.unitId === unit.id) || [] : [];
         try {
@@ -127,14 +129,14 @@ export default function ProjectDetailPage() {
             message.error(error instanceof Error ? error.message : "画布创建失败");
         }
     };
-    const chapterHref = detail ? projectChapterHref(detail.units, projectId, chapterId) : `/projects/${projectId}/chapters`;
-    const workflowHref = detail ? projectWorkflowHref(detail.units, projectId, unitId, stage) : `/projects/${projectId}/workflow`;
+    const chapterHref = detail ? projectChapterHref(detail.units, projectId, chapterId) : projectChapterPath(projectId);
+    const workflowHref = detail ? projectWorkflowHref(detail.units, projectId, unitId, stage) : projectWorkflowPath(projectId);
     if (coreQuery.isLoading || unitsQuery.isLoading) return <WorkspacePage><WorkspaceLoadingState label="正在打开项目工作台" detail="读取项目与章节索引" /></WorkspacePage>;
-    if (coreQuery.isError || unitsQuery.isError || !detail) return <WorkspacePage><WorkspaceErrorState title="项目不可用" description="项目不存在、已被删除，或当前账号没有访问权限。" actionLabel="返回项目中心" onRetry={() => navigate("/projects")} /></WorkspacePage>;
-    if (!chapterId && !unitId && (!view || (!views.some((item) => item.key === view) && !activePluginView))) return <Navigate to={`/projects/${projectId}/overview`} replace />;
-    if (chapterId && !units.some((unit) => unit.id === chapterId)) return <Navigate to={firstUnitId ? `/projects/${projectId}/chapters/${firstUnitId}` : `/projects/${projectId}/chapters`} replace />;
-    if (unitId && !units.some((unit) => unit.id === unitId)) return <Navigate to={firstUnitId ? `/projects/${projectId}/workflow/${firstUnitId}/${stage || "video"}` : `/projects/${projectId}/workflow`} replace />;
-    if (!activePluginView && activeView === "workflow" && !unitId && detail.units.length) return <Navigate to={`/projects/${projectId}/workflow/${detail.units.slice().sort((left, right) => left.position - right.position)[0].id}/video`} replace />;
+    if (coreQuery.isError || unitsQuery.isError || !detail) return <WorkspacePage><WorkspaceErrorState title="项目不可用" description="项目不存在、已被删除，或当前账号没有访问权限。" actionLabel="返回项目中心" onRetry={() => navigate(dramasPath())} /></WorkspacePage>;
+    if (!chapterId && !unitId && (!view || (!views.some((item) => item.key === view) && !activePluginView))) return <Navigate to={projectViewPath(projectId, "overview")} replace />;
+    if (chapterId && !units.some((unit) => unit.id === chapterId)) return <Navigate to={projectChapterPath(projectId, firstUnitId)} replace />;
+    if (unitId && !units.some((unit) => unit.id === unitId)) return <Navigate to={projectWorkflowPath(projectId, firstUnitId, stage || "video")} replace />;
+    if (!activePluginView && activeView === "workflow" && !unitId && detail.units.length) return <Navigate to={projectWorkflowPath(projectId, orderedByPosition(detail.units)[0].id)} replace />;
     const ActivePluginViewComp = activePluginView?.payload.component;
     return (
         <WorkspacePage className="project-workbench-page !overflow-hidden" fluid>
@@ -178,7 +180,7 @@ function ProjectWorkspaceHeader({ detail, projectId, activeView, unitId, stage, 
     return (
         <header className="project-workspace-header">
             <div className="project-workspace-identity">
-                <Link to="/projects" className="project-workspace-back" aria-label="返回项目列表">
+                <Link to={dramasPath()} className="project-workspace-back" aria-label="返回项目列表">
                     <ArrowLeft />
                     <span className="sr-only">返回</span>
                 </Link>
@@ -190,7 +192,7 @@ function ProjectWorkspaceHeader({ detail, projectId, activeView, unitId, stage, 
             <nav className="project-workspace-tabs" aria-label="项目导航">
                 {views.map((item) => {
                     const active = item.key === activeView;
-                    const href = item.key === "chapters" ? chapterHref : item.key === "workflow" ? workflowHref : `/projects/${projectId}/${item.key}`;
+                    const href = item.key === "chapters" ? chapterHref : item.key === "workflow" ? workflowHref : projectViewPath(projectId, item.key);
                     return (
                         <Link
                             key={item.key}
@@ -207,7 +209,7 @@ function ProjectWorkspaceHeader({ detail, projectId, activeView, unitId, stage, 
                     return (
                         <Link
                             key={entry.entryId}
-                            to={`/projects/${projectId}/${encodeURIComponent(entry.payload.id)}`}
+                            to={projectViewPath(projectId, entry.payload.id)}
                             aria-current={active ? "page" : undefined}
                             className={`project-workspace-tab ${active ? "is-active" : ""}`}
                         >
@@ -231,12 +233,12 @@ function ProjectWorkspaceHeader({ detail, projectId, activeView, unitId, stage, 
 }
 
 function projectWorkflowHref(units: Array<{ id: string; position: number }>, projectId: string, routeUnitId?: string, routeStage?: string) {
-    const targetId = [routeUnitId, sessionStorage.getItem(`project-active-chapter:${projectId}`) || ""].find((id) => id && units.some((unit) => unit.id === id)) || units.slice().sort((left, right) => left.position - right.position)[0]?.id;
-    return targetId ? `/projects/${projectId}/workflow/${targetId}/${routeStage || "video"}` : `/projects/${projectId}/workflow`;
+    const targetId = [routeUnitId, sessionStorage.getItem(`project-active-chapter:${projectId}`) || ""].find((id) => id && units.some((unit) => unit.id === id)) || orderedByPosition(units)[0]?.id;
+    return projectWorkflowPath(projectId, targetId, routeStage || "video");
 }
 
 function projectChapterHref(units: Array<{ id: string; position: number }>, projectId: string, routeChapterId?: string) {
     const rememberedId = sessionStorage.getItem(`project-active-chapter:${projectId}`) || "";
-    const targetId = [routeChapterId, rememberedId].find((id) => id && units.some((unit) => unit.id === id)) || units.slice().sort((left, right) => left.position - right.position)[0]?.id;
-    return targetId ? `/projects/${projectId}/chapters/${targetId}` : `/projects/${projectId}/chapters`;
+    const targetId = [routeChapterId, rememberedId].find((id) => id && units.some((unit) => unit.id === id)) || orderedByPosition(units)[0]?.id;
+    return projectChapterPath(projectId, targetId);
 }

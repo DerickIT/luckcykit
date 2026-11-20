@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Home, Plug, Plus, Settings2, HardDrive, Sun, Moon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plug, Sun, Moon } from "lucide-react";
 import { LayoutGroup, motion, useReducedMotion } from "motion/react";
 import { useEffect, useMemo, useRef, useState, type ComponentType, type CSSProperties } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router";
@@ -8,7 +8,7 @@ import { WorkspaceSidebarUpdate } from "@/components/layout/workspace-sidebar-up
 import { WorkspaceSidebarAccount } from "@/components/layout/workspace-sidebar-account";
 import { WorkspaceSidebarSocialLinks } from "@/components/layout/workspace-sidebar-social-links";
 import { Kbd } from "@/components/ui/base/kbd";
-import { navigationTools, type NavigationToolSlug } from "@/constant/navigation-tools";
+import { workspaceNavEntriesFor } from "@/lib/workspace-navigation";
 import { aceternityMotion } from "@/lib/aceternity-motion";
 import "@/lib/plugins/builtin";
 import { syncActiveClientPlugins } from "@/lib/plugins/plugin-client-loader";
@@ -39,30 +39,12 @@ type WorkspaceNavGroup = {
     items: WorkspaceNavItem[];
 };
 
-function toolItem(slug: NavigationToolSlug, to: string): WorkspaceNavItem {
-    const tool = navigationTools.find((item) => item.slug === slug);
-    return { id: slug, title: tool?.label ?? slug, icon: tool?.icon, to };
-}
-
 function buildNav(features: FeatureAvailability): { groups: WorkspaceNavGroup[]; footer: WorkspaceNavItem[] } {
+    const entries = workspaceNavEntriesFor("sidebar", features).map(({ id, title, to, icon }) => ({ id, title, to, icon }));
+    const primary = entries.filter((entry) => entry.id === "new");
     const groups: WorkspaceNavGroup[] = [
-        {
-            items: [
-                { id: "new", title: "新建项目", icon: Plus, to: "/canvas?mode=new" },
-            ],
-        },
-        {
-            items: [
-                { id: "home", title: "首页", icon: Home, to: "/" },
-                { ...toolItem("canvas", "/project"), title: "项目" },
-                { ...toolItem("assets", "/assets"), title: "资产" },
-                { ...toolItem("skills", "/skills"), title: "技能" },
-                ...(features.pluginCenterEnabled ? [{ ...toolItem("plugins", "/plugins"), title: "插件" }] : []),
-                { id: "settings:channels", title: "模型配置", icon: Settings2, to: "/settings?section=channels" },
-                { id: "settings:storage", title: "存储设置", icon: HardDrive, to: "/settings?section=storage" },
-                { id: "agents", title: "LuckyTV MCP", icon: Plug, to: "/agents" },
-            ],
-        },
+        { items: primary },
+        { items: entries.filter((entry) => entry.id !== "new") },
     ];
 
     // 管理、设置和退出登录不再占据参考站式侧栏底部，而是通过用户卡片菜单进入。
@@ -287,8 +269,8 @@ export function WorkspaceSidebarNav({ collapsed, onNavigate, onOpenSearch, onExp
     }, [baseGroups, pluginSidebarEntries]);
 
     const rawSlug = pathname.split("/").filter(Boolean)[0] || "home";
-    // `/project` is the LibTV-compatible alias for the existing canvas library route.
-    const slug = rawSlug === "project" ? "canvas" : rawSlug;
+    // `/project` and `/projects` are aliases for the existing canvas library route.
+    const slug = rawSlug === "project" || rawSlug === "projects" ? "canvas" : rawSlug;
     const section = searchParams.get("section");
     const matchedPluginNav = pluginSidebarEntries.find((entry) => pathname === entry.payload.path || pathname.startsWith(`${entry.payload.path}/`));
     const activeId = matchedPluginNav ? matchedPluginNav.payload.id : slug === "settings" && section ? `settings:${section}` : slug;

@@ -8,6 +8,7 @@ import type { MouseEvent as ReactMouseEvent } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import { isLocalWorkspaceMode } from "@/services/workspace-mode";
 import { isEmbeddedRuntime } from "@/lib/embedded-runtime";
+import { orderedByPosition } from "@/lib/project-workbench";
 import { useCanvasSelectionContext } from "./use-canvas-selection-context";
 import { queryGenerationTask, type GenerationTask } from "@/services/api/task-center";
 import { generationErrorMessage } from "@/lib/generation-error";
@@ -1322,7 +1323,7 @@ function InfiniteCanvasPage() {
                 projectName={linkedProjectQuery.data?.project.name || workspaceProject?.title || "项目画布"}
                 hasChapter={Boolean(linkedProjectQuery.data?.units.length)}
                 onAddFirstChapter={() => {
-                    const first = linkedProjectQuery.data?.units.slice().sort((left, right) => left.position - right.position)[0];
+                    const first = orderedByPosition(linkedProjectQuery.data?.units || [])[0];
                     if (first) void handleProjectChapterInsert({ id: first.id, projectId: linkedProjectId, title: first.title, position: first.position });
                 }}
                 onOpenAssets={() => openProjectAssets()}

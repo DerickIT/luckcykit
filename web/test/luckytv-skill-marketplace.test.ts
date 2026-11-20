@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test";
+import { workspaceNavEntriesFor } from "../src/lib/workspace-navigation";
 import { settingsPath } from "../src/lib/settings-navigation";
 import { isConfigSection } from "../src/pages/settings";
 import { canSubmitPublication, isPublicMarketSkillInstalled, needsPublicationTargetCorrection, requirementLabel, publicationStatus, unsupportedRequirements } from "../src/pages/skills/market-copy";
@@ -12,14 +13,12 @@ async function source(path: string) {
 }
 
 test("implemented skill route is discoverable while reference experiments remain hidden", async () => {
-    const [router, sidebar] = await Promise.all([
-        source("../src/router.tsx"),
-        source("../src/components/layout/workspace-sidebar-nav.tsx"),
-    ]);
+    const router = await source("../src/router.tsx");
     expect(router).toContain('{ path: "/skill", element: <Navigate to="/skills" replace /> }');
     expect(router).toContain('{ path: "/skills", element: deferred(<SkillsPage />) }');
     expect(router).not.toContain("SkillsReferencePage");
-    expect(sidebar).toContain('toolItem("skills", "/skills")');
+    const skills = workspaceNavEntriesFor("sidebar", { shortDramaEnabled: true, pluginCenterEnabled: true }).find((entry) => entry.id === "skills");
+    expect(skills?.to).toBe("/skills");
     expect(isConfigSection("assistant")).toBe(false);
     expect(isConfigSection("channels")).toBe(true);
     expect(isConfigSection("storage")).toBe(true);

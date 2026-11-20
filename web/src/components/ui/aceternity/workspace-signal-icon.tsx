@@ -3,16 +3,12 @@ import { motion, useReducedMotion } from "motion/react";
 
 import { cn } from "@/lib/utils";
 
-export type WorkspaceSignalIconVariant = "home" | "canvas" | "projects" | "assets" | "skills" | "tasks" | "wallet" | "settings" | "empty" | "error" | "loading";
+export type WorkspaceSignalIconVariant = "canvas" | "projects" | "assets" | "settings" | "empty" | "error" | "loading";
 
 const palettes: Record<WorkspaceSignalIconVariant, [string, string, string]> = {
-    home: ["#2563eb", "#06b6d4", "#f59e0b"],
     canvas: ["#2563eb", "#14b8a6", "#f97316"],
     projects: ["#f59e0b", "#f97316", "#2563eb"],
     assets: ["#06b6d4", "#2563eb", "#ec4899"],
-    skills: ["#ec4899", "#f97316", "#2563eb"],
-    tasks: ["#2563eb", "#22c55e", "#f59e0b"],
-    wallet: ["#f59e0b", "#eab308", "#14b8a6"],
     settings: ["#2563eb", "#64748b", "#14b8a6"],
     empty: ["#64748b", "#2563eb", "#06b6d4"],
     error: ["#ef4444", "#f97316", "#f59e0b"],
@@ -72,13 +68,9 @@ export function WorkspaceSignalIcon({ variant, size = "md", className }: { varia
 }
 
 function signalPath(variant: WorkspaceSignalIconVariant) {
-    if (variant === "home") return "M13 29V20L24 12L35 20V35H28V27H20V35H15";
     if (variant === "canvas") return "M12 15H27V27H12V15ZM21 27V35H36V22H27M16 20H23";
     if (variant === "projects") return "M11 18H22L25 21H37V35H11V18ZM17 14H29";
     if (variant === "assets") return "M11 14H37V34H11V14ZM15 29L21 23L26 28L30 24L36 31";
-    if (variant === "skills") return "M24 10L27 19L36 22L27 26L24 36L21 26L12 22L21 19L24 10Z";
-    if (variant === "tasks") return "M12 16H30M12 24H25M12 32H22M31 29L34 32L39 25";
-    if (variant === "wallet") return "M12 17H36V34H12V17ZM12 21H36M29 27H34";
     if (variant === "settings") return "M12 16H36M12 24H36M12 32H36M19 13V19M29 21V27M23 29V35";
     if (variant === "error") return "M24 11L38 36H10L24 11ZM24 19V27M24 32V32.5";
     if (variant === "loading") return "M34 17A13 13 0 1 0 36 28M34 17V10M34 17H27";
@@ -86,13 +78,9 @@ function signalPath(variant: WorkspaceSignalIconVariant) {
 }
 
 function signalDot(variant: WorkspaceSignalIconVariant): [number, number] {
-    if (variant === "home") return [34, 20];
     if (variant === "canvas") return [35, 22];
     if (variant === "projects") return [35, 21];
     if (variant === "assets") return [30, 20];
-    if (variant === "skills") return [35, 13];
-    if (variant === "tasks") return [38, 25];
-    if (variant === "wallet") return [31, 27];
     if (variant === "settings") return [29, 24];
     if (variant === "error") return [24, 32];
     if (variant === "loading") return [34, 11];

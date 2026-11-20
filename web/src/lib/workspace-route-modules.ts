@@ -20,6 +20,10 @@ export const loadProjectsPage = workspaceRouteLoaders.projects;
 export function preloadWorkspaceRoute(pathnameOrSlug: string) {
     const segments = pathnameOrSlug.replace(/^\//, "").split("/").filter(Boolean);
     const slug = segments[0] || "home";
+    if (slug === "dramas") {
+        void (segments.length > 1 ? workspaceRouteLoaders.projectDetail() : workspaceRouteLoaders.projects());
+        return;
+    }
     if (slug === "projects" && segments.length > 1) {
         void workspaceRouteLoaders.projectDetail();
         return;

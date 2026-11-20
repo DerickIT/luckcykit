@@ -1,8 +1,8 @@
-import { Command, Home, Search, X } from "lucide-react";
+import { Command, Search, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type ComponentType } from "react";
 import { useNavigate } from "react-router";
 
-import { navigationTools } from "@/constant/navigation-tools";
+import { workspaceNavEntriesFor } from "@/lib/workspace-navigation";
 import { Kbd } from "@/components/ui/base/kbd";
 import { usePluginSlot } from "@/lib/plugins/slot-registry";
 import { cn } from "@/lib/utils";
@@ -26,12 +26,9 @@ export function WorkspaceCommandPalette({ open, onClose }: { open: boolean; onCl
     const inputRef = useRef<HTMLInputElement>(null);
     const pluginCommandEntries = usePluginSlot("app.command");
     const pluginCenterEnabled = useUserStore((state) => state.features.pluginCenterEnabled);
+    const shortDramaEnabled = useUserStore((state) => state.features.shortDramaEnabled);
 
     const entries = useMemo<PaletteEntry[]>(() => {
-        const toolEntry = (slug: string, to?: string): PaletteEntry => {
-            const tool = navigationTools.find((item) => item.slug === slug);
-            return { id: slug, title: tool?.label ?? slug, icon: tool?.icon ?? Home, to };
-        };
         const pluginEntries: PaletteEntry[] = pluginCommandEntries.map((entry) => ({
             id: `plugin:${entry.entryId}`,
             title: entry.payload.title,
@@ -42,17 +39,9 @@ export function WorkspaceCommandPalette({ open, onClose }: { open: boolean; onCl
                 void entry.payload.handler();
             },
         }));
-        return [
-            { id: "home", title: "首页", icon: Home, to: "/" },
-            toolEntry("projects", "/project"),
-            toolEntry("canvas", "/canvas"),
-            toolEntry("assets", "/assets"),
-            toolEntry("skills", "/skills"),
-            ...(pluginCenterEnabled ? [toolEntry("plugins", "/plugins")] : []),
-            toolEntry("settings", "/settings"),
-            ...pluginEntries,
-        ];
-    }, [pluginCenterEnabled, pluginCommandEntries]);
+        const navEntries: PaletteEntry[] = workspaceNavEntriesFor("palette", { shortDramaEnabled, pluginCenterEnabled }).map(({ id, title, to, icon }) => ({ id, title, icon, to }));
+        return [...navEntries, ...pluginEntries];
+    }, [pluginCenterEnabled, pluginCommandEntries, shortDramaEnabled]);
 
     const filtered = useMemo(() => {
         const keyword = query.trim().toLowerCase();

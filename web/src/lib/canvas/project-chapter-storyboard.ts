@@ -1,4 +1,5 @@
 import { createCanvasNode, createStoryboardRow } from "@/lib/canvas/canvas-project-domain";
+import { orderedByPosition } from "@/lib/project-workbench";
 import type { ProjectShot, ProjectUnit } from "@/services/api/projects";
 import { CanvasNodeType, type CanvasConnection, type CanvasNodeData, type StoryboardData, type StoryboardRow } from "@/types/canvas";
 
@@ -14,10 +15,7 @@ export function upsertProjectChapterStoryboard(
 ) {
     const existing = nodes.find((node) => node.type === CanvasNodeType.Script && node.metadata?.chapterId === unit.id);
     const currentRows = new Map((existing?.metadata?.storyboard?.rows || []).map((row) => [row.id, row]));
-    const rows = shots
-        .filter((shot) => shot.unitId === unit.id)
-        .slice()
-        .sort((left, right) => left.position - right.position)
+    const rows = orderedByPosition(shots.filter((shot) => shot.unitId === unit.id))
         .map((shot, index) => projectShotRow(shot, index, currentRows));
 
     const storyboard: StoryboardData = {

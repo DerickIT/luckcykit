@@ -1,8 +1,9 @@
 import { chromium } from "playwright";
 
 const baseURL = process.env.LUCKYTV_URL || "http://127.0.0.1:3000";
-const chrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-const routes = ["/", "/projects", "/project", "/assets", "/canvas", "/tasks", "/settings?section=models", "/create"];
+// Default to Playwright's bundled Chromium; set LUCKYTV_CHROME to use a system browser.
+const chrome = process.env.LUCKYTV_CHROME?.trim();
+const routes = ["/", "/projects", "/project", "/dramas", "/assets", "/canvas", "/tasks", "/settings?section=models", "/create"];
 const localApiPrefixes = [
     "/api/workspace/",
     "/api/openapi.yaml",
@@ -20,6 +21,8 @@ const localApiPrefixes = [
     "/api/canvas-projects",
     "/api/voice-profiles",
     "/api/features",
+    "/api/luckytv/",
+    "/api/diagnostics/",
 ];
 const failures = [];
 const report = [];
@@ -28,7 +31,7 @@ function isAllowedLocalApiPath(pathname) {
     return localApiPrefixes.some((prefix) => pathname === prefix || pathname.startsWith(prefix));
 }
 
-const browser = await chromium.launch({ headless: true, executablePath: chrome });
+const browser = await chromium.launch({ headless: true, ...(chrome ? { executablePath: chrome } : {}) });
 const context = await browser.newContext({ viewport: { width: 1470, height: 716 }, deviceScaleFactor: 1 });
 const page = await context.newPage();
 // Keep a failed UI contract explicit instead of allowing a selector wait to
@@ -42,6 +45,9 @@ try {
         page.on("request", listener);
         await page.goto(`${baseURL}${route}`, { waitUntil: "domcontentloaded" });
         await page.waitForSelector(".app-user-workspace", { timeout: 10_000 });
+        if (route === "/dramas") {
+            await page.waitForSelector(".project-library-page", { timeout: 10_000 });
+        }
         await page.waitForTimeout(500);
         if (route.startsWith("/settings")) {
             const bodyText = await page.locator("body").innerText();
@@ -68,6 +74,18 @@ try {
         if (cloudSyncRequests.length) {
             failures.push(`${route}: local mode issued cloud-sync data requests: ${cloudSyncRequests.join(", ")}`);
         }
+        if (route === "/dramas") {
+            const projectApiRequests = apiRequests.filter((url) => new URL(url).pathname === "/api/projects");
+            if (!projectApiRequests.length) {
+                failures.push("/dramas: short-drama library did not load the local projects API");
+            }
+            for (const [id, href] of [["dramas", "/dramas"], ["canvas", "/project"]]) {
+                const navItem = page.locator(`[data-nav-id="${id}"]`).first();
+                if (await navItem.getAttribute("href") !== href) {
+                    failures.push(`/dramas: ${id} navigation entry does not target ${href}`);
+                }
+            }
+        }
         if (commercialRequests.length) {
             failures.push(`${route}: local mode issued commercial data requests: ${commercialRequests.join(", ")}`);
         }
@@ -86,6 +104,13 @@ try {
     // 关键链路：点击项目库「开始创作」并进入画布，整个创建过程也不能触发云端用户数据写入。
     await page.goto(`${baseURL}/project`, { waitUntil: "domcontentloaded" });
     await page.waitForSelector(".lib-tv-project-page", { timeout: 10_000 });
+    // A fresh workspace shows the first-creation guide as a blocking modal.
+    // Dismiss it the way a user would so the create flow is reachable.
+    const firstCreationGuide = page.locator(".ant-modal-wrap").filter({ hasText: "完成第一次创作" });
+    if (await firstCreationGuide.count()) {
+        await firstCreationGuide.first().getByRole("button", { name: /稍\s*后/u }).click({ timeout: 5_000 }).catch(() => {});
+        await page.waitForSelector(".ant-modal-wrap", { state: "hidden", timeout: 5_000 }).catch(() => {});
+    }
     const createRequests = [];
     const createListener = (request) => createRequests.push({ url: request.url(), method: request.method() });
     page.on("request", createListener);

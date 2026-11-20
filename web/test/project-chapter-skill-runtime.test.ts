@@ -1,5 +1,7 @@
 import { expect, test } from "bun:test";
 
+import { projectWorkflowPath } from "../src/lib/project-routes";
+
 test("章节页直接生成到分镜制作，并通过共享选择器执行技能", async () => {
     const source = await Bun.file(new URL("../src/pages/projects/detail/chapters.tsx", import.meta.url)).text();
     expect(source).not.toContain("导入分镜");
@@ -10,7 +12,7 @@ test("章节页直接生成到分镜制作，并通过共享选择器执行技�
     expect(source).toContain("approvedRevision");
     expect(source).toContain("approvedShotIds");
     expect(source).toContain("detail.project.revision");
-    expect(source).toContain("/storyboard`");
+    expect(projectWorkflowPath("project-1", "unit-1", "storyboard")).toBe("/dramas/project-1/workflow/unit-1/storyboard");
     expect(source).toContain('<SkillRuntimePicker profile="shortDrama"');
     expect(source.match(/<ModelPicker config=\{effectiveConfig\} capability="text"/g)).toHaveLength(2);
     expect(source).toContain("chapterAnalysisInput(selectedTextModel)");

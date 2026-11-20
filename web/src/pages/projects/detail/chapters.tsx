@@ -6,6 +6,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
 import { Callout } from "@/components/ui/product/callout";
+import { orderedByPosition } from "@/lib/project-workbench";
+import { projectChapterPath, projectWorkflowPath } from "@/lib/project-routes";
 import CharacterCount from "@tiptap/extension-character-count";
 import Color from "@tiptap/extension-color";
 import Highlight from "@tiptap/extension-highlight";
@@ -189,8 +191,8 @@ export default function ProjectChaptersView({ detail, refreshProject }: ProjectD
     });
 
     useEffect(() => {
-        setOrderedIds(detail.units.slice().sort((left, right) => left.position - right.position).map((unit) => unit.id));
-        if (!detail.units.some((unit) => unit.id === selectedId)) setSelectedId(detail.units[0]?.id || "");
+        setOrderedIds(orderedByPosition(detail.units).map((unit) => unit.id));
+        if (!detail.units.some((unit) => unit.id === selectedId)) setSelectedId(orderedByPosition(detail.units)[0]?.id || "");
     }, [detail.units, selectedId]);
 
     useEffect(() => {
@@ -201,7 +203,7 @@ export default function ProjectChaptersView({ detail, refreshProject }: ProjectD
     useEffect(() => {
         if (!chapterId || dirty || detail.units.some((unit) => unit.id === chapterId)) return;
         const firstId = orderedUnits[0]?.id;
-        navigate(firstId ? `/projects/${detail.project.id}/chapters/${firstId}` : `/projects/${detail.project.id}/chapters`, { replace: true });
+        navigate(projectChapterPath(detail.project.id, firstId), { replace: true });
     }, [chapterId, detail.project.id, detail.units, dirty, navigate, orderedUnits]);
 
     useEffect(() => {
@@ -243,12 +245,12 @@ export default function ProjectChaptersView({ detail, refreshProject }: ProjectD
     });
     const createMutation = useMutation({
         mutationFn: (values: { title: string; sourceText?: string }) => createProjectUnit(detail.project.id, { kind: "chapter", title: values.title, sourceText: plainTextToHtml(values.sourceText || ""), position: detail.units.length }),
-        onSuccess: ({ unit }) => { setCreateOpen(false); setSelectedId(unit.id); refreshProject(); navigate(`/projects/${detail.project.id}/chapters/${unit.id}`); message.success("章节已创建"); },
+        onSuccess: ({ unit }) => { setCreateOpen(false); setSelectedId(unit.id); refreshProject(); navigate(projectChapterPath(detail.project.id, unit.id)); message.success("章节已创建"); },
         onError: (error) => message.error(error instanceof Error ? error.message : "章节创建失败"),
     });
     const importMutation = useMutation({
         mutationFn: (chapters: Array<{ title: string; plainText: string }>) => importProjectUnits(detail.project.id, chapters.map((chapter) => ({ kind: "chapter", title: chapter.title, sourceText: plainTextToHtml(chapter.plainText) }))),
-        onSuccess: ({ units }) => { setImportOpen(false); if (units[0]) { setSelectedId(units[0].id); navigate(`/projects/${detail.project.id}/chapters/${units[0].id}`); } refreshProject(); message.success(`已导入 ${units.length} 章`); },
+        onSuccess: ({ units }) => { setImportOpen(false); if (units[0]) { setSelectedId(units[0].id); navigate(projectChapterPath(detail.project.id, units[0].id)); } refreshProject(); message.success(`已导入 ${units.length} 章`); },
         onError: (error) => message.error(error instanceof Error ? error.message : "小说导入失败"),
     });
     const reorderMutation = useMutation({
@@ -265,7 +267,7 @@ export default function ProjectChaptersView({ detail, refreshProject }: ProjectD
             if (selectedId === unitId) {
                 const nextId = remaining[Math.min(index, remaining.length - 1)] || "";
                 setSelectedId(nextId);
-                navigate(nextId ? `/projects/${detail.project.id}/chapters/${nextId}` : `/projects/${detail.project.id}/chapters`, { replace: true });
+                navigate(projectChapterPath(detail.project.id, nextId), { replace: true });
             }
             refreshProject();
             message.success("章节已删除");
@@ -456,7 +458,7 @@ export default function ProjectChaptersView({ detail, refreshProject }: ProjectD
             }, { onTaskUpdate: (task) => updateChapterOperation(unit.id, "storyboard", task) });
             const shotCount = await storeGeneratedStoryboard(unit.id, generated.rows, { revision: approvedRevision, shotIds: approvedShotIds }, { sourceTaskId: generated.taskId });
             message.success(generated.skillCount ? `已生成 ${shotCount} 个分镜，并应用 ${generated.skillCount} 个技能` : `已生成 ${shotCount} 个分镜`);
-            navigate(`/projects/${detail.project.id}/workflow/${unit.id}/storyboard`);
+            navigate(projectWorkflowPath(detail.project.id, unit.id, "storyboard"));
         } catch (error) {
             if (generated && isStoryboardReplacementConflict(error)) {
                 queuePendingStoryboardRecovery({ taskId: generated.taskId, chapterId: unit.id, rows: generated.rows });
@@ -527,7 +529,7 @@ export default function ProjectChaptersView({ detail, refreshProject }: ProjectD
             const shotCount = await storeGeneratedStoryboard(pending.chapterId, pending.rows, { revision: reviewedRevision, shotIds: reviewedShotIds }, { sourceTaskId: pending.taskId });
             clearPendingStoryboardRecovery(pending.chapterId);
             message.success(`已写入 ${shotCount} 个分镜`);
-            navigate(`/projects/${detail.project.id}/workflow/${pending.chapterId}/storyboard`);
+            navigate(projectWorkflowPath(detail.project.id, pending.chapterId, "storyboard"));
         } catch (error) {
             refreshProject();
             message.error(error instanceof Error ? error.message : "分镜写入失败");
@@ -590,7 +592,7 @@ export default function ProjectChaptersView({ detail, refreshProject }: ProjectD
         if (dirty) { message.warning("请先保存当前章节，再切换章节"); return; }
         setSelectedId(unitId);
         sessionStorage.setItem(`project-active-chapter:${detail.project.id}`, unitId);
-        navigate(`/projects/${detail.project.id}/chapters/${unitId}`);
+        navigate(projectChapterPath(detail.project.id, unitId));
     };
     const moveChapter = (targetId: string) => {
         if (!draggedId || draggedId === targetId || reorderMutation.isPending) return;

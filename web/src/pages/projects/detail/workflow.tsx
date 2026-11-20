@@ -5,6 +5,8 @@ import { EmptyState } from "@/components/ui/product/empty-state";
 import { Link } from "react-router";
 
 import { formatShotOrdinal } from "@/lib/shot-label";
+import { orderedByPosition } from "@/lib/project-workbench";
+import { projectChapterPath } from "@/lib/project-routes";
 import { saveProjectShot, type ProjectDetail } from "@/services/api/projects";
 
 import { AssetsStage, DeliveryStage, StoryStage } from "./workflow-stage-views";
@@ -23,10 +25,10 @@ type Props = {
 export default function ProjectWorkflowView({ detail, projectId, unitId, stage }: Props) {
     const queryClient = useQueryClient();
     const { message } = App.useApp();
-    const orderedUnits = useMemo(() => detail.units.slice().sort((left, right) => left.position - right.position), [detail.units]);
+    const orderedUnits = useMemo(() => orderedByPosition(detail.units), [detail.units]);
     const unit = orderedUnits.find((item) => item.id === unitId) || orderedUnits[0];
     const activeStage = workflowStages.some((item) => item.key === stage) ? stage as ShortDramaWorkflowStage : "video";
-    const shots = useMemo(() => (detail.shots || []).filter((item) => item.unitId === unit?.id).slice().sort((left, right) => left.position - right.position), [detail.shots, unit?.id]);
+    const shots = useMemo(() => orderedByPosition((detail.shots || []).filter((item) => item.unitId === unit?.id)), [detail.shots, unit?.id]);
     const workflow = useMemo(() => (detail.workflows || []).find((item) => item.instance?.unitId === unit?.id && (item.steps || []).some((step) => step.stepKey === "previz")), [detail.workflows, unit?.id]);
     const rememberedShotId = sessionStorage.getItem(`project-workflow-selected-shot:${projectId}`) || "";
     const [selectedShotId, setSelectedShotId] = useState(rememberedShotId);
@@ -67,7 +69,7 @@ export default function ProjectWorkflowView({ detail, projectId, unitId, stage }
         onError: (error) => message.error(error instanceof Error ? error.message : "新增分镜失败"),
     });
     if (!unit) {
-        return <div className="grid h-full place-items-center"><EmptyState title="先添加一个章节，再进入分镜制作" action={<Link to={`/projects/${projectId}/chapters`}><Button type="primary">添加章节</Button></Link>} /></div>;
+        return <div className="grid h-full place-items-center"><EmptyState title="先添加一个章节，再进入分镜制作" action={<Link to={projectChapterPath(projectId)}><Button type="primary">添加章节</Button></Link>} /></div>;
     }
 
     return (
