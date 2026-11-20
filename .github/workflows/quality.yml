@@ -103,6 +103,42 @@ jobs:
           emit release_scripts '^(\.github/workflows/|scripts/|licenses/|VERSION$|CHANGELOG\.md$|NOTICE$|THIRD_PARTY_NOTICES\.md$)'
           emit docker '^((backend/)?Dockerfile$|docker-compose.*\.yml$|\.github/workflows/publish-images\.yml$)'
 
+  dependency-security:
+    needs: gates
+    name: Dependency security audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: backend/go.mod
+          cache: true
+          cache-dependency-path: backend/go.sum
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
+      # Reachable-vulnerability analysis for shipped Go entrypoints. Module-graph
+      # advisories that no binary imports are tracked in
+      # docs/technical/dependency-security.md instead of failing this gate.
+      - name: Scan Go reachable vulnerabilities
+        working-directory: backend
+        run: go run golang.org/x/vuln/cmd/govulncheck@v1.10.0 ./...
+      - name: Audit web dependencies
+        working-directory: web
+        env:
+          BUN_CONFIG_REGISTRY: https://registry.npmjs.org
+        run: |
+          bun install --frozen-lockfile
+          bun audit --audit-level=high
+      - name: Audit agent host dependencies
+        working-directory: agent-host
+        env:
+          BUN_CONFIG_REGISTRY: https://registry.npmjs.org
+        run: |
+          bun install --frozen-lockfile
+          bun audit --audit-level=high
+
   release-scripts:
     needs: gates
     if: needs.gates.outputs.release_scripts == 'true'

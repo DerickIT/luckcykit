@@ -8,3 +8,7 @@ updates:
     directory: /web
     schedule:
       interval: weekly
+  - package-ecosystem: npm
+    directory: /agent-host
+    schedule:
+      interval: weekly
