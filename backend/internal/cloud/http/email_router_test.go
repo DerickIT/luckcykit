@@ -14,7 +14,6 @@ import (
 	"gorm.io/gorm/logger"
 
 	cloudapp "luckytv/backend/internal/cloud/app"
-	"luckytv/backend/internal/cloud/config"
 	"luckytv/backend/internal/cloud/identity"
 	"luckytv/backend/internal/cloud/store"
 )
@@ -42,14 +41,14 @@ func TestEmailOTPHTTPFlowReturnsNeutralRequestAndSessionOnVerify(t *testing.T) {
 	if err := store.Migrate(db); err != nil {
 		t.Fatal(err)
 	}
-	services, err := cloudapp.New(db, time.Hour, false, nil, nil, nil, nil, "", "", "")
+	services, err := cloudapp.New(cloudapp.Options{DB: db, SessionTTL: time.Hour})
 	if err != nil {
 		t.Fatal(err)
 	}
 	mailer := &httpFakeMailer{}
 	otp := services.Identity
 	emailOTP := identity.NewEmailOTPService(db, otp, mailer, []byte("01234567890123456789012345678901"))
-	handler := NewRouter(config.Config{}, services.Identity, nil, emailOTP, services.Catalog, services.Ledger, services.Payment, nil)
+	handler := NewRouter(Options{Identity: services.Identity, EmailOTP: emailOTP, Catalog: services.Catalog, Ledger: services.Ledger, Payment: services.Payment})
 
 	requestCode := request(handler, http.MethodPost, "/api/v1/auth/email/code", "", "127.0.0.1:50000", `{"email":"creator@example.com"}`)
 	if requestCode.Code != http.StatusAccepted || len(mailer.Messages) != 1 {

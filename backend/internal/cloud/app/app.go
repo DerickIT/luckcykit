@@ -26,36 +26,50 @@ type App struct {
 	Tasks    *task.Service
 }
 
-func New(db *gorm.DB, sessionTTL time.Duration, sandbox bool, mailer identity.VerificationMailer, otpSecret []byte, gateway *modelgateway.Client, models []store.HostedModel, bootstrapSecret, bootstrapEmail, initialAdminSecret string) (*App, error) {
+type Options struct {
+	DB                   *gorm.DB
+	SessionTTL           time.Duration
+	Sandbox              bool
+	Mailer               identity.VerificationMailer
+	OTPSecret            []byte
+	Gateway              *modelgateway.Client
+	Models               []store.HostedModel
+	AdminBootstrapSecret string
+	AdminBootstrapEmail  string
+	InitialAdminSecret   string
+}
+
+func New(options Options) (*App, error) {
+	db := options.DB
 	products := catalog.New(db)
 	points := ledger.New(db)
 	var provider identity.Provider
-	if sandbox {
+	if options.Sandbox {
 		provider = identity.SandboxProvider{}
 	}
-	identities := identity.New(db, sessionTTL, provider)
+	identities := identity.New(db, options.SessionTTL, provider)
 	administrators := admin.New(db)
-	if bootstrapSecret != "" {
-		if err := administrators.SeedBootstrap(bootstrapSecret); err != nil {
+	if options.AdminBootstrapSecret != "" {
+		if err := administrators.SeedBootstrap(options.AdminBootstrapSecret); err != nil {
 			return nil, fmt.Errorf("seed admin bootstrap: %w", err)
 		}
-		if _, err := administrators.Bootstrap(bootstrapSecret, bootstrapEmail, initialAdminSecret); err != nil && err != admin.ErrBootstrapUsed {
+		if _, err := administrators.Bootstrap(options.AdminBootstrapSecret, options.AdminBootstrapEmail, options.InitialAdminSecret); err != nil && err != admin.ErrBootstrapUsed {
 			return nil, fmt.Errorf("consume initial admin bootstrap: %w", err)
 		}
 	}
 	orders := payment.New(db, products, points)
-	if sandbox {
+	if options.Sandbox {
 		if err := products.EnsureSandboxProducts(); err != nil {
 			return nil, fmt.Errorf("initialize sandbox catalog: %w", err)
 		}
 	}
 	var emailOTP *identity.EmailOTPService
-	if mailer != nil && len(otpSecret) >= 32 {
-		emailOTP = identity.NewEmailOTPService(db, identities, mailer, otpSecret)
+	if options.Mailer != nil && len(options.OTPSecret) >= 32 {
+		emailOTP = identity.NewEmailOTPService(db, identities, options.Mailer, options.OTPSecret)
 	}
 	var tasks *task.Service
-	if gateway != nil && len(models) > 0 {
-		tasks = task.New(db, points, gateway, models)
+	if options.Gateway != nil && len(options.Models) > 0 {
+		tasks = task.New(db, points, options.Gateway, options.Models)
 	}
 	return &App{Identity: identities, Admin: administrators, Catalog: products, Ledger: points, Payment: orders, EmailOTP: emailOTP, Tasks: tasks}, nil
 }

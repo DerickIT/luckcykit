@@ -15,7 +15,6 @@ import (
 	"gorm.io/gorm/logger"
 
 	cloudapp "luckytv/backend/internal/cloud/app"
-	"luckytv/backend/internal/cloud/config"
 	"luckytv/backend/internal/cloud/store"
 )
 
@@ -33,11 +32,11 @@ func TestSandboxPurchaseFlowAndLoopbackBoundary(t *testing.T) {
 	if err := store.Migrate(db); err != nil {
 		t.Fatal(err)
 	}
-	services, err := cloudapp.New(db, 24*time.Hour, true, nil, nil, nil, nil, "", "", "")
+	services, err := cloudapp.New(cloudapp.Options{DB: db, SessionTTL: 24 * time.Hour, Sandbox: true})
 	if err != nil {
 		t.Fatal(err)
 	}
-	handler := NewRouter(config.Config{SandboxEnabled: true}, services.Identity, nil, nil, services.Catalog, services.Ledger, services.Payment, nil)
+	handler := NewRouter(Options{SandboxEnabled: true, Identity: services.Identity, Catalog: services.Catalog, Ledger: services.Ledger, Payment: services.Payment})
 
 	remoteLogin := request(handler, http.MethodPost, "/api/v1/sandbox/login", "", "198.51.100.12:50000", `{"subject":"remote"}`)
 	if remoteLogin.Code != http.StatusForbidden {
@@ -124,11 +123,11 @@ func TestSandboxRoutesAreNotMountedWhenDisabled(t *testing.T) {
 	if err := store.Migrate(db); err != nil {
 		t.Fatal(err)
 	}
-	services, err := cloudapp.New(db, 24*time.Hour, false, nil, nil, nil, nil, "", "", "")
+	services, err := cloudapp.New(cloudapp.Options{DB: db, SessionTTL: 24 * time.Hour})
 	if err != nil {
 		t.Fatal(err)
 	}
-	handler := NewRouter(config.Config{SandboxEnabled: false}, services.Identity, nil, nil, services.Catalog, services.Ledger, services.Payment, nil)
+	handler := NewRouter(Options{Identity: services.Identity, Catalog: services.Catalog, Ledger: services.Ledger, Payment: services.Payment})
 	response := request(handler, http.MethodPost, "/api/v1/sandbox/login", "", "127.0.0.1:50000", `{"subject":"creator"}`)
 	if response.Code != http.StatusNotFound {
 		t.Fatalf("disabled sandbox route status = %d", response.Code)

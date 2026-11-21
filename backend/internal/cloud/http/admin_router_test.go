@@ -14,7 +14,6 @@ import (
 	"gorm.io/gorm/logger"
 
 	cloudapp "luckytv/backend/internal/cloud/app"
-	"luckytv/backend/internal/cloud/config"
 	"luckytv/backend/internal/cloud/store"
 )
 
@@ -32,7 +31,7 @@ func TestAdminSessionIsSeparateFromUserSession(t *testing.T) {
 	if err := store.Migrate(db); err != nil {
 		t.Fatal(err)
 	}
-	services, err := cloudapp.New(db, time.Hour, true, nil, nil, nil, nil, "bootstrap-secret-012345678901234567890123", "admin@example.com", "admin-secret-0123456789012345678901234567")
+	services, err := cloudapp.New(cloudapp.Options{DB: db, SessionTTL: time.Hour, Sandbox: true, AdminBootstrapSecret: "bootstrap-secret-012345678901234567890123", AdminBootstrapEmail: "admin@example.com", InitialAdminSecret: "admin-secret-0123456789012345678901234567"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -40,7 +39,7 @@ func TestAdminSessionIsSeparateFromUserSession(t *testing.T) {
 	if err := db.Where("email = ?", "admin@example.com").First(&adminAccount).Error; err != nil {
 		t.Fatal(err)
 	}
-	handler := NewRouter(config.Config{SandboxEnabled: true}, services.Identity, services.Admin, nil, services.Catalog, services.Ledger, services.Payment, nil)
+	handler := NewRouter(Options{SandboxEnabled: true, Identity: services.Identity, Admin: services.Admin, Catalog: services.Catalog, Ledger: services.Ledger, Payment: services.Payment})
 	login := request(handler, http.MethodPost, "/api/v1/admin/login", "", "127.0.0.1:50000", `{"email":"admin@example.com","secret":"admin-secret-0123456789012345678901234567"}`)
 	if login.Code != http.StatusCreated {
 		t.Fatalf("admin login status=%d body=%s", login.Code, login.Body.String())

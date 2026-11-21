@@ -61,11 +61,20 @@ func run(ctx context.Context) error {
 			Enabled: true,
 		})
 	}
-	services, err := cloudapp.New(storage.DB(), 24*time.Hour, cfg.SandboxEnabled, mailer, otpSecret, gateway, models, cfg.AdminBootstrapSecret, cfg.AdminBootstrapEmail, cfg.AdminInitialSecret)
+	services, err := cloudapp.New(cloudapp.Options{
+		DB: storage.DB(), SessionTTL: 24 * time.Hour, Sandbox: cfg.SandboxEnabled,
+		Mailer: mailer, OTPSecret: otpSecret, Gateway: gateway, Models: models,
+		AdminBootstrapSecret: cfg.AdminBootstrapSecret, AdminBootstrapEmail: cfg.AdminBootstrapEmail,
+		InitialAdminSecret: cfg.AdminInitialSecret,
+	})
 	if err != nil {
 		return err
 	}
-	handler := httpapi.NewRouter(cfg, services.Identity, services.Admin, services.EmailOTP, services.Catalog, services.Ledger, services.Payment, services.Tasks)
+	handler := httpapi.NewRouter(httpapi.Options{
+		SandboxEnabled: cfg.SandboxEnabled, Identity: services.Identity, Admin: services.Admin,
+		EmailOTP: services.EmailOTP, Catalog: services.Catalog, Ledger: services.Ledger,
+		Payment: services.Payment, Tasks: services.Tasks,
+	})
 	listener, err := net.Listen("tcp", cfg.ListenAddr)
 	if err != nil {
 		return fmt.Errorf("listen for cloud sandbox: %w", err)
