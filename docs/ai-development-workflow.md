@@ -41,6 +41,7 @@
 - UI 变更尽可能验证关键路由、交互、明暗主题、窄视口、滚动和错误/空/加载态；静态阅读不能替代浏览器验收。
 - 交付前检查 `git diff --check`、变更清单、敏感信息、文档同步、工作区是否残留无关改动，以及 `AGENTS.md` 要求的结构预算。
 - 后端测试若打开 SQLite 到 `t.TempDir()`，必须用 `t.Cleanup` 关闭连接（或在 `TestMain` 关闭）。Windows 上未关闭的句柄会让 `TempDir` 清理失败，整个临时目录留在 `%TEMP%`；一次全量 `go test ./...` 可泄漏数 GB。清理入口：`node scripts/clean-local-cache.mjs`（加 `--dry-run` 预览）。
+- 本仓库的后端测试用 `node scripts/go-test.mjs [包或参数]` 运行：它把 `TEMP`/`TMP` 对齐到 `go env GOTMPDIR`（Go 环境目录下的 temp），避免测试临时库堆在 C 盘 `%TEMP%`。直接 `go test` 不会自动改这个变量。
 
 ### 5. 交付和需求归档
 
