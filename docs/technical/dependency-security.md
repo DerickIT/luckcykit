@@ -37,11 +37,11 @@ cd backend && go run golang.org/x/vuln/cmd/govulncheck@v1.10.0 ./...
 
 ## 4. 残留告知（模块图内、未被交付物导入）
 
-2026-11-21 扫描 `go list -m all` 仍有以下模块命中公告。逐项确认：`go list -deps ./cmd/desktop ./cmd/server ./cmd/luckytv ./cmd/cloud` 对这些模块的导入数为 0，`go mod why -m` 报告主模块不需要它们。它们来自上游模块的 `go.mod`（如 Wails 桌面框架、goreleaser/gonum 等工具链依赖），提升版本会被 `go mod tidy` 剪回。
+2026-11-21 扫描 `go list -m all` 仍有以下模块命中公告。逐项确认：`go list -deps ./cmd/desktop ./cmd/server ./cmd/luckytv ./cmd/cloud` 对这些模块的导入数为 0，`go mod why -m` 报告主模块不需要它们。提升版本会被 `go mod tidy` 剪回，因此不钉版本。
 
 | 模块 | 当前版本 | 公告数 | 说明 |
 | --- | --- | --- | --- |
-| `github.com/nats-io/nats-server/v2` | v2.5.0 | 42 | 仅模块图；不参与构建 |
+| `github.com/nats-io/nats-server/v2` | v2.5.0 | 43 | 仅模块图；不参与构建 |
 | `google.golang.org/grpc` | v1.40.0 | 12 | 仅模块图；不参与构建 |
 | `github.com/golang-jwt/jwt/v4` | v4.0.0 | 4 | 仅模块图；不参与构建 |
 | `github.com/aws/aws-sdk-go`（v1） | v1.40.45 | 2 | 仅模块图；构建使用 v2 |
@@ -52,10 +52,35 @@ cd backend && go run golang.org/x/vuln/cmd/govulncheck@v1.10.0 ./...
 | `github.com/sirupsen/logrus` | v1.8.1 | 2 | 仅模块图 |
 | `github.com/klauspost/compress` | v1.18.7 | 1 | 仅模块图 |
 | `go.etcd.io/etcd/client/pkg/v3` | v3.5.0 | 1 | 仅模块图 |
-| `github.com/blakesmith/ar` | 2019 版 | 1 | 来自 Wails 打包工具；仅模块图 |
-| `rsc.io/pdf` | v0.1.1 | 1 | 来自 gonum/plot 工具链；仅模块图 |
+| `github.com/blakesmith/ar` | 2019 版 | 1 | 仅模块图 |
+| `rsc.io/pdf` | v0.1.1 | 1 | 仅模块图 |
 
-处置方式：该列表用于 GitHub Dependabot 告警的逐条解释与风险评估。若要彻底消除，需要升级或移除上游工具链依赖（Wails、goreleaser、gonum），属于独立改动；在此之前不改 `go.mod` 钉版本，避免与 `go mod tidy` 打架。
+### 4.1 根因链
+
+`go mod graph` 显示这些公告只有两个源头：
+
+| 源头 | 依赖链 | 覆盖的公告模块 |
+| --- | --- | --- |
+| `github.com/volcengine/volc-sdk-golang`（Volcengine Ark 私有素材鉴权，`base` 包） | `volc-sdk-golang@v1.0.257` → `go-kit/kit@v0.12.0` → nats-server、nats-jwt、prometheus/client_golang、logrus、klauspost/compress、aws-sdk-go v1、golang-jwt/jwt v4、etcd client pkg；`go-kit` → `prometheus/common`、`armon/go-metrics` → go-retryablehttp；`go-kit` → `hdrhistogram-go` → `gonum/plot` → `rsc.io/pdf` | 除下一行的全部 |
+| `github.com/wailsapp/wails/v3`（桌面宿主框架） | `wails/v3@v3.1.0` → `goreleaser/chglog` → `blakesmith/ar` | `blakesmith/ar` |
+
+`google.golang.org/grpc` 的版本由 MVS 决定权在这些模块手里（`cloud.google.com/go/*`、`go-kit` 等），单独提升会被 `go mod tidy` 剪回 v1.40.0。
+
+### 4.2 已评估的消除方案
+
+- **升级 Volcengine SDK**：`v1.0.259`（最新）仍要求 `go-kit/kit v0.12.0`，升级无法断链。
+- **移除 Volcengine SDK**：仓库只在 `internal/generation/ark_private_assets.go` 与 `internal/generation/protocol_auth.go` 使用 `volc-sdk-golang/base` 做签名与鉴权。改为本地实现意味着重写厂商签名逻辑，且缺少真实凭据无法验证，风险高于收益，本轮不采用。
+- **升级 Wails**：`v3.1.0` 是当前版本，`goreleaser/chglog` 仍在其依赖内。
+- **钉死版本**：与 `go mod tidy` 冲突，不可持续。
+
+结论：在更换上述两个上游依赖前，这 13 个模块的公告属于可解释的残留。GitHub 上可按“受影响代码不作为依赖引入（vulnerable code not in path）”逐条 dismiss。
+
+### 4.3 复现命令
+
+```bash
+node scripts/dependency-risk-report.mjs                  # 列出命中项与是否参与构建
+node scripts/dependency-risk-report.mjs --fail-on-imported  # 构建内有命中则退出非零
+```
 
 ## 5. 变更记录
 
