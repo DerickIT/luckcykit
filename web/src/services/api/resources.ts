@@ -5,6 +5,8 @@ import { createClientId } from "@/lib/client-id";
 import { http, apiBaseURL, ApiError, type HttpRequestConfig } from "@/services/api/request";
 import { startOperation } from "@/stores/use-operation-progress";
 
+export type ResourceKind = "image" | "video" | "audio" | "file";
+
 export type RemoteResource = {
     id: string;
     userId: string;
@@ -282,7 +284,7 @@ const CHUNK_UPLOAD_RETRIES = 2;
 
 export async function uploadResourceFile(
     file: Blob,
-    kind: "image" | "video" | "audio" | "file",
+    kind: ResourceKind,
     meta?: ResourceUploadMeta,
     onProgress?: (uploadedBytes: number, totalBytes: number) => void,
 ): Promise<RemoteResource> {
@@ -327,7 +329,7 @@ export async function uploadResourceFile(
 
 // 分片上传：POST 开始会话 → 逐片 PUT 原始二进制（每片 8MB）→ POST 合并落库。
 // 同一次上传重试复用会话，只重传尚未确认完整收到的片。
-async function uploadFileInChunks(file: Blob, name: string, kind: "image" | "video" | "audio" | "file", meta: ResourceUploadMeta | undefined, onProgress?: (uploadedBytes: number, totalBytes: number) => void) {
+async function uploadFileInChunks(file: Blob, name: string, kind: ResourceKind, meta: ResourceUploadMeta | undefined, onProgress?: (uploadedBytes: number, totalBytes: number) => void) {
     const retryMeta = { ...meta, idempotencyKey: meta?.idempotencyKey || `resource-upload:${createClientId()}` };
     for (let attempt = 0; attempt < CHUNK_UPLOAD_RETRIES; attempt++) {
         try {
@@ -341,7 +343,7 @@ async function uploadFileInChunks(file: Blob, name: string, kind: "image" | "vid
     throw new Error("上传失败");
 }
 
-async function runChunkedUpload(file: Blob, name: string, kind: "image" | "video" | "audio" | "file", meta: ResourceUploadMeta | undefined, onProgress?: (uploadedBytes: number, totalBytes: number) => void) {
+async function runChunkedUpload(file: Blob, name: string, kind: ResourceKind, meta: ResourceUploadMeta | undefined, onProgress?: (uploadedBytes: number, totalBytes: number) => void) {
     const session = await http.post<{ uploadId: string; chunkSize: number; chunkCount: number; received?: number[] }>("/resources/uploads", { fileName: name, kind, size: file.size, width: meta?.width, height: meta?.height, durationMs: meta?.durationMs }, uploadConfig(meta?.idempotencyKey));
     const received = new Set(session.received ?? []);
     if (!session.uploadId || !Number.isSafeInteger(session.chunkSize) || session.chunkSize <= 0 || session.chunkCount !== Math.ceil(file.size / session.chunkSize) || [...received].some((index) => !Number.isInteger(index) || index < 0 || index >= session.chunkCount)) {
@@ -397,7 +399,7 @@ function normalizeUploadError(error: unknown): ResourceUploadError {
     return new ResourceUploadError(error instanceof Error ? error.message : "上传失败", { permanent: false, cause: error });
 }
 
-export async function importResourceFromUrl(url: string, kind: "image" | "video" | "audio" | "file", meta?: Omit<ResourceUploadMeta, "fileName">) {
+export async function importResourceFromUrl(url: string, kind: ResourceKind, meta?: Omit<ResourceUploadMeta, "fileName">) {
     const data = await http.post<{ resource: RemoteResource }>("/resources/import", { url, kind, width: meta?.width, height: meta?.height, durationMs: meta?.durationMs }, uploadConfig(meta?.idempotencyKey));
     rememberResource(data.resource);
     return data.resource;
@@ -505,29 +507,38 @@ export function playbackVariantUrl(id: string) {
     return `${base}/resources/${encodeURIComponent(id)}/file?variant=playback`;
 }
 
-/**
- * Load a browser-compatible video through the authenticated API client. Native
- * media elements cannot attach the desktop launch token, and large videos must
- * not inherit the API client's short JSON-request timeout.
- */
 export type ResourcePlayback = { blob: Blob; compatible: boolean };
 
-export async function getResourcePlayback(storageKey: string, config?: HttpRequestConfig): Promise<ResourcePlayback | null> {
-    const id = resourceIdFromStorageKey(storageKey);
-    if (!id) return null;
+/**
+ * Download a resource file through the authenticated API client. A native
+ * `<video>` element cannot attach the desktop launch token, so materialized
+ * media must come through this path; large media must not inherit the shared
+ * JSON-request timeout.
+ */
+async function fetchResourceFile(id: string, query: string, config?: HttpRequestConfig) {
     const response = await http.raw<Blob>({
         ...config,
         method: "get",
-        url: `/resources/${encodeURIComponent(id)}/file?variant=playback&proxy=1`,
+        url: `/resources/${encodeURIComponent(id)}/file?${query}`,
         responseType: "blob",
         timeout: 0,
     });
     return {
         blob: response.data instanceof Blob ? response.data : new Blob([response.data]),
+        etag: String(response.headers.etag || ""),
+    };
+}
+
+export async function getResourcePlayback(storageKey: string, config?: HttpRequestConfig): Promise<ResourcePlayback | null> {
+    const id = resourceIdFromStorageKey(storageKey);
+    if (!id) return null;
+    const response = await fetchResourceFile(id, "variant=playback&proxy=1", config);
+    return {
+        blob: response.blob,
         // A ready database row may outlive its copy. The file endpoint then
         // serves the original with its original ETag; it must remain eligible
         // for decoder-error recovery.
-        compatible: String(response.headers.etag || "").endsWith(':pb"'),
+        compatible: response.etag.endsWith(':pb"'),
     };
 }
 
@@ -538,22 +549,8 @@ export async function getResourcePlaybackBlob(storageKey: string, config?: HttpR
 export async function getResourceBlob(storageKey: string, config?: HttpRequestConfig) {
     const id = resourceIdFromStorageKey(storageKey);
     if (!id) return null;
-    // Do not use a bare fetch here. Desktop mode protects resource routes with
-    // X-Desktop-Token, which is attached by the shared axios client. A native
-    // <video> element cannot add that header itself, so materialized media must
-    // first be downloaded through this authenticated path and exposed as a
-    // local object URL by resource-blob-cache.
     try {
-        const response = await http.raw<Blob>({
-            ...config,
-            method: "get",
-            url: `/resources/${encodeURIComponent(id)}/file?proxy=1`,
-            responseType: "blob",
-            // Images may be much larger than JSON responses; keep the shared
-            // authenticated media path independent of the 4 s JSON timeout.
-            timeout: 0,
-        });
-        return response.data instanceof Blob ? response.data : new Blob([response.data]);
+        return (await fetchResourceFile(id, "proxy=1", config)).blob;
     } catch (error) {
         if ((error instanceof DOMException && error.name === "AbortError")) throw error;
         return null;
