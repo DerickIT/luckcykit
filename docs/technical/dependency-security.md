@@ -87,3 +87,4 @@ node scripts/dependency-risk-report.mjs --fail-on-imported  # 构建内有命中
 | 日期 | 变更 |
 | --- | --- |
 | 2026-11-21 | 建立基线：修复可达漏洞（otel/sdk），加入 govulncheck 与 `bun audit` 门禁，登记模块图残留公告 |
+| 2026-11-21 | 决策：采用“保持现状 + 逐条 dismiss 告警”。不引入 vendored 子集或重写 Volc 签名；`scripts/dependency-risk-report.mjs` 作为复查入口，构建内出现命中时以 `--fail-on-imported` 失败 |
