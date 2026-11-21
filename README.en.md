@@ -5,13 +5,13 @@
 <p align="center"><strong>High-performance · Lightweight · AI Native</strong></p>
 
 <p align="center">
-  An AI-native workspace for video creation.<br>
-  Connect ideas, models, and media on one freeform canvas.
+  A local-first workspace for AI short drama and video production.<br>
+  Turn scripts, media, models, and finished videos into one editable pipeline on a freeform canvas.
 </p>
 
 <p align="center">
-  Create with LuckyTV Agent, extend your methods with Skills, and reuse your process with Workflows.<br>
-  From storyboards and media to finished videos, keep your work editable and ready to build on.
+  An assistant to move the work forward, Skills to keep your methods, and workflows to reuse your steps.<br>
+  Projects, media, and tasks stay on your machine; you choose the model providers.
 </p>
 
 <p align="center">
@@ -40,6 +40,18 @@
   <a href="QUICKSTART.md">Get started</a> ·
   <a href="CONTRIBUTING.md">Contributing</a>
 </p>
+
+## What is LuckyTV
+
+LuckyTV is an AI video production workspace that runs on your own computer. It keeps the whole chain — outline, storyboard, image and video generation, editing, delivery — on one canvas, and every generated result stays an editable node instead of a one-off chat transcript.
+
+- **Local workspace**: projects, canvases, media, tasks, and model settings live on your machine. Existing work still opens and stays editable without an account or a network connection.
+- **Your own models**: use built-in channels, OpenAI-compatible services, or protocol plugins, and keep using your own keys. No single provider is required.
+- **Reusable process**: processing and generation steps on the canvas can be saved as versioned workflows; swap the inputs and reuse the structure.
+- **Agent-operable**: the built-in assistant builds nodes and connections through conversation; Claude Code, Codex, and other local clients can operate the same contract over MCP.
+- **Traceable results**: task state, failure reasons, cost estimates, and generation history come from the server-side record; retries and recovery never silently resubmit a billable request.
+
+LuckyTV is not a cloud SaaS you must sign in to. Accounts, sign-in, and hosted models remain an optional direction and are not prerequisites for local creation; generation is billed by the provider you choose.
 
 ## Recent updates
 
@@ -178,7 +190,7 @@ LuckyTV also includes project and personal asset libraries, asynchronous tasks, 
 ## Get started
 
 1. [Download the desktop app](https://github.com/glanderness/LuckyTV/releases/latest) and follow the [first-launch instructions](QUICKSTART.md#下载与首次打开). Enter your local workspace without signing up.
-2. In model settings, connect your LuckyTV account or add your own model provider.
+2. In model settings, add your own model provider: a built-in channel, an OpenAI-compatible service, or a protocol plugin, with the matching key.
 3. Create a canvas, add reference media, and describe your goal to the creative assistant. You can also start creating directly with nodes.
 
 See [Quick Start](QUICKSTART.md) for model setup and building from source, and the [desktop release guide](docs/desktop-release.md) for packaging requirements.
