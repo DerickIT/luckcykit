@@ -22,6 +22,11 @@ func creationTestService(t *testing.T) (*Service, *gorm.DB, string, CreationGuar
 	if err != nil {
 		t.Fatal(err)
 	}
+	// Register before the TempDir cleanup runs: on Windows an open SQLite handle
+	// makes RemoveAll fail and leaks the whole temp directory.
+	if sqlDB, err := db.DB(); err == nil {
+		t.Cleanup(func() { _ = sqlDB.Close() })
+	}
 	if err = db.AutoMigrate(database.LocalModels()...); err != nil {
 		t.Fatal(err)
 	}

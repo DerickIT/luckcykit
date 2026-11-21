@@ -24,6 +24,11 @@ func newAssistantTurnService(t *testing.T) (*Service, string, int64) {
 	if err != nil {
 		t.Fatalf("打开临时库失败: %v", err)
 	}
+	// Windows keeps the SQLite file locked until the pool closes; closing before
+	// TempDir cleanup prevents leaked test directories.
+	if sqlDB, err := db.DB(); err == nil {
+		t.Cleanup(func() { _ = sqlDB.Close() })
+	}
 	if err := database.MigrateLocalSchema(db); err != nil {
 		t.Fatalf("迁移失败: %v", err)
 	}
