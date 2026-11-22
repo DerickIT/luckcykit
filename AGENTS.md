@@ -70,6 +70,7 @@ LuckyTV（`glanderness/LuckyTV`）是面向 AI 影视与短剧创作的工作台
 业务 API 的唯一调用入口是 `web/src/services/api/request.ts` 导出的 `http`：
 
 - 模块写 `http.get/post/put/patch/delete`，由 `http` 解包 `{ code, data, msg, reason }`。不要再写 `request(apiClient.*)`，也不要再 `axios.create`。
+- 独立 origin 的外部服务（自有 baseURL、Bearer 凭据、自有响应信封，如云服务）通过 `web/src/services/api/external-client.ts` 创建客户端；该文件是除 `request.ts` 外唯一允许 `axios.create` 的位置，不得复用它调用本地工作区 API。
 - 二进制或非信封响应用 `http.raw`（CSV、诊断包 zip）。
 - `apiClient` 只留给拦截器和 `http` 内部；默认 `VITE_CANVAS_BACKEND_URL || "/api"`。
 - `request()` 仍可用于测试信封解包，不是业务模块的调用面。

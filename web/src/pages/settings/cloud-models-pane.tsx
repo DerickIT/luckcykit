@@ -86,6 +86,7 @@ export function CloudModelsPane() {
 
     const points = account?.points;
     const available = account?.availablePoints;
+    const reserved = account?.reservedPoints;
 
     return (
         <div className="settings-pane">
@@ -122,7 +123,9 @@ export function CloudModelsPane() {
                         <div className="flex flex-col gap-1">
                             <span>{email}</span>
                             <span className="text-sm text-foreground/60">
-                                点数：{available != null && points != null ? `可用 ${available} · 总计 ${points}` : (points ?? "—")}
+                                点数：{points ?? "—"}
+                                {available != null ? ` · 可用 ${available}` : ""}
+                                {reserved != null && reserved > 0 ? ` · 预留 ${reserved}` : ""}
                             </span>
                             <span className="text-sm text-foreground/60">云服务地址：{baseURL}</span>
                         </div>
