@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -60,6 +61,8 @@ func TestModelTaskRoutesRequireSessionAndSettleOnce(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	services.Start(context.Background())
+	defer services.Close()
 	handler := NewRouter(Options{SandboxEnabled: true, Identity: services.Identity, Catalog: services.Catalog, Ledger: services.Ledger, Payment: services.Payment, Tasks: services.Tasks})
 
 	login := request(handler, http.MethodPost, "/api/v1/sandbox/login", "", "127.0.0.1:50000", `{"subject":"task-creator"}`)
@@ -114,6 +117,19 @@ func TestModelTaskRoutesRequireSessionAndSettleOnce(t *testing.T) {
 	}
 	if err := json.Unmarshal(accepted.Body.Bytes(), &acceptedBody); err != nil {
 		t.Fatal(err)
+	}
+	for deadline := time.Now().Add(2 * time.Second); time.Now().Before(deadline); {
+		if acceptedBody.Task.Status == "completed" {
+			break
+		}
+		time.Sleep(5 * time.Millisecond)
+		accepted = request(handler, http.MethodGet, "/api/v1/model-tasks/"+acceptedBody.Task.ID, session.Token, "127.0.0.1:50000", "")
+		var current struct {
+			Task store.CloudTask `json:"task"`
+		}
+		if err := json.Unmarshal(accepted.Body.Bytes(), &current); err == nil {
+			acceptedBody.Task = current.Task
+		}
 	}
 	if acceptedBody.Replayed || acceptedBody.Task.Status != "completed" || acceptedBody.Task.ChargedPoints != 5 {
 		t.Fatalf("unexpected task result: %+v", acceptedBody)

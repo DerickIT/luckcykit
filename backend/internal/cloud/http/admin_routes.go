@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"errors"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 
@@ -14,6 +15,7 @@ type adminRoutes struct {
 }
 
 func (a *adminRoutes) login(c *gin.Context) {
+	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 16<<10)
 	var body struct {
 		Email  string `json:"email"`
 		Secret string `json:"secret"`

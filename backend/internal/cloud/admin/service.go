@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 
 	"luckytv/backend/internal/cloud/store"
@@ -84,7 +85,11 @@ func (s *Service) Bootstrap(secret, email, adminSecret string) (store.AdminAccou
 		if bootstrap.UsedAt != nil || !hmac.Equal([]byte(bootstrap.SecretHash), []byte(secretHash(secret))) {
 			return ErrBootstrapUsed
 		}
-		account = store.AdminAccount{ID: uuid.NewString(), Email: email, SecretHash: secretHash(adminSecret), Role: string(RoleSystem), Active: true, CreatedAt: now}
+		passwordHash, err := hashAdminSecret(adminSecret)
+		if err != nil {
+			return fmt.Errorf("hash initial admin secret: %w", err)
+		}
+		account = store.AdminAccount{ID: uuid.NewString(), Email: email, SecretHash: passwordHash, Role: string(RoleSystem), Active: true, CreatedAt: now}
 		if err := tx.Create(&account).Error; err != nil {
 			return err
 		}
@@ -105,8 +110,13 @@ func (s *Service) Login(email, secret string) (LoginResult, error) {
 	if err := s.db.Where("email = ? AND active = ?", email, true).First(&account).Error; err != nil {
 		return LoginResult{}, ErrInvalidAdminSession
 	}
-	if !hmac.Equal([]byte(account.SecretHash), []byte(secretHash(secret))) {
+	if err := verifyAdminSecret(account.SecretHash, secret); err != nil {
 		return LoginResult{}, ErrInvalidAdminSession
+	}
+	if strings.HasPrefix(account.SecretHash, "sha256:") {
+		if upgraded, hashErr := hashAdminSecret(secret); hashErr == nil {
+			_ = s.db.Model(&store.AdminAccount{}).Where("id = ?", account.ID).Update("secret_hash", upgraded).Error
+		}
 	}
 	result, err := s.issueSession(account)
 	if err != nil {
@@ -176,6 +186,24 @@ func normalizeEmail(raw string) (string, error) {
 func secretHash(secret string) string {
 	sum := sha256.Sum256([]byte(secret))
 	return hex.EncodeToString(sum[:])
+}
+
+func hashAdminSecret(secret string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(secret), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hash), nil
+}
+
+func verifyAdminSecret(stored, secret string) error {
+	if strings.HasPrefix(stored, "sha256:") {
+		if !hmac.Equal([]byte(strings.TrimPrefix(stored, "sha256:")), []byte(secretHash(secret))) {
+			return bcrypt.ErrMismatchedHashAndPassword
+		}
+		return nil
+	}
+	return bcrypt.CompareHashAndPassword([]byte(stored), []byte(secret))
 }
 
 func tokenHash(token string) string { return secretHash(token) }

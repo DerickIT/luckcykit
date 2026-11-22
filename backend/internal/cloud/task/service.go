@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -23,11 +24,15 @@ var (
 )
 
 type Service struct {
-	db      *gorm.DB
-	ledger  *ledger.Service
-	gateway *modelgateway.Client
-	models  map[string]store.HostedModel
-	now     func() time.Time
+	db       *gorm.DB
+	ledger   *ledger.Service
+	gateway  *modelgateway.Client
+	models   map[string]store.HostedModel
+	now      func() time.Time
+	wake     chan struct{}
+	stop     chan struct{}
+	stopOnce sync.Once
+	worker   sync.WaitGroup
 }
 
 type SubmitRequest struct {
@@ -47,15 +52,18 @@ func New(db *gorm.DB, points *ledger.Service, gateway *modelgateway.Client, mode
 	for _, model := range models {
 		modelMap[model.ID] = model
 	}
-	return &Service{db: db, ledger: points, gateway: gateway, models: modelMap, now: func() time.Time { return time.Now().UTC() }}
+	return &Service{db: db, ledger: points, gateway: gateway, models: modelMap, now: func() time.Time { return time.Now().UTC() }, wake: make(chan struct{}, 1), stop: make(chan struct{})}
 }
 
 func (s *Service) Submit(ctx context.Context, input SubmitRequest) (SubmitResult, error) {
+	if err := ctx.Err(); err != nil {
+		return SubmitResult{}, err
+	}
 	if strings.TrimSpace(input.AccountID) == "" || len(strings.TrimSpace(input.IdempotencyKey)) == 0 || len(input.IdempotencyKey) > 160 {
 		return SubmitResult{}, ErrTaskIdempotency
 	}
 	model, ok := s.models[input.ModelID]
-	if !ok || !model.Enabled || model.MaxInputTokens <= 0 || model.MaxOutputTokens <= 0 || input.Request.Model != "" || input.Request.MaxOutputTokens > model.MaxOutputTokens {
+	if !ok || !model.Enabled || model.UpstreamID == "" || model.MaxInputTokens <= 0 || model.MaxOutputTokens <= 0 || input.Request.Model != "" || input.Request.MaxOutputTokens < 0 || input.Request.MaxOutputTokens > model.MaxOutputTokens || len(input.Request.Messages) == 0 {
 		return SubmitResult{}, ErrModelUnavailable
 	}
 	requestJSON, err := json.Marshal(input.Request)
@@ -75,7 +83,7 @@ func (s *Service) Submit(ctx context.Context, input SubmitRequest) (SubmitResult
 		} else if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return fmt.Errorf("read existing model task: %w", err)
 		}
-		task := store.CloudTask{ID: uuid.NewString(), AccountID: input.AccountID, IdempotencyKey: input.IdempotencyKey, ModelID: model.ID, PriceVersion: model.PriceVersion, RequestJSON: string(requestJSON), Status: "reserved", CreatedAt: now, UpdatedAt: now}
+		task := store.CloudTask{ID: uuid.NewString(), AccountID: input.AccountID, IdempotencyKey: strings.TrimSpace(input.IdempotencyKey), ModelID: model.ID, UpstreamID: model.UpstreamID, PriceVersion: model.PriceVersion, MaxInputTokens: model.MaxInputTokens, MaxOutputTokens: model.MaxOutputTokens, InputPointsPerMillion: model.InputPointsPerMillion, OutputPointsPerMillion: model.OutputPointsPerMillion, RequestJSON: string(requestJSON), Status: "queued", CreatedAt: now, UpdatedAt: now}
 		reservationPoints, err := ledger.PointsForUsage(model.MaxInputTokens, model.MaxOutputTokens, model.InputPointsPerMillion, model.OutputPointsPerMillion)
 		if err != nil {
 			return fmt.Errorf("calculate task reservation: %w", err)
@@ -95,21 +103,72 @@ func (s *Service) Submit(ctx context.Context, input SubmitRequest) (SubmitResult
 	}); err != nil {
 		return SubmitResult{}, err
 	}
-	if result.Replayed {
-		return result, nil
+	if !result.Replayed {
+		s.notifyWorker()
 	}
-	if s.gateway == nil {
-		return result, nil
-	}
-	if err := s.execute(ctx, result.Task); err != nil {
-		return SubmitResult{}, err
-	}
-	updated, err := s.Get(input.AccountID, result.Task.ID)
-	if err != nil {
-		return SubmitResult{}, err
-	}
-	result.Task = updated
 	return result, nil
+}
+
+// Start launches the worker that executes tasks already committed to the
+// database. The database is the queue, so queued tasks survive process restarts.
+func (s *Service) Start(ctx context.Context) {
+	if s == nil || s.gateway == nil {
+		return
+	}
+	// A process can stop after claiming a task but before it records an outcome.
+	// Preserve the reservation and require reconciliation instead of replaying a
+	// possibly charged upstream request automatically.
+	_ = s.db.Model(&store.CloudTask{}).Where("status = ?", "running").Updates(map[string]any{
+		"status": "pending-reconciliation", "error_code": "worker_interrupted", "updated_at": s.now(),
+	}).Error
+	s.worker.Add(1)
+	go func() {
+		defer s.worker.Done()
+		for {
+			if s.processOne(ctx) {
+				continue
+			}
+			select {
+			case <-ctx.Done():
+				return
+			case <-s.stop:
+				return
+			case <-s.wake:
+			}
+		}
+	}()
+	s.notifyWorker()
+}
+
+func (s *Service) Close() {
+	if s == nil {
+		return
+	}
+	s.stopOnce.Do(func() { close(s.stop) })
+	s.worker.Wait()
+}
+
+func (s *Service) notifyWorker() {
+	select {
+	case s.wake <- struct{}{}:
+	default:
+	}
+}
+
+func (s *Service) processOne(ctx context.Context) bool {
+	var task store.CloudTask
+	if err := s.db.Where("status = ?", "queued").Order("created_at ASC").Order("id ASC").First(&task).Error; err != nil {
+		return false
+	}
+	claimed := s.db.Model(&store.CloudTask{}).Where("id = ? AND status = ?", task.ID, "queued").Updates(map[string]any{"status": "running", "updated_at": s.now()})
+	if claimed.Error != nil || claimed.RowsAffected != 1 {
+		return claimed.Error == nil
+	}
+	task.Status = "running"
+	if err := s.execute(ctx, task); err != nil && !errors.Is(err, context.Canceled) {
+		_ = s.markUnknown(task, "worker_failed")
+	}
+	return true
 }
 
 func (s *Service) execute(ctx context.Context, task store.CloudTask) error {
@@ -117,11 +176,10 @@ func (s *Service) execute(ctx context.Context, task store.CloudTask) error {
 	if err := json.Unmarshal([]byte(task.RequestJSON), &request); err != nil {
 		return s.fail(task, "invalid_request", false)
 	}
-	model, ok := s.models[task.ModelID]
-	if !ok || !model.Enabled || model.UpstreamID == "" {
+	if task.UpstreamID == "" {
 		return s.fail(task, "model_unavailable", true)
 	}
-	response, err := s.gateway.Call(ctx, model.UpstreamID, request)
+	response, err := s.gateway.Call(ctx, task.UpstreamID, request)
 	if errors.Is(err, modelgateway.ErrUnknownOutcome) {
 		return s.markUnknown(task, "submission_unknown")
 	}

@@ -46,7 +46,27 @@ func newTaskTest(t *testing.T, gateway *modelgateway.Client) (*gorm.DB, *Service
 			_ = sqlDB.Close()
 		}
 	})
-	return db, New(db, points, gateway, models)
+	service := New(db, points, gateway, models)
+	service.Start(context.Background())
+	t.Cleanup(service.Close)
+	return db, service
+}
+
+func waitForTask(t *testing.T, service *Service, accountID, taskID string) store.CloudTask {
+	t.Helper()
+	deadline := time.Now().Add(2 * time.Second)
+	for time.Now().Before(deadline) {
+		got, err := service.Get(accountID, taskID)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got.Status == "completed" || got.Status == "failed" || got.Status == "pending-reconciliation" {
+			return got
+		}
+		time.Sleep(5 * time.Millisecond)
+	}
+	t.Fatalf("task %s did not finish", taskID)
+	return store.CloudTask{}
 }
 
 func TestSubmitSettlesUsageAndIdempotencyDoesNotCallUpstreamAgain(t *testing.T) {
@@ -72,6 +92,7 @@ func TestSubmitSettlesUsageAndIdempotencyDoesNotCallUpstreamAgain(t *testing.T) 
 	if err != nil {
 		t.Fatal(err)
 	}
+	first.Task = waitForTask(t, service, input.AccountID, first.Task.ID)
 	if first.Replayed || first.Task.Status != "completed" || first.Task.ChargedPoints != 5 {
 		t.Fatalf("unexpected first task: %+v", first)
 	}
@@ -102,6 +123,7 @@ func TestSubmitTimeoutLeavesPendingReconciliationAndReservation(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	result.Task = waitForTask(t, service, result.Task.AccountID, result.Task.ID)
 	if result.Task.Status != "pending-reconciliation" || result.Task.ErrorCode != "submission_unknown" {
 		t.Fatalf("timeout did not enter reconciliation: %+v", result.Task)
 	}
@@ -140,6 +162,7 @@ func TestSuccessfulResponseWithoutUsageKeepsReservationForReconciliation(t *test
 	if err != nil {
 		t.Fatal(err)
 	}
+	result.Task = waitForTask(t, service, result.Task.AccountID, result.Task.ID)
 	if result.Task.Status != "pending-reconciliation" || result.Task.ErrorCode != "usage_invalid" {
 		t.Fatalf("missing usage was treated as a completed task: %+v", result.Task)
 	}

@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"errors"
+	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -16,6 +17,7 @@ type taskRoutes struct {
 }
 
 func (a *taskRoutes) submit(c *gin.Context) {
+	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 4<<20)
 	var body struct {
 		ModelID         string                 `json:"modelId"`
 		Messages        []modelgateway.Message `json:"messages"`

@@ -70,6 +70,8 @@ func run(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	services.Start(ctx)
+	defer services.Close()
 	handler := httpapi.NewRouter(httpapi.Options{
 		SandboxEnabled: cfg.SandboxEnabled, Identity: services.Identity, Admin: services.Admin,
 		EmailOTP: services.EmailOTP, Catalog: services.Catalog, Ledger: services.Ledger,

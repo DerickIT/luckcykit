@@ -82,7 +82,11 @@ func TestAdminSessionAndRoleAuthorization(t *testing.T) {
 
 func TestAuditIsAppendOnlyAndScopedToAdmin(t *testing.T) {
 	db, service := newAdminTest(t)
-	adminAccount := store.AdminAccount{ID: "admin-audit", Email: "audit@example.com", SecretHash: secretHash("admin-secret-0123456789012345678901234567"), Role: string(RoleSystem), Active: true, CreatedAt: time.Now().UTC()}
+	adminHash, err := hashAdminSecret("admin-secret-0123456789012345678901234567")
+	if err != nil {
+		t.Fatal(err)
+	}
+	adminAccount := store.AdminAccount{ID: "admin-audit", Email: "audit@example.com", SecretHash: adminHash, Role: string(RoleSystem), Active: true, CreatedAt: time.Now().UTC()}
 	if err := db.Create(&adminAccount).Error; err != nil {
 		t.Fatal(err)
 	}

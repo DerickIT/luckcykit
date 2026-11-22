@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"net/mail"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -36,11 +37,12 @@ type VerificationMailer interface {
 }
 
 type EmailOTPService struct {
-	db       *gorm.DB
-	identity *Service
-	mailer   VerificationMailer
-	secret   []byte
-	now      func() time.Time
+	db        *gorm.DB
+	identity  *Service
+	mailer    VerificationMailer
+	secret    []byte
+	now       func() time.Time
+	requestMu sync.Mutex
 }
 
 func NewEmailOTPService(db *gorm.DB, identities *Service, mailer VerificationMailer, secret []byte) *EmailOTPService {
@@ -61,6 +63,8 @@ func (s *EmailOTPService) RequestCode(ctx context.Context, rawEmail string) erro
 	if err != nil {
 		return err
 	}
+	s.requestMu.Lock()
+	defer s.requestMu.Unlock()
 	now := s.now()
 	var recent store.EmailVerificationCode
 	err = s.db.Where("email = ? AND created_at > ?", email, now.Add(-verificationResendWindow)).

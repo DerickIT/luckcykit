@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -72,4 +73,16 @@ func New(options Options) (*App, error) {
 		tasks = task.New(db, points, options.Gateway, options.Models)
 	}
 	return &App{Identity: identities, Admin: administrators, Catalog: products, Ledger: points, Payment: orders, EmailOTP: emailOTP, Tasks: tasks}, nil
+}
+
+func (a *App) Start(ctx context.Context) {
+	if a != nil && a.Tasks != nil {
+		a.Tasks.Start(ctx)
+	}
+}
+
+func (a *App) Close() {
+	if a != nil && a.Tasks != nil {
+		a.Tasks.Close()
+	}
 }

@@ -47,7 +47,7 @@ type EmailVerificationCode struct {
 type AdminAccount struct {
 	ID         string    `gorm:"primaryKey;size:36" json:"id"`
 	Email      string    `gorm:"uniqueIndex;size:320;not null" json:"email"`
-	SecretHash string    `gorm:"size:64;not null" json:"-"`
+	SecretHash string    `gorm:"size:255;not null" json:"-"`
 	Role       string    `gorm:"size:32;not null" json:"role"`
 	Active     bool      `gorm:"not null" json:"active"`
 	CreatedAt  time.Time `json:"createdAt"`
@@ -131,21 +131,26 @@ type HostedModel struct {
 }
 
 type CloudTask struct {
-	ID             string    `gorm:"primaryKey;size:36" json:"id"`
-	AccountID      string    `gorm:"uniqueIndex:idx_cloud_task_idempotency,priority:1;size:36;not null" json:"accountId"`
-	IdempotencyKey string    `gorm:"uniqueIndex:idx_cloud_task_idempotency,priority:2;size:160;not null" json:"-"`
-	ModelID        string    `gorm:"size:80;not null" json:"modelId"`
-	PriceVersion   string    `gorm:"size:80;not null" json:"priceVersion"`
-	RequestJSON    string    `gorm:"type:text;not null" json:"-"`
-	ResponseText   string    `gorm:"type:text" json:"responseText,omitempty"`
-	Status         string    `gorm:"index;size:32;not null" json:"status"`
-	ReservedPoints int64     `gorm:"not null" json:"reservedPoints"`
-	InputTokens    int64     `gorm:"not null" json:"inputTokens"`
-	OutputTokens   int64     `gorm:"not null" json:"outputTokens"`
-	ChargedPoints  int64     `gorm:"not null" json:"chargedPoints"`
-	ErrorCode      string    `gorm:"size:64" json:"errorCode,omitempty"`
-	CreatedAt      time.Time `json:"createdAt"`
-	UpdatedAt      time.Time `json:"updatedAt"`
+	ID                     string    `gorm:"primaryKey;size:36" json:"id"`
+	AccountID              string    `gorm:"uniqueIndex:idx_cloud_task_idempotency,priority:1;size:36;not null" json:"accountId"`
+	IdempotencyKey         string    `gorm:"uniqueIndex:idx_cloud_task_idempotency,priority:2;size:160;not null" json:"-"`
+	ModelID                string    `gorm:"size:80;not null" json:"modelId"`
+	UpstreamID             string    `gorm:"size:160;not null" json:"-"`
+	PriceVersion           string    `gorm:"size:80;not null" json:"priceVersion"`
+	MaxInputTokens         int64     `gorm:"not null" json:"-"`
+	MaxOutputTokens        int64     `gorm:"not null" json:"-"`
+	InputPointsPerMillion  int64     `gorm:"not null" json:"-"`
+	OutputPointsPerMillion int64     `gorm:"not null" json:"-"`
+	RequestJSON            string    `gorm:"type:text;not null" json:"-"`
+	ResponseText           string    `gorm:"type:text" json:"responseText,omitempty"`
+	Status                 string    `gorm:"index;size:32;not null" json:"status"`
+	ReservedPoints         int64     `gorm:"not null" json:"reservedPoints"`
+	InputTokens            int64     `gorm:"not null" json:"inputTokens"`
+	OutputTokens           int64     `gorm:"not null" json:"outputTokens"`
+	ChargedPoints          int64     `gorm:"not null" json:"chargedPoints"`
+	ErrorCode              string    `gorm:"size:64" json:"errorCode,omitempty"`
+	CreatedAt              time.Time `json:"createdAt"`
+	UpdatedAt              time.Time `json:"updatedAt"`
 }
 
 type HostedUsage struct {
@@ -212,8 +217,9 @@ func (s *Store) Close() error {
 }
 
 const (
-	schemaVersionBase       = 1
-	schemaVersionEmailAdmin = 2
+	schemaVersionBase         = 1
+	schemaVersionEmailAdmin   = 2
+	schemaVersionTaskSnapshot = 3
 )
 
 func Migrate(db *gorm.DB) error {
@@ -236,6 +242,13 @@ func Migrate(db *gorm.DB) error {
 	if !applied[schemaVersionEmailAdmin] {
 		if err := applyMigration(db, schemaVersionEmailAdmin, func(tx *gorm.DB) error {
 			return tx.AutoMigrate(&EmailVerificationCode{}, &AdminAccount{}, &AdminSession{}, &AdminBootstrap{}, &AuditEvent{})
+		}); err != nil {
+			return err
+		}
+	}
+	if !applied[schemaVersionTaskSnapshot] {
+		if err := applyMigration(db, schemaVersionTaskSnapshot, func(tx *gorm.DB) error {
+			return tx.AutoMigrate(&CloudTask{}, &AdminAccount{})
 		}); err != nil {
 			return err
 		}

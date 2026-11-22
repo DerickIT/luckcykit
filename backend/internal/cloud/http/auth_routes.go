@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"errors"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 
@@ -14,6 +15,7 @@ type authRoutes struct {
 }
 
 func (a *authRoutes) requestEmailCode(c *gin.Context) {
+	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 16<<10)
 	var body struct {
 		Email string `json:"email"`
 	}
@@ -38,6 +40,7 @@ func (a *authRoutes) requestEmailCode(c *gin.Context) {
 }
 
 func (a *authRoutes) verifyEmailCode(c *gin.Context) {
+	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 16<<10)
 	var body struct {
 		Email string `json:"email"`
 		Code  string `json:"code"`
@@ -60,6 +63,7 @@ func (a *authRoutes) verifyEmailCode(c *gin.Context) {
 }
 
 func (a *authRoutes) sandboxLogin(c *gin.Context) {
+	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 16<<10)
 	var body struct {
 		Subject string `json:"subject"`
 	}
