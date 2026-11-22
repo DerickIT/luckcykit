@@ -32,6 +32,40 @@ backend\cmd\desktop\build\bin\LuckyTV.exe
 
 脚本会为本次开发会话生成一个临时桌面令牌，并让 Vite 代理自动转发到同一个 Go 后端；生产包仍使用随机令牌和动态 loopback 端口。
 
+### Windows（不依赖 Git Bash）
+
+在 PowerShell 里一条命令启动后端与前端（默认后端 `127.0.0.1:8080`、前端 `127.0.0.1:3000`、数据目录 `.local\project-workbench-debug`）：
+
+```powershell
+.\scripts\dev-windows.ps1
+```
+
+常用参数：
+
+```powershell
+.\scripts\dev-windows.ps1 -Clean                      # 使用新的验收数据目录
+.\scripts\dev-windows.ps1 -Cloud                      # 同时启动云服务沙箱（127.0.0.1:8081）
+.\scripts\dev-windows.ps1 -BackendPort 8081 -WebPort 3001
+.\scripts\dev-windows.ps1 -NoWeb                      # 只起后端（配合已运行的桌面外壳）
+```
+
+也可以双击 `scripts\dev-windows.cmd`，参数同样透传。脚本会在本窗口汇总两个进程的日志，`Ctrl+C` 时按端口兜底清理残留进程；端口被占用或依赖缺失时直接报错，不会静默启动一半。
+
+只想像浏览器里看页面，也可以手动分开跑：
+
+```powershell
+# 终端 1
+cd backend
+$env:CANVAS_BACKEND_DATA_DIR = "../.local/project-workbench-debug"
+$env:CANVAS_BACKEND_ADDR = "127.0.0.1:8080"
+go run ./cmd/server
+
+# 终端 2
+cd web
+$env:VITE_API_PROXY_TARGET = "http://127.0.0.1:8080"
+bun run dev
+```
+
 前端检查：
 
 ```bash
