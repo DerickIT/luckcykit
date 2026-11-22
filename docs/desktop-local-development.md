@@ -47,8 +47,47 @@ backend\cmd\desktop\build\bin\LuckyTV.exe
 .\scripts\dev-windows.ps1 -Cloud                      # 同时启动云服务沙箱（127.0.0.1:8081）
 .\scripts\dev-windows.ps1 -BackendPort 8081 -WebPort 3001
 .\scripts\dev-windows.ps1 -NoWeb                      # 只起后端（配合已运行的桌面外壳）
+.\scripts\dev-windows.ps1 -Desktop                    # 跑真正的桌面客户端，前端仍由 Vite 热更新
+.\scripts\dev-windows.ps1 -Desktop -Delve             # 同上，并让 Delve 在 127.0.0.1:2345 等待调试器
 .\scripts\dev-windows.ps1 -StopExisting               # 端口被上次运行占用时，先结束占用进程
 ```
+
+### 跑真正的桌面客户端，同时调试 Go 与内嵌网页
+
+`-Desktop` 与浏览器预览的区别：窗口是真正的 Wails 客户端，Go 服务跑在客户端进程里，但窗口里的页面来自 Vite。改 `web/src` 保存即热更新，不用重新构建 `dist`，也不用重装桌面包。
+
+它做三件事：
+
+- Vite 在 `127.0.0.1:3000` 提供前端。
+- 客户端启动时设置 `FRONTEND_DEVSERVER_URL`，Wails 非 production 构建会改为从该地址取页面；其余请求仍由客户端资源服务器代理，所以窗口 origin 依然是 `wails.localhost`，前端判定为桌面外壳：`/api` 同源直连进程内服务、`X-Desktop-Token` 由外壳自己带上、Wails 绑定走真实客户端。
+- 客户端进程内的 Go 服务监听 `127.0.0.1:8080`，日志与 Vite 日志汇总在同一窗口。
+
+等价的手工命令（脚本就是这套环境变量）：
+
+```powershell
+cd web
+$env:VITE_API_PROXY_TARGET = "http://127.0.0.1:8080"
+bun run dev
+
+# 另一个终端
+cd backend
+$env:CANVAS_DESKTOP_DATA_DIR = "D:\Code\OPC\BeefTV\.local\project-workbench-debug"
+$env:CANVAS_DESKTOP_BACKEND_ADDR = "127.0.0.1:8080"
+$env:CANVAS_DESKTOP_LAUNCH_TOKEN = "<32 字节随机 hex>"
+$env:FRONTEND_DEVSERVER_URL = "http://127.0.0.1:3000"
+go run ./cmd/desktop
+```
+
+调试入口：
+
+| 目标 | 做法 |
+| --- | --- |
+| 窗口内的网页 | 窗口里按 `F12` 或右键「检查」，打开 WebView2 开发者工具；改 `web/src` 立即热更新 |
+| 同一份前端的浏览器调试 | 打开 `http://localhost:3000`，脚本已把启动令牌注入 Vite 代理，`/api` 直达同一个进程内服务 |
+| Go 客户端逻辑 | `-Desktop -Delve` 后用 VS Code 的 `attach`（port `2345`）或 GoLand 的 Go Remote 接入，断点会停在真实客户端进程 |
+
+关闭客户端窗口即结束客户端；脚本窗口 `Ctrl+C` 停止全部进程。
+
 
 端口被占用时脚本会打印占用者的端口、PID、进程名和命令行；确认是自己上次留下的进程后加 `-StopExisting` 即可，不需要手动查 PID。
 

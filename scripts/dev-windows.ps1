@@ -11,6 +11,8 @@
 
 .EXAMPLE
   .\scripts\dev-windows.ps1
+  .\scripts\dev-windows.ps1 -Desktop
+  .\scripts\dev-windows.ps1 -Desktop -Delve
   .\scripts\dev-windows.ps1 -Clean
   .\scripts\dev-windows.ps1 -Cloud
   .\scripts\dev-windows.ps1 -StopExisting
@@ -26,7 +28,12 @@ param(
     [int]$CloudPort = 8081,
     [switch]$NoWeb,
     [switch]$NoBackend,
-    [switch]$StopExisting
+    [switch]$StopExisting,
+    # 打开真正的桌面客户端（Wails 窗口 + 内嵌 Go 服务），前端仍由 Vite 提供，可热更新。
+    [switch]$Desktop,
+    # 配合 -Desktop：用 Delve 启动客户端，等待 127.0.0.1:2345 上的调试器连接。
+    [switch]$Delve,
+    [int]$DelvePort = 2345
 )
 
 $ErrorActionPreference = "Stop"
@@ -46,6 +53,13 @@ function Assert-Command($name) {
     }
 }
 
+function New-HexToken([int]$byteCount = 32) {
+    $buffer = New-Object byte[] $byteCount
+    $rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+    try { $rng.GetBytes($buffer) } finally { $rng.Dispose() }
+    return -join ($buffer | ForEach-Object { $_.ToString("x2") })
+}
+
 function Get-PortOwner($port) {
     $listener = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1
     if (-not $listener) { return $null }
@@ -62,13 +76,23 @@ function Get-PortOwner($port) {
     }
 }
 
-function Wait-Http($url, $seconds) {
+function Wait-Http($url, $seconds, $headers = $null) {
     $deadline = (Get-Date).AddSeconds($seconds)
     while ((Get-Date) -lt $deadline) {
         try {
-            $response = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 3
+            if ($headers) {
+                $response = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 3 -Headers $headers
+            } else {
+                $response = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 3
+            }
             if ($response.StatusCode -ge 200 -and $response.StatusCode -lt 500) { return $true }
         } catch {
+            # Windows PowerShell 5.1 把 4xx/5xx 抛成异常，但服务已经起来了也算就绪。
+            $status = 0
+            if ($_.Exception.Response -and $_.Exception.Response.StatusCode) {
+                $status = [int]$_.Exception.Response.StatusCode
+            }
+            if ($status -ge 200 -and $status -lt 500) { return $true }
             Start-Sleep -Milliseconds 500
         }
     }
@@ -85,6 +109,14 @@ function Stop-Listeners($ports) {
 }
 
 Write-Step "检查依赖"
+if ($Desktop) {
+    if ($NoWeb) { throw "-Desktop 需要 Vite 提供实时前端，不能和 -NoWeb 一起使用。" }
+    if ($Delve -and -not (Get-Command "dlv" -ErrorAction SilentlyContinue)) {
+        throw "找不到 dlv。执行 go install github.com/go-delve/delve/cmd/dlv@latest 后再用 -Delve。"
+    }
+    # 桌面客户端自带内嵌 Go 服务，不再单独启动 cmd/server。
+    $NoBackend = $true
+}
 Assert-Command "go"
 Assert-Command "node"
 if (-not $NoWeb) { Assert-Command "bun" }
@@ -100,7 +132,7 @@ $dataDirFull = [System.IO.Path]::GetFullPath((Join-Path $backendDir $DataDir))
 Write-Host ("    数据: " + $dataDirFull)
 
 $wantedPorts = @()
-if (-not $NoBackend) { $wantedPorts += $BackendPort }
+if (-not $NoBackend -or $Desktop) { $wantedPorts += $BackendPort }
 if (-not $NoWeb) { $wantedPorts += $WebPort }
 if ($Cloud) { $wantedPorts += $CloudPort }
 
@@ -141,6 +173,9 @@ if ($blocked.Count -gt 0) {
     }
 }
 
+$launchToken = $null
+if ($Desktop) { $launchToken = New-HexToken }
+
 try {
     if (-not $NoBackend) {
         Write-Step "启动后端 (127.0.0.1:$BackendPort)"
@@ -166,6 +201,12 @@ try {
     if (-not $NoWeb) {
         Write-Step "启动前端 (127.0.0.1:$WebPort，/api 代理到 $BackendPort)"
         $env:VITE_API_PROXY_TARGET = "http://127.0.0.1:$BackendPort"
+        if ($Desktop) {
+            # 桌面窗口走 wails.localhost 同源直连内嵌服务；这个 token 只用于在浏览器里调试同一份前端。
+            $env:VITE_DESKTOP_LAUNCH_TOKEN = $launchToken
+        } else {
+            Remove-Item Env:VITE_DESKTOP_LAUNCH_TOKEN -ErrorAction SilentlyContinue
+        }
         $webArgs = @("run", "dev")
         if ($WebPort -ne 3000) { $webArgs += @("--", "--port", "$WebPort") }
         $web = Start-Process -FilePath "bun" -ArgumentList $webArgs `
@@ -174,10 +215,39 @@ try {
         $startedPorts += $WebPort
     }
 
-    if (-not $NoBackend) {
-        Write-Step "等待后端就绪"
-        if (-not (Wait-Http "http://127.0.0.1:$BackendPort/api/health/ready" 120)) {
-            throw "后端 120 秒内未就绪，请看上方日志。"
+    if ($Desktop) {
+        Write-Step "启动桌面客户端 (窗口内前端 = http://127.0.0.1:$WebPort)"
+        if (-not (Wait-Http "http://127.0.0.1:$WebPort/" 90)) {
+            Write-Host "    Vite 尚未响应；客户端会自己重试等待，稍后窗口才会出画面。" -ForegroundColor Yellow
+        }
+        $env:CANVAS_DESKTOP_DATA_DIR = $dataDirFull
+        $env:CANVAS_DESKTOP_BACKEND_ADDR = "127.0.0.1:$BackendPort"
+        $env:CANVAS_DESKTOP_LAUNCH_TOKEN = $launchToken
+        $env:FRONTEND_DEVSERVER_URL = "http://127.0.0.1:$WebPort"
+        $desktopProcess = $null
+        if ($Delve) {
+            $delveArgs = @(
+                "debug", "./cmd/desktop",
+                "--headless", "--listen=127.0.0.1:$DelvePort",
+                "--api-version=2", "--accept-multiclient", "--continue"
+            )
+            $desktopProcess = Start-Process -FilePath "dlv" -ArgumentList $delveArgs `
+                -WorkingDirectory $backendDir -NoNewWindow -PassThru
+        } else {
+            $desktopProcess = Start-Process -FilePath "go" -ArgumentList "run", "./cmd/desktop" `
+                -WorkingDirectory $backendDir -NoNewWindow -PassThru
+        }
+        $started += $desktopProcess
+        $startedPorts += $BackendPort
+    }
+
+    if (-not $NoBackend -or $Desktop) {
+        Write-Step "等待内嵌服务就绪"
+        # 桌面 profile 的 API 需要启动令牌，就绪探测也要带上，否则只会拿到 403。
+        $readyHeaders = $null
+        if ($Desktop) { $readyHeaders = @{ "X-Desktop-Token" = $launchToken } }
+        if (-not (Wait-Http "http://127.0.0.1:$BackendPort/api/health/ready" 180 $readyHeaders)) {
+            throw "内嵌服务 180 秒内未就绪，请看上方日志。"
         }
         Write-Host "    后端就绪" -ForegroundColor Green
     }
@@ -188,12 +258,14 @@ try {
 
     Write-Host ""
     Write-Host "可用地址：" -ForegroundColor Green
-    if (-not $NoWeb) { Write-Host "  应用        http://localhost:$WebPort" }
-    if (-not $NoBackend) {
-        Write-Host "  后端健康    http://127.0.0.1:$BackendPort/api/health/ready"
-        Write-Host "  Bootstrap   http://127.0.0.1:$BackendPort/api/workspace/bootstrap"
+    if ($Desktop) { Write-Host "  客户端      已打开的 LuckyTV 窗口（前端热更新，F12 打开 WebView2 开发者工具）" }
+    if (-not $NoWeb) { Write-Host "  网页         http://localhost:$WebPort" }
+    if (-not $NoBackend -or $Desktop) {
+        Write-Host "  后端健康     http://127.0.0.1:$BackendPort/api/health/ready"
+        Write-Host "  Bootstrap    http://127.0.0.1:$BackendPort/api/workspace/bootstrap"
     }
-    if ($Cloud) { Write-Host "  云沙箱      http://127.0.0.1:$CloudPort/api/v1/health" }
+    if ($Delve) { Write-Host "  Delve 调试  127.0.0.1:$DelvePort（等待调试器接入）" }
+    if ($Cloud) { Write-Host "  云沙箱       http://127.0.0.1:$CloudPort/api/v1/health" }
     Write-Host ""
     Write-Host "按 Ctrl+C 停止全部服务。" -ForegroundColor Yellow
 
