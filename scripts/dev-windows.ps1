@@ -7,14 +7,13 @@
   不依赖 Git Bash / openssl。默认：
     - 后端 http://127.0.0.1:8080，数据目录 .local\project-workbench-debug
     - 前端 http://127.0.0.1:3000，/api 代理到后端
-  后端与前端都在本窗口输出日志，Ctrl+C 结束时一起停止。
+  端口被占用时会打印占用进程（PID / 进程名 / 命令行），加 -StopExisting 可直接结束它。
 
 .EXAMPLE
   .\scripts\dev-windows.ps1
-
-.EXAMPLE
-  .\scripts\dev-windows.ps1 -Clean                 # 用全新的验收数据目录
-  .\scripts\dev-windows.ps1 -Cloud                 # 同时启动云服务沙箱（8081）
+  .\scripts\dev-windows.ps1 -Clean
+  .\scripts\dev-windows.ps1 -Cloud
+  .\scripts\dev-windows.ps1 -StopExisting
   .\scripts\dev-windows.ps1 -BackendPort 8081 -WebPort 3001
 #>
 [CmdletBinding()]
@@ -26,10 +25,13 @@ param(
     [switch]$Cloud,
     [int]$CloudPort = 8081,
     [switch]$NoWeb,
-    [switch]$NoBackend
+    [switch]$NoBackend,
+    [switch]$StopExisting
 )
 
 $ErrorActionPreference = "Stop"
+# Windows PowerShell 5.1 默认按系统代码页输出，中文提示会变成 ???；统一成 UTF-8。
+try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch { }
 $root = Split-Path -Parent $PSScriptRoot
 $backendDir = Join-Path $root "backend"
 $webDir = Join-Path $root "web"
@@ -44,9 +46,20 @@ function Assert-Command($name) {
     }
 }
 
-function Test-PortBusy($port) {
-    $listener = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue
-    return [bool]$listener
+function Get-PortOwner($port) {
+    $listener = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $listener) { return $null }
+    $process = Get-Process -Id $listener.OwningProcess -ErrorAction SilentlyContinue
+    $commandLine = ""
+    try {
+        $commandLine = (Get-CimInstance Win32_Process -Filter "ProcessId = $($listener.OwningProcess)" -ErrorAction Stop).CommandLine
+    } catch { }
+    return [pscustomobject]@{
+        Port        = $port
+        PID         = $listener.OwningProcess
+        Name        = if ($process) { $process.ProcessName } else { "unknown" }
+        CommandLine = $commandLine
+    }
 }
 
 function Wait-Http($url, $seconds) {
@@ -83,15 +96,49 @@ if ($Clean) {
     $DataDir = "../.local/accept-" + (Get-Date -Format "yyyyMMdd-HHmmss")
     Write-Step "使用全新数据目录 $DataDir"
 }
-
 $dataDirFull = [System.IO.Path]::GetFullPath((Join-Path $backendDir $DataDir))
 Write-Host ("    数据: " + $dataDirFull)
 
-if (-not $NoBackend -and (Test-PortBusy $BackendPort)) {
-    throw "端口 $BackendPort 已被占用。先停止旧进程，或用 -BackendPort 换端口。"
+$wantedPorts = @()
+if (-not $NoBackend) { $wantedPorts += $BackendPort }
+if (-not $NoWeb) { $wantedPorts += $WebPort }
+if ($Cloud) { $wantedPorts += $CloudPort }
+
+$blocked = @()
+foreach ($port in $wantedPorts) {
+    $owner = Get-PortOwner $port
+    if ($owner) { $blocked += $owner }
 }
-if (-not $NoWeb -and (Test-PortBusy $WebPort)) {
-    throw "端口 $WebPort 已被占用。先停止旧进程，或用 -WebPort 换端口。"
+
+if ($blocked.Count -gt 0) {
+    Write-Host ""
+    Write-Host "以下端口已被占用：" -ForegroundColor Yellow
+    foreach ($item in $blocked) {
+        Write-Host ("    {0}  pid={1}  进程={2}" -f $item.Port, $item.PID, $item.Name)
+        if ($item.CommandLine) {
+            $command = $item.CommandLine
+            if ($command.Length -gt 160) { $command = $command.Substring(0, 160) + " ..." }
+            Write-Host ("            " + $command) -ForegroundColor DarkGray
+        }
+    }
+    Write-Host ""
+    if (-not $StopExisting) {
+        throw "端口被占用。加 -StopExisting 结束上面的进程，或用 -BackendPort / -WebPort 换端口。"
+    }
+    Write-Step "停止占用进程 (-StopExisting)"
+    foreach ($item in $blocked) {
+        try { Stop-Process -Id $item.PID -Force -ErrorAction Stop; Write-Host ("    已停止 pid={0} ({1})" -f $item.PID, $item.Name) }
+        catch { throw ("无法停止 pid={0} ({1})：{2}" -f $item.PID, $item.Name, $_.Exception.Message) }
+    }
+    Start-Sleep -Milliseconds 800
+    $stillBusy = @()
+    foreach ($port in $wantedPorts) {
+        $owner = Get-PortOwner $port
+        if ($owner) { $stillBusy += $owner }
+    }
+    if ($stillBusy.Count -gt 0) {
+        throw ("端口仍被占用：{0}。请手动结束这些进程后重试。" -f (($stillBusy | ForEach-Object { "$($_.Port)(pid=$($_.PID))" }) -join ", "))
+    }
 }
 
 try {
@@ -106,7 +153,6 @@ try {
     }
 
     if ($Cloud) {
-        if (Test-PortBusy $CloudPort) { throw "端口 $CloudPort 已被占用。" }
         Write-Step "启动云服务沙箱 (127.0.0.1:$CloudPort)"
         $env:LUCKYTV_CLOUD_SANDBOX = "true"
         $env:LUCKYTV_CLOUD_ADDR = "127.0.0.1:$CloudPort"
@@ -120,7 +166,9 @@ try {
     if (-not $NoWeb) {
         Write-Step "启动前端 (127.0.0.1:$WebPort，/api 代理到 $BackendPort)"
         $env:VITE_API_PROXY_TARGET = "http://127.0.0.1:$BackendPort"
-        $web = Start-Process -FilePath "bun" -ArgumentList "run", "dev", "--", "--host", "127.0.0.1", "--port", "$WebPort" `
+        $webArgs = @("run", "dev")
+        if ($WebPort -ne 3000) { $webArgs += @("--", "--port", "$WebPort") }
+        $web = Start-Process -FilePath "bun" -ArgumentList $webArgs `
             -WorkingDirectory $webDir -NoNewWindow -PassThru
         $started += $web
         $startedPorts += $WebPort
@@ -134,21 +182,18 @@ try {
         Write-Host "    后端就绪" -ForegroundColor Green
     }
     if (-not $NoWeb) {
-        if (-not (Wait-Http "http://127.0.0.1:$WebPort/" 90)) {
-            Write-Host "    前端尚未响应，Vite 可能仍在编译；日志见上方。" -ForegroundColor Yellow
-        } else {
-            Write-Host "    前端就绪" -ForegroundColor Green
-        }
+        if (Wait-Http "http://127.0.0.1:$WebPort/" 90) { Write-Host "    前端就绪" -ForegroundColor Green }
+        else { Write-Host "    前端尚未响应，Vite 可能仍在编译；日志见上方。" -ForegroundColor Yellow }
     }
 
     Write-Host ""
     Write-Host "可用地址：" -ForegroundColor Green
-    if (-not $NoWeb) { Write-Host "  应用    http://localhost:$WebPort" }
+    if (-not $NoWeb) { Write-Host "  应用        http://localhost:$WebPort" }
     if (-not $NoBackend) {
-        Write-Host "  后端    http://127.0.0.1:$BackendPort/api/health/ready"
-        Write-Host "  Bootstrap http://127.0.0.1:$BackendPort/api/workspace/bootstrap"
+        Write-Host "  后端健康    http://127.0.0.1:$BackendPort/api/health/ready"
+        Write-Host "  Bootstrap   http://127.0.0.1:$BackendPort/api/workspace/bootstrap"
     }
-    if ($Cloud) { Write-Host "  云沙箱  http://127.0.0.1:$CloudPort/api/v1/health" }
+    if ($Cloud) { Write-Host "  云沙箱      http://127.0.0.1:$CloudPort/api/v1/health" }
     Write-Host ""
     Write-Host "按 Ctrl+C 停止全部服务。" -ForegroundColor Yellow
 

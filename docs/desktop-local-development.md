@@ -47,7 +47,10 @@ backend\cmd\desktop\build\bin\LuckyTV.exe
 .\scripts\dev-windows.ps1 -Cloud                      # 同时启动云服务沙箱（127.0.0.1:8081）
 .\scripts\dev-windows.ps1 -BackendPort 8081 -WebPort 3001
 .\scripts\dev-windows.ps1 -NoWeb                      # 只起后端（配合已运行的桌面外壳）
+.\scripts\dev-windows.ps1 -StopExisting               # 端口被上次运行占用时，先结束占用进程
 ```
+
+端口被占用时脚本会打印占用者的端口、PID、进程名和命令行；确认是自己上次留下的进程后加 `-StopExisting` 即可，不需要手动查 PID。
 
 也可以双击 `scripts\dev-windows.cmd`，参数同样透传。脚本会在本窗口汇总两个进程的日志，`Ctrl+C` 时按端口兜底清理残留进程；端口被占用或依赖缺失时直接报错，不会静默启动一半。
 
