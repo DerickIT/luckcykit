@@ -4,6 +4,7 @@ import { isEmbeddedRuntime } from "@/lib/embedded-runtime";
 import { setWorkspaceStorageScope } from "@/lib/user-scope";
 import { isBrowserLocalRuntime } from "@/lib/runtime-mode";
 import { getWorkspaceBootstrap, type WorkspaceBootstrapPayload } from "@/services/api/workspace";
+import { useCloudSessionStore } from "@/stores/use-cloud-session-store";
 import {
     beginStartupDiagnosticsScope,
     initializeClientDiagnostics,
@@ -32,6 +33,9 @@ export async function ensureWorkspaceStorageHydrated(options?: { retry?: boolean
     // 浏览器缓存晚于后端读入完成时，会用旧连接数组盖掉刚合并的画布。
     await useCanvasStore.persist.rehydrate();
     if (!isEmbeddedRuntime() && !isBrowserLocalRuntime()) await hydrateLocalCanvasProjectsFromBackend();
+    // Reads the DPAPI-stored cloud session only; network refresh stays on demand
+    // so an unconfigured cloud endpoint never blocks workspace startup.
+    await useCloudSessionStore.getState().hydrate().catch(() => undefined);
     clearWorkspaceStartupFailure();
     return payload;
 }

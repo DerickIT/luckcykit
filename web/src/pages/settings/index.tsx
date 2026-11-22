@@ -6,6 +6,7 @@ import { Navigate, useNavigate, useSearchParams } from "react-router";
 import { useConfigStore, useEffectiveConfig } from "@/stores/use-config-store";
 import { useUserStore } from "@/stores/use-user-store";
 import { ChannelSettingsPane, channelValidationError, focusInvalidChannelField, isChannelReady } from "./channel-settings-pane";
+import { CloudModelsPane } from "./cloud-models-pane";
 import { ModelDefaultGrid } from "./model-default-grid";
 import DiagnosticsPanel from "./diagnostics-panel";
 import { StorageSettingsPane } from "./storage-settings-pane";
@@ -14,10 +15,17 @@ import { ReferenceStoragePane } from "./reference-storage-pane";
 import { getDesktopAppBinding } from "@/services/desktop-runtime";
 import { PageHeader } from "@/components/layout/workspace-page";
 
-type ConfigSectionKey = "channels" | "models" | "storage" | "diagnostics";
+type ConfigSectionKey = "channels" | "models" | "cloud" | "storage" | "diagnostics";
+type PaneSectionKey = Exclude<ConfigSectionKey, "models" | "diagnostics">;
 
 export function isConfigSection(value: string | null): value is ConfigSectionKey {
-    return value === "channels" || value === "storage" || value === "diagnostics";
+    return value === "channels" || value === "models" || value === "cloud" || value === "storage" || value === "diagnostics";
+}
+
+// Legacy links point at ?section=models; default-model selection lives in the
+// channels pane, so both entry points resolve to the same layout.
+function paneSection(section: ConfigSectionKey): PaneSectionKey {
+    return section === "models" ? "channels" : section === "diagnostics" ? "channels" : section;
 }
 
 export default function SettingsPage() {
@@ -27,7 +35,7 @@ export default function SettingsPage() {
     const requestedSection = searchParams.get("section");
     const customChannelsEnabled = useUserStore((state) => state.features.customChannelsEnabled);
     const initialSection = isConfigSection(requestedSection) ? requestedSection : "channels";
-    const [activeTab, setActiveTab] = useState<ConfigSectionKey>(initialSection === "models" ? "channels" : initialSection);
+    const [activeTab, setActiveTab] = useState<ConfigSectionKey>(initialSection);
     const config = useConfigStore((state) => state.config);
     const effectiveConfig = useEffectiveConfig();
     const updateConfig = useConfigStore((state) => state.updateConfig);
@@ -67,7 +75,7 @@ export default function SettingsPage() {
         navigate(-1);
     };
 
-    const panes: Record<Exclude<ConfigSectionKey, "diagnostics">, ReactNode> = {
+    const panes: Record<PaneSectionKey, ReactNode> = {
         channels: (
             <SettingsPane>
                 <ChannelSettingsPane onOpenDiagnostics={() => selectSection("diagnostics")} />
@@ -79,6 +87,11 @@ export default function SettingsPage() {
                     </div>
                     <ModelDefaultGrid config={effectiveConfig} onChange={(key, model) => updateConfig(key, model)} />
                 </div>
+            </SettingsPane>
+        ),
+        cloud: (
+            <SettingsPane>
+                <CloudModelsPane />
             </SettingsPane>
         ),
         storage: (
@@ -96,21 +109,7 @@ export default function SettingsPage() {
                 </div>
             </SettingsPane>
         ),
-        models: (
-            <SettingsPane>
-                <div className="settings-pane-header">
-                    <div className="min-w-0">
-                        <h2>模型选择</h2>
-                        <p>按领域选择默认模型；模型能力和接口格式在渠道“模型与能力”中配置。</p>
-                    </div>
-                </div>
-                <div className="settings-section">
-                            <ModelDefaultGrid config={effectiveConfig} onChange={(key, model) => updateConfig(key, model)} onOpenChannels={customChannelsEnabled ? () => selectSection("channels") : undefined} />
-                </div>
-            </SettingsPane>
-        ),
     };
-
     if (requestedSection === "assistant") {
         return <Navigate to="/skills" replace />;
     }
@@ -129,7 +128,7 @@ export default function SettingsPage() {
                 <section className="settings-content flex min-h-0 min-w-0 flex-1 flex-col">
                     <div className="app-workspace-scroll app-section-page-content min-h-0 flex-1 overflow-y-auto overscroll-contain">
                         <div className="settings-pane-root mx-auto w-full max-w-none">
-                            {panes[activeTab === "diagnostics" ? "channels" : activeTab]}
+                            {panes[paneSection(activeTab)]}
                         </div>
                     </div>
                 </section>

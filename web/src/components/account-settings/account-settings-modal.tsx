@@ -8,6 +8,7 @@ import { useLuckyTVConnection } from "@/components/layout/luckytv-connection-pro
 import { AppModal } from "@/components/ui/product/app-modal";
 import { useDesktopUpdate } from "@/hooks/use-desktop-update";
 import { ModelDefaultGrid } from "@/pages/settings/model-default-grid";
+import { settingsPath } from "@/lib/settings-navigation";
 import { useConfigStore, useEffectiveConfig } from "@/stores/use-config-store";
 import { useThemeStore } from "@/stores/use-theme-store";
 import { AccountBuiltinPlugins } from "./account-builtin-plugins";
@@ -56,6 +57,7 @@ export function AccountSettingsModal({ open, onClose }: { open: boolean; onClose
                     <div className="account-setting-row account-model-connection"><div><h3>LuckyTV 官方渠道</h3><p role="status">{syncing ? "正在同步模型…" : catalogSyncFailed ? "模型同步失败" : connection?.state === "connected" ? "已连接，模型已同步到本地" : "登录后自动连接官方模型"}</p></div>
                         {catalogSyncFailed ? <Button loading={busy} onClick={() => void retryCatalog()}>重试同步</Button> : <Button onClick={() => goTo("/settings?section=channels")}>管理渠道</Button>}
                     </div>
+                    <div className="account-setting-row account-model-connection"><div><h3>LuckyTV 云端模型</h3><p>独立邮箱账号、云端模型目录和点数账本；不影响本地渠道。</p></div><Button onClick={() => goTo(settingsPath("cloud"))}>管理云端</Button></div>
                     <ModelDefaultGrid config={config} onChange={(key, value) => updateConfig(key, value)} onOpenChannels={() => goTo("/settings?section=channels")} />
                 </> : null}
                 {active === "plugins" ? <AccountBuiltinPlugins onManage={() => goTo("/plugins")} /> : null}
