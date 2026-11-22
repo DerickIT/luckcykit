@@ -36,6 +36,8 @@ Wails 和浏览器开发模式共用同一套 `127.0.0.1` HTTP 合同。路由�
 
 `POST /ai/request-urls` 按 `baseUrl`、`apiFormat` 和文本接口格式列表 `protocols` 返回后端实际请求的地址：`catalog` 是读取模型目录的地址，`text` 以传入的接口格式为键，是文本任务的请求地址。接口格式留空时按渠道格式取默认值；插件或认不出的接口格式不返回地址。这个接口只计算地址，不向上游发请求；设置页展示的地址都来自这里。
 
+独立云服务使用自己的 `/api/v1` 地址和 Bearer 会话，不复用本地工作区 API。登录后 `GET /api/v1/models` 返回可用托管文本模型的公开投影：`id`、`displayName`、`capabilities`、`priceVersion`、输入/输出 token 上限及每百万 token 点数费率；该接口不返回 OneAPI 上游 ID、地址或密钥。`GET /api/v1/account` 与 `/api/v1/ledger` 返回 `points`（累计点数）、`reservedPoints`（任务预留）与 `availablePoints`（可消费点数）；账本条目为追加写入。云端账号、点数余额和账本也不写入本地模型配置；浏览器只保留当前内存会话，桌面端由原生安全凭据存储负责持久登录。
+
 `POST /assistant/ui-session` 返回仅驻留内存、绑定当前 owner 的 `token` 与 `expiresAt`。界面在到期前 30 秒重新签发凭据，同一身份的并发请求共用签发结果；重置或切换身份后旧响应不能恢复旧凭据。签发仍要求原有本机同源与 owner/桌面引导校验。
 
 `POST /assistant/chat` 的响应头 `X-Luckytv-Turn-Admission` 区分 `rejected`（尚未调用业务轮次入口）、`unknown`（已经尝试开始轮次）与 `admitted`（已创建轮次）。仅明确的 `rejected` 或尚未发送消息的签发失败可按未接纳处理；缺少标记、网络错误或接纳后的断流仍需读取回执与画布确认。凭据续签和 403 失效处理都不会自动重放消息。

@@ -94,6 +94,17 @@ func TestSandboxPurchaseFlowAndLoopbackBoundary(t *testing.T) {
 	if account.Code != http.StatusOK || !bytes.Contains(account.Body.Bytes(), []byte(`"points":100`)) {
 		t.Fatalf("ledger balance response = %d %s", account.Code, account.Body.String())
 	}
+	var balance struct {
+		Points          int64 `json:"points"`
+		ReservedPoints  int64 `json:"reservedPoints"`
+		AvailablePoints int64 `json:"availablePoints"`
+	}
+	if err := json.Unmarshal(account.Body.Bytes(), &balance); err != nil {
+		t.Fatal(err)
+	}
+	if balance.Points != 100 || balance.ReservedPoints != 0 || balance.AvailablePoints != 100 {
+		t.Fatalf("account balance fields = %+v", balance)
+	}
 	remotePayment := requestWithIdempotency(handler, path, session.Token, "198.51.100.12:50000", "pay-1")
 	if remotePayment.Code != http.StatusForbidden {
 		t.Fatalf("non-loopback sandbox payment status = %d", remotePayment.Code)

@@ -17,7 +17,12 @@ func (a *accountRoutes) account(c *gin.Context) {
 		c.JSON(500, gin.H{"error": "balance_unavailable"})
 		return
 	}
-	c.JSON(200, gin.H{"accountId": accountID, "points": balance.Points})
+	c.JSON(200, gin.H{
+		"accountId":       accountID,
+		"points":          balance.Points,
+		"reservedPoints":  balance.ReservedPoints,
+		"availablePoints": balance.AvailablePoints,
+	})
 }
 
 func (a *accountRoutes) ledgerEntries(c *gin.Context) {
@@ -32,5 +37,10 @@ func (a *accountRoutes) ledgerEntries(c *gin.Context) {
 		c.JSON(500, gin.H{"error": "ledger_unavailable"})
 		return
 	}
-	c.JSON(200, gin.H{"balance": balance.Points, "entries": entries})
+	c.JSON(200, gin.H{
+		"balance":         balance.Points,
+		"reservedPoints":  balance.ReservedPoints,
+		"availablePoints": balance.AvailablePoints,
+		"entries":         entries,
+	})
 }
