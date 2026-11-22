@@ -83,6 +83,7 @@ export type DesktopRuntimeBinding = {
     OpenLuckyTVX?: () => Promise<void>;
     OpenLuckyTVWebsite?: () => Promise<void>;
     OpenLuckyTVGitHub?: () => Promise<void>;
+    CloudSession?: (operation: "read" | "write" | "clear", payload?: string) => Promise<string>;
 };
 
 export type DesktopStorageUsage = { dataDir: string; usedBytes: number; freeBytes: number; previousDir?: string; previousBytes?: number };
