@@ -83,7 +83,7 @@ export type DesktopRuntimeBinding = {
     OpenLuckyTVX?: () => Promise<void>;
     OpenLuckyTVWebsite?: () => Promise<void>;
     OpenLuckyTVGitHub?: () => Promise<void>;
-    CloudSession?: (operation: "read" | "write" | "clear", payload?: string) => Promise<string>;
+    CloudSession?: (operation: "read" | "write" | "clear", payload: string) => Promise<string>;
 };
 
 export type DesktopStorageUsage = { dataDir: string; usedBytes: number; freeBytes: number; previousDir?: string; previousBytes?: number };
@@ -100,13 +100,33 @@ export type DepthComponentState = {
 };
 export type ReferenceStorageConfig = { enabled: boolean; endpoint: string; bucket: string; region: string; accessKeyId: string; publicBaseURL: string; hasSecret: boolean };
 
-// Wails v3 exposes bound services via Call.ByName("package.Service.Method").
-// The FQN is derived from the Go package path and type name.
-const DESKTOP_APP_FQN = "luckytv/backend/cmd/desktop.DesktopApp";
+// Wails v3 exposes bound services via Call.ByName("<pkg>.<Service>.<Method>").
+// 桌面壳是 package main 编译出的可执行文件，Go 在可执行文件里把包路径记成 "main"，
+// 不是模块路径；写死模块路径会让每次调用都返回 unknown bound method name。
+const DESKTOP_APP_FQN = "main.DesktopApp";
 
 function callDesktopApp<T>(method: string, ...args: unknown[]): Promise<T> {
     return WailsCall.ByName(`${DESKTOP_APP_FQN}.${method}`, ...args) as Promise<T>;
 }
+
+// Wails v2 会注入 window.go.main.DesktopApp 供前端按方法名探测能力；v3 只提供 Call.ByName，
+// 而本地保存、更新、存储设置等调用点仍按 window.go 探测（见 desktop-media-save.ts）。
+// 与其在每个调用点各写一份 v3 分支，这里在桌面壳里把同名对象代理到 Call.ByName。
+export function installDesktopAppGlobalBinding() {
+    if (typeof window === "undefined" || !isDesktopShellOrigin()) return;
+    if (window.go?.main?.DesktopApp) return;
+    const cache: Record<string, (...args: unknown[]) => Promise<unknown>> = {};
+    const proxy = new Proxy(cache, {
+        get(target, property, receiver) {
+            if (typeof property !== "string") return Reflect.get(target, property, receiver);
+            if (!target[property]) target[property] = (...args: unknown[]) => callDesktopApp(property, ...args);
+            return target[property];
+        },
+    });
+    window.go = { ...(window.go ?? {}), main: { ...(window.go?.main ?? {}), DesktopApp: proxy } };
+}
+
+installDesktopAppGlobalBinding();
 
 function createV3Binding(): DesktopRuntimeBinding {
     // Each method is resolved lazily by name. The proxy keeps this robust to

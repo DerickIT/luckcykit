@@ -41,7 +41,7 @@ type StoredCloudSession = { baseURL: string; email: string; token: string; expir
 async function readStoredSession(): Promise<StoredCloudSession | null> {
     const binding = getDesktopAppBinding();
     if (!binding?.CloudSession) return null;
-    const raw = await binding.CloudSession("read");
+    const raw = await binding.CloudSession("read", "");
     if (!raw) return null;
     try {
         const parsed = JSON.parse(raw) as Partial<StoredCloudSession>;
@@ -57,7 +57,7 @@ async function writeStoredSession(session: StoredCloudSession | null) {
     const binding = getDesktopAppBinding();
     if (!binding?.CloudSession) return;
     if (!session) {
-        await binding.CloudSession("clear");
+        await binding.CloudSession("clear", "");
         return;
     }
     await binding.CloudSession("write", JSON.stringify(session));
