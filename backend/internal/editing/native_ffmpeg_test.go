@@ -19,7 +19,8 @@ func TestSubtitleFontFailureWithSuccessfulExit(t *testing.T) {
 		"couldn't find font family", "missing glyph 0x4E2D", "no fonts found",
 	} {
 		t.Run(message, func(t *testing.T) {
-			cmd := exec.Command("/bin/sh", "-c", `printf '%s\n' "$1" >&2; exit 0`, "font-fixture", message)
+			cmd := exec.Command(os.Args[0], "-test.run=^TestSubtitleFontFailureFixture$")
+			cmd.Env = append(os.Environ(), "LUCKYTV_FONT_FIXTURE_MESSAGE="+message)
 			output, err := cmd.CombinedOutput()
 			if err != nil {
 				t.Fatalf("fixture must exit zero: %v", err)
@@ -29,6 +30,14 @@ func TestSubtitleFontFailureWithSuccessfulExit(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestSubtitleFontFailureFixture(t *testing.T) {
+	message := os.Getenv("LUCKYTV_FONT_FIXTURE_MESSAGE")
+	if message == "" {
+		return
+	}
+	_, _ = fmt.Fprintln(os.Stderr, message)
 }
 
 func TestRenderFFmpegSixSecondAudioAndChineseSubtitles(t *testing.T) {

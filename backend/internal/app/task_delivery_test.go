@@ -1084,6 +1084,11 @@ func newGenerationDeliveryService(t *testing.T, path string) (*Service, *gorm.DB
 	if err != nil {
 		t.Fatal(err)
 	}
+	sqlDB, err := db.DB()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = sqlDB.Close() })
 	if err := db.AutoMigrate(
 		&model.SystemSetting{}, &model.UserDailyUploadUsage{}, &model.UserUploadReservation{}, &model.Task{}, &model.TaskLog{}, &model.Result{},
 		&model.Asset{}, &model.AssetVersion{}, &model.AssetRepresentation{}, &model.Resource{},

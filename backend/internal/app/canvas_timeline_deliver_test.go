@@ -12,6 +12,7 @@ import (
 	"gorm.io/gorm"
 
 	"luckytv/backend/internal/editing"
+	"luckytv/backend/internal/mediatools"
 	"luckytv/backend/internal/model"
 	"luckytv/backend/internal/operations"
 	"luckytv/backend/internal/repository"
@@ -31,6 +32,9 @@ type timelineDeliverFixture struct {
 // owned video. The module name is a real file so the render worker can run.
 func newTimelineDeliverFixture(t *testing.T) *timelineDeliverFixture {
 	t.Helper()
+	if _, err := mediatools.ResolveFFprobe(); err != nil {
+		t.Skip("native ffprobe unavailable")
+	}
 	_, db := newTimelineTaskTestService(t)
 	sqlDB, _ := db.DB()
 	sqlDB.SetMaxOpenConns(1)

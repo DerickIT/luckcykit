@@ -68,6 +68,11 @@ func TestFinalizeKeepsSnapshotWhenReceiptQueryFails(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	reopenedSQLDB, err := reopenedDB.DB()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = reopenedSQLDB.Close() })
 	reopened := NewLocal(repository.New(reopenedDB), dir)
 	record, readErr := reopened.loadAssistantTurn(turnID)
 	if readErr != nil {

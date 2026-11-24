@@ -35,12 +35,13 @@ func newHarness(t *testing.T) *harness {
 	if err != nil {
 		t.Fatalf("打开临时库失败: %v", err)
 	}
-	// 与生产一致：SQLite 单连接池。任何"事务内再去根连接取数"的写法都会在这里自等死锁，
-	// 从而让这类缺陷在 go test 中直接暴露，而不是只在运行时。
 	sqlDB, err := db.DB()
 	if err != nil {
 		t.Fatalf("取底层连接失败: %v", err)
 	}
+	t.Cleanup(func() { _ = sqlDB.Close() })
+	// 与生产一致：SQLite 单连接池。任何"事务内再去根连接取数"的写法都会在这里自等死锁，
+	// 从而让这类缺陷在 go test 中直接暴露，而不是只在运行时。
 	sqlDB.SetMaxOpenConns(1)
 	sqlDB.SetMaxIdleConns(1)
 	if err := database.MigrateLocalSchema(db); err != nil {

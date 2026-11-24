@@ -10,12 +10,16 @@ import (
 	"testing"
 
 	"luckytv/backend/internal/editing"
+	"luckytv/backend/internal/mediatools"
 	"luckytv/backend/internal/model"
 	"luckytv/backend/internal/operations"
 	"luckytv/backend/internal/repository"
 )
 
 func TestTimelineSubtitleOnlyUpdateAndRenderKeepSavedPortraitOutput(t *testing.T) {
+	if _, err := mediatools.ResolveFFprobe(); err != nil {
+		t.Skip("native ffprobe unavailable")
+	}
 	_, db := newTimelineTaskTestService(t)
 	sqlDB, _ := db.DB()
 	sqlDB.SetMaxOpenConns(1)

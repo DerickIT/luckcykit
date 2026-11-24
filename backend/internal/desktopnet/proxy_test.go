@@ -11,24 +11,20 @@ import (
 )
 
 func TestHTTPSChildProxyPreservesRedirectBypassAndExplicitDirect(t *testing.T) {
-	t.Setenv("HTTPS_PROXY", "http://127.0.0.1:7890")
-	t.Setenv("https_proxy", "http://127.0.0.1:9999")
-	t.Setenv("NO_PROXY", "*.internal,cdn.example.com,10.0.0.0/8")
-	t.Setenv("no_proxy", "")
-	env := strings.Join(HTTPSProxyEnvironment(), "\n")
+	config := &httpproxy.Config{
+		HTTPSProxy: "http://127.0.0.1:7890",
+		NoProxy:    "*.internal,cdn.example.com,10.0.0.0/8",
+	}
+	env := strings.Join(httpsProxyEnvironment(config, true, systemProxySettings{}), "\n")
 	if !strings.Contains(env, "https_proxy=http://127.0.0.1:7890") || !strings.Contains(env, "no_proxy=.internal,cdn.example.com,10.0.0.0/8") {
 		t.Fatal("child downloader lost desktop proxy precedence or redirect exclusions")
 	}
-	t.Setenv("HTTPS_PROXY", "")
-	t.Setenv("https_proxy", "")
-	t.Setenv("ALL_PROXY", "http://127.0.0.1:8888")
-	t.Setenv("NO_PROXY", "*")
-	env = strings.Join(HTTPSProxyEnvironment(), "\n")
+	direct := &httpproxy.Config{NoProxy: "*"}
+	env = strings.Join(httpsProxyEnvironment(direct, true, systemProxySettings{config: httpproxy.Config{HTTPSProxy: "http://127.0.0.1:7890"}}), "\n")
 	if !strings.Contains(env, "no_proxy=*\n") || !strings.HasSuffix(env, "ALL_PROXY=\nall_proxy=") {
 		t.Fatal("explicit direct configuration fell back to a different proxy")
 	}
-	t.Setenv("NO_PROXY", "*")
-	if !strings.Contains(strings.Join(HTTPSProxyEnvironment(), "\n"), "no_proxy=*\n") {
+	if !strings.Contains(strings.Join(httpsProxyEnvironment(direct, true, systemProxySettings{}), "\n"), "no_proxy=*\n") {
 		t.Fatal("universal proxy bypass was lost")
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -45,10 +46,15 @@ func TestWindowsWorkerUsesUTF8ForChineseProgress(t *testing.T) {
 }
 
 func TestWorkerCheckpointDownloadUsesResolvedDesktopProxy(t *testing.T) {
+	for _, name := range []string{"HTTP_PROXY", "http_proxy", "HTTPS_PROXY", "https_proxy", "NO_PROXY", "no_proxy", "ALL_PROXY", "all_proxy"} {
+		t.Setenv(name, "")
+	}
+	lowerProxy := "http://127.0.0.1:9999"
+	if runtime.GOOS == "windows" {
+		lowerProxy = "http://127.0.0.1:7890"
+	}
 	t.Setenv("HTTPS_PROXY", "http://127.0.0.1:7890")
-	t.Setenv("https_proxy", "http://127.0.0.1:9999")
-	t.Setenv("NO_PROXY", "")
-	t.Setenv("no_proxy", "")
+	t.Setenv("https_proxy", lowerProxy)
 	env := WorkerEnvForPlatform("C:/depth/worker", "windows")
 	joined := strings.Join(env, "\n")
 	if !strings.Contains(joined, "HTTPS_PROXY=http://127.0.0.1:7890\nhttps_proxy=http://127.0.0.1:7890\nNO_PROXY=") {

@@ -93,8 +93,18 @@ func ConfiguredProxyAddress(address string) bool {
 // downloaders, including redirect hosts and the system bypass list.
 func HTTPSProxyEnvironment() []string {
 	config := environmentProxyConfig()
-	if !ExplicitProxyConfigured() {
-		system := readSystemProxy()
+	explicit := ExplicitProxyConfigured()
+	var system systemProxySettings
+	if !explicit {
+		system = readSystemProxy()
+	}
+	return httpsProxyEnvironment(config, explicit, system)
+}
+
+func httpsProxyEnvironment(config *httpproxy.Config, explicit bool, system systemProxySettings) []string {
+	configValue := *config
+	config = &configValue
+	if !explicit {
 		config.HTTPSProxy = system.config.HTTPSProxy
 		config.NoProxy = strings.Trim(config.NoProxy+","+system.config.NoProxy, ",")
 	}

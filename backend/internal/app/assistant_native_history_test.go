@@ -12,6 +12,7 @@ import (
 	"luckytv/backend/internal/agentops"
 	"luckytv/backend/internal/assistantturns"
 	"luckytv/backend/internal/editing"
+	"luckytv/backend/internal/mediatools"
 	"luckytv/backend/internal/model"
 	"luckytv/backend/internal/operations"
 	"luckytv/backend/internal/repository"
@@ -22,6 +23,9 @@ import (
 )
 
 func TestNativeHistoryAudioKeepsExactSessionPinAcrossCanvasPermission(t *testing.T) {
+	if _, err := mediatools.ResolveFFprobe(); err != nil {
+		t.Skip("native ffprobe unavailable")
+	}
 	svc, canvasID, _ := newAssistantTurnService(t)
 	ffmpeg, err := editing.ResolveFFmpegBinary()
 	if err != nil {

@@ -65,6 +65,13 @@ func canonicalWorkspacePath(dataDir string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("解析本地工作区数据目录失败: %w", err)
 	}
+	info, err := os.Stat(resolved)
+	if err != nil {
+		return "", fmt.Errorf("解析本地工作区数据目录失败: %w", err)
+	}
+	if !info.IsDir() {
+		return "", errors.New("本地工作区数据目录路径中包含非目录文件")
+	}
 	if len(missing) == 0 {
 		return resolved, nil
 	}

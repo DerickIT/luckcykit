@@ -17,6 +17,7 @@ import (
 	"testing"
 
 	"luckytv/backend/internal/agentops"
+	"luckytv/backend/internal/mediatools"
 	"luckytv/backend/internal/operations"
 	"luckytv/backend/internal/workspace"
 )
@@ -30,6 +31,9 @@ func TestMediaReviewAudioUsesOwnedSourceAndIndependentModel(t *testing.T) {
 }
 
 func testMediaReviewAudio(t *testing.T, format string) {
+	if _, err := mediatools.ResolveFFprobe(); err != nil {
+		t.Skip("native ffprobe unavailable")
+	}
 	svc, canvasID, _ := newAssistantTurnService(t)
 	source := reviewAudioFixture(t, format)
 	resource, err := svc.UploadLocalResourceFile("local", "voice."+format, int64(len(source)), "audio", 0, 0, 2000, bytes.NewReader(source))
