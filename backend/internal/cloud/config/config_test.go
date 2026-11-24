@@ -88,7 +88,7 @@ func TestSandboxRequiresLoopbackAndNonProduction(t *testing.T) {
 	}{
 		{name: "wildcard listener", vars: map[string]string{"LUCKYTV_CLOUD_SANDBOX": "true", "LUCKYTV_CLOUD_ADDR": ":8081"}, want: "loopback"},
 		{name: "hostname listener", vars: map[string]string{"LUCKYTV_CLOUD_SANDBOX": "true", "LUCKYTV_CLOUD_ADDR": "localhost:8081"}, want: "loopback"},
-		{name: "production", vars: map[string]string{"LUCKYTV_CLOUD_ENV": "production"}, want: "development-only"},
+        {name: "production missing database", vars: map[string]string{"LUCKYTV_CLOUD_ENV": "production"}, want: "LUCKYTV_CLOUD_DATABASE_URL is required"},
 		{name: "shared workspace data directory", vars: map[string]string{"LUCKYTV_CLOUD_DATA_DIR": "../.local/project-workbench-debug", "CANVAS_BACKEND_DATA_DIR": "../.local/project-workbench-debug"}, want: "must not overlap"},
 	} {
 		t.Run(test.name, func(t *testing.T) {

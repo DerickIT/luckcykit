@@ -3,6 +3,7 @@ package identity
 import (
 	"context"
 	"errors"
+	"net/url"
 	"testing"
 	"time"
 
@@ -12,6 +13,73 @@ import (
 
 	"luckytv/backend/internal/cloud/store"
 )
+
+func TestOAuthStateIsSingleUseAndExpires(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open("file:cloud-oauth-state-test?mode=memory&cache=shared"), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() {
+		if sqlDB, err := db.DB(); err == nil {
+			_ = sqlDB.Close()
+		}
+	}()
+	if err := store.Migrate(db); err != nil {
+		t.Fatal(err)
+	}
+	service := New(db, time.Hour, nil)
+	state, err := service.CreateOAuthStateWithHandoff(time.Minute, "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := service.ConsumeOAuthState(state); err != nil {
+		t.Fatalf("consume fresh OAuth state: %v", err)
+	}
+	if err := service.ConsumeOAuthState(state); !errors.Is(err, ErrInvalidOAuthState) {
+		t.Fatalf("replayed OAuth state accepted: %v", err)
+	}
+}
+func TestDesktopHandoffCodeIsBoundToStateAndSingleUse(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open("file:cloud-handoff-test?mode=memory&cache=shared"), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() {
+		if sqlDB, err := db.DB(); err == nil {
+			_ = sqlDB.Close()
+		}
+	}()
+	if err := store.Migrate(db); err != nil {
+		t.Fatal(err)
+	}
+	service := New(db, time.Hour, nil)
+	login, err := service.LoginWithIdentity(ProviderIdentity{Provider: "wechat_unionid", Subject: "union-handoff"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	state, err := service.CreateOAuthStateWithHandoff(time.Minute, "http://127.0.0.1:45678/callback", "desktop-state")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := service.ConsumeOAuthState(state); err != nil {
+		t.Fatal(err)
+	}
+	handoff, err := service.IssueHandoffCode(login.Account.ID, state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	parsed, err := url.Parse(handoff.URL)
+	if err != nil || parsed.Query().Get("state") != "desktop-state" || parsed.Query().Get("code") == "" {
+		t.Fatalf("invalid handoff URL: %s", handoff.URL)
+	}
+	result, err := service.ExchangeHandoffCodeWithState(parsed.Query().Get("code"), "desktop-state")
+	if err != nil || result.Token == "" {
+		t.Fatalf("handoff exchange failed: %+v %v", result, err)
+	}
+	if _, err := service.ExchangeHandoffCodeWithState(parsed.Query().Get("code"), "desktop-state"); !errors.Is(err, ErrInvalidOAuthState) {
+		t.Fatalf("handoff code replay accepted: %v", err)
+	}
+}
 
 func TestSandboxIdentitySessionLifecycle(t *testing.T) {
 	db, err := gorm.Open(sqlite.Open("file:cloud-identity-test?mode=memory&cache=shared"), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})

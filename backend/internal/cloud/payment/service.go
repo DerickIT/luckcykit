@@ -19,6 +19,7 @@ var (
 	ErrOrderPaid           = errors.New("order already paid")
 	ErrIdempotency         = errors.New("idempotency key is required and must be at most 160 characters")
 	ErrIdempotencyConflict = errors.New("idempotency key was used for another order")
+	ErrPaymentMismatch     = errors.New("payment confirmation does not match order")
 )
 
 type Service struct {
@@ -40,7 +41,7 @@ func (s *Service) CreateOrder(accountID, productID string) (store.Order, error) 
 			return err
 		}
 		order = store.Order{ID: uuid.NewString(), AccountID: accountID, ProductID: product.ID,
-			ProductName: product.Name, Points: product.Points, Status: "pending", CreatedAt: s.now()}
+			ProductName: product.Name, Currency: product.Currency, AmountCNY: product.AmountCNY, Points: product.Points, Status: "pending", CreatedAt: s.now()}
 		return tx.Create(&order).Error
 	})
 	if err != nil {
@@ -54,76 +55,80 @@ func (s *Service) SimulatePayment(accountID, orderID, idempotencyKey string) (st
 	if idempotencyKey == "" || len(idempotencyKey) > 160 {
 		return store.Order{}, false, ErrIdempotency
 	}
-	order, replayed, err := s.simulatePaymentOnce(accountID, orderID, idempotencyKey)
-	if err == nil {
-		return order, replayed, nil
-	}
-	if store.IsSQLiteConflict(err) || store.IsSQLiteRetryable(err) {
-		if resolvedOrder, resolved, resolveErr := s.resolveCommittedPayment(accountID, orderID, idempotencyKey); resolveErr != nil {
-			return store.Order{}, false, fmt.Errorf("simulate sandbox payment: %w", resolveErr)
-		} else if resolved {
-			return resolvedOrder, true, nil
+	var order store.Order
+	if err := s.db.Where("id = ? AND account_id = ?", orderID, accountID).First(&order).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return store.Order{}, false, ErrOrderNotFound
 		}
-		if store.IsSQLiteRetryable(err) {
-			retryOrder, retryReplay, retryErr := s.simulatePaymentOnce(accountID, orderID, idempotencyKey)
-			if retryErr == nil {
-				return retryOrder, retryReplay, nil
-			}
-			if resolvedOrder, resolved, resolveErr := s.resolveCommittedPayment(accountID, orderID, idempotencyKey); resolveErr != nil {
-				return store.Order{}, false, fmt.Errorf("simulate sandbox payment: %w", resolveErr)
-			} else if resolved {
-				return resolvedOrder, true, nil
-			}
-			return store.Order{}, false, fmt.Errorf("simulate sandbox payment: %w", retryErr)
-		}
+		return store.Order{}, false, err
 	}
-	return store.Order{}, false, fmt.Errorf("simulate sandbox payment: %w", err)
+	return s.ConfirmPayment(PaymentConfirmation{AccountID: accountID, OrderID: orderID, IdempotencyKey: idempotencyKey, Provider: "sandbox", ProviderEventID: idempotencyKey, ProviderAccountID: accountID, Currency: order.Currency, AmountCNY: order.AmountCNY})
 }
 
-func (s *Service) simulatePaymentOnce(accountID, orderID, idempotencyKey string) (store.Order, bool, error) {
+type PaymentConfirmation struct {
+	AccountID         string
+	OrderID           string
+	IdempotencyKey    string
+	Provider          string
+	ProviderEventID   string
+	ProviderAccountID string
+	Currency          string
+	AmountCNY         int64
+}
+
+func (s *Service) ConfirmPayment(input PaymentConfirmation) (store.Order, bool, error) {
+	input.AccountID = strings.TrimSpace(input.AccountID)
+	input.OrderID = strings.TrimSpace(input.OrderID)
+	input.IdempotencyKey = strings.TrimSpace(input.IdempotencyKey)
+	input.Provider = strings.TrimSpace(input.Provider)
+	input.ProviderEventID = strings.TrimSpace(input.ProviderEventID)
+	input.ProviderAccountID = strings.TrimSpace(input.ProviderAccountID)
+	input.Currency = strings.ToUpper(strings.TrimSpace(input.Currency))
+	if input.AccountID == "" || input.OrderID == "" || input.IdempotencyKey == "" || len(input.IdempotencyKey) > 160 || input.Provider == "" || input.ProviderEventID == "" || input.ProviderAccountID == "" || input.Currency == "" || input.AmountCNY <= 0 {
+		return store.Order{}, false, ErrPaymentMismatch
+	}
 	var order store.Order
 	replayed := false
 	err := s.db.Transaction(func(tx *gorm.DB) error {
 		var eventForKey store.PaymentEvent
-		keyErr := tx.Where("account_id = ? AND idempotency_key = ?", accountID, idempotencyKey).First(&eventForKey).Error
-		if keyErr == nil && eventForKey.OrderID != orderID {
-			return ErrIdempotencyConflict
+		keyErr := tx.Where("account_id = ? AND idempotency_key = ?", input.AccountID, input.IdempotencyKey).First(&eventForKey).Error
+		if keyErr == nil {
+			if eventForKey.OrderID != input.OrderID {
+				return ErrIdempotencyConflict
+			}
+			replayed = true
+			return tx.Where("id = ? AND account_id = ?", input.OrderID, input.AccountID).First(&order).Error
 		}
-		if keyErr != nil && !errors.Is(keyErr, gorm.ErrRecordNotFound) {
+		if !errors.Is(keyErr, gorm.ErrRecordNotFound) {
 			return keyErr
 		}
-		if err := tx.Where("id = ? AND account_id = ?", orderID, accountID).First(&order).Error; err != nil {
+		if err := tx.Where("id = ? AND account_id = ?", input.OrderID, input.AccountID).First(&order).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return ErrOrderNotFound
 			}
 			return err
 		}
-		var existing store.PaymentEvent
-		err := tx.Where("order_id = ?", order.ID).First(&existing).Error
-		if err == nil {
-			if existing.IdempotencyKey != idempotencyKey {
-				return ErrOrderPaid
-			}
-			replayed = true
-			return nil
-		}
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return err
-		}
 		if order.Status != "pending" {
 			return ErrOrderPaid
 		}
+		if order.Currency != input.Currency || order.AmountCNY != input.AmountCNY || input.ProviderAccountID != input.AccountID {
+			return ErrPaymentMismatch
+		}
+		var providerEvent store.PaymentEvent
+		if err := tx.Where("provider = ? AND provider_event_id = ? AND provider_account_id = ?", input.Provider, input.ProviderEventID, input.ProviderAccountID).First(&providerEvent).Error; err == nil {
+			return ErrIdempotencyConflict
+		} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
+		}
 		now := s.now()
-		event := store.PaymentEvent{ID: uuid.NewString(), OrderID: order.ID, AccountID: accountID,
-			IdempotencyKey: idempotencyKey, Provider: "sandbox", CreatedAt: now}
+		event := store.PaymentEvent{ID: uuid.NewString(), OrderID: order.ID, AccountID: input.AccountID, IdempotencyKey: input.IdempotencyKey, Provider: input.Provider, ProviderEventID: input.ProviderEventID, ProviderAccountID: input.ProviderAccountID, Currency: input.Currency, AmountCNY: input.AmountCNY, CreatedAt: now}
 		if err := tx.Create(&event).Error; err != nil {
 			return err
 		}
-		if err := s.ledger.CreditInTx(tx, accountID, order.ID, order.Points); err != nil {
+		if err := s.ledger.CreditInTx(tx, input.AccountID, order.ID, order.Points); err != nil {
 			return err
 		}
-		updated := tx.Model(&store.Order{}).Where("id = ? AND account_id = ? AND status = ?", order.ID, accountID, "pending").
-			Updates(map[string]any{"status": "paid", "paid_at": now})
+		updated := tx.Model(&store.Order{}).Where("id = ? AND account_id = ? AND status = ?", order.ID, input.AccountID, "pending").Updates(map[string]any{"status": "paid", "paid_at": now})
 		if updated.Error != nil {
 			return updated.Error
 		}
@@ -138,32 +143,6 @@ func (s *Service) simulatePaymentOnce(accountID, orderID, idempotencyKey string)
 		return store.Order{}, false, err
 	}
 	return order, replayed, nil
-}
-
-func (s *Service) resolveCommittedPayment(accountID, orderID, idempotencyKey string) (store.Order, bool, error) {
-	var event store.PaymentEvent
-	err := s.db.Where("account_id = ? AND idempotency_key = ?", accountID, idempotencyKey).First(&event).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		err = s.db.Where("account_id = ? AND order_id = ?", accountID, orderID).First(&event).Error
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return store.Order{}, false, nil
-		}
-		if err != nil {
-			return store.Order{}, false, err
-		}
-		if event.IdempotencyKey != idempotencyKey {
-			return store.Order{}, false, ErrOrderPaid
-		}
-	} else if err != nil {
-		return store.Order{}, false, err
-	} else if event.OrderID != orderID {
-		return store.Order{}, false, ErrIdempotencyConflict
-	}
-	var order store.Order
-	if err := s.db.Where("id = ? AND account_id = ?", orderID, accountID).First(&order).Error; err != nil {
-		return store.Order{}, false, err
-	}
-	return order, true, nil
 }
 
 func (s *Service) GetOrder(accountID, orderID string) (store.Order, error) {

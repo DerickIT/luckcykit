@@ -17,8 +17,8 @@ func New(db *gorm.DB) *Service { return &Service{db: db} }
 
 func (s *Service) EnsureSandboxProducts() error {
 	products := []store.Product{
-		{ID: "sandbox-points-100", Name: "沙箱点数 100", Points: 100, Enabled: true},
-		{ID: "sandbox-points-500", Name: "沙箱点数 500", Points: 500, Enabled: true},
+		{ID: "sandbox-points-100", Name: "沙箱点数 100", Currency: "CNY", AmountCNY: 100, Points: 100, Enabled: true},
+		{ID: "sandbox-points-500", Name: "沙箱点数 500", Currency: "CNY", AmountCNY: 500, Points: 500, Enabled: true},
 	}
 	for _, product := range products {
 		var current store.Product

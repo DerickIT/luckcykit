@@ -18,13 +18,14 @@ import (
 )
 
 type App struct {
-	Identity *identity.Service
-	Admin    *admin.Service
-	Catalog  *catalog.Service
-	Ledger   *ledger.Service
-	Payment  *payment.Service
-	EmailOTP *identity.EmailOTPService
-	Tasks    *task.Service
+	Identity     *identity.Service
+	Admin        *admin.Service
+	Catalog      *catalog.Service
+	HostedModels *catalog.HostedModelService
+	Ledger       *ledger.Service
+	Payment      *payment.Service
+	EmailOTP     *identity.EmailOTPService
+	Tasks        *task.Service
 }
 
 type Options struct {
@@ -33,6 +34,7 @@ type Options struct {
 	Sandbox              bool
 	Mailer               identity.VerificationMailer
 	OTPSecret            []byte
+	Provider             identity.Provider
 	Gateway              *modelgateway.Client
 	Models               []store.HostedModel
 	AdminBootstrapSecret string
@@ -44,8 +46,8 @@ func New(options Options) (*App, error) {
 	db := options.DB
 	products := catalog.New(db)
 	points := ledger.New(db)
-	var provider identity.Provider
-	if options.Sandbox {
+	provider := options.Provider
+	if provider == nil && options.Sandbox {
 		provider = identity.SandboxProvider{}
 	}
 	identities := identity.New(db, options.SessionTTL, provider)
@@ -72,7 +74,11 @@ func New(options Options) (*App, error) {
 	if options.Gateway != nil && len(options.Models) > 0 {
 		tasks = task.New(db, points, options.Gateway, options.Models)
 	}
-	return &App{Identity: identities, Admin: administrators, Catalog: products, Ledger: points, Payment: orders, EmailOTP: emailOTP, Tasks: tasks}, nil
+	return &App{
+		Identity: identities, Admin: administrators, Catalog: products,
+		HostedModels: catalog.NewHostedModelService(options.Models), Ledger: points,
+		Payment: orders, EmailOTP: emailOTP, Tasks: tasks,
+	}, nil
 }
 
 func (a *App) Start(ctx context.Context) {

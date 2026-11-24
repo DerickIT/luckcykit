@@ -15,6 +15,7 @@ import (
 	"luckytv/backend/internal/cloud/config"
 	"luckytv/backend/internal/cloud/emailconfig"
 	httpapi "luckytv/backend/internal/cloud/http"
+	"luckytv/backend/internal/cloud/identity"
 	"luckytv/backend/internal/cloud/modelgateway"
 	"luckytv/backend/internal/cloud/store"
 )
@@ -32,7 +33,12 @@ func run(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	storage, err := store.Open(cfg.DataDir)
+	var storage *store.Store
+	if cfg.Environment == "production" {
+		storage, err = store.OpenProduction(cfg.DatabaseURL)
+	} else {
+		storage, err = store.Open(cfg.DataDir)
+	}
 	if err != nil {
 		return err
 	}
@@ -61,8 +67,12 @@ func run(ctx context.Context) error {
 			Enabled: true,
 		})
 	}
+	var wechat *identity.WeChatProvider
+	if cfg.WeChatAppID != "" && cfg.WeChatAppSecret != "" {
+		wechat = &identity.WeChatProvider{AppID: cfg.WeChatAppID, AppSecret: cfg.WeChatAppSecret, RedirectURI: cfg.WeChatCallbackURL}
+	}
 	services, err := cloudapp.New(cloudapp.Options{
-		DB: storage.DB(), SessionTTL: 24 * time.Hour, Sandbox: cfg.SandboxEnabled,
+		DB: storage.DB(), SessionTTL: 24 * time.Hour, Sandbox: cfg.SandboxEnabled, Provider: wechat,
 		Mailer: mailer, OTPSecret: otpSecret, Gateway: gateway, Models: models,
 		AdminBootstrapSecret: cfg.AdminBootstrapSecret, AdminBootstrapEmail: cfg.AdminBootstrapEmail,
 		InitialAdminSecret: cfg.AdminInitialSecret,
@@ -72,10 +82,15 @@ func run(ctx context.Context) error {
 	}
 	services.Start(ctx)
 	defer services.Close()
+	var emailOTP *identity.EmailOTPService
+	if cfg.Environment != "production" {
+		emailOTP = services.EmailOTP
+	}
 	handler := httpapi.NewRouter(httpapi.Options{
 		SandboxEnabled: cfg.SandboxEnabled, Identity: services.Identity, Admin: services.Admin,
-		EmailOTP: services.EmailOTP, Catalog: services.Catalog, Ledger: services.Ledger,
-		Payment: services.Payment, Tasks: services.Tasks,
+		EmailOTP: emailOTP, WeChat: wechat, WeChatCallbackURL: cfg.WeChatCallbackURL,
+		Catalog: services.Catalog, HostedModels: services.HostedModels,
+		Ledger: services.Ledger, Payment: services.Payment, Tasks: services.Tasks,
 	})
 	listener, err := net.Listen("tcp", cfg.ListenAddr)
 	if err != nil {

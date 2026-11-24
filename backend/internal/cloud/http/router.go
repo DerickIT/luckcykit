@@ -16,25 +16,30 @@ import (
 )
 
 type Options struct {
-	SandboxEnabled bool
-	Identity       *identity.Service
-	Admin          *admin.Service
-	EmailOTP       *identity.EmailOTPService
-	Catalog        *catalog.Service
-	Ledger         *ledger.Service
-	Payment        *payment.Service
-	Tasks          *task.Service
+	SandboxEnabled    bool
+	Identity          *identity.Service
+	Admin             *admin.Service
+	EmailOTP          *identity.EmailOTPService
+	WeChat            *identity.WeChatProvider
+	WeChatCallbackURL string
+	HostedModels      *catalog.HostedModelService
+	Catalog           *catalog.Service
+	Ledger            *ledger.Service
+	Payment           *payment.Service
+	Tasks             *task.Service
 }
 
 const accountContextKey = "cloudAccountID"
+const authKindContextKey = "cloudAuthKind"
 const adminContextKey = "cloudAdmin"
 
 func NewRouter(options Options) http.Handler {
-	auth := &authRoutes{identity: options.Identity, emailOTP: options.EmailOTP}
+	auth := &authRoutes{identity: options.Identity, emailOTP: options.EmailOTP, wechat: options.WeChat, wechatCallbackURL: options.WeChatCallbackURL}
 	administration := &adminRoutes{service: options.Admin}
 	accounts := &accountRoutes{ledger: options.Ledger}
 	commerce := &commerceRoutes{catalog: options.Catalog, payment: options.Payment}
 	modelTasks := &taskRoutes{tasks: options.Tasks}
+	hostedModels := &hostedModelRoutes{models: options.HostedModels}
 
 	router := gin.New()
 	router.Use(gin.Recovery())
@@ -50,6 +55,11 @@ func NewRouter(options Options) http.Handler {
 		v1.POST("/auth/email/code", auth.requestEmailCode)
 		v1.POST("/auth/email/verify", auth.verifyEmailCode)
 	}
+	if options.WeChat != nil {
+		v1.GET("/auth/wechat/start", auth.beginWeChat)
+		v1.GET("/auth/wechat/callback", auth.wechatCallback)
+		v1.POST("/auth/wechat/handoff", auth.exchangeHandoff)
+	}
 	if options.SandboxEnabled {
 		v1.GET("/products", commerce.listProducts)
 		v1.POST("/sandbox/login", requireSandboxLoopback(), auth.sandboxLogin)
@@ -57,8 +67,17 @@ func NewRouter(options Options) http.Handler {
 	protected := v1.Group("")
 	protected.Use(auth.requireSession())
 	protected.POST("/sessions/revoke", auth.revokeSession)
-	protected.GET("/account", accounts.account)
 	protected.GET("/ledger", accounts.ledgerEntries)
+	protected.GET("/tokens", auth.listAPITokens)
+	protected.POST("/tokens", auth.createAPIToken)
+	protected.DELETE("/tokens/:tokenID", auth.revokeAPIToken)
+	protected.POST("/tokens/revoke-all", auth.revokeAllAPITokens)
+	apiAccess := v1.Group("")
+	apiAccess.Use(auth.requireSessionOrAPIToken())
+	apiAccess.GET("/account", accounts.account)
+	if options.HostedModels != nil {
+		protected.GET("/models", hostedModels.list)
+	}
 	protected.GET("/orders", commerce.listOrders)
 	protected.POST("/orders", commerce.createOrder)
 	protected.GET("/orders/:orderID", commerce.getOrder)
@@ -66,8 +85,8 @@ func NewRouter(options Options) http.Handler {
 		protected.POST("/orders/:orderID/sandbox-payment", requireSandboxLoopback(), commerce.simulatePayment)
 	}
 	if options.Tasks != nil {
-		protected.POST("/model-tasks", modelTasks.submit)
-		protected.GET("/model-tasks/:taskID", modelTasks.get)
+		apiAccess.POST("/model-tasks", modelTasks.submit)
+		apiAccess.GET("/model-tasks/:taskID", modelTasks.get)
 	}
 	router.NoRoute(func(c *gin.Context) { c.JSON(http.StatusNotFound, gin.H{"error": "not_found"}) })
 	return router

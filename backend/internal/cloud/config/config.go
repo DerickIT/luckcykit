@@ -29,6 +29,7 @@ type Config struct {
 	Environment           string
 	ListenAddr            string
 	DataDir               string
+	DatabaseURL           string
 	LocalWorkspaceDataDir string
 	EmailOTPHMACSecret    string
 	SMTPHost              string
@@ -39,6 +40,9 @@ type Config struct {
 	AdminBootstrapSecret  string
 	AdminBootstrapEmail   string
 	AdminInitialSecret    string
+	WeChatAppID           string
+	WeChatAppSecret       string
+	WeChatCallbackURL     string
 	SandboxEnabled        bool
 	HostedModelsEnabled   bool
 	OneAPIBaseURL         string
@@ -63,6 +67,7 @@ func LoadFrom(getenv func(string) string) (Config, error) {
 		Environment:           strings.ToLower(strings.TrimSpace(value(getenv, "LUCKYTV_CLOUD_ENV", "development"))),
 		ListenAddr:            strings.TrimSpace(value(getenv, "LUCKYTV_CLOUD_ADDR", defaultListenAddr)),
 		DataDir:               filepath.Clean(strings.TrimSpace(value(getenv, "LUCKYTV_CLOUD_DATA_DIR", defaultDataDir))),
+		DatabaseURL:           strings.TrimSpace(getenv("LUCKYTV_CLOUD_DATABASE_URL")),
 		LocalWorkspaceDataDir: strings.TrimSpace(value(getenv, "CANVAS_BACKEND_DATA_DIR", defaultWorkspaceDataDir)),
 		EmailOTPHMACSecret:    strings.TrimSpace(getenv("LUCKYTV_CLOUD_EMAIL_OTP_HMAC_SECRET")),
 		SMTPHost:              strings.TrimSpace(getenv("LUCKYTV_CLOUD_SMTP_HOST")),
@@ -73,6 +78,9 @@ func LoadFrom(getenv func(string) string) (Config, error) {
 		AdminBootstrapSecret:  getenv("LUCKYTV_CLOUD_ADMIN_BOOTSTRAP_SECRET"),
 		AdminBootstrapEmail:   strings.TrimSpace(getenv("LUCKYTV_CLOUD_ADMIN_BOOTSTRAP_EMAIL")),
 		AdminInitialSecret:    getenv("LUCKYTV_CLOUD_ADMIN_INITIAL_SECRET"),
+		WeChatAppID:           strings.TrimSpace(getenv("LUCKYTV_CLOUD_WECHAT_APP_ID")),
+		WeChatAppSecret:       getenv("LUCKYTV_CLOUD_WECHAT_APP_SECRET"),
+		WeChatCallbackURL:     strings.TrimSpace(getenv("LUCKYTV_CLOUD_WECHAT_CALLBACK_URL")),
 	}
 	hostedValue := strings.TrimSpace(getenv("LUCKYTV_CLOUD_HOSTED_MODELS"))
 	if hostedValue != "" {
@@ -110,7 +118,26 @@ func (c Config) Validate() error {
 		return fmt.Errorf("LUCKYTV_CLOUD_ENV must be development, test, or production")
 	}
 	if c.Environment == "production" {
-		return fmt.Errorf("production cloud runtime is not configured; sandbox service is development-only (production database, TLS proxy, SMTP and admin bootstrap are not implemented)")
+		if c.SandboxEnabled {
+			return fmt.Errorf("LUCKYTV_CLOUD_SANDBOX must be false in production")
+		}
+		if strings.TrimSpace(c.DatabaseURL) == "" {
+			return fmt.Errorf("LUCKYTV_CLOUD_DATABASE_URL is required in production")
+		}
+		parsed, err := url.Parse(c.DatabaseURL)
+		if err != nil || (parsed.Scheme != "postgres" && parsed.Scheme != "postgresql") || parsed.Host == "" || parsed.User == nil || parsed.Fragment != "" {
+			return fmt.Errorf("LUCKYTV_CLOUD_DATABASE_URL must be a PostgreSQL URL")
+		}
+		if strings.TrimSpace(c.WeChatAppID) == "" || strings.TrimSpace(c.WeChatAppSecret) == "" {
+			return fmt.Errorf("WeChat App ID and App Secret are required in production")
+		}
+		callback, err := url.Parse(c.WeChatCallbackURL)
+		if err != nil || callback.Scheme != "https" || callback.Host == "" || callback.User != nil || callback.RawQuery != "" || callback.Fragment != "" {
+			return fmt.Errorf("LUCKYTV_CLOUD_WECHAT_CALLBACK_URL must be an HTTPS URL without credentials, query, or fragment")
+		}
+		if len(c.AdminBootstrapSecret) < 32 || c.AdminBootstrapEmail == "" || len(c.AdminInitialSecret) < 32 {
+			return fmt.Errorf("production admin bootstrap secret, email, and initial secret are required; secrets must contain at least 32 bytes")
+		}
 	}
 	if strings.TrimSpace(c.ListenAddr) == "" {
 		return fmt.Errorf("LUCKYTV_CLOUD_ADDR is required")

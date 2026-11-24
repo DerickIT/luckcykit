@@ -34,7 +34,7 @@ func TestCloudMigrationDoesNotCreateLocalWorkspaceTables(t *testing.T) {
 	if err := Migrate(db); err != nil {
 		t.Fatalf("repeat cloud migration: %v", err)
 	}
-	if err := db.Model(&SchemaMigration{}).Count(&versions).Error; err != nil || versions != int64(schemaVersionTaskSnapshot) {
+	if err := db.Model(&SchemaMigration{}).Count(&versions).Error; err != nil || versions != int64(schemaVersionPaymentEvent) {
 		t.Fatalf("repeat migration changed version history: count=%d err=%v", versions, err)
 	}
 	for _, table := range []string{"workspaces", "projects", "canvas_projects", "tasks", "resources"} {

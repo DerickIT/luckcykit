@@ -36,7 +36,9 @@ Wails 和浏览器开发模式共用同一套 `127.0.0.1` HTTP 合同。路由�
 
 `POST /ai/request-urls` 按 `baseUrl`、`apiFormat` 和文本接口格式列表 `protocols` 返回后端实际请求的地址：`catalog` 是读取模型目录的地址，`text` 以传入的接口格式为键，是文本任务的请求地址。接口格式留空时按渠道格式取默认值；插件或认不出的接口格式不返回地址。这个接口只计算地址，不向上游发请求；设置页展示的地址都来自这里。
 
-独立云服务使用自己的 `/api/v1` 地址和 Bearer 会话，不复用本地工作区 API。登录后 `GET /api/v1/models` 返回可用托管文本模型的公开投影：`id`、`displayName`、`capabilities`、`priceVersion`、输入/输出 token 上限及每百万 token 点数费率；该接口不返回 OneAPI 上游 ID、地址或密钥。`GET /api/v1/account` 与 `/api/v1/ledger` 返回 `points`（累计点数）、`reservedPoints`（任务预留）与 `availablePoints`（可消费点数）；账本条目为追加写入。云端账号、点数余额和账本也不写入本地模型配置；浏览器只保留当前内存会话，桌面端由原生安全凭据存储负责持久登录。
+独立云服务使用自己的 `/api/v1` 地址。Web Session 使用服务端会话；用户 API Token 使用 `Authorization: Bearer lkt_...`，两者权限分离。Web Session 可访问账户、账本、订单、Token 管理和会话注销；API Token 只可按 scope 访问自己的账户摘要、提交托管模型任务和读取自己的任务，访问账本、订单、Token 管理或注销返回 `403 web_session_required` / `api_token_scope_required`。API Token 创建接口为 `POST /api/v1/tokens`，支持 7/30/90/365 天，默认由客户端传入 90 天；每账号最多 10 个活动 Token。创建响应中的 `token` 明文只出现一次，后续 `GET /api/v1/tokens` 只返回名称、前缀、末四位、scope、过期时间和使用元数据；单个撤销为 `DELETE /api/v1/tokens/:tokenID`，全部撤销为 `POST /api/v1/tokens/revoke-all`。服务端只保存 Token 哈希。
+
+云端订单商品包含服务端版本化的人民币分、货币和点数快照；订单创建后不随商品变更。支付确认必须由服务端支付适配器提供 provider、外部事件 ID、账号、币种、金额和幂等键，金额与订单快照不匹配时拒绝。沙箱支付复用同一确认事务；未来微信 Native 异步通知必须先验签，再调用该确认入口，不能直接写账本。
 
 `POST /assistant/ui-session` 返回仅驻留内存、绑定当前 owner 的 `token` 与 `expiresAt`。界面在到期前 30 秒重新签发凭据，同一身份的并发请求共用签发结果；重置或切换身份后旧响应不能恢复旧凭据。签发仍要求原有本机同源与 owner/桌面引导校验。
 

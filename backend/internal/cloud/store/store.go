@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -34,6 +35,39 @@ type Session struct {
 	CreatedAt time.Time  `json:"createdAt"`
 }
 
+type OAuthState struct {
+	ID          string     `gorm:"primaryKey;size:64" json:"-"`
+	HandoffURL  string     `gorm:"size:512" json:"-"`
+	ClientState string     `gorm:"size:160" json:"-"`
+	ExpiresAt   time.Time  `gorm:"index;not null" json:"-"`
+	ConsumedAt  *time.Time `json:"-"`
+	CreatedAt   time.Time  `json:"-"`
+}
+
+type HandoffCode struct {
+	ID          string     `gorm:"primaryKey;size:64" json:"-"`
+	AccountID   string     `gorm:"index;size:36;not null" json:"-"`
+	CodeHash    string     `gorm:"uniqueIndex;size:64;not null" json:"-"`
+	ClientState string     `gorm:"size:160;not null" json:"-"`
+	ExpiresAt   time.Time  `gorm:"index;not null" json:"-"`
+	ConsumedAt  *time.Time `json:"-"`
+	CreatedAt   time.Time  `json:"-"`
+}
+
+type APIToken struct {
+	ID         string     `gorm:"primaryKey;size:36" json:"-"`
+	AccountID  string     `gorm:"index;size:36;not null" json:"-"`
+	Name       string     `gorm:"size:120;not null" json:"name"`
+	TokenHash  string     `gorm:"uniqueIndex;size:64;not null" json:"-"`
+	Prefix     string     `gorm:"size:16;not null" json:"prefix"`
+	Suffix     string     `gorm:"size:8;not null" json:"suffix"`
+	ScopesJSON string     `gorm:"type:text;not null" json:"-"`
+	ExpiresAt  time.Time  `gorm:"index;not null" json:"expiresAt"`
+	RevokedAt  *time.Time `json:"revokedAt,omitempty"`
+	LastUsedAt *time.Time `json:"lastUsedAt,omitempty"`
+	UseCount   int64      `gorm:"not null" json:"useCount"`
+	CreatedAt  time.Time  `json:"createdAt"`
+}
 type EmailVerificationCode struct {
 	ID        string     `gorm:"primaryKey;size:36" json:"-"`
 	Email     string     `gorm:"index;size:320;not null" json:"-"`
@@ -80,10 +114,12 @@ type AuditEvent struct {
 }
 
 type Product struct {
-	ID      string `gorm:"primaryKey;size:64" json:"id"`
-	Name    string `gorm:"size:120;not null" json:"name"`
-	Points  int64  `gorm:"not null" json:"points"`
-	Enabled bool   `gorm:"not null" json:"enabled"`
+	ID        string `gorm:"primaryKey;size:64" json:"id"`
+	Name      string `gorm:"size:120;not null" json:"name"`
+	Currency  string `gorm:"size:3;not null" json:"currency"`
+	AmountCNY int64  `gorm:"not null" json:"amountCny"`
+	Points    int64  `gorm:"not null" json:"points"`
+	Enabled   bool   `gorm:"not null" json:"enabled"`
 }
 
 type Order struct {
@@ -91,6 +127,8 @@ type Order struct {
 	AccountID   string     `gorm:"index;size:36;not null" json:"accountId"`
 	ProductID   string     `gorm:"size:64;not null" json:"productId"`
 	ProductName string     `gorm:"size:120;not null" json:"productName"`
+	Currency    string     `gorm:"size:3;not null" json:"currency"`
+	AmountCNY   int64      `gorm:"not null" json:"amountCny"`
 	Points      int64      `gorm:"not null" json:"points"`
 	Status      string     `gorm:"index;size:24;not null" json:"status"`
 	CreatedAt   time.Time  `json:"createdAt"`
@@ -98,12 +136,16 @@ type Order struct {
 }
 
 type PaymentEvent struct {
-	ID             string    `gorm:"primaryKey;size:36" json:"id"`
-	OrderID        string    `gorm:"uniqueIndex;size:36;not null" json:"orderId"`
-	AccountID      string    `gorm:"uniqueIndex:idx_cloud_payment_idempotency,priority:1;size:36;not null" json:"accountId"`
-	IdempotencyKey string    `gorm:"uniqueIndex:idx_cloud_payment_idempotency,priority:2;size:160;not null" json:"-"`
-	Provider       string    `gorm:"size:24;not null" json:"provider"`
-	CreatedAt      time.Time `json:"createdAt"`
+	ID                string    `gorm:"primaryKey;size:36" json:"id"`
+	OrderID           string    `gorm:"uniqueIndex;size:36;not null" json:"orderId"`
+	AccountID         string    `gorm:"uniqueIndex:idx_cloud_payment_idempotency,priority:1;size:36;not null" json:"accountId"`
+	IdempotencyKey    string    `gorm:"uniqueIndex:idx_cloud_payment_idempotency,priority:2;size:160;not null" json:"-"`
+	Provider          string    `gorm:"size:24;not null" json:"provider"`
+	ProviderEventID   string    `gorm:"uniqueIndex:idx_cloud_payment_provider_event,priority:1;size:160;not null" json:"-"`
+	ProviderAccountID string    `gorm:"uniqueIndex:idx_cloud_payment_provider_event,priority:2;size:160;not null" json:"-"`
+	Currency          string    `gorm:"size:3;not null" json:"currency"`
+	AmountCNY         int64     `gorm:"not null" json:"amountCny"`
+	CreatedAt         time.Time `json:"createdAt"`
 }
 
 type LedgerEntry struct {
@@ -203,6 +245,23 @@ func Open(dataDir string) (*Store, error) {
 	return &Store{db: db}, nil
 }
 
+func OpenProduction(databaseURL string) (*Store, error) {
+	if strings.TrimSpace(databaseURL) == "" {
+		return nil, fmt.Errorf("cloud PostgreSQL URL is required")
+	}
+	db, err := gorm.Open(postgres.Open(databaseURL), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
+	if err != nil {
+		return nil, fmt.Errorf("open cloud PostgreSQL database: %w", err)
+	}
+	if err := Migrate(db); err != nil {
+		if sqlDB, dbErr := db.DB(); dbErr == nil {
+			_ = sqlDB.Close()
+		}
+		return nil, fmt.Errorf("migrate cloud PostgreSQL database: %w", err)
+	}
+	return &Store{db: db}, nil
+}
+
 func (s *Store) DB() *gorm.DB { return s.db }
 
 func (s *Store) Close() error {
@@ -220,6 +279,10 @@ const (
 	schemaVersionBase         = 1
 	schemaVersionEmailAdmin   = 2
 	schemaVersionTaskSnapshot = 3
+	schemaVersionOAuthState   = 4
+	schemaVersionHandoff      = 5
+	schemaVersionAPITokens    = 6
+	schemaVersionPaymentEvent = 7
 )
 
 func Migrate(db *gorm.DB) error {
@@ -253,6 +316,34 @@ func Migrate(db *gorm.DB) error {
 			return err
 		}
 	}
+	if !applied[schemaVersionOAuthState] {
+		if err := applyMigration(db, schemaVersionOAuthState, func(tx *gorm.DB) error {
+			return tx.AutoMigrate(&OAuthState{})
+		}); err != nil {
+			return err
+		}
+	}
+	if !applied[schemaVersionHandoff] {
+		if err := applyMigration(db, schemaVersionHandoff, func(tx *gorm.DB) error {
+			return tx.AutoMigrate(&OAuthState{}, &HandoffCode{})
+		}); err != nil {
+			return err
+		}
+	}
+	if !applied[schemaVersionAPITokens] {
+		if err := applyMigration(db, schemaVersionAPITokens, func(tx *gorm.DB) error {
+			return tx.AutoMigrate(&APIToken{})
+		}); err != nil {
+			return err
+		}
+	}
+	if !applied[schemaVersionPaymentEvent] {
+		if err := applyMigration(db, schemaVersionPaymentEvent, func(tx *gorm.DB) error {
+			return tx.AutoMigrate(&PaymentEvent{})
+		}); err != nil {
+			return err
+		}
+	}
 	return installConstraints(db)
 }
 
@@ -278,6 +369,9 @@ func appliedSchemaVersions(db *gorm.DB) (map[int]bool, error) {
 }
 
 func installConstraints(db *gorm.DB) error {
+	if db.Dialector.Name() != "sqlite" {
+		return nil
+	}
 	for _, statement := range []string{
 		`DROP TRIGGER IF EXISTS cloud_ledger_points_positive`,
 		`DROP TRIGGER IF EXISTS cloud_ledger_order_exists`,

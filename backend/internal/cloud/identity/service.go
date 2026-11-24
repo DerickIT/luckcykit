@@ -7,18 +7,21 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"strings"
-	"time"
-
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"net"
+	"net/url"
+	"strings"
+	"time"
 
 	"luckytv/backend/internal/cloud/store"
 )
 
 var (
-	ErrInvalidSession = errors.New("invalid or expired session")
-	ErrInvalidSubject = errors.New("sandbox subject must contain 1 to 80 characters")
+	ErrInvalidSession    = errors.New("invalid or expired session")
+	ErrInvalidSubject    = errors.New("sandbox subject must contain 1 to 80 characters")
+	ErrInvalidOAuthState = errors.New("invalid or expired OAuth state")
+	ErrNoDesktopHandoff  = errors.New("OAuth state has no desktop handoff")
 )
 
 type Service struct {
@@ -57,6 +60,143 @@ func (s *Service) SandboxLogin(ctx context.Context, subject string) (LoginResult
 		return LoginResult{}, fmt.Errorf("create sandbox account: %w", err)
 	}
 	return s.issueSession(account)
+}
+
+func (s *Service) LoginWithIdentity(identity ProviderIdentity) (LoginResult, error) {
+	if strings.TrimSpace(identity.Provider) == "" || strings.TrimSpace(identity.Subject) == "" {
+		return LoginResult{}, ErrInvalidSubject
+	}
+	account, err := s.resolveAccount(identity)
+	if err != nil {
+		return LoginResult{}, fmt.Errorf("resolve cloud identity: %w", err)
+	}
+	return s.issueSession(account)
+}
+
+func (s *Service) CreateOAuthStateWithHandoff(ttl time.Duration, handoffURL, clientState string) (string, error) {
+	if ttl <= 0 {
+		ttl = 10 * time.Minute
+	}
+	handoffURL = strings.TrimSpace(handoffURL)
+	clientState = strings.TrimSpace(clientState)
+	if handoffURL != "" || clientState != "" {
+		parsed, err := url.Parse(handoffURL)
+		if err != nil || parsed.Scheme != "http" || !isLoopbackHandoffHost(parsed.Hostname()) || parsed.User != nil || parsed.RawQuery != "" || parsed.Fragment != "" || clientState == "" || len(handoffURL) > 512 || len(clientState) > 160 {
+			return "", ErrInvalidOAuthState
+		}
+	}
+	raw := make([]byte, 32)
+	if _, err := rand.Read(raw); err != nil {
+		return "", fmt.Errorf("generate OAuth state: %w", err)
+	}
+	state := hex.EncodeToString(raw)
+	now := s.now()
+	if err := s.db.Create(&store.OAuthState{ID: state, HandoffURL: handoffURL, ClientState: clientState, ExpiresAt: now.Add(ttl), CreatedAt: now}).Error; err != nil {
+		return "", fmt.Errorf("store OAuth state: %w", err)
+	}
+	return state, nil
+}
+
+func (s *Service) ConsumeOAuthState(state string) error {
+	state = strings.TrimSpace(state)
+	if state == "" {
+		return ErrInvalidOAuthState
+	}
+	now := s.now()
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		updated := tx.Model(&store.OAuthState{}).Where("id = ? AND expires_at > ? AND consumed_at IS NULL", state, now).Update("consumed_at", now)
+		if updated.Error != nil {
+			return fmt.Errorf("consume OAuth state: %w", updated.Error)
+		}
+		if updated.RowsAffected != 1 {
+			return ErrInvalidOAuthState
+		}
+		return nil
+	})
+}
+
+type HandoffResult struct {
+	URL   string
+	State string
+}
+
+func isLoopbackHandoffHost(host string) bool {
+	host = strings.TrimSpace(host)
+	if host == "localhost" {
+		return true
+	}
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
+}
+
+func (s *Service) IssueHandoffCode(accountID, state string) (HandoffResult, error) {
+	var oauthState store.OAuthState
+	if err := s.db.Where("id = ? AND consumed_at IS NOT NULL", strings.TrimSpace(state)).First(&oauthState).Error; err != nil {
+		return HandoffResult{}, ErrInvalidOAuthState
+	}
+	if strings.TrimSpace(accountID) == "" || oauthState.ExpiresAt.Before(s.now()) {
+		return HandoffResult{}, ErrInvalidOAuthState
+	}
+	if strings.TrimSpace(oauthState.HandoffURL) == "" {
+		return HandoffResult{}, ErrNoDesktopHandoff
+	}
+	raw := make([]byte, 32)
+	if _, err := rand.Read(raw); err != nil {
+		return HandoffResult{}, fmt.Errorf("generate handoff code: %w", err)
+	}
+	code := hex.EncodeToString(raw)
+	now := s.now()
+	handoff := store.HandoffCode{ID: uuid.NewString(), AccountID: accountID, CodeHash: hashToken(code), ClientState: oauthState.ClientState, ExpiresAt: now.Add(2 * time.Minute), CreatedAt: now}
+	if err := s.db.Create(&handoff).Error; err != nil {
+		return HandoffResult{}, fmt.Errorf("store handoff code: %w", err)
+	}
+	parsed, err := url.Parse(oauthState.HandoffURL)
+	if err != nil {
+		return HandoffResult{}, ErrInvalidOAuthState
+	}
+	query := parsed.Query()
+	query.Set("code", code)
+	query.Set("state", oauthState.ClientState)
+	parsed.RawQuery = query.Encode()
+	return HandoffResult{URL: parsed.String(), State: oauthState.ClientState}, nil
+}
+
+func (s *Service) ExchangeHandoffCodeWithState(code, clientState string) (LoginResult, error) {
+	return s.exchangeHandoffCode(code, strings.TrimSpace(clientState))
+}
+
+func (s *Service) exchangeHandoffCode(code, clientState string) (LoginResult, error) {
+	code = strings.TrimSpace(code)
+	if code == "" {
+		return LoginResult{}, ErrInvalidOAuthState
+	}
+	now := s.now()
+	var result LoginResult
+	err := s.db.Transaction(func(tx *gorm.DB) error {
+		var handoff store.HandoffCode
+		if err := tx.Where("code_hash = ? AND expires_at > ? AND consumed_at IS NULL", hashToken(code), now).First(&handoff).Error; err != nil {
+			return ErrInvalidOAuthState
+		}
+		if clientState != "" && handoff.ClientState != clientState {
+			return ErrInvalidOAuthState
+		}
+		consumed := tx.Model(&store.HandoffCode{}).Where("id = ? AND consumed_at IS NULL AND expires_at > ?", handoff.ID, now).Update("consumed_at", now)
+		if consumed.Error != nil {
+			return consumed.Error
+		}
+		if consumed.RowsAffected != 1 {
+			return ErrInvalidOAuthState
+		}
+		var account store.Account
+		if err := tx.First(&account, "id = ?", handoff.AccountID).Error; err != nil {
+			return ErrInvalidOAuthState
+		}
+		return s.createSessionIn(tx, account, now, &result)
+	})
+	if err != nil {
+		return LoginResult{}, err
+	}
+	return result, nil
 }
 
 func (s *Service) issueSession(account store.Account) (LoginResult, error) {
