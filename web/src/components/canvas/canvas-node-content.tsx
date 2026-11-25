@@ -611,11 +611,16 @@ export function InactiveVideoPreview({ node, theme, onPlay, hoverEnabled = true,
     const nearViewport = useNearViewport(previewRef);
     const sourceKey = canvasDerivedPreviewSourceKey(node);
     const [derivedPreview, setDerivedPreview] = useState<{ sourceKey: string; content: string }>();
+    const [previewLoadFailed, setPreviewLoadFailed] = useState(false);
     const persistedPreviewUrl = canvasNodeVideoPreviewUrl(node);
     const derivedPreviewUrl = derivedPreview?.sourceKey === sourceKey ? derivedPreview.content : "";
-    const previewNeedsHydration = canvasVideoPreviewNeedsHydration(node);
-    const previewUrl = previewNeedsHydration ? derivedPreviewUrl || persistedPreviewUrl : persistedPreviewUrl;
+    const previewNeedsHydration = canvasVideoPreviewNeedsHydration(node) || previewLoadFailed;
+    const previewUrl = previewNeedsHydration ? derivedPreviewUrl || (previewLoadFailed ? "" : persistedPreviewUrl) : persistedPreviewUrl;
     const [hydrating, setHydrating] = useState(false);
+    const handlePreviewError = () => {
+        setPreviewLoadFailed(true);
+        setDerivedPreview(undefined);
+    };
 
     useEffect(() => {
         if (!hoverEnabled) return;
@@ -638,6 +643,7 @@ export function InactiveVideoPreview({ node, theme, onPlay, hoverEnabled = true,
         void lease.promise
             .then((videoPreview) => {
                 if (active && videoPreview) {
+                    setPreviewLoadFailed(false);
                     setDerivedPreview({ sourceKey, content: videoPreview.content });
                     prewarmCanvasLodThumbnails([node]);
                 }
@@ -651,7 +657,7 @@ export function InactiveVideoPreview({ node, theme, onPlay, hoverEnabled = true,
 
     if (previewUrl) {
         return <div ref={previewRef} className="group/video-preview relative size-full overflow-hidden rounded-[var(--node-radius)] bg-black">
-            <CachedResourceImage storageKey={derivedPreviewUrl === previewUrl ? undefined : node.metadata?.videoPreview?.storageKey} src={previewUrl} alt={`${node.title || "视频"} 静态预览`} loading="lazy" decoding="async" draggable={false} className="pointer-events-none size-full select-none object-contain" fallback={<InactiveMediaCard icon={showPlayButton ? null : <Video className="size-7" />} reserveCenterOverlay={showPlayButton} title={node.title || "视频"} hint="首帧暂不可用，点击播放视频" theme={theme} />} loadingFallback={<InactiveMediaCard icon={showPlayButton ? null : <Video className="size-7" />} reserveCenterOverlay={showPlayButton} title={node.title || "视频"} hint="正在读取首帧" theme={theme} />} />
+            <CachedResourceImage storageKey={derivedPreviewUrl === previewUrl ? undefined : node.metadata?.videoPreview?.storageKey} src={previewUrl} alt={`${node.title || "视频"} 静态预览`} loading="lazy" decoding="async" draggable={false} className="pointer-events-none size-full select-none object-contain" fallback={<InactiveMediaCard icon={showPlayButton ? null : <Video className="size-7" />} reserveCenterOverlay={showPlayButton} title={node.title || "视频"} hint="首帧暂不可用，点击播放视频" theme={theme} />} loadingFallback={<InactiveMediaCard icon={showPlayButton ? null : <Video className="size-7" />} reserveCenterOverlay={showPlayButton} title={node.title || "视频"} hint="正在读取首帧" theme={theme} />} onError={handlePreviewError} />
             {showPlayButton ? <VideoPreviewPlayButton title={node.title || "视频"} onPlay={onPlay} /> : null}
         </div>;
     }

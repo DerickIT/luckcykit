@@ -31,6 +31,7 @@ concurrency:
 
 env:
   GOTOOLCHAIN: local
+  CANONICAL_RELEASE_REPOSITORY: ${{ vars.BEEFTV_RELEASE_REPOSITORY || 'glanderness/LuckyTV' }}
   UPDATER_DOWNLOAD_BASE: https://updates.luckyapi.com/luckytv
   DOMESTIC_DOWNLOAD_BASE: https://cnb.cool/luckytv-downloads/desktop/-/releases/download
   RELEASE_ENDPOINT: ${{ vars.BEEFTV_R2_ENDPOINT }}
@@ -39,7 +40,7 @@ env:
 
 jobs:
   mirror:
-    if: github.repository == 'glanderness/LuckyTV' && github.ref == 'refs/heads/main'
+    if: github.repository == (vars.BEEFTV_RELEASE_REPOSITORY || 'glanderness/LuckyTV') && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:

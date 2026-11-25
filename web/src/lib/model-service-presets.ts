@@ -1,7 +1,7 @@
 import type { AiConfig, ModelChannel, ModelCapability } from "@/stores/use-config-store";
 import { createModelChannel } from "@/stores/use-config-store";
-import { defaultModelCapabilityConfig, hasUserModelCapability } from "@/lib/model-capabilities";
-import { inferProtocolCapabilityFromModel, modelProtocolDefinition, modelProtocolDefinitionFor, type ModelProtocolDefinition } from "@/lib/model-protocols";
+import { capabilityForAssignedProtocol, defaultModelCapabilityConfig, hasUserModelCapability } from "@/lib/model-capabilities";
+import { defaultProtocolForCapability, inferProtocolCapabilityFromModel, modelProtocolDefinition, modelProtocolDefinitionFor, type ModelProtocolDefinition } from "@/lib/model-protocols";
 import { cleanChannelBaseUrl, isRawChannelBaseUrl } from "@/lib/channel-url";
 import { catalogEndpointCapability, type ChannelModelCatalogItem } from "@/lib/channel-model-catalog";
 import { serviceCredentialGuide } from "@/lib/service-credentials";
@@ -193,6 +193,25 @@ export function serviceModelProfile(channel: ModelChannel, item: ChannelModelCat
     const definition = protocols.find((p) => p.value === proposed && p.capability === capability && p.enabled !== false);
     const protocol = definition?.value;
     return { ...existing, model: item.id, displayName: existing?.displayName || item.displayName, capability, protocol, authType: definition ? definition.authType : existing?.authType, capabilitySource: existing?.capability === capability ? existing.capabilitySource : undefined, capabilityConfig: existing?.capability === capability && existing.capabilityConfig ? existing.capabilityConfig : (capability === "image" || capability === "video") && protocol ? defaultModelCapabilityConfig(protocol, item.id, protocols) : undefined };
+}
+
+export function explicitProtocolForCapability(capability: ModelCapability, protocols: ModelProtocolDefinition[]) {
+    const protocol = defaultProtocolForCapability(capability, protocols);
+    return protocols.some((item) => item.value === protocol && item.capability === capability && item.enabled !== false) ? protocol : undefined;
+}
+
+export function manualModelProfile(channel: ModelChannel, item: ChannelModelCatalogItem, capability: ModelCapability, protocols: ModelProtocolDefinition[]) {
+    const profile = serviceModelProfile(channel, item, protocols, capability);
+    if (profile.protocol || (capability !== "image" && capability !== "video")) return profile;
+    const protocol = explicitProtocolForCapability(capability, protocols);
+    if (!protocol) return profile;
+    const definition = modelProtocolDefinition(protocol, protocols);
+    return {
+        ...profile,
+        protocol,
+        authType: definition?.authType,
+        ...capabilityForAssignedProtocol({ ...profile, capability }, protocol, protocols),
+    };
 }
 
 export function channelAllowsEmptyAPIKey(channel: Pick<ModelChannel, "models" | "modelProfiles" | "interfaceType">, protocols?: ModelProtocolDefinition[]) {

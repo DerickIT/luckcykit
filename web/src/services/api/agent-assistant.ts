@@ -140,7 +140,7 @@ export type AssistantGenerationProposal = {
     note?: string;
     targets?: GenerationOrderTargetView[];
     order?: GenerationOrder;
-    production?: { targets: { nodeId: string; title: string; kind: "image" | "video" | "audio"; modelKey: string; prompt: string; parameters: Record<string,string>; metadata?: Record<string, unknown>; referenceNodeIds: string[]; estimate?: CostEstimate }[]; estimate?: CostSummary };
+    production?: { targets: { nodeId: string; title?: string; kind: "image" | "video" | "audio"; modelKey?: string; prompt?: string; parameters?: Record<string,string>; metadata?: Record<string, unknown>; referenceNodeIds?: string[]; estimate?: CostEstimate }[]; estimate?: CostSummary };
     source?: { canvasId: string; canvasRevision: number; modelConfigRevision: number };
 };
 

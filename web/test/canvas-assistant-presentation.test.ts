@@ -142,6 +142,22 @@ describe("撤销失败原因映射", () => {
 });
 
 describe("付费生成确认", () => {
+    test("legacy production proposals without optional arrays remain renderable", () => {
+        const legacy = {
+            proposalId: "legacy-production",
+            kind: "image" as const,
+            nodeIds: ["frame"],
+            model: "image-model",
+            modelKey: "channel::image-model",
+            production: {
+                targets: [{ nodeId: "frame", kind: "image" as const }],
+            },
+        } as unknown as AssistantGenerationProposal;
+        const text = assistantProposalText(legacy);
+        expect(text).toContain("整片制作方案：1 张图片");
+        expect(text).toContain("frame · image-model · 1 个");
+    });
+
     test("整片单图显示将要提交的 Seedream 选项", () => {
         const text = assistantProposalText({ proposalId: "p", kind: "image", nodeIds: ["a"], model: "seedream", modelKey: "custom::seedream", production: { targets: [{ nodeId: "a", title: "首帧", kind: "image", modelKey: "custom::seedream", prompt: "花店", parameters: { count: "1", seedreamOutputFormat: "jpeg", seedreamOptimize: "fast", seedreamWatermark: "true" }, referenceNodeIds: [] }] } });
         expect(text).toContain("图片格式：JPEG");

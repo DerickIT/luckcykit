@@ -129,6 +129,23 @@ func (a *DesktopApp) stop(ctx context.Context) error {
 	return closeDesktopRuntime(ctx, runtime)
 }
 
+func (a *DesktopApp) CloudSession(operation, payload string) (string, error) {
+	a.mu.RLock()
+	dataDir := a.dataDir
+	a.mu.RUnlock()
+	switch operation {
+	case "read":
+		return readCloudSession(dataDir)
+	case "write":
+		return "", writeCloudSession(dataDir, payload)
+	case "clear":
+		return "", clearCloudSession(dataDir)
+	default:
+		return "", errors.New("invalid cloud session operation")
+	}
+}
+
+
 func (a *DesktopApp) OpenLuckyTVGitHub() error {
 	app, err := wailsApp()
 	if err != nil {

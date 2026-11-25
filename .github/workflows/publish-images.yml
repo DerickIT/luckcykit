@@ -43,8 +43,9 @@ jobs:
         run: |
           version="$(tr -d '\r\n' < VERSION)"
           if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
-            [[ "$version" == "$GITHUB_REF_NAME" ]] || { echo "VERSION=$version does not match tag $GITHUB_REF_NAME" >&2; exit 1; }
-            grep -Fqx "## $version" CHANGELOG.md || { echo "CHANGELOG.md is missing ## $version" >&2; exit 1; }
+            node scripts/check-release-consistency.mjs --tag "$GITHUB_REF_NAME"
+          else
+            node scripts/check-release-consistency.mjs
           fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "image_tag=${version#v}" >> "$GITHUB_OUTPUT"

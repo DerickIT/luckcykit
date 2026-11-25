@@ -65,16 +65,21 @@ jobs:
           fi
 
           changed_files=""
+          commit_base=""
           if [[ "$EVENT_NAME" == "pull_request" && -n "$PR_BASE_SHA" ]] && git cat-file -e "${PR_BASE_SHA}^{commit}" 2>/dev/null; then
             git diff --check "${PR_BASE_SHA}...HEAD"
             changed_files="$(git diff --name-only "${PR_BASE_SHA}...HEAD")"
+            commit_base="$PR_BASE_SHA"
           elif [[ "$EVENT_NAME" == "push" && -n "$PUSH_BEFORE_SHA" && "$PUSH_BEFORE_SHA" != "0000000000000000000000000000000000000000" ]] && git cat-file -e "${PUSH_BEFORE_SHA}^{commit}" 2>/dev/null; then
             git diff --check "${PUSH_BEFORE_SHA}" HEAD
             changed_files="$(git diff --name-only "${PUSH_BEFORE_SHA}" HEAD)"
+            commit_base="$PUSH_BEFORE_SHA"
           else
             all_true
             exit 0
           fi
+
+          node scripts/check-commit-subjects.mjs --from "$commit_base" --to HEAD
 
           echo "Changed files:"
           printf '%s\n' "$changed_files"
@@ -100,7 +105,7 @@ jobs:
           emit web '^(web/|plugins/deepseek-harness/|plugin-packages/|scripts/(public-release-(export|audit)|audit-public-docs|verify-luckytv-local-release|build-luckytv-release)\.sh$|(backend/)?Dockerfile$|docker-compose.*\.yml$|\.github/workflows/(quality|publish-images)\.yml$)'
           emit agent_host '^(agent-host/|plugins/deepseek-harness/|backend/internal/assistant|scripts/package-agent-host|\.github/workflows/quality\.yml$)'
           emit windows_storage '^(backend/cmd/(desktop|luckytv)/|backend/internal/(desktopstorage|environment|database|diagnostics|supporttrace|assistantdiagnostics)/|scripts/.*windows|\.github/workflows/quality\.yml$)'
-          emit release_scripts '^(\.github/workflows/|scripts/|licenses/|VERSION$|CHANGELOG\.md$|NOTICE$|THIRD_PARTY_NOTICES\.md$)'
+          emit release_scripts '^(\.github/workflows/|scripts/|licenses/|VERSION$|CHANGELOG\.md$|backend/wails\.yaml$|NOTICE$|THIRD_PARTY_NOTICES\.md$)'
           emit docker '^((backend/)?Dockerfile$|docker-compose.*\.yml$|\.github/workflows/publish-images\.yml$)'
 
   dependency-security:
@@ -150,6 +155,10 @@ jobs:
       - name: Test release scripts and notices
         run: |
           node --test scripts/configure-ubuntu-apt.test.mjs
+          node --test scripts/check-release-consistency.test.mjs
+          node --test scripts/prepare-release.test.mjs
+          node --test scripts/check-commit-subjects.test.mjs
+          node scripts/check-release-consistency.mjs
           node --test scripts/distribution-notices.test.mjs
           python3 -m unittest discover -s scripts -p 'test_publish_desktop_r2.py'
           python3 -m unittest discover -s scripts -p 'test_mirror_desktop_cnb.py'

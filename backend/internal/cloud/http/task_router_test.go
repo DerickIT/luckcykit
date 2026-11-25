@@ -63,7 +63,7 @@ func TestModelTaskRoutesRequireSessionAndSettleOnce(t *testing.T) {
 	}
 	services.Start(context.Background())
 	defer services.Close()
-	handler := NewRouter(Options{SandboxEnabled: true, Identity: services.Identity, Catalog: services.Catalog, Ledger: services.Ledger, Payment: services.Payment, Tasks: services.Tasks})
+	handler := NewRouter(Options{SandboxEnabled: true, Identity: services.Identity, Catalog: services.Catalog, HostedModels: services.HostedModels, Ledger: services.Ledger, Payment: services.Payment, Tasks: services.Tasks})
 
 	login := request(handler, http.MethodPost, "/api/v1/sandbox/login", "", "127.0.0.1:50000", `{"subject":"task-creator"}`)
 	var session struct {

@@ -9,10 +9,10 @@ import { fetchPluginProviderCatalog } from "@/services/api/plugin-catalog";
 import { mergeFetchedChannelModelProfiles, type ChannelModelCatalogItem } from "@/lib/channel-model-catalog";
 import { normalizeChannelBaseUrl } from "@/lib/channel-url";
 import { builtinProtocolsAvailable } from "@/lib/builtin-service-presets";
-import { CAPABILITY_LABELS, MODEL_SERVICE_PRESETS, createPluginServiceChannel, createServicePresetChannel, createVendorPresetChannel, isBuiltinPresetService, isTopazUpscaleChannel, pluginServices, presetCatalogFor, presetModelCount, builtinPresetDescription, builtinPresetIntro, serviceConnectionError, serviceModelProfile, servicePresetFor, vendorPresetFor, vendorPresets, type ModelServicePresetId, type VendorPreset } from "@/lib/model-service-presets";
+import { CAPABILITY_LABELS, MODEL_SERVICE_PRESETS, createPluginServiceChannel, createServicePresetChannel, createVendorPresetChannel, isBuiltinPresetService, isTopazUpscaleChannel, manualModelProfile, pluginServices, presetCatalogFor, presetModelCount, builtinPresetDescription, builtinPresetIntro, serviceConnectionError, serviceModelProfile, servicePresetFor, vendorPresetFor, vendorPresets, type ModelServicePresetId, type VendorPreset } from "@/lib/model-service-presets";
 import { capabilityForAssignedProtocol } from "@/lib/model-capabilities";
 import { serviceCredentialGuide } from "@/lib/service-credentials";
-import type { ModelProtocolDefinition } from "@/lib/model-protocols";
+import { modelProtocolDefinition, type ModelProtocolDefinition } from "@/lib/model-protocols";
 import { seedancePortraitLabel } from "@/lib/seedance-portrait";
 import { createModelChannel, type ModelCapability, type ModelChannel } from "@/stores/use-config-store";
 import { ChannelModelSettings } from "./channel-model-settings";
@@ -63,7 +63,7 @@ export function updateManualModelEntry(options: {
             model: nextId,
             displayName: prevProfile.displayName === previousId ? undefined : prevProfile.displayName,
         })
-        : resolveSibling(strippedDraft, serviceModelProfile(strippedDraft, nextItem, protocols, capability));
+        : resolveSibling(strippedDraft, manualModelProfile(strippedDraft, nextItem, capability, protocols));
     return {
         catalog: catalog.map((item) => item.id === previousId ? nextItem : item),
         channel: {
@@ -233,7 +233,7 @@ export function ModelServiceEditor({ initial, onClose, onSave }: { initial?: Mod
     const changeModelCapability = (id: string, capability: ModelCapability) => {
         const existingItem = catalog.find((candidate) => candidate.id === id) || { id };
         const nextItem: ChannelModelCatalogItem = { ...existingItem, modelType: capability };
-        const profile = withSiblingProtocol(draft, serviceModelProfile(draft, nextItem, protocols, capability));
+        const profile = withSiblingProtocol(draft, manualModelProfile(draft, nextItem, capability, protocols));
         setCatalog((current) => current.some((item) => item.id === id) ? current.map((item) => item.id === id ? nextItem : item) : [...current, nextItem]);
         setDraft((current) => ({ ...current, modelProfiles: [...(current.modelProfiles || []).filter((p) => p.model !== id), profile] }));
         if (draft.models.includes(id) && !profile.protocol) {
@@ -310,7 +310,7 @@ export function ModelServiceEditor({ initial, onClose, onSave }: { initial?: Mod
         const existingCapability = existingItem ? serviceModelProfile(draft, existingItem, protocols).capability : undefined;
         if (draft.models.includes(id) && existingCapability === manualCapability) { setError("这个模型已在列表中"); return; }
         const nextItem: ChannelModelCatalogItem = { ...(existingItem || { id }), modelType: manualCapability };
-        const profile = withSiblingProtocol(draft, serviceModelProfile(draft, nextItem, protocols, manualCapability));
+        const profile = withSiblingProtocol(draft, manualModelProfile(draft, nextItem, manualCapability, protocols));
         if (!profile.protocol) {
             setNotice("请在高级模型设置中，为这个模型选择服务商要求的接口格式。");
             setEditingCapabilities(true);

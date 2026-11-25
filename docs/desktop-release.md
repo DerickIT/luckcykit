@@ -75,7 +75,7 @@ backend\cmd\desktop\build\bin\agent-host\bundled-plugins\{luckytv-plugin-market,
 | 前提 | 用途 | 依据 |
 | --- | --- | --- |
 | Windows 10/11 amd64 | Wails Windows 目标 | [Wails CLI platforms](https://wails.io/docs/reference/cli) |
-| Go 1.27 或更新，且在 PATH（或 `LUCKYTV_GO_DIR\bin\go.exe`） | 编译桌面后端；`backend/go.mod` 要求 1.27.1 | 仓库 `backend/go.mod` |
+| Go 1.27.4 或更新，且在 PATH（或 `LUCKYTV_GO_DIR\bin\go.exe`） | 编译桌面后端；`backend/go.mod` 当前要求 1.27.4 | 仓库 `backend/go.mod` |
 | Bun 在 PATH | 运行发布脚本、修补 `backend/wails.yaml` 并在编译前把 `web/dist` 复制到嵌入目录 | 仓库 `scripts/build-luckytv-windows-release.ps1` |
 | `CGO_ENABLED` 不能是 `0` | `gorm.io/driver/sqlite` 依赖 `github.com/mattn/go-sqlite3` | [go-sqlite3 README](https://github.com/mattn/go-sqlite3#windows) |
 | PATH 中的 `gcc`/`clang`，或可执行的 `CC` | 编译 go-sqlite3。Go 1.25 起 Windows CGO 需要支持 DWARF 5 的 GCC（binutils 2.37 或更新） | [go-sqlite3 Windows](https://github.com/mattn/go-sqlite3#windows)、[Go Minimum Requirements · cgo](https://go.dev/wiki/MinimumRequirements#cgo) |
@@ -181,6 +181,10 @@ GitHub 仓库配置：
 | --- | --- | --- |
 | Actions secret | `BEEFTV_UPDATER_PRIVATE_KEY` | 私钥文件全文（仓库密钥名沿用既有命名，工作流注入为 `LUCKYTV_UPDATER_PRIVATE_KEY`） |
 | Actions variable | `BEEFTV_UPDATER_PUBLIC_KEY` | 公钥文件全文（同上，注入为 `LUCKYTV_UPDATER_PUBLIC_KEY`） |
+| Actions variable | `BEEFTV_RELEASE_REPOSITORY` | 正式发布仓库，格式 `owner/repository`；未设置时保持 `glanderness/LuckyTV`，只有当前仓库与此值完全相等时才允许发布 |
+| Actions variable | `BEEFTV_DEPTH_RUNTIME_REPOSITORY` | 桌面发布验证所用深度运行时 manifest 仓库，格式 `owner/repository`；未设置时为 `glanderness/LuckyTV` |
+
+更换正式发布仓库时，还必须单独配置与该仓库配套的签名、公有更新源、R2/CNB 凭据和资源地址。仅修改仓库变量不会迁移更新源或凭据，也不会授权发布到旧的官方生产资源。
 
 发布流水线会用私钥推导公钥，必须和变量一致，否则失败，不会发布未签名更新源。
 
@@ -307,7 +311,7 @@ python3 scripts/publish-desktop-r2.py resume \
   --confirm-writers-frozen --confirm-no-inflight-put --confirm-no-unlock-attempt
 ```
 
-三个确认参数分别表示操作员已取得上述冻结、在途 PUT 结束、从未解锁的证据；不能取得时不执行。入口会自行检查官方 `glanderness/LuckyTV` 原 run/attempt 的 GitHub API 状态，重新验签、检查四平台公开文件及 GitHub 最新正式版本的精确清单字节，再逐字节匹配当前锁/claim。它只接受原 claim 大小/SHA256 对应的同一信封，不新建 nonce 或 claim，也不删除 claim。目标已经是这份清单时只核验并释放原锁；目标仍为原 ETag 时才续写同一份清单，首次不存在仍使用原生禁止覆盖。其他状态、不同 nonce/目标/字节一律停发。仅在完整读回匹配后发送一次解锁 DELETE，非 HTTP 200/204 仍报未确认。
+三个确认参数分别表示操作员已取得上述冻结、在途 PUT 结束、从未解锁的证据；不能取得时不执行。入口会自行检查 canonical release repository 原 run/attempt 的 GitHub API 状态，重新验签、检查四平台公开文件及 GitHub 最新正式版本的精确清单字节，再逐字节匹配当前锁/claim。它只接受原 claim 大小/SHA256 对应的同一信封，不新建 nonce 或 claim，也不删除 claim。目标已经是这份清单时只核验并释放原锁；目标仍为原 ETag 时才续写同一份清单，首次不存在仍使用原生禁止覆盖。其他状态、不同 nonce/目标/字节一律停发。仅在完整读回匹配后发送一次解锁 DELETE，非 HTTP 200/204 仍报未确认。
 
 如果原故障来自 `bridge-cos`，使用完全相同的参数和证据，把命令换为 `resume-cos-bridge`。它固定从 R2 核对包、版本清单和已激活的最新清单，随后恢复原 COS claim，并从 COS 完整读回最新清单；不接受安装器 staging 或校验回执。普通 `resume` 仍用于包地址属于 COS 的历史发行。
 
@@ -317,11 +321,13 @@ python3 scripts/publish-desktop-r2.py resume \
 
 如果 GitHub 发布成功而存储激活失败，保留正式版本及所有不可变对象。先核查存储与公开入口；没有遗留锁和未完成 claim 时才用同一版本原始清单重跑原命令（R2 为 `activate`，旧入口为 `bridge-cos`），否则遵守上述恢复条件。不要删除正式 tag 或重建不同内容的同版本包。条件写成功但最终回读失败时，新清单可能已经生效，不能把它当作未发布。已经安装新版本的客户端不自动降级。
 
-在 `glanderness/LuckyTV` 的 `main` 上手动运行 `.github/workflows/release-desktop.yml`。输入的 `confirm_version` 必须和 `VERSION` 一致。`CHANGELOG.md` 必须有对应的 `## vX.Y.Z` 段落，这段文字会同时成为 GitHub Release 说明和清单里的 `notes`。
+发布前先在干净工作树执行 `node scripts/prepare-release.mjs --version vX.Y.Z --check`，确认 `Unreleased` 有内容；人工确认无误后再执行带 `--apply` 的准备步骤，把 `Unreleased` 提升为对应版本段并更新 `VERSION`。准备步骤不会创建 commit、tag 或远端 Release；当前工作树有其他修改时默认拒绝，`--allow-dirty` 也不会覆盖已有修改的 `VERSION` 或 `CHANGELOG.md`。随后执行 `node scripts/check-release-consistency.mjs`，确认 `VERSION`、`backend/wails.yaml` 和 `CHANGELOG.md` 一致。PR 和 push 的质量门禁会检查新增提交主题，格式为 `<type>(<scope>): <业务模块> - <变更摘要>`；合并提交和依赖机器人标准主题属于明确例外。
+
+在正式发布仓库的 `main` 上手动运行 `.github/workflows/release-desktop.yml`。输入的 `confirm_version` 必须和 `VERSION` 一致。`CHANGELOG.md` 必须有对应的 `## vX.Y.Z` 段落，这段文字会同时成为 GitHub Release 说明和清单里的 `notes`。当前 fork 或其他仓库只运行无凭据的质量与构建检查，不得直接复用官方生产更新源。
 
 工作流会拒绝：
 
-- 在非 `main`、非官方仓库上发布
+- 在非 `main`、非 `BEEFTV_RELEASE_REPOSITORY` 配置仓库上发布
 - 缺少密钥或公私钥不匹配
 - 标签或 Release 已经存在（包括 draft）
 - 新版本不高于已经发布的稳定版本

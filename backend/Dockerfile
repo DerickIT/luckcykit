@@ -8,7 +8,8 @@ WORKDIR /src
 COPY plugin-packages ./plugin-packages
 RUN ./plugin-packages/build-packages.sh
 
-FROM golang:1.26-alpine AS backend-build
+ARG GO_VERSION=1.27.4
+FROM golang:${GO_VERSION}-alpine AS backend-build
 
 ARG GOPROXY=https://proxy.golang.org,direct
 ENV GOPROXY=$GOPROXY
@@ -25,7 +26,7 @@ ARG BUILD_COMMIT=unknown
 ARG BUILD_TIME=unknown
 RUN --mount=type=cache,target=/root/.cache/go-build set -eu; \
     version="${BUILD_VERSION:-$(tr -d '\r\n' </src/VERSION)}"; \
-    ldflags="-s -w -X infinite-canvas/backend/internal/buildinfo.Version=${version} -X infinite-canvas/backend/internal/buildinfo.Commit=${BUILD_COMMIT} -X infinite-canvas/backend/internal/buildinfo.BuildTime=${BUILD_TIME}"; \
+    ldflags="-s -w -X luckytv/backend/internal/buildinfo.Version=${version} -X luckytv/backend/internal/buildinfo.Commit=${BUILD_COMMIT} -X luckytv/backend/internal/buildinfo.BuildTime=${BUILD_TIME}"; \
     CGO_ENABLED=1 GOOS=linux go build -trimpath -ldflags="$ldflags" -o /out/infinite-canvas-backend ./cmd/server
 
 FROM oven/bun:1.4.2-alpine AS assistant-build

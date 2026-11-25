@@ -196,7 +196,7 @@ func TestDesktopAppBoundMethodsStayTiny(t *testing.T) {
 		names = append(names, name)
 	}
 	sort.Strings(names)
-	if !reflect.DeepEqual(names, []string{"CheckForUpdate", "ChooseStorageDirectory", "CleanupPreviousStorage", "ConfirmUpdateStartup", "ConsumeSkillLink", "DepthComponentStatus", "DownloadDepthComponents", "DownloadUpdate", "ExportStartupDiagnostics", "InstallUpdate", "MigrateStorage", "OpenLuckyTVGitHub", "OpenLuckyTVWebsite", "OpenLuckyTVX", "OpenSkillMarketURL", "OpenUpdateLogDirectory", "PauseDepthComponentDownload", "ReferenceStorageSettings", "ReferenceUploadStatus", "RetryStartup", "SaveEagleMedia", "SaveOwnedArchive", "SaveOwnedArtifact", "SaveOwnedMedia", "SaveReferenceStorage", "StartupState", "StorageMigrationStatus", "StorageSettings", "TestReferenceStorage", "UpdateStatus", "UploadReferenceMedia"}) {
+	if !reflect.DeepEqual(names, []string{"CheckForUpdate", "ChooseStorageDirectory", "CleanupPreviousStorage", "CloudSession", "ConfirmUpdateStartup", "ConsumeSkillLink", "DepthComponentStatus", "DownloadDepthComponents", "DownloadUpdate", "ExportStartupDiagnostics", "InstallUpdate", "MigrateStorage", "OpenLuckyTVGitHub", "OpenLuckyTVWebsite", "OpenLuckyTVX", "OpenSkillMarketURL", "OpenUpdateLogDirectory", "PauseDepthComponentDownload", "ReferenceStorageSettings", "ReferenceUploadStatus", "RetryStartup", "SaveEagleMedia", "SaveOwnedArchive", "SaveOwnedArtifact", "SaveOwnedMedia", "SaveReferenceStorage", "StartupState", "StorageMigrationStatus", "StorageSettings", "TestReferenceStorage", "UpdateStatus", "UploadReferenceMedia"}) {
 		t.Fatalf("bound methods = %v", names)
 	}
 }

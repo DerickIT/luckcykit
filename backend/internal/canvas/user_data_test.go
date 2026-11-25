@@ -8,6 +8,31 @@ import (
 	"luckytv/backend/internal/model"
 )
 
+func TestCanvasProjectFromJSONRejectsOverlongTitle(t *testing.T) {
+	raw, err := json.Marshal(map[string]any{
+		"id": "canvas-1", "title": strings.Repeat("画", MaxCanvasTitleRunes+1), "revision": 0,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := canvasProjectFromJSON("user-1", raw); err == nil || !strings.Contains(err.Error(), "画布标题不能超过 240 个字符") {
+		t.Fatalf("canvasProjectFromJSON error = %v", err)
+	}
+}
+
+func TestCanvasProjectFromJSONAcceptsTitleAtLimit(t *testing.T) {
+	raw, err := json.Marshal(map[string]any{
+		"id": "canvas-1", "title": strings.Repeat("画", MaxCanvasTitleRunes), "revision": 0,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	project, err := canvasProjectFromJSON("user-1", raw)
+	if err != nil || len([]rune(project.Title)) != MaxCanvasTitleRunes {
+		t.Fatalf("project = %#v, error = %v", project, err)
+	}
+}
+
 func testUserAssetPayload(kind string, extra map[string]any) map[string]any {
 	payload := map[string]any{
 		"id":       "asset-1",

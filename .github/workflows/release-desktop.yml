@@ -22,6 +22,8 @@ permissions:
 
 env:
   GOTOOLCHAIN: local
+  CANONICAL_RELEASE_REPOSITORY: ${{ vars.BEEFTV_RELEASE_REPOSITORY || 'glanderness/LuckyTV' }}
+  DEPTH_RUNTIME_REPOSITORY: ${{ vars.BEEFTV_DEPTH_RUNTIME_REPOSITORY || 'glanderness/LuckyTV' }}
   LUCKYTV_UPDATER_FEED_URL: https://updates.luckyapi.com/luckytv/desktop-update-v2.json
   UPDATER_DOWNLOAD_BASE: https://updates.luckyapi.com/luckytv
   RELEASE_ENDPOINT: ${{ vars.BEEFTV_R2_ENDPOINT }}
@@ -52,8 +54,13 @@ jobs:
             echo "Desktop updater releases can only be dispatched from main. Current ref: ${{ github.ref }}"
             exit 1
           fi
-          if [[ "${{ github.repository }}" != "glanderness/LuckyTV" ]]; then
-            echo "This workflow publishes production updater assets for glanderness/LuckyTV only."
+          if [[ "$CANONICAL_RELEASE_REPOSITORY" != */* || "$DEPTH_RUNTIME_REPOSITORY" != */* ]]; then
+            echo "BEEFTV_RELEASE_REPOSITORY and BEEFTV_DEPTH_RUNTIME_REPOSITORY must be owner/repository."
+            exit 1
+          fi
+          if [[ "$GITHUB_REPOSITORY" != "$CANONICAL_RELEASE_REPOSITORY" ]]; then
+            echo "This workflow publishes production updater assets for $CANONICAL_RELEASE_REPOSITORY only."
+            echo "Set repository variable BEEFTV_RELEASE_REPOSITORY explicitly for a different production repository."
             exit 1
           fi
 
@@ -126,6 +133,7 @@ jobs:
         working-directory: backend
         run: |
           set -euo pipefail
+          node ../scripts/check-release-consistency.mjs
           version="$(tr -d '[:space:]' < ../VERSION)"
           commit="$(git -C .. rev-parse HEAD)"
           if [[ -n "${REUSE_BUILD_RUN_ID:-}" ]]; then
@@ -133,14 +141,14 @@ jobs:
               echo "Invalid reuse_build_run_id: $REUSE_BUILD_RUN_ID"
               exit 1
             fi
-            run_meta="$(gh api "repos/glanderness/LuckyTV/actions/runs/$REUSE_BUILD_RUN_ID")"
+            run_meta="$(gh api "repos/$CANONICAL_RELEASE_REPOSITORY/actions/runs/$REUSE_BUILD_RUN_ID")"
             run_branch="$(jq -r '.head_branch' <<< "$run_meta")"
             run_commit="$(jq -r '.head_sha' <<< "$run_meta")"
             if [[ "$run_branch" != "main" || -z "$run_commit" || "$run_commit" == "null" ]]; then
               echo "Reused build run $REUSE_BUILD_RUN_ID must come from main."
               exit 1
             fi
-            jobs_meta="$(gh api "repos/glanderness/LuckyTV/actions/runs/$REUSE_BUILD_RUN_ID/jobs?per_page=100")"
+            jobs_meta="$(gh api "repos/$CANONICAL_RELEASE_REPOSITORY/actions/runs/$REUSE_BUILD_RUN_ID/jobs?per_page=100")"
             for required_job in "Validate and open draft" "Build darwin-arm64" "Build darwin-amd64" "Build windows-amd64" "Build linux-amd64"; do
               job_conclusion="$(jq -r --arg name "$required_job" '[.jobs[] | select(.name == $name)][0].conclusion // ""' <<< "$jobs_meta")"
               if [[ "$job_conclusion" != "success" ]]; then
@@ -153,7 +161,7 @@ jobs:
           go test ./cmd/update-release
 
           curl --fail --location --retry 3 --max-time 60 \
-            https://github.com/glanderness/LuckyTV/releases/download/depth-runtime-mirrors-v1/depth-runtime-manifest.v2.json \
+            "https://github.com/$DEPTH_RUNTIME_REPOSITORY/releases/download/depth-runtime-mirrors-v1/depth-runtime-manifest.v2.json" \
             --output "$RUNNER_TEMP/depth-manifest.json"
           go run ./cmd/update-release verify-depth --input "$RUNNER_TEMP/depth-manifest.json"
 

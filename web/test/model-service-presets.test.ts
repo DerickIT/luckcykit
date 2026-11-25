@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { applyFetchedChannelModelCatalog } from "../src/lib/channel-model-catalog";
 import { normalizeChannelBaseUrl } from "../src/lib/channel-url";
 import { ModelLogo } from "../src/components/model-logo";
-import { MODEL_SERVICE_PRESETS, builtinPresetIntro, createPluginServiceChannel, createServicePresetChannel, ll2ProtocolsAvailable, ysduiProtocolsAvailable, pluginServices, mergeSavedServiceChannel, presetCatalogFor, serviceConnectionError, serviceModelProfile, servicePresetFor } from "../src/lib/model-service-presets";
+import { MODEL_SERVICE_PRESETS, builtinPresetIntro, createPluginServiceChannel, createServicePresetChannel, explicitProtocolForCapability, ll2ProtocolsAvailable, ysduiProtocolsAvailable, manualModelProfile, pluginServices, mergeSavedServiceChannel, presetCatalogFor, serviceConnectionError, serviceModelProfile, servicePresetFor } from "../src/lib/model-service-presets";
 import { modelConnectionResultDetail, testChannelModelConnection } from "../src/lib/model-connection-test";
 import { channelValidationError, modelConfigChannelStatusLabel } from "../src/pages/settings/channel-settings-pane";
 import { removeManualModelEntry, updateManualModelEntry } from "../src/pages/settings/model-service-editor";
@@ -107,6 +107,19 @@ test("saving a model inherits an enabled channel protocol of the same capability
     expect(serviceModelProfile(channel, { id: "seedance-2.5" }, installed.map((p) => ({ ...p, enabled: false }))).protocol).toBeUndefined();
     expect(serviceModelProfile({ ...channel, interfaceType: "chat-completion" }, { id: "seedance-2.5" }, installed).protocol).toBeUndefined();
     expect(serviceModelProfile(channel, { id: "sd-native-full-2.5" }, installed).protocol).toBe("video-generations-json");
+});
+
+test("manual media selection assigns an enabled protocol and executable capability profile", () => {
+    const channel = createModelChannel({ id: "custom", baseUrl: "https://provider.example/v1", apiFormat: "openai" });
+    expect(explicitProtocolForCapability("image", protocols)).toBe("gemini-image");
+    expect(explicitProtocolForCapability("video", protocols)).toBe("newapi");
+    const imageProfile = manualModelProfile(channel, { id: "opaque-image-model" }, "image", protocols);
+    expect(imageProfile).toMatchObject({ capability: "image", protocol: "gemini-image" });
+    expect(imageProfile.capabilityConfig?.image).toBeDefined();
+    const videoProfile = manualModelProfile(channel, { id: "opaque-video-model" }, "video", protocols);
+    expect(videoProfile).toMatchObject({ capability: "video", protocol: "newapi" });
+    expect(videoProfile.capabilityConfig?.video).toBeDefined();
+    expect(serviceModelProfile(channel, { id: "opaque-video-model" }, protocols, "video").protocol).toBeUndefined();
 });
 
 test("refresh keeps selected/manual models and user capability limits", () => {

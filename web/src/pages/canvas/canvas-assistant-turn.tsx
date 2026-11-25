@@ -186,7 +186,9 @@ export function CanvasAssistantTurnView({ turn, canvasId, sessionId, status, han
                 const skipped = handledProposals.has(dismissedProposalKey(proposal.proposalId));
                 const selectedModel = proposal.modelKey || proposal.model;
                 const videoModels = proposal.production
-                    ? proposal.production.targets.filter((target) => target.kind === "video").map((target) => target.modelKey)
+                    ? (Array.isArray(proposal.production.targets) ? proposal.production.targets : [])
+                        .filter((target) => target.kind === "video")
+                        .map((target) => target.modelKey || proposal.model)
                     : [selectedModel];
                 const profile = proposal.kind === "video" ? resolveModelChannel(config, selectedModel).modelProfiles?.find((item) => item.model === modelOptionName(selectedModel)) : undefined;
                 const priceError = videoModels.filter((model) => seedancePortraitModel(model)).map((model) => portraitGenerationError(config, model)).find(Boolean) || "";

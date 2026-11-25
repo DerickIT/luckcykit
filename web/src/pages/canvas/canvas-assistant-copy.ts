@@ -180,7 +180,7 @@ export function assistantProductionProposalParts(
     awaitingConfirmation = true,
 ): AssistantProductionProposalParts | null {
     if (!proposal.production) return null;
-    const targets = proposal.production.targets;
+    const targets = Array.isArray(proposal.production.targets) ? proposal.production.targets : [];
     const images = targets.filter(t => t.kind === "image").length;
     const videos = targets.filter(t => t.kind === "video");
     const audio = targets.filter(t => t.kind === "audio");
@@ -188,15 +188,17 @@ export function assistantProductionProposalParts(
     const priceSummary = awaitingConfirmation ? proposal.production.estimate?.text : "";
     const header = `整片制作方案：${images} 张图片、${videos.length} 段视频、${audio.length} 段配音${priceSummary ? `\n${priceSummary}` : ""}`;
     const targetLines = targets.map((t) => {
-        const params = Object.entries(t.parameters).filter(([key]) => labels[key]).map(([key,value]) => {
+        const parameters = t.parameters || {};
+        const params = Object.entries(parameters).filter(([key]) => labels[key]).map(([key,value]) => {
             const display = key === "seedreamOptimize" ? (value === "standard" ? "标准" : value === "fast" ? "快速" : value)
                 : key === "seedreamWatermark" ? (value === "true" ? "开启" : "关闭")
                 : key === "seedreamOutputFormat" ? value.toUpperCase() : value;
             return `${labels[key]}：${display}`;
         }).join(" · ");
-        const refs = t.referenceNodeIds.map(id => targets.find(item => item.nodeId === id)?.title || "已有参考素材");
+        const refs = (t.referenceNodeIds || []).map(id => targets.find(item => item.nodeId === id)?.title || "已有参考素材");
         const estimate = awaitingConfirmation ? t.estimate?.text : "";
-        return `${t.title} · ${t.modelKey.split("::").pop()} · ${t.parameters.count || "1"} 个\n${params}${refs.length ? `\n参考：${refs.join("、")}` : ""}${estimate ? `\n费用：${estimate}` : ""}\n${t.kind === "audio" ? "台词" : "提示词"}：${t.prompt}`;
+        const model = t.modelKey?.split("::").pop() || proposal.model;
+        return `${t.title || t.nodeId} · ${model} · ${parameters.count || "1"} 个\n${params}${refs.length ? `\n参考：${refs.join("、")}` : ""}${estimate ? `\n费用：${estimate}` : ""}\n${t.kind === "audio" ? "台词" : "提示词"}：${t.prompt || ""}`;
     });
     const footer = awaitingConfirmation ? "确认后按此方案生成素材，并自动完成声音、字幕和剪辑（可点击下方按钮或直接发送「确认」开始）。素材按所选渠道计费；失败后确认新方案重新生成也会重新计费，新增或修改生成内容时会重新确认。" : "";
     return { header, targetLines, footer };

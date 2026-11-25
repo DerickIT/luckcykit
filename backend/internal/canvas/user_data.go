@@ -21,6 +21,7 @@ const (
 	DefaultCanvasDocumentLimitMB  int64 = 64
 	MaxCanvasDocumentLimitMB      int64 = 512
 	HardRequestMaxBodyBytes       int64 = (MaxCanvasDocumentLimitMB << 20) + (4 << 20)
+	MaxCanvasTitleRunes                 = 240
 	canvasDocumentLimitSettingKey       = "canvas_document_limit_mb"
 )
 
@@ -448,12 +449,16 @@ func canvasProjectFromJSON(userID string, raw json.RawMessage) (model.CanvasProj
 	if id == "" {
 		id = kernel.NewID()
 	}
+	title := strings.TrimSpace(payload.Title)
+	if len([]rune(title)) > MaxCanvasTitleRunes {
+		return model.CanvasProject{}, kernel.BadAuthRequest("画布标题不能超过 240 个字符")
+	}
 	return model.CanvasProject{
 		ID:              id,
 		UserID:          userID,
 		ProjectID:       strings.TrimSpace(payload.ProjectID),
 		LibraryFolderID: strings.TrimSpace(payload.FolderID),
-		Title:           strings.TrimSpace(payload.Title),
+		Title:           title,
 		PayloadJSON:     string(raw),
 		CreatedAt:       createdAt,
 		UpdatedAt:       updatedAt,

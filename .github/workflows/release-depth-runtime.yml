@@ -10,6 +10,9 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  CANONICAL_RELEASE_REPOSITORY: ${{ vars.BEEFTV_RELEASE_REPOSITORY || 'glanderness/LuckyTV' }}
+
 jobs:
   build:
     uses: ./.github/workflows/depth-runtime-windows-check.yml
@@ -30,7 +33,7 @@ jobs:
       - name: Require official main and unused runtime tag
         run: |
           set -euo pipefail
-          test "$GITHUB_REPOSITORY" = glanderness/LuckyTV
+          test "$GITHUB_REPOSITORY" = "$CANONICAL_RELEASE_REPOSITORY"
           test "$GITHUB_REF" = refs/heads/main
           if gh release view depth-runtime-v2 >/dev/null 2>&1 || git ls-remote --exit-code origin refs/tags/depth-runtime-v2 >/dev/null 2>&1; then
             echo 'Runtime release already exists; immutable assets cannot be overwritten.'
