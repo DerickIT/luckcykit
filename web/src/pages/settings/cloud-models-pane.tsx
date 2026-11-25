@@ -1,5 +1,5 @@
 import { Alert, App, Button, Card, Form, Input, List, Spin, Tag } from "antd";
-import { LogIn, LogOut, RefreshCw } from "lucide-react";
+import { LogIn, LogOut, QrCode, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { PageHeader } from "@/components/layout/workspace-page";
@@ -29,6 +29,7 @@ export function CloudModelsPane() {
     const setEmail = useCloudSessionStore((state) => state.setEmail);
     const requestCode = useCloudSessionStore((state) => state.requestCode);
     const verifyCode = useCloudSessionStore((state) => state.verifyCode);
+    const loginWithWeChat = useCloudSessionStore((state) => state.loginWithWeChat);
     const refresh = useCloudSessionStore((state) => state.refresh);
     const logout = useCloudSessionStore((state) => state.logout);
     const [codeSent, setCodeSent] = useState(false);
@@ -84,6 +85,15 @@ export function CloudModelsPane() {
         }
     };
 
+    const submitWeChatLogin = async () => {
+        try {
+            await loginWithWeChat();
+            message.success("微信云端账号已登录");
+        } catch {
+            // Error is rendered by the pane.
+        }
+    };
+
     const points = account?.points;
     const available = account?.availablePoints;
     const reserved = account?.reservedPoints;
@@ -93,28 +103,29 @@ export function CloudModelsPane() {
             <PageHeader title="云端模型" description="登录独立 LuckyTV 云服务，使用托管文本模型。云端账号、点数和本地模型渠道相互独立。" />
             {error ? <Alert className="mb-4" type="error" showIcon message={error} /> : null}
             {!token ? (
-                <Card className="settings-section" title="邮箱登录" extra={<LogIn className="size-4" />}>
+                <Card className="settings-section" title="云端登录" extra={<LogIn className="size-4" />}>
                     <Form layout="vertical" requiredMark={false} onFinish={() => void (codeSent ? submitLogin() : submitCode())}>
                         <Form.Item label="云服务 API 地址" htmlFor="cloud-api-base-url" extra="桌面端会记住地址；浏览器不会保存云端访问令牌。">
                             <Input id="cloud-api-base-url" value={baseURL} onChange={(event) => setBaseURL(event.target.value)} placeholder="https://cloud.example.com/api/v1" />
                         </Form.Item>
-                        <Form.Item label="邮箱" htmlFor="cloud-account-email">
-                            <Input id="cloud-account-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="name@example.com" autoComplete="email" />
-                        </Form.Item>
-                        {codeSent ? (
-                            <Form.Item label="验证码" htmlFor="cloud-account-code">
-                                <Input id="cloud-account-code" value={code} onChange={(event) => setCode(event.target.value.replace(/\D/gu, "").slice(0, 6))} inputMode="numeric" maxLength={6} placeholder="输入邮箱收到的 6 位验证码" autoComplete="one-time-code" />
-                            </Form.Item>
-                        ) : null}
-                        <Button type="primary" htmlType="submit" loading={loading} disabled={!email.trim() || (codeSent && code.length !== 6)}>
-                            {codeSent ? "登录云端" : "发送验证码"}
+                        <Button type="primary" icon={<QrCode className="size-4" />} loading={loading} onClick={() => void submitWeChatLogin()}>
+                            微信扫码登录
                         </Button>
-                        {codeSent ? (
-                            <Button className="ml-2" disabled={cooldown > 0} onClick={() => void submitCode()}>
-                                {cooldown > 0 ? `重新发送（${cooldown}s）` : "重新发送"}
+                        <div className="mt-4 border-t border-border pt-4">
+                            <div className="mb-2 text-sm text-foreground/60">本地沙箱备用登录</div>
+                            <Form.Item label="邮箱" htmlFor="cloud-account-email">
+                                <Input id="cloud-account-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="name@example.com" autoComplete="email" />
+                            </Form.Item>
+                            {codeSent ? (
+                                <Form.Item label="验证码" htmlFor="cloud-account-code">
+                                    <Input id="cloud-account-code" value={code} onChange={(event) => setCode(event.target.value.replace(/\D/gu, "").slice(0, 6))} inputMode="numeric" maxLength={6} placeholder="输入邮箱收到的 6 位验证码" autoComplete="one-time-code" />
+                                </Form.Item>
+                            ) : null}
+                            <Button htmlType="submit" loading={loading} disabled={!email.trim() || (codeSent && code.length !== 6)}>
+                                {codeSent ? "登录沙箱" : "发送沙箱验证码"}
                             </Button>
-                        ) : null}
-                        {codeSent ? <Button className="ml-2" onClick={() => setCodeSent(false)}>更换邮箱</Button> : null}
+                            {codeSent ? <Button className="ml-2" disabled={cooldown > 0} onClick={() => void submitCode()}>{cooldown > 0 ? `重新发送（${cooldown}s）` : "重新发送"}</Button> : null}
+                        </div>
                     </Form>
                 </Card>
             ) : (

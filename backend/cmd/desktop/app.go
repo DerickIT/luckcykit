@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -30,6 +31,8 @@ type DesktopApp struct {
 	mu                      sync.RWMutex
 	migrationMu             sync.Mutex
 	workspaceLockMu         sync.Mutex
+	cloudHandoffMu          sync.Mutex
+	cloudHandoff            *desktopCloudHandoff
 	migrating               bool
 	migrationCancel         context.CancelFunc
 	migrationProgress       desktopstorage.Progress
@@ -111,6 +114,7 @@ func openDesktopRuntimeWithPhase(ctx context.Context, dataDir string, onPhase fu
 }
 
 func (a *DesktopApp) stop(ctx context.Context) error {
+	a.clearCloudHandoff()
 	a.mu.Lock()
 	runtime := a.runtime()
 	a.boot = desktopBootAttempt{
@@ -140,11 +144,33 @@ func (a *DesktopApp) CloudSession(operation, payload string) (string, error) {
 		return "", writeCloudSession(dataDir, payload)
 	case "clear":
 		return "", clearCloudSession(dataDir)
+	case "begin-handoff":
+		return a.beginCloudHandoff(payload)
+	case "poll-handoff":
+		return a.pollCloudHandoff(payload)
+	case "clear-handoff":
+		a.clearCloudHandoff()
+		return "", nil
 	default:
 		return "", errors.New("invalid cloud session operation")
 	}
 }
 
+func validCloudAuthorizationURL(raw string) bool {
+	u, err := url.Parse(strings.TrimSpace(raw))
+	return err == nil && u.Scheme == "https" && u.Host != "" && u.User == nil && u.RawQuery != "" && u.Fragment == ""
+}
+
+func (a *DesktopApp) OpenCloudAuthorizationURL(raw string) error {
+	if !validCloudAuthorizationURL(raw) {
+		return errors.New("invalid cloud authorization URL")
+	}
+	app, err := wailsApp()
+	if err != nil {
+		return err
+	}
+	return app.Browser.OpenURL(strings.TrimSpace(raw))
+}
 
 func (a *DesktopApp) OpenLuckyTVGitHub() error {
 	app, err := wailsApp()

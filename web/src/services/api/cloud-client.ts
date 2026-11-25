@@ -35,6 +35,16 @@ export type CloudLoginResult = {
     expiresAt: string;
 };
 
+export type CloudWeChatAuthorization = {
+    authorizationURL: string;
+    expiresAt: string;
+};
+
+export type CloudHandoff = {
+    code: string;
+    state: string;
+};
+
 export type CloudTask = {
     id: string;
     modelId: string;
@@ -73,6 +83,14 @@ export function requestCloudEmailCode(baseURL: string, email: string, signal?: A
 
 export function verifyCloudEmailCode(baseURL: string, email: string, code: string, signal?: AbortSignal) {
     return requestExternal(createCloudClient(baseURL).post<CloudLoginResult>("/auth/email/verify", { email, code }, { signal }));
+}
+
+export function requestCloudWeChatAuthorization(baseURL: string, handoffURL: string, clientState: string, signal?: AbortSignal) {
+    return requestExternal(createCloudClient(baseURL).get<CloudWeChatAuthorization>("/auth/wechat/start", { params: { handoffURL, clientState }, signal }));
+}
+
+export function exchangeCloudWeChatHandoff(baseURL: string, handoff: CloudHandoff, signal?: AbortSignal) {
+    return requestExternal(createCloudClient(baseURL).post<CloudLoginResult>("/auth/wechat/handoff", handoff, { signal }));
 }
 
 export function getCloudAccount(baseURL: string, token: string, signal?: AbortSignal) {

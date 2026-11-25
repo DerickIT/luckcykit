@@ -2,11 +2,13 @@ import { create } from "zustand";
 
 import {
     defaultCloudApiBaseURL,
+    exchangeCloudWeChatHandoff,
     getCloudAccount,
     getCloudLedger,
     getCloudModels,
     normalizeCloudApiBaseURL,
     requestCloudEmailCode,
+    requestCloudWeChatAuthorization,
     revokeCloudSession,
     verifyCloudEmailCode,
     type CloudAccount,
@@ -31,6 +33,7 @@ type CloudSessionStore = {
     setEmail: (value: string) => void;
     requestCode: () => Promise<void>;
     verifyCode: (code: string) => Promise<void>;
+    loginWithWeChat: () => Promise<void>;
     hydrate: () => Promise<void>;
     refresh: () => Promise<void>;
     logout: () => Promise<void>;
@@ -106,6 +109,45 @@ export const useCloudSessionStore = create<CloudSessionStore>((set, get) => ({
             set({ error: error instanceof Error ? error.message : "验证码验证失败" });
             throw error;
         } finally {
+            set({ loading: false });
+        }
+    },
+    loginWithWeChat: async () => {
+        const binding = getDesktopAppBinding();
+        if (!binding?.CloudSession || !binding.OpenCloudAuthorizationURL) throw new Error("微信扫码登录仅支持桌面客户端");
+        const baseURL = normalizeCloudApiBaseURL(get().baseURL);
+        const clientState = crypto.randomUUID();
+        set({ loading: true, error: null });
+        try {
+            const handoffURL = await binding.CloudSession("begin-handoff", clientState);
+            const authorization = await requestCloudWeChatAuthorization(baseURL, handoffURL, clientState);
+            await binding.OpenCloudAuthorizationURL(authorization.authorizationURL);
+            const deadline = Date.now() + 10 * 60 * 1000;
+            let handoff: { code: string; state: string } | null = null;
+            while (Date.now() < deadline) {
+                await new Promise<void>((resolve) => window.setTimeout(resolve, 500));
+                const raw = await binding.CloudSession("poll-handoff", clientState);
+                if (!raw) continue;
+                const parsed = JSON.parse(raw) as Partial<{ code: string; state: string }>;
+                if (typeof parsed.code !== "string" || typeof parsed.state !== "string" || parsed.state !== clientState) throw new Error("微信登录回调状态无效");
+                handoff = { code: parsed.code, state: parsed.state };
+                break;
+            }
+            if (!handoff) throw new Error("微信扫码登录已超时");
+            const result = await exchangeCloudWeChatHandoff(baseURL, handoff);
+            const session = { baseURL, email: "微信账号", token: result.token, expiresAt: result.expiresAt };
+            try {
+                await writeStoredSession(session);
+            } catch {
+                // Unsupported desktop platforms keep the token in memory for this run.
+            }
+            set({ ...session, hydrated: true });
+            await get().refresh();
+        } catch (error) {
+            set({ error: error instanceof Error ? error.message : "微信登录失败" });
+            throw error;
+        } finally {
+            await binding.CloudSession("clear-handoff", "").catch(() => undefined);
             set({ loading: false });
         }
     },

@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 	"errors"
 	"mime/multipart"
-	"net/http"
-	"net/http/httptest"
+    "net/http"
+    "net/url"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -196,8 +196,58 @@ func TestDesktopAppBoundMethodsStayTiny(t *testing.T) {
 		names = append(names, name)
 	}
 	sort.Strings(names)
-	if !reflect.DeepEqual(names, []string{"CheckForUpdate", "ChooseStorageDirectory", "CleanupPreviousStorage", "CloudSession", "ConfirmUpdateStartup", "ConsumeSkillLink", "DepthComponentStatus", "DownloadDepthComponents", "DownloadUpdate", "ExportStartupDiagnostics", "InstallUpdate", "MigrateStorage", "OpenLuckyTVGitHub", "OpenLuckyTVWebsite", "OpenLuckyTVX", "OpenSkillMarketURL", "OpenUpdateLogDirectory", "PauseDepthComponentDownload", "ReferenceStorageSettings", "ReferenceUploadStatus", "RetryStartup", "SaveEagleMedia", "SaveOwnedArchive", "SaveOwnedArtifact", "SaveOwnedMedia", "SaveReferenceStorage", "StartupState", "StorageMigrationStatus", "StorageSettings", "TestReferenceStorage", "UpdateStatus", "UploadReferenceMedia"}) {
+	if !reflect.DeepEqual(names, []string{"CheckForUpdate", "ChooseStorageDirectory", "CleanupPreviousStorage", "CloudSession", "ConfirmUpdateStartup", "ConsumeSkillLink", "DepthComponentStatus", "DownloadDepthComponents", "DownloadUpdate", "ExportStartupDiagnostics", "InstallUpdate", "MigrateStorage", "OpenCloudAuthorizationURL", "OpenLuckyTVGitHub", "OpenLuckyTVWebsite", "OpenLuckyTVX", "OpenSkillMarketURL", "OpenUpdateLogDirectory", "PauseDepthComponentDownload", "ReferenceStorageSettings", "ReferenceUploadStatus", "RetryStartup", "SaveEagleMedia", "SaveOwnedArchive", "SaveOwnedArtifact", "SaveOwnedMedia", "SaveReferenceStorage", "StartupState", "StorageMigrationStatus", "StorageSettings", "TestReferenceStorage", "UpdateStatus", "UploadReferenceMedia"}) {
 		t.Fatalf("bound methods = %v", names)
+	}
+}
+
+func TestDesktopCloudHandoffAcceptsMatchingLoopbackCallbackOnce(t *testing.T) {
+	app := newDesktopApp(t.TempDir())
+	callbackURL, err := app.beginCloudHandoff("client-state")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer app.clearCloudHandoff()
+	parsed, err := url.Parse(callbackURL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	query := parsed.Query()
+	query.Set("code", "one-time-code")
+	query.Set("state", "client-state")
+	parsed.RawQuery = query.Encode()
+	var response *http.Response
+	for attempt := 0; attempt < 20; attempt++ {
+		response, err = http.Get(parsed.String())
+		if err == nil {
+			break
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer response.Body.Close()
+	if response.StatusCode != http.StatusOK {
+		t.Fatalf("callback status = %d", response.StatusCode)
+	}
+	payload, err := app.pollCloudHandoff("client-state")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var handoff struct {
+		Code  string `json:"code"`
+		State string `json:"state"`
+	}
+	if err := json.Unmarshal([]byte(payload), &handoff); err != nil {
+		t.Fatal(err)
+	}
+	if handoff.Code != "one-time-code" || handoff.State != "client-state" {
+		t.Fatalf("handoff = %#v", handoff)
+	}
+	wrongState, err := app.pollCloudHandoff("other-state")
+	if !errors.Is(err, errInvalidCloudHandoffState) || wrongState != "" {
+		t.Fatalf("wrong state poll = %q, %v", wrongState, err)
 	}
 }
 
