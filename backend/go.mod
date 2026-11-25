@@ -3,7 +3,7 @@ module luckytv/backend
 go 1.27.4
 
 require (
-	github.com/aws/aws-sdk-go-v2 v1.47.3
+	github.com/aws/aws-sdk-go-v2 v1.48.0
 	github.com/gin-gonic/gin v1.12.0
 	github.com/goccy/go-yaml v1.19.2
 	github.com/google/jsonschema-go v0.4.3
@@ -16,6 +16,7 @@ require (
 	go.opentelemetry.io/otel v1.47.0
 	go.opentelemetry.io/otel/sdk v1.47.0
 	go.opentelemetry.io/otel/trace v1.47.0
+	golang.org/x/crypto v0.58.1-0.20261009181718-2f1f834330b2
 	golang.org/x/image v0.45.0
 	golang.org/x/net v0.62.0
 	golang.org/x/sync v0.25.0
@@ -25,7 +26,7 @@ require (
 )
 
 require (
-	github.com/aws/smithy-go v1.28.5 // indirect
+	github.com/aws/smithy-go v1.28.9 // indirect
 	github.com/bytedance/gopkg v0.1.4 // indirect
 	github.com/bytedance/sonic v1.15.2 // indirect
 	github.com/bytedance/sonic/loader v0.5.1 // indirect
@@ -65,7 +66,6 @@ require (
 	go.opentelemetry.io/otel/log v1.47.0 // indirect
 	go.opentelemetry.io/otel/metric v1.47.0 // indirect
 	golang.org/x/arch v0.29.0 // indirect
-	golang.org/x/crypto v0.58.1-0.20261009181718-2f1f834330b2
 	golang.org/x/mod v0.42.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/telemetry v0.0.0-20261009151841-97e8ea77aa2a // indirect
