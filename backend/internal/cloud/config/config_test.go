@@ -88,7 +88,7 @@ func TestSandboxRequiresLoopbackAndNonProduction(t *testing.T) {
 	}{
 		{name: "wildcard listener", vars: map[string]string{"LUCKYTV_CLOUD_SANDBOX": "true", "LUCKYTV_CLOUD_ADDR": ":8081"}, want: "loopback"},
 		{name: "hostname listener", vars: map[string]string{"LUCKYTV_CLOUD_SANDBOX": "true", "LUCKYTV_CLOUD_ADDR": "localhost:8081"}, want: "loopback"},
-        {name: "production missing database", vars: map[string]string{"LUCKYTV_CLOUD_ENV": "production"}, want: "LUCKYTV_CLOUD_DATABASE_URL is required"},
+		{name: "production missing database", vars: map[string]string{"LUCKYTV_CLOUD_ENV": "production"}, want: "LUCKYTV_CLOUD_DATABASE_URL is required"},
 		{name: "shared workspace data directory", vars: map[string]string{"LUCKYTV_CLOUD_DATA_DIR": "../.local/project-workbench-debug", "CANVAS_BACKEND_DATA_DIR": "../.local/project-workbench-debug"}, want: "must not overlap"},
 	} {
 		t.Run(test.name, func(t *testing.T) {
@@ -97,5 +97,22 @@ func TestSandboxRequiresLoopbackAndNonProduction(t *testing.T) {
 				t.Fatalf("expected error containing %q, got %v", test.want, err)
 			}
 		})
+	}
+}
+
+func TestProductionRequiresAllowedOrigins(t *testing.T) {
+	vars := map[string]string{
+		"LUCKYTV_CLOUD_ENV":                    "production",
+		"LUCKYTV_CLOUD_DATABASE_URL":           "postgres://cloud:secret@db.example.com/cloud",
+		"LUCKYTV_CLOUD_WECHAT_APP_ID":          "app-id",
+		"LUCKYTV_CLOUD_WECHAT_APP_SECRET":      strings.Repeat("s", 32),
+		"LUCKYTV_CLOUD_WECHAT_CALLBACK_URL":    "https://cloud.example.com/api/v1/auth/wechat/callback",
+		"LUCKYTV_CLOUD_ADMIN_BOOTSTRAP_SECRET": strings.Repeat("b", 32),
+		"LUCKYTV_CLOUD_ADMIN_BOOTSTRAP_EMAIL":  "admin@example.com",
+		"LUCKYTV_CLOUD_ADMIN_INITIAL_SECRET":   strings.Repeat("i", 32),
+	}
+	_, err := LoadFrom(func(key string) string { return vars[key] })
+	if err == nil || !strings.Contains(err.Error(), "ALLOWED_ORIGINS") {
+		t.Fatalf("missing production origins error = %v", err)
 	}
 }

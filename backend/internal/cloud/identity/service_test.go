@@ -72,6 +72,9 @@ func TestDesktopHandoffCodeIsBoundToStateAndSingleUse(t *testing.T) {
 	if err != nil || parsed.Query().Get("state") != "desktop-state" || parsed.Query().Get("code") == "" {
 		t.Fatalf("invalid handoff URL: %s", handoff.URL)
 	}
+	if _, err := service.ExchangeHandoffCodeWithState(parsed.Query().Get("code"), ""); !errors.Is(err, ErrInvalidOAuthState) {
+		t.Fatalf("handoff exchange without client state accepted: %v", err)
+	}
 	result, err := service.ExchangeHandoffCodeWithState(parsed.Query().Get("code"), "desktop-state")
 	if err != nil || result.Token == "" {
 		t.Fatalf("handoff exchange failed: %+v %v", result, err)

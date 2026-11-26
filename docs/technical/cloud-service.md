@@ -22,19 +22,23 @@ HTTP/router -> handler/DTO -> application use case
 
 统一使用带版本前缀的云 API，例如 `/api/v1`。成功/失败 envelope、错误码与分页风格应与 LuckyTV API 约定协调，但云认证、权限和公网安全配置独立。以下是资源草案，方法、字段和 OAuth 回调方式还需 API review。
 
-### Email OTP Identity（当前实现）
+### Email OTP Identity（沙箱实现）
 
-`POST /api/v1/auth/email/code` 接收邮箱并返回中性 accepted 响应；`POST /api/v1/auth/email/verify` 校验一次性验证码并创建 cloud session。验证码只持久化 HMAC 摘要，使用 fake mailer 或显式 SMTP over TLS 发送，生产环境仍由配置拒绝启动。
+`POST /api/v1/auth/email/code` 接收邮箱并返回中性 accepted 响应；`POST /api/v1/auth/email/verify` 校验一次性验证码并创建 cloud session。验证码只持久化 HMAC 摘要，使用 fake mailer 或显式 SMTP over TLS 发送；生产组合根不挂载邮箱 OTP 路由，邮箱入口仅用于本地沙箱和测试。
 
-### WeChat Identity（未实现的历史草案）
+### WeChat Identity（当前生产登录实现）
 
-| 操作 | 草案端点 | 说明 |
+桌面先在本机随机 loopback 端口创建短期回调地址，再请求 `GET /api/v1/auth/wechat/start?handoffURL=...&clientState=...`。服务端校验回调地址只能是 loopback HTTP、保存一次性 OAuth state，并返回微信授权 URL。微信回调 `GET /api/v1/auth/wechat/callback` 验证 state、兑换 code、强制 UnionID；桌面回调只接收短期 handoff code，不接收云 session。
+
+| 操作 | 端点 | 说明 |
 | --- | --- | --- |
-| 建立扫码会话 | `POST /api/v1/auth/wechat/sessions` | 服务端生成 state、短期轮询凭据与授权 URL |
-| 查询扫码状态 | `GET /api/v1/auth/sessions/{id}` | 只允许短期轮询凭据；返回 pending/confirmed/expired/cancelled |
-| 交换桌面会话 | `POST /api/v1/auth/sessions/{id}/exchange` | 一次性完成兑换，返回云会话材料 |
-| 微信回调 | `GET /api/v1/auth/wechat/callback` | 仅接微信回调，校验 state、code 与配置 |
-| 刷新/退出 | `POST /api/v1/auth/session/refresh`, `/revoke` | 轮换与撤销策略待 token 形式决策 |
+| 建立微信授权 | `GET /api/v1/auth/wechat/start` | 服务端生成短期 state；桌面请求必须同时提供 loopback `handoffURL` 与 `clientState` |
+| 微信回调 | `GET /api/v1/auth/wechat/callback` | 兑换 code、校验 UnionID；桌面场景重定向到一次性 handoff URL |
+| 交换桌面会话 | `POST /api/v1/auth/wechat/handoff` | 接收 `{code,state}`，校验绑定 state，单次兑换为 cloud session |
+| Web 会话 | 微信回调直接设置 `Secure`、`HttpOnly`、`SameSite=Lax` Cookie | 无 handoff 参数时使用；session token 不进入 URL |
+| 刷新/退出 | `POST /api/v1/sessions/revoke` | 当前实现支持会话撤销；刷新策略仍待后续设计 |
+
+生产必须配置 `LUCKYTV_CLOUD_ALLOWED_ORIGINS`，使用逗号分隔的精确 origin（例如 `https://cloud.example.com`）；服务端只允许这些 origin 的 CORS 请求并支持 credentials，拒绝 `*` 和未列出的来源。开发沙箱可按需配置本地 WebView origin。
 
 ### Catalog、Orders、Ledger
 

@@ -88,7 +88,7 @@ func run(ctx context.Context) error {
 	}
 	handler := httpapi.NewRouter(httpapi.Options{
 		SandboxEnabled: cfg.SandboxEnabled, Identity: services.Identity, Admin: services.Admin,
-		EmailOTP: emailOTP, WeChat: wechat, WeChatCallbackURL: cfg.WeChatCallbackURL,
+		EmailOTP: emailOTP, WeChat: wechat, WeChatCallbackURL: cfg.WeChatCallbackURL, AllowedOrigins: cfg.AllowedOrigins,
 		Catalog: services.Catalog, HostedModels: services.HostedModels,
 		Ledger: services.Ledger, Payment: services.Payment, Tasks: services.Tasks,
 	})

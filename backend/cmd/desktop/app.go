@@ -158,7 +158,7 @@ func (a *DesktopApp) CloudSession(operation, payload string) (string, error) {
 
 func validCloudAuthorizationURL(raw string) bool {
 	u, err := url.Parse(strings.TrimSpace(raw))
-	return err == nil && u.Scheme == "https" && u.Host != "" && u.User == nil && u.RawQuery != "" && u.Fragment == ""
+	return err == nil && u.Scheme == "https" && u.Host != "" && u.User == nil && u.RawQuery != "" && (u.Fragment == "" || u.Fragment == "wechat_redirect")
 }
 
 func (a *DesktopApp) OpenCloudAuthorizationURL(raw string) error {

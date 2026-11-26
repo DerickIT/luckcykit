@@ -125,7 +125,9 @@ export const useCloudSessionStore = create<CloudSessionStore>((set, get) => ({
             const deadline = Date.now() + 10 * 60 * 1000;
             let handoff: { code: string; state: string } | null = null;
             while (Date.now() < deadline) {
-                await new Promise<void>((resolve) => window.setTimeout(resolve, 500));
+                const { promise, resolve } = Promise.withResolvers<void>();
+                window.setTimeout(resolve, 500);
+                await promise;
                 const raw = await binding.CloudSession("poll-handoff", clientState);
                 if (!raw) continue;
                 const parsed = JSON.parse(raw) as Partial<{ code: string; state: string }>;

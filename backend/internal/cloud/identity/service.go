@@ -162,7 +162,11 @@ func (s *Service) IssueHandoffCode(accountID, state string) (HandoffResult, erro
 }
 
 func (s *Service) ExchangeHandoffCodeWithState(code, clientState string) (LoginResult, error) {
-	return s.exchangeHandoffCode(code, strings.TrimSpace(clientState))
+	clientState = strings.TrimSpace(clientState)
+	if clientState == "" {
+		return LoginResult{}, ErrInvalidOAuthState
+	}
+	return s.exchangeHandoffCode(code, clientState)
 }
 
 func (s *Service) exchangeHandoffCode(code, clientState string) (LoginResult, error) {

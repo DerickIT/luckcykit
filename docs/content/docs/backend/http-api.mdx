@@ -38,6 +38,10 @@ Wails 和浏览器开发模式共用同一套 `127.0.0.1` HTTP 合同。路由�
 
 独立云服务使用自己的 `/api/v1` 地址。Web Session 使用服务端会话；用户 API Token 使用 `Authorization: Bearer lkt_...`，两者权限分离。Web Session 可访问账户、账本、订单、Token 管理和会话注销；API Token 只可按 scope 访问自己的账户摘要、提交托管模型任务和读取自己的任务，访问账本、订单、Token 管理或注销返回 `403 web_session_required` / `api_token_scope_required`。API Token 创建接口为 `POST /api/v1/tokens`，支持 7/30/90/365 天，默认由客户端传入 90 天；每账号最多 10 个活动 Token。创建响应中的 `token` 明文只出现一次，后续 `GET /api/v1/tokens` 只返回名称、前缀、末四位、scope、过期时间和使用元数据；单个撤销为 `DELETE /api/v1/tokens/:tokenID`，全部撤销为 `POST /api/v1/tokens/revoke-all`。服务端只保存 Token 哈希。
 
+生产云服务使用微信 OAuth 登录。桌面客户端先通过安全桌面绑定创建随机 loopback `handoffURL` 和 `clientState`，调用 `GET /auth/wechat/start` 获取授权地址并在系统浏览器打开；微信回调只把短期一次性 code 回传到 loopback，客户端再调用 `POST /auth/wechat/handoff` 兑换云 session。session token 不放入 URL。`POST /auth/email/code` 与 `POST /auth/email/verify` 只挂载在本地沙箱和测试组合根，不能作为生产登录入口。
+
+生产云 API 必须配置精确的 `LUCKYTV_CLOUD_ALLOWED_ORIGINS` allowlist；服务端只对列出的 origin 返回 CORS credentials 响应，拒绝通配符和未知来源。
+
 云端订单商品包含服务端版本化的人民币分、货币和点数快照；订单创建后不随商品变更。支付确认必须由服务端支付适配器提供 provider、外部事件 ID、账号、币种、金额和幂等键，金额与订单快照不匹配时拒绝。沙箱支付复用同一确认事务；未来微信 Native 异步通知必须先验签，再调用该确认入口，不能直接写账本。
 
 `POST /assistant/ui-session` 返回仅驻留内存、绑定当前 owner 的 `token` 与 `expiresAt`。界面在到期前 30 秒重新签发凭据，同一身份的并发请求共用签发结果；重置或切换身份后旧响应不能恢复旧凭据。签发仍要求原有本机同源与 owner/桌面引导校验。

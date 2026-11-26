@@ -252,6 +252,15 @@ func TestDesktopCloudHandoffAcceptsMatchingLoopbackCallbackOnce(t *testing.T) {
 	}
 }
 
+func TestCloudAuthorizationURLAllowsWeChatRedirectFragmentOnly(t *testing.T) {
+	if !validCloudAuthorizationURL("https://open.weixin.qq.com/connect/qrconnect?appid=app&state=state#wechat_redirect") {
+		t.Fatal("wechat authorization URL was rejected")
+	}
+	if validCloudAuthorizationURL("https://open.weixin.qq.com/connect/qrconnect?appid=app&state=state#unsafe") {
+		t.Fatal("unexpected authorization URL fragment was accepted")
+	}
+}
+
 func TestDesktopAppOptionsUseDarkNativeChrome(t *testing.T) {
 	opts := desktopWindowOptions()
 	want := application.NewRGB(13, 15, 18)

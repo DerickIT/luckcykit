@@ -172,3 +172,23 @@ func requestWithIdempotency(handler http.Handler, path, token, remoteAddr, key s
 	handler.ServeHTTP(response, req)
 	return response
 }
+
+func TestRouterCORSAllowsConfiguredOriginAndRejectsUnknownOrigin(t *testing.T) {
+	handler := NewRouter(Options{AllowedOrigins: []string{"https://cloud.example.com", "wails://wails.localhost"}})
+	allowed := requestWithOrigin(handler, http.MethodOptions, "/api/v1/auth/wechat/start", "https://cloud.example.com")
+	if allowed.Code != http.StatusNoContent || allowed.Header().Get("Access-Control-Allow-Origin") != "https://cloud.example.com" || allowed.Header().Get("Access-Control-Allow-Credentials") != "true" {
+		t.Fatalf("allowed CORS response = %d headers=%v", allowed.Code, allowed.Header())
+	}
+	unknown := requestWithOrigin(handler, http.MethodOptions, "/api/v1/auth/wechat/start", "https://evil.example.com")
+	if unknown.Code != http.StatusForbidden {
+		t.Fatalf("unknown CORS origin status = %d", unknown.Code)
+	}
+}
+
+func requestWithOrigin(handler http.Handler, method, path, origin string) *httptest.ResponseRecorder {
+	req := httptest.NewRequest(method, path, nil)
+	req.Header.Set("Origin", origin)
+	response := httptest.NewRecorder()
+	handler.ServeHTTP(response, req)
+	return response
+}

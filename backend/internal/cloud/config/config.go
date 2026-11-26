@@ -43,6 +43,7 @@ type Config struct {
 	WeChatAppID           string
 	WeChatAppSecret       string
 	WeChatCallbackURL     string
+	AllowedOrigins        []string
 	SandboxEnabled        bool
 	HostedModelsEnabled   bool
 	OneAPIBaseURL         string
@@ -81,6 +82,7 @@ func LoadFrom(getenv func(string) string) (Config, error) {
 		WeChatAppID:           strings.TrimSpace(getenv("LUCKYTV_CLOUD_WECHAT_APP_ID")),
 		WeChatAppSecret:       getenv("LUCKYTV_CLOUD_WECHAT_APP_SECRET"),
 		WeChatCallbackURL:     strings.TrimSpace(getenv("LUCKYTV_CLOUD_WECHAT_CALLBACK_URL")),
+		AllowedOrigins:        splitOrigins(getenv("LUCKYTV_CLOUD_ALLOWED_ORIGINS")),
 	}
 	hostedValue := strings.TrimSpace(getenv("LUCKYTV_CLOUD_HOSTED_MODELS"))
 	if hostedValue != "" {
@@ -113,6 +115,18 @@ func LoadFrom(getenv func(string) string) (Config, error) {
 	return cfg, nil
 }
 
+func splitOrigins(raw string) []string {
+	parts := strings.Split(raw, ",")
+	origins := make([]string, 0, len(parts))
+	for _, part := range parts {
+		origin := strings.TrimRight(strings.TrimSpace(part), "/")
+		if origin != "" {
+			origins = append(origins, origin)
+		}
+	}
+	return origins
+}
+
 func (c Config) Validate() error {
 	if c.Environment != "development" && c.Environment != "test" && c.Environment != "production" {
 		return fmt.Errorf("LUCKYTV_CLOUD_ENV must be development, test, or production")
@@ -137,6 +151,15 @@ func (c Config) Validate() error {
 		}
 		if len(c.AdminBootstrapSecret) < 32 || c.AdminBootstrapEmail == "" || len(c.AdminInitialSecret) < 32 {
 			return fmt.Errorf("production admin bootstrap secret, email, and initial secret are required; secrets must contain at least 32 bytes")
+		}
+	}
+	if c.Environment == "production" && len(c.AllowedOrigins) == 0 {
+		return fmt.Errorf("LUCKYTV_CLOUD_ALLOWED_ORIGINS is required in production")
+	}
+	for _, origin := range c.AllowedOrigins {
+		parsed, err := url.Parse(origin)
+		if err != nil || (parsed.Scheme != "http" && parsed.Scheme != "https" && parsed.Scheme != "wails") || parsed.Host == "" || parsed.User != nil || parsed.Path != "" || parsed.RawQuery != "" || parsed.Fragment != "" {
+			return fmt.Errorf("LUCKYTV_CLOUD_ALLOWED_ORIGINS contains an invalid origin")
 		}
 	}
 	if strings.TrimSpace(c.ListenAddr) == "" {

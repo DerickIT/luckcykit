@@ -22,6 +22,7 @@ type Options struct {
 	EmailOTP          *identity.EmailOTPService
 	WeChat            *identity.WeChatProvider
 	WeChatCallbackURL string
+	AllowedOrigins    []string
 	HostedModels      *catalog.HostedModelService
 	Catalog           *catalog.Service
 	Ledger            *ledger.Service
@@ -43,7 +44,7 @@ func NewRouter(options Options) http.Handler {
 
 	router := gin.New()
 	router.Use(gin.Recovery())
-	router.GET("/health", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"status": "ok", "service": "cloud-sandbox"}) })
+	router.Use(corsMiddleware(options.AllowedOrigins))
 	v1 := router.Group("/api/v1")
 	if options.Admin != nil {
 		v1.POST("/admin/login", administration.login)
@@ -122,4 +123,32 @@ func requireSandboxLoopback() gin.HandlerFunc {
 
 func sandboxLoopbackOnly(c *gin.Context) {
 	c.JSON(http.StatusForbidden, gin.H{"error": "sandbox_loopback_only"})
+}
+
+func corsMiddleware(allowedOrigins []string) gin.HandlerFunc {
+	allowed := make(map[string]struct{}, len(allowedOrigins))
+	for _, origin := range allowedOrigins {
+		allowed[strings.TrimRight(strings.TrimSpace(origin), "/")] = struct{}{}
+	}
+	return func(c *gin.Context) {
+		origin := strings.TrimRight(strings.TrimSpace(c.GetHeader("Origin")), "/")
+		if origin == "" {
+			c.Next()
+			return
+		}
+		if _, ok := allowed[origin]; !ok {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "origin_not_allowed"})
+			return
+		}
+		c.Header("Access-Control-Allow-Origin", origin)
+		c.Header("Vary", "Origin")
+		c.Header("Access-Control-Allow-Credentials", "true")
+		c.Header("Access-Control-Allow-Headers", "Authorization, Content-Type, Idempotency-Key")
+		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+		if c.Request.Method == http.MethodOptions {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
+		c.Next()
+	}
 }
