@@ -158,6 +158,9 @@ func newCanvasHistoryTestService(t *testing.T) *Service {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if pool, err := db.DB(); err == nil {
+		t.Cleanup(func() { _ = pool.Close() })
+	}
 	if err := db.AutoMigrate(
 		&model.CanvasProject{}, &model.CanvasSnapshot{}, &model.CanvasSnapshotResource{}, &model.CanvasUnitLink{},
 		&model.Resource{}, &model.Asset{}, &model.AssetVersion{}, &model.AssetRepresentation{}, &model.AssetFolder{},

@@ -134,6 +134,9 @@ func newHarness(t *testing.T) *harness {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if pool, err := db.DB(); err == nil {
+		t.Cleanup(func() { _ = pool.Close() })
+	}
 	if err = db.AutoMigrate(database.LocalModels()...); err != nil {
 		t.Fatal(err)
 	}

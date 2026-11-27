@@ -87,6 +87,9 @@ func TestSpecializedRoutesBindLocalExecutorRequests(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if pool, err := db.DB(); err == nil {
+		t.Cleanup(func() { _ = pool.Close() })
+	}
 	if err := database.MigrateLocalSchema(db); err != nil {
 		t.Fatal(err)
 	}
@@ -184,6 +187,9 @@ func TestVideoSubtitleEraseRoutesCapabilitiesContractAndModeGuard(t *testing.T) 
 	db, err := gorm.Open(sqlite.Open(filepath.Join(t.TempDir(), "subtitle-erase-routes.db")), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
 	if err != nil {
 		t.Fatal(err)
+	}
+	if pool, err := db.DB(); err == nil {
+		t.Cleanup(func() { _ = pool.Close() })
 	}
 	if err := database.MigrateLocalSchema(db); err != nil {
 		t.Fatal(err)

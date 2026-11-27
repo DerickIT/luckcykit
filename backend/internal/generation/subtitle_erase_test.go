@@ -454,6 +454,9 @@ func TestManagedEnvelopeSubtitleEraseCancelAndReconcile(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if pool, err := db.DB(); err == nil {
+		t.Cleanup(func() { _ = pool.Close() })
+	}
 	if err := db.AutoMigrate(&model.Task{}, &model.RouteAttempt{}, &model.ImageSubmission{}); err != nil {
 		t.Fatal(err)
 	}

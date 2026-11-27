@@ -14,6 +14,9 @@ func TestV13WorkspaceSkillPinMigrationPreservesRounds(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if pool, err := db.DB(); err == nil {
+		t.Cleanup(func() { _ = pool.Close() })
+	}
 	if err := MigrateLocalSchema(db); err != nil {
 		t.Fatal(err)
 	}

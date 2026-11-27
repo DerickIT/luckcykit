@@ -50,6 +50,9 @@ func newAdmissionRepo(t *testing.T) (*Repository, *gorm.DB) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if pool, err := db.DB(); err == nil {
+		t.Cleanup(func() { _ = pool.Close() })
+	}
 	if err := db.AutoMigrate(
 		&model.Task{}, &model.TaskLog{}, &model.Result{}, &model.TaskTextDelta{},
 		&model.Resource{}, &model.UserDailyUploadUsage{}, &model.UserUploadReservation{},

@@ -25,6 +25,9 @@ func newTimelineTaskTestService(t *testing.T) (*Service, *gorm.DB) {
 	if err != nil {
 		t.Fatalf("open sqlite: %v", err)
 	}
+	if pool, err := db.DB(); err == nil {
+		t.Cleanup(func() { _ = pool.Close() })
+	}
 	if err := db.AutoMigrate(database.LocalModels()...); err != nil {
 		t.Fatalf("migrate: %v", err)
 	}

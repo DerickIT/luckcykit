@@ -29,6 +29,9 @@ func newTaskScopeRepoAt(t *testing.T, path string) (*Repository, *gorm.DB, strin
 	if err != nil {
 		t.Fatal(err)
 	}
+	if pool, err := db.DB(); err == nil {
+		t.Cleanup(func() { _ = pool.Close() })
+	}
 	if err := db.AutoMigrate(
 		&model.Task{},
 		&model.TaskTextDelta{},
@@ -67,6 +70,9 @@ func reopenTaskScopeRepo(t *testing.T, db *gorm.DB, path string) (*Repository, *
 	reopened, err := gorm.Open(sqlite.Open(taskScopeDSN(path)), &gorm.Config{})
 	if err != nil {
 		t.Fatal(err)
+	}
+	if pool, err := reopened.DB(); err == nil {
+		t.Cleanup(func() { _ = pool.Close() })
 	}
 	return New(reopened), reopened
 }

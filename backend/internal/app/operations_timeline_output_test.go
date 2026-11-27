@@ -17,7 +17,8 @@ import (
 )
 
 func TestTimelineSubtitleOnlyUpdateAndRenderKeepSavedPortraitOutput(t *testing.T) {
-	if _, err := mediatools.ResolveFFprobe(); err != nil {
+	ffprobe, err := mediatools.ResolveFFprobe()
+	if err != nil {
 		t.Skip("native ffprobe unavailable")
 	}
 	_, db := newTimelineTaskTestService(t)
@@ -126,7 +127,7 @@ func TestTimelineSubtitleOnlyUpdateAndRenderKeepSavedPortraitOutput(t *testing.T
 		t.Fatal(err)
 	}
 	output.Close()
-	probe, err := exec.Command("ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height,r_frame_rate", "-of", "json", output.Name()).Output()
+	probe, err := exec.Command(ffprobe, "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height,r_frame_rate", "-of", "json", output.Name()).Output()
 	if err != nil {
 		t.Fatal(err)
 	}

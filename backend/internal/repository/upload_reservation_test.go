@@ -18,6 +18,9 @@ func newUploadReservationRepo(t *testing.T) *Repository {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if pool, err := db.DB(); err == nil {
+		t.Cleanup(func() { _ = pool.Close() })
+	}
 	if err := db.AutoMigrate(&model.Resource{}, &model.UserDailyUploadUsage{}, &model.UserUploadReservation{}); err != nil {
 		t.Fatal(err)
 	}
@@ -157,6 +160,9 @@ func TestDeleteResourceWithoutReservationTableFails(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if pool, err := db.DB(); err == nil {
+		t.Cleanup(func() { _ = pool.Close() })
+	}
 	if err := db.AutoMigrate(&model.Resource{}); err != nil {
 		t.Fatal(err)
 	}
@@ -180,6 +186,9 @@ func TestClaimFailedThenReserveAfterReopen(t *testing.T) {
 		db, err := gorm.Open(sqlite.Open(path+"?_busy_timeout=5000&_foreign_keys=on"), &gorm.Config{})
 		if err != nil {
 			t.Fatal(err)
+		}
+		if pool, err := db.DB(); err == nil {
+			t.Cleanup(func() { _ = pool.Close() })
 		}
 		if err := db.AutoMigrate(&model.Resource{}, &model.UserDailyUploadUsage{}, &model.UserUploadReservation{}); err != nil {
 			t.Fatal(err)
@@ -228,6 +237,9 @@ func TestClaimFailedSettledThenReserveAfterReopen(t *testing.T) {
 		db, err := gorm.Open(sqlite.Open(path+"?_busy_timeout=5000&_foreign_keys=on"), &gorm.Config{})
 		if err != nil {
 			t.Fatal(err)
+		}
+		if pool, err := db.DB(); err == nil {
+			t.Cleanup(func() { _ = pool.Close() })
 		}
 		if err := db.AutoMigrate(&model.Resource{}, &model.UserDailyUploadUsage{}, &model.UserUploadReservation{}); err != nil {
 			t.Fatal(err)

@@ -21,6 +21,9 @@ func newOpRecordStore(t *testing.T) (*Store, *gorm.DB) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if pool, err := db.DB(); err == nil {
+		t.Cleanup(func() { _ = pool.Close() })
+	}
 	if err := db.AutoMigrate(&model.AgentOpRecord{}); err != nil {
 		t.Fatal(err)
 	}

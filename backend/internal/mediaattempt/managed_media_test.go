@@ -25,6 +25,9 @@ func TestManagedMediaActiveStageAndObserveTiming(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open sqlite: %v", err)
 	}
+	if pool, err := db.DB(); err == nil {
+		t.Cleanup(func() { _ = pool.Close() })
+	}
 	if err := database.MigrateLocalSchema(db); err != nil {
 		t.Fatalf("migrate schema: %v", err)
 	}

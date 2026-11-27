@@ -671,6 +671,9 @@ func openFileProjectService(t *testing.T, path string) (*Service, *gorm.DB) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if pool, err := db.DB(); err == nil {
+		t.Cleanup(func() { _ = pool.Close() })
+	}
 	if err := db.AutoMigrate(
 		&model.Project{},
 		&model.ProjectFolder{},

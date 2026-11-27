@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 	"time"
 )
@@ -51,6 +52,9 @@ func (h *e2eGenerationHarness) confirmState() (bool, bool) {
 func TestE2EGenerationDriverSettlesWhileConfirmInFlight(t *testing.T) {
 	if testing.Short() {
 		t.Skip("spawns the real agent host")
+	}
+	if runtime.GOOS == "windows" {
+		t.Skip("SIGINT delivery to the driver is POSIX-only; covered by Linux CI")
 	}
 	t.Setenv("LUCKYTV_REAL_GEN_TEST_CONFIRM_DELAY_MS", "2000")
 	t.Setenv("LUCKYTV_REAL_GEN_TEST_IMAGE_DELAY_MS", "3000")

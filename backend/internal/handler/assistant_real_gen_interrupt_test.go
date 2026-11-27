@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 	"time"
 )
@@ -41,6 +42,9 @@ func (h *e2eGenerationHarness) videoTaskState() (int, int) {
 func TestE2EGenerationDriverSettlesOnInterrupt(t *testing.T) {
 	if testing.Short() {
 		t.Skip("spawns the real agent host")
+	}
+	if runtime.GOOS == "windows" {
+		t.Skip("SIGINT delivery to the driver is POSIX-only; covered by Linux CI")
 	}
 	harness := newE2EGenerationHarness(t, true)
 	out := t.TempDir()

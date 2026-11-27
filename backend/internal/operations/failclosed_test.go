@@ -45,6 +45,9 @@ func TestMissingDomainBinderFailsClosed(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if pool, err := db.DB(); err == nil {
+		t.Cleanup(func() { _ = pool.Close() })
+	}
 	if err := database.MigrateLocalSchema(db); err != nil {
 		t.Fatal(err)
 	}

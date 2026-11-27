@@ -20,6 +20,9 @@ func TestUpsertGenerationDeliverySurvivesSQLiteReopen(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+		if pool, err := db.DB(); err == nil {
+			t.Cleanup(func() { _ = pool.Close() })
+		}
 		if err := db.AutoMigrate(&model.Task{}, &model.Result{}, &model.Asset{}, &model.AssetVersion{}, &model.AssetRepresentation{}, &model.Resource{}); err != nil {
 			t.Fatal(err)
 		}
@@ -75,6 +78,9 @@ func TestCommitOwnedGenerationDeliveryPreservesEditedMetadata(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if pool, err := db.DB(); err == nil {
+		t.Cleanup(func() { _ = pool.Close() })
+	}
 	if err := db.AutoMigrate(&model.Task{}, &model.Result{}, &model.Asset{}, &model.AssetVersion{}, &model.AssetRepresentation{}, &model.Resource{}); err != nil {
 		t.Fatal(err)
 	}
@@ -111,6 +117,9 @@ func TestCommitOwnedGenerationDeliveryRejectsForeignAsset(t *testing.T) {
 	db, err := gorm.Open(sqlite.Open(path+"?_journal_mode=WAL&_busy_timeout=5000"), &gorm.Config{})
 	if err != nil {
 		t.Fatal(err)
+	}
+	if pool, err := db.DB(); err == nil {
+		t.Cleanup(func() { _ = pool.Close() })
 	}
 	if err := db.AutoMigrate(&model.Task{}, &model.Result{}, &model.Asset{}, &model.AssetVersion{}, &model.AssetRepresentation{}, &model.Resource{}); err != nil {
 		t.Fatal(err)

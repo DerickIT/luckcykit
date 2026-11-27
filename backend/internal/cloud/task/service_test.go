@@ -26,6 +26,9 @@ func newTaskTest(t *testing.T, gateway *modelgateway.Client) (*gorm.DB, *Service
 	if err != nil {
 		t.Fatal(err)
 	}
+	if pool, err := db.DB(); err == nil {
+		t.Cleanup(func() { _ = pool.Close() })
+	}
 	if err := store.Migrate(db); err != nil {
 		t.Fatal(err)
 	}
